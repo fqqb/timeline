@@ -1,0 +1,29 @@
+{
+  "name": "@fqqb/timeline",
+  "version": "1.0.0",
+  "license": "MIT",
+  "author": "Fabian Diet <npm@fqqb.be>",
+  "description": "Library for rendering interactive event timelines",
+  "repository": "github:fqqb/timeline",
+  "scripts": {
+    "build": "tsc --module commonjs && rollup -c rollup.build.js",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run build",
+    "start": "rollup -c rollup.devserver.js -w"
+  },
+  "main": "dist/timeline.umd.js",
+  "module": "dist/timeline.es.js",
+  "typings": "dist/types/index.d.ts",
+  "files": [
+    "dist/"
+  ],
+  "devDependencies": {
+    "@types/node": "^12.12.16",
+    "rollup": "^1.27.9",
+    "rollup-plugin-serve": "^1.0.1",
+    "rollup-plugin-sourcemaps": "^0.4.2",
+    "rollup-plugin-terser": "^5.1.0",
+    "rollup-plugin-typescript2": "^0.25.3",
+    "typescript": "^3.7.3"
+  }
+}
