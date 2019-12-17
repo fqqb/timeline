@@ -1,0 +1,100 @@
+<dl class="methods">
+    {%- for child in include.methods -%}
+        {%- if child.kindString == "Constructor" -%}
+            {%- for signature in child.signatures -%}
+            <dt>
+                <a class="anchor" name="{{ child.name }}"></a>
+                {{- child.name -}}
+                ({%- include tsdoc_signature.html signature=signature -%})
+            </dt>
+            <dd>
+                {% if child.comment %}
+                    <p>{{ child.comment.shortText }}</p>
+                    {%- if child.comment.text -%}
+                        <p>{{ child.comment.text }}</p>
+                    {%- endif -%}
+                {% endif %}
+                {%- if signature.parameters -%}
+                    <dl class="field-list">
+                        <dt>Parameters:</dt>
+                        <dd>
+                            <ul>
+                                {%- for parameter in signature.parameters -%}
+                                    <li>
+                                        <code>{%- include tsdoc_type.html type=parameter.type -%}</code>
+                                        {{ parameter.name }}
+                                        {% if parameter.comment %}
+                                            &ndash;
+                                            {{ parameter.comment.text }}
+                                        {% endif %}
+                                    </li>
+                                {%- endfor -%}
+                            </ul>
+                        </dd>
+                    </dl>
+                {%- endif -%}
+            </dd>
+        {%- endfor -%}
+
+
+        {%- elsif child.kindString == "Method" -%}
+            {%- for signature in child.signatures -%}
+                <dt>
+                    <a class="anchor" name="{{ child.name }}"></a>
+                    {{- child.name -}}
+                    ({%- include tsdoc_signature.html signature=signature -%})
+                </dt>
+                <dd>
+                    {%- if signature.comment -%}
+                        <p class="comment">{{- signature.comment.shortText -}}</p>
+                        {%- if signature.comment.text -%}
+                            <p>{{ signature.comment.text }}</p>
+                        {%- endif -%}
+                    {%- endif -%}
+                    <dl class="field-list">
+                        {%- if signature.parameters -%}
+                            <dt>Parameters:</dt>
+                            <dd>
+                                <ul>
+                                    {%- for parameter in signature.parameters -%}
+                                        <li>
+                                            <code>{%- include tsdoc_type.html type=parameter.type -%}</code>
+                                            {{ parameter.name }}
+                                            {% if parameter.comment %}
+                                                &ndash;
+                                                {{ parameter.comment.text }}
+                                            {% endif %}
+                                        </li>
+                                    {%- endfor -%}
+                                </ul>
+                            </dd>
+                        {%- endif -%}
+                        {%- if signature.type -%}
+                            <dt>Return type:</dt>
+                            <dd><code>{%- include tsdoc_type.html type=signature.type -%}</code></dd>
+                        {%- endif -%}
+                        {%- if signature.typeParameter -%}
+                            <dt>Type constraints:</dt>
+                            <dd>
+                                <ul>
+                                    {%- for parameter in signature.typeParameter -%}
+                                        <li>
+                                            <code>
+                                                {{ parameter.name }} extends
+                                                {% include tsdoc_type.html type=parameter.type %}
+                                            </code>
+                                            {% if parameter.comment %}
+                                                &ndash;
+                                                {{ parameter.comment.text }}
+                                            {% endif %}
+                                        </li>
+                                    {%- endfor -%}
+                                </ul>
+                            </dd>
+                        {%- endif -%}
+                    </dl>
+                </dd>
+            {%- endfor -%}
+        {%- endif -%}
+    {%- endfor -%}
+<dl>

@@ -1,0 +1,8 @@
+{%- for parameter in include.signature.parameters -%}
+    {{- parameter.name -}}
+    {%- if parameter.flags.isOptional -%}?{%- endif -%}
+    {%- if parameter.defaultValue -%}
+        ={{- parameter.defaultValue -}}
+    {%- endif -%}
+    {%- unless forloop.last -%},&nbsp;{%- endunless -%}
+{%- endfor -%}

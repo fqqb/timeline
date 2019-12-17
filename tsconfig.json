@@ -1,7 +1,8 @@
 {
+  "$schema": "http://json.schemastore.org/tsconfig",
   "compilerOptions": {
-    "target": "es5",
-    "module": "es2015",
+    "target": "es6",
+    "module": "es6",
     "strict": true,
     "sourceMap": true,
     "declaration": true,

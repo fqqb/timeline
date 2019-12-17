@@ -1,28 +1,31 @@
 {
-  "name": "@fqqb/timeline",
+  "name": "timenav",
   "version": "1.0.0",
+  "description": "Render events on an interactive timeline chart",
+  "author": "fqqb",
   "license": "MIT",
-  "author": "Fabian Diet <npm@fqqb.be>",
-  "description": "Library for rendering interactive event timelines",
-  "repository": "github:fqqb/timeline",
+  "repository": "fqqb/timenav.js",
+  "homepage": "https://fqqb.github.io/timenav.js",
   "scripts": {
-    "build": "tsc --module commonjs && rollup -c rollup.build.js",
+    "build": "rollup -c",
     "clean": "rm -rf dist",
     "prepublishOnly": "npm run build",
-    "start": "rollup -c rollup.devserver.js -w"
+    "watch": "rollup -cw",
+    "tsdoc": "npx typedoc --excludePrivate --json docs/_data/tsdoc.json",
+    "serve": "cd docs; bundle exec jekyll serve",
+    "jekyll": "npm run tsdoc && npm run serve",
+    "dev": "npx concurrently -n rollup,jekyll -c yellow,magenta npm:watch npm:jekyll"
   },
-  "main": "dist/timeline.umd.js",
-  "module": "dist/timeline.es.js",
-  "typings": "dist/types/index.d.ts",
+  "main": "dist/timenav.umd.js",
+  "module": "dist/timenav.js",
+  "types": "dist/types/index.d.ts",
   "files": [
     "dist/"
   ],
   "devDependencies": {
-    "@types/node": "^12.12.16",
-    "rollup": "^1.27.9",
-    "rollup-plugin-serve": "^1.0.1",
-    "rollup-plugin-sourcemaps": "^0.4.2",
-    "rollup-plugin-terser": "^5.1.0",
+    "@types/node": "^12.12.18",
+    "rollup": "^1.27.13",
+    "rollup-plugin-terser": "^5.1.3",
     "rollup-plugin-typescript2": "^0.25.3",
     "typescript": "^3.7.3"
   }

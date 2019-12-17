@@ -1,0 +1,125 @@
+{% for child in site.data.tsdoc.children -%}
+    {% if child.kind == 1 -%} {% comment %}External Module{% endcomment %}
+        {% for moduleChild in child.children %}
+            {% if moduleChild.name == include.name  %}
+                <div class="tsdoc">
+                    <h1>
+                        <code>
+                            {%- if moduleChild.flags.isAbstract -%}
+                                abstract&nbsp;
+                            {%- endif -%}
+                            {{- moduleChild.kindString | downcase -}}
+                        </code>
+                        {{ moduleChild.name -}}
+                        {%- if moduleChild.typeParameter -%}
+                            &lt;
+                            {%- for parameter in moduleChild.typeParameter -%}
+                                {{- parameter.name -}}
+                            {%- endfor -%}
+                            &gt;
+                        {%- endif -%}
+                        {%- if moduleChild.extendedTypes -%}
+                            <small>
+                                <code>extends</code>
+                                {%- for type in moduleChild.extendedTypes -%}
+                                    &nbsp;{%- include tsdoc_type.html type=type -%}
+                                {%- endfor -%}
+                            </small>
+                        {%- endif -%}
+                        {%- if moduleChild.implementedTypes -%}
+                            <small>
+                                <code>implements</code>
+                                {%- for type in moduleChild.implementedTypes -%}
+                                    &nbsp;{%- include tsdoc_type.html type=type -%}
+                                {%- endfor -%}
+                            </small>
+                        {%- endif -%}
+                    </h1>
+                    {% if moduleChild.comment %}
+                        <p>{{ moduleChild.comment.shortText }}</p>
+                        {%- if moduleChild.comment.text -%}
+                            <p>{{ moduleChild.comment.text }}</p>
+                        {%- endif -%}
+                    {% endif %}
+
+                    {% assign constructors = moduleChild.children | where: "kindString", "Constructor" %}
+                    {% assign properties = moduleChild.children | where: "kindString", "Property" %}
+                    {% assign accessors = moduleChild.children | where: "kindString", "Accessor" %}
+                    {% assign methods = moduleChild.children | where: "kindString", "Method" %}
+
+                    {%- if accessors -%}
+                        {%- assign all_properties = properties | concat:accessors | sort:"name" -%}
+                    {%- else -%}
+                        {%- assign all_properties = properties -%}
+                    {%- endif -%}
+
+                    {%- if methods -%}
+                        {%- assign all_methods = constructors | concat:methods -%}
+                    {%- else -%}
+                        {%- assign all_methods = methods -%}
+                    {%- endif -%}
+
+                    {%- if moduleChild.kindString == "Function" -%}
+                        <dl class="field-list">
+                            {%- for signature in moduleChild.signatures -%}
+                                <dt>
+                                    Signature:
+                                </dt>
+                                <dd>
+                                    <code>
+                                        {%- include tsdoc_call_signature.html signature=signature -%}
+                                    </code>
+                                </dd>
+                            {%- endfor -%}
+                        </dl>
+
+                    {%- else -%}
+                        <dl class="field-list">
+                            {%- assign size = all_properties | size -%}
+                            {%- if size > 0 -%}
+                                <dt>Properties</dt>
+                                <dd>
+                                    {%- for property in all_properties -%}
+                                        <a href="#{{ property.name }}">{{- property.name -}}</a>
+                                        {%- unless forloop.last -%}, {% endunless -%}
+                                    {%- endfor -%}
+                                </dd>
+                            {%- endif -%}
+                            {%- assign size = all_methods | size -%}
+                            {%- if size > 0 -%}
+                                <dt>Methods</dt>
+                                <dd>
+                                    {%- for method in all_methods -%}
+                                        <a href="#{{ method.name }}">{{- method.name -}}</a>
+                                        {%- unless forloop.last -%}, {% endunless -%}
+                                    {%- endfor -%}
+                                </dd>
+                            {%- endif -%}
+                            {%- if moduleChild.implementedBy -%}
+                                <dt>Implemented by</dt>
+                                <dd>
+                                    {%- for type in moduleChild.implementedBy -%}
+                                        {%- include tsdoc_type.html type=type -%}
+                                        {%- unless forloop.last -%}, {% endunless -%}
+                                    {%- endfor -%}
+                                </dd>
+                            {%- endif -%}
+                        </dl>
+
+                        {%- assign size = all_properties | size -%}
+                        {%- if size > 0 -%}
+                            <h2>Properties</h2>
+                            {% include tsdoc_properties.html properties=all_properties %}
+                        {%- endif -%}
+
+                        {%- assign size = all_methods | size -%}
+                        {%- if size > 0 -%}
+                            <h2>Methods</h2>
+                            {% include tsdoc_methods.html methods=all_methods %}
+                        {%- endif -%}
+                    {%- endif -%}
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+{% endfor %}

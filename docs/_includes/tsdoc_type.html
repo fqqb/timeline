@@ -1,0 +1,60 @@
+{%- if include.type.type == 'intrinsic' -%}
+    <span class="type">{{- include.type.name -}}</span>
+
+
+{%- elsif include.type.type == 'reference' -%}
+    {%- if include.type.id -%}
+
+        {%- assign match = nil -%}
+        {%- for page in site.pages -%}
+            {%- if page.title == include.type.name -%}
+                {%- assign match = page -%}
+            {%- endif -%}
+        {%- endfor -%}
+
+        {%- if match -%}
+            <a href="{{ match.url }}">{{- include.type.name -}}</a>
+        {%- else -%}
+            <span style="color: green; font-weight: bold; font-size: 2em;">
+                {{- include.type.name -}}
+            </span>
+        {%- endif -%}
+
+        {%- if include.type.typeArguments -%}&lt;{%- endif -%}
+        {%- for typeArgument in include.type.typeArguments -%}
+            {%- include tsdoc_type.html type=typeArgument -%}
+        {%- endfor -%}
+        {%- if include.type.typeArguments -%}&gt;{%- endif -%}
+
+    {%- else -%}
+        <span class="reference">{{- include.type.name -}}</span>
+    {%- endif -%}
+
+
+{%- elsif include.type.type == 'array' -%}
+    {%- include tsdoc_type.html type=include.type.elementType -%}[]
+
+
+{%- elsif include.type.type == 'union' -%}
+    {%- for type in include.type.types -%}
+        {%- include tsdoc_type.html type=type -%}{%- unless forloop.last -%}&nbsp;|&nbsp;{%- endunless -%}
+    {%- endfor -%}
+
+
+{%- elsif include.type.type == 'typeParameter' -%}
+    {{- include.type.name -}}
+
+
+{%- elsif include.type.type == 'reflection' and include.type.declaration.name == '__type' -%}
+    {%- for signature in include.type.declaration.signatures -%}
+        {%- include tsdoc_call_signature.html signature=signature -%}
+    {%- endfor -%}
+
+{%- elsif include.type.type == 'unknown' -%}
+    {{- include.type.name -}}
+
+{%- else -%}
+    {{- include.type -}}
+
+
+{%- endif -%}

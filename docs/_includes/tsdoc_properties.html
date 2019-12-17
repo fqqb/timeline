@@ -1,0 +1,43 @@
+<dl class="properties">
+    {%- for child in include.properties -%}
+        <dt style="display: flex">
+            <a class="anchor" name="{{ child.name }}"></a>
+            {{- child.name -}}
+            <div style="flex: 1 1 auto"></div>
+            {%- if child.getSignature -%}
+                <span class="tag tag-get">get</span>
+            {%- endif -%}
+            {%- if child.setSignature -%}
+                <span class="tag tag-set">set</span>
+            {%- endif -%}
+        </dt>
+        <dd>
+            {%- if child.comment -%}
+                <p class="comment">{{ child.comment.shortText }}</p>
+                {%- if child.comment.text -%}
+                    <p>{{ child.comment.text }}</p>
+                {%- endif -%}
+            {%- endif -%}
+            <dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code>
+                        {%- if child.type -%}
+                            {% include tsdoc_type.html type=child.type %}
+                        {%- elsif child.setSignature -%}
+                            {%- for signature in child.setSignature -%}
+                                {%- for parameter in signature.parameters -%}
+                                    {%- include tsdoc_type.html type=parameter.type -%}
+                                {%- endfor -%}
+                            {%- endfor -%}
+                        {%- elsif child.getSignature -%}
+                            {%- for signature in child.getSignature -%}
+                                {%- include tsdoc_type.html type=signature.type -%}
+                            {%- endfor -%}
+                        {%- endif -%}
+                    </code>
+                </dd>
+            </dl>
+        </dd>
+    {%- endfor -%}
+</dl>

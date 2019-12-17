@@ -1,11 +1,11 @@
-import { Timeline } from './Timeline';
+import { Timenav } from './Timenav';
 
 export class EventHandling {
 
     private isDown = false;
     private startX?: number;
 
-    constructor(private timeline: Timeline, private canvas: HTMLCanvasElement) {
+    constructor(private timenav: Timenav, private canvas: HTMLCanvasElement) {
         canvas.addEventListener('click', e => this.onClick(e), false);
         canvas.addEventListener('mousedown', e => this.onMouseDown(e), false);
         canvas.addEventListener('mouseup', e => this.onMouseUp(e), false);
@@ -44,8 +44,6 @@ export class EventHandling {
         var bbox = this.canvas.getBoundingClientRect();
         const mouseX = event.clientX - bbox.left;
 
-
-
         if (!this.isDown) {
             return;
         }
@@ -54,12 +52,12 @@ export class EventHandling {
         event.stopPropagation();
 
         console.log('got x', mouseX);
-        // this.timeline.getSidebar().setWidth(mouseX);
+        // this.timenav.getSidebar().setWidth(mouseX);
 
         // dx & dy are the distance the mouse has moved since
         // the last mousemove event
         const dx = mouseX - this.startX!;
-        this.timeline.moveX(-dx);
+        this.timenav.panBy(-dx, false);
 
         // reset the vars for next mousemove
         this.startX = mouseX;

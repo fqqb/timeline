@@ -1,0 +1,18 @@
+<div id="timenav2" style="height: 100px"></div>
+
+<script type="module">
+    import { EventLine, Timenav } from '/assets/timenav.js';
+
+    window.addEventListener('load', () => {
+        const targetEl = document.getElementById('timenav2');
+        const timenav = new Timenav(targetEl);
+
+        const line1 = new EventLine();
+        line1.label = 'Line 1';
+        timenav.addLine(line1);
+
+        const line2 = new EventLine();
+        line2.label = 'Line 2';
+        timenav.addLine(line2);
+    });
+</script>

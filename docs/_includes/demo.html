@@ -1,0 +1,108 @@
+<div class="timenav-with-toolbar">
+    <div class="toolbar">
+        <div class="btn-group">
+            <button class="btn" onclick="toggleSidebar()">
+                <i class="fas fa-fw fa-bars"></i>
+            </button>
+        </div>
+        <div class="btn-group">
+            <button class="btn" onclick="pageLeft()">
+                <i class="fas fa-fw fa-angle-double-left"></i>
+            </button>
+            <button class="btn"
+                    onmousedown="toggleMove(-50)"
+                    onmouseup="untoggleMove()"
+                    onmouseleave="untoggleMove()">
+                <i class="fas fa-fw fa-angle-left"></i>
+            </button>
+            <button class="btn"
+                    onmousedown="toggleMove(50)"
+                    onmouseup="untoggleMove()"
+                    onmouseleave="untoggleMove()">
+                <i class="fas fa-fw fa-angle-right"></i>
+            </button>
+            <button class="btn" onclick="pageRight()">
+                <i class="fas fa-fw fa-angle-double-right"></i>
+            </button>
+        </div>
+        <div class="btn-group">
+            <button class="btn" onclick="jumpToToday()">
+                <i class="far fa-fw fa-calendar"></i>
+                Today
+            </button>
+            <button class="btn" onclick="jumpToNow()">
+                <i class="fas fa-fw fa-crosshairs"></i>
+            </button>
+        </div>
+        <div class="btn-group">
+            <button class="btn" onclick="zoomIn()">
+                <i class="fas fa-fw fa-plus"></i>
+            </button>
+            <button class="btn" onclick="zoomOut()">
+                <i class="fas fa-fw fa-minus"></i>
+            </button>
+        </div>
+    </div>
+    <div id="timenav" style="height: 500px"></div>
+</div>
+
+<script type="module">
+    import { AbsoluteTimeAxis, Timenav, EventLine } from '/assets/timenav.js';
+
+    window.addEventListener('load', () => {
+        const targetEl = document.getElementById('timenav');
+        const timenav = new Timenav(targetEl);
+
+        const axis = timenav.addLine(new AbsoluteTimeAxis());
+        axis.frozen = true;
+
+        const locator = timenav.addNowLocator();
+        locator.knobColor = 'salmon';
+        locator.lineColor = 'salmon';
+
+        for (let i = 0; i < 20; i++) {
+            const line = new EventLine();
+            line.label = 'Line ' + (i + 1);
+            timenav.addLine(line);
+        }
+
+        let moveInterval;
+
+        window.toggleMove = (x) => {
+            timenav.panBy(x);
+            clearInterval(moveInterval);
+            moveInterval = setInterval(() => timenav.panBy(x), 50);
+        };
+
+        window.untoggleMove = () => {
+            clearInterval(moveInterval);
+            moveInterval = undefined;
+        };
+
+        window.pageLeft = () => {
+            const x = timenav.distanceBetween(timenav.start, timenav.stop);
+            timenav.panBy(-x);
+        };
+
+        window.pageRight = () => {
+            const x = timenav.distanceBetween(timenav.start, timenav.stop);
+            timenav.panBy(x);
+        };
+
+        window.zoomIn = () => timenav.zoomIn();
+        window.zoomOut = () => timenav.zoomOut();
+
+        window.jumpToToday = () => {
+            const dt = new Date();
+            dt.setHours(0, 0, 0, 0);
+            const start = dt.getTime();
+            dt.setDate(dt.getDate() + 1);
+            const stop = dt.getTime();
+            timenav.setBounds({ start, stop });
+        };
+
+        window.jumpToNow = () => timenav.panTo(new Date().getTime());
+
+        window.toggleSidebar = () => timenav.sidebar.toggle();
+    });
+</script>

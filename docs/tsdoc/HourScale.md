@@ -1,0 +1,5 @@
+---
+layout: tsdoc
+title: HourScale
+---
+

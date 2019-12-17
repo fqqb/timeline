@@ -1,15 +1,9 @@
-export function toDate(obj: any): Date {
-  if (!obj) {
-    return obj;
-  }
-
-  if (obj instanceof Date) {
-    return obj;
-  } else if (typeof obj === 'number') {
-    return new Date(obj);
-  } else if (typeof obj === 'string') {
-    return new Date(Date.parse(obj));
-  } else {
-    throw new Error(`Cannot convert '${obj}' to Date`);
-  }
+/**
+ * Resizes a canvas, but only if the new bounds are different.
+ */
+export function resizeCanvas(canvas: HTMLCanvasElement, width: number, height: number) {
+    if (canvas.width != width || canvas.height != height) { // Avoid performance hit when resetting width
+        canvas.width = width;
+        canvas.height = height;
+    }
 }

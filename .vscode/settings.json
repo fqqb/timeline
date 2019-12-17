@@ -1,10 +1,20 @@
 {
     "html.format.wrapAttributes": "preserve-aligned",
     "editor.formatOnSave": true,
+    "[html]": {
+        "editor.formatOnSave": false
+    },
     "editor.codeActionsOnSave": {
         "source.organizeImports": true
     },
     "files.insertFinalNewline": true,
+    "files.trimTrailingWhitespace": true,
     "typescript.format.semicolons": "insert",
-    "typescript.preferences.quoteStyle": "single"
+    "typescript.preferences.quoteStyle": "single",
+    "search.exclude": {
+        "**/dist": true,
+        "**/docs/_site": true,
+        "**/docs/assets/timenav.js": true,
+        "**/docs/assets/timenav.js.map": true
+    }
 }
