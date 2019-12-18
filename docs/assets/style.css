@@ -8,10 +8,19 @@ body {
     color: rgba(0, 0, 0, .6);
     background-color: #f5f5f5;
     min-height: 100%;
+    -webkit-font-smoothing: antialiased;
+    -webkit-font-smoothing: antialiased;
 }
 
-h1, h2, h3, h4, h5, h6, p, blockquote, pre, ul, ol, dl, figure, .highlight {
+h2, h3, h4, h5, h6, p, blockquote, pre, ul, ol, dl, figure, .highlight {
     margin-bottom: 15px;
+}
+
+h1 {
+    margin: 0 0 20px;
+    font-weight: 300;
+    font-size: 34px;
+    line-height: 40px;
 }
 
 .tsdoc dl.methods>dt, dl.properties>dt {
@@ -77,10 +86,6 @@ h1, h2, h3, h4, h5, h6, p, blockquote, pre, ul, ol, dl, figure, .highlight {
     margin-bottom: 0.5em;
 }
 
-.tsdoc main {
-    display: block;
-}
-
 img {
     max-width: 100%;
     vertical-align: middle;
@@ -102,7 +107,7 @@ li>ul, li>ol {
     margin-bottom: 0;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h2, h3, h4, h5, h6 {
     font-weight: 400;
 }
 
@@ -156,14 +161,14 @@ pre>code {
     max-width: 1200px;
     margin-right: auto;
     margin-left: auto;
-    padding-right: 30px;
-    padding-left: 30px;
 }
 
-.wrapper:after {
-    content: "";
-    display: table;
-    clear: both;
+.page-content {
+    background-color: white;
+    border: 1px solid #e8e8e8;
+    padding: 30px;
+    min-height: 700px;
+    margin-bottom: 60px;
 }
 
 table {
@@ -194,19 +199,12 @@ table td {
 }
 
 .site-header {
-    background-color: #f5f5f5;
-    border-bottom: 1px solid #e8e8e8;
     height: 60px;
-    position: fixed;
-    width: 100%;
-    z-index: 10;
 }
 
 a.anchor {
     display: block;
     position: relative;
-    top: -60px;
-    /* reverse of fixed site-header ... */
 }
 
 .site-title {
@@ -216,7 +214,7 @@ a.anchor {
     letter-spacing: -1px;
     margin-bottom: 0;
     float: left;
-    padding-left: 20px;
+    margin-left: 30px;
 }
 
 .site-title, .site-title:visited {
@@ -256,59 +254,6 @@ a.anchor {
 .site-nav .page-link:hover, .site-nav .page-link.active {
     color: orangered;
     text-decoration: none;
-}
-
-@media screen and (max-width: 600px) {
-    .site-nav {
-        position: absolute;
-        top: 9px;
-        right: 15px;
-        background-color: #f5f5f5;
-        border: 1px solid #e8e8e8;
-        border-radius: 5px;
-        text-align: right;
-    }
-    .site-nav label[for="nav-trigger"] {
-        display: block;
-        float: right;
-        width: 36px;
-        height: 36px;
-        z-index: 2;
-        cursor: pointer;
-    }
-    .site-nav .menu-icon {
-        display: block;
-        float: right;
-        width: 36px;
-        height: 26px;
-        line-height: 0;
-        padding-top: 10px;
-        text-align: center;
-    }
-    .site-nav .menu-icon>svg {
-        fill: #424242;
-    }
-    .site-nav input~.trigger {
-        clear: both;
-        display: none;
-    }
-    .site-nav input:checked~.trigger {
-        display: block;
-        padding-bottom: 5px;
-    }
-    .site-nav .page-link {
-        display: block;
-        padding: 5px 10px;
-        margin-left: 20px;
-    }
-    .site-nav .page-link:not(:last-child) {
-        margin-right: 0;
-    }
-}
-
-.page-content {
-    padding: 30px 0;
-    padding-top: 96px;
 }
 
 .page-heading {
@@ -627,18 +572,19 @@ h1 small {
 }
 
 .sidebar {
-    border-right: 1px solid #e8e8e8;
-    position: fixed;
+    position: absolute;
     top: 60px;
-    height: 100%;
-    width: 300px;
-    overflow: auto;
+    left: calc(((100% - 1200px) / 2) - 200px);
+    width: 200px;
+    margin-top: 2em;
 }
 
 .sidebar h3 {
-    margin-top: 1em;
-    margin-bottom: 0.5em;
-    margin-left: 20px;
+    margin-top: 2em;
+    color: rgba(0, 0, 0, .65);
+    font-weight: 700;
+    font-size: 13px;
+    line-height: 16px;
 }
 
 .sidebar ul {
@@ -653,10 +599,9 @@ h1 small {
 .sidebar li a, .sidebar li a:visited {
     display: block;
     text-decoration: none;
-    height: 2em;
-    line-height: 2em;
-    padding-left: 20px;
-    color: salmon;
+    line-height: 24px;
+    font-size: 13px;
+    color: #202124;
 }
 
 .sidebar li a:hover, .sidebar li.active a {
@@ -664,11 +609,12 @@ h1 small {
     color: orangered;
 }
 
+.sidebar li.active a {
+    font-weight: bold;
+}
+
 @media print {
     .sidebar, header {
         display: none;
-    }
-    main.page-content {
-        padding-top: 0;
     }
 }

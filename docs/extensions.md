@@ -1,7 +1,7 @@
 ---
-layout: docs
+layout: base
 title: Extensions
-permalink: /docs/extensions/
+permalink: /extensions/
 ---
 
 # Extensions
@@ -16,7 +16,7 @@ A Timenav instance is composed of three main component types:
 
 All three component types are drawn with HTML5 Canvas technology, and it is possible to implement your own draw logic using custom implementations of the above components.
 
-Note that a **Line** instance could also at the same time be a **Decoration**. For example, the [AbsoluteTimeAxis](/docs/AbsoluteTimeAxis) has an option to extend major ticks over the full height of the main area, it does this by implementing the [Decoration](/docs/Decoration) interface in addition to the [Line](/docs/Line) interface.
+Note that a **Line** instance could also at the same time be a **Decoration**. For example, the [AbsoluteTimeAxis](/api/AbsoluteTimeAxis) has an option to extend major ticks over the full height of the main area, it does this by implementing the [Decoration](/api/Decoration) interface in addition to the [Line](/api/Line) interface.
 
 If you are confused about our use of the word *interface*, know that the `timenav.js` library is written with Typescript, and then transpiled to ES6 JavaScript. This does not mean you have to do the same. All examples on this website are written in vanilla ES6 JavaScript so that they can be used directly in any modern web browser.
 
@@ -26,6 +26,6 @@ If you are confused about our use of the word *interface*, know that the `timena
 
 ## Custom Sidebar
 
-The default sidebar is only useful if you can limit your use case to rendering labels. Anything fancier, such as rendering imagery or adding custom interactions require you to either extend the [DefaultSidebar](/docs/DefaultSidebar) or write your own implementation.
+The default sidebar is only useful if you can limit your use case to rendering labels. Anything fancier, such as rendering imagery or adding custom interactions require you to either extend the [DefaultSidebar](/api/DefaultSidebar) or write your own implementation.
 
-Note that the sidebar must be drawn on an HTML5 Canvas. If this is too limiting, you are recommended to disable the Timenav sidebar, and instead compose one yourself in plain HTML. See this [Example](/docs/examples/todo) for a start. By hooking into the event system, you can be informed of changes in line height.
+Note that the sidebar must be drawn on an HTML5 Canvas. If this is too limiting, you are recommended to disable the Timenav sidebar, and instead compose one yourself in plain HTML. See this [Example](/api/examples/todo) for a start. By hooking into the event system, you can be informed of changes in line height.

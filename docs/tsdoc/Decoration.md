@@ -1,4 +1,0 @@
----
-layout: tsdoc
-title: Decoration
----

@@ -1,0 +1,15 @@
+---
+---
+<!doctype html>
+<html>
+<body style="padding: 0; margin: 0">
+    <div id="timenav" style="height: 100px"></div>
+    <script type="module">
+        import { Timenav } from '{{- site.dist -}}';
+        window.addEventListener('load', () => {
+            const targetEl = document.getElementById('timenav');
+            new Timenav(targetEl);
+        });
+    </script>
+</body>
+</html>

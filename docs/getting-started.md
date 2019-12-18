@@ -1,38 +1,36 @@
 ---
-layout: docs
+layout: base
 title: Getting Started
-permalink: /docs/
+permalink: /getting-started/
 ---
 
 # Getting Started
 
-With the <tt>timenav.js</tt> library you can render a Timenav component onto a HTML DOM Element.
-
-A minimal setup looks like this:
+The minimal setup for creating a Timenav component looks like this:
 
 ```html
 <!doctype html>
 <html>
 <body>
-    <div id="timeline" style="height: 100px"></div>
+    <div id="timenav" style="height: 100px"></div>
     <script type="module">
-        import { Timeline } from 'https://unpkg.com/timenav/timenav.js';
+        import { Timenav } from 'https://unpkg.com/timenav/timenav.js';
         window.addEventListener('load', () => {
-            const targetEl = document.getElementById('timeline');
-            new Timeline(targetEl);
+            const targetEl = document.getElementById('timenav');
+            new Timenav(targetEl);
         });
     </script>
 </body>
 </html>
 ```
 
-When creating a Timenav instance, you must specify an existing HTML DOM element as the host. This is typically a `<div>`, but any block element will do.
+You must specify an existing HTML DOM element as the host. This is typically a `<div>`, but any block element will do.
 
-What is important is that the host element has a height. In this example we use an inline CSS rule to set the height to `100px`, but you could also use percentage-based dimensions. A Timenav instance will automatically use all of the available space of the host (based on the computed `clientHeight` and `clientWidth` properties).
+A Timenav instance will automatically use all of the available space of its host element, based on the effective `clientHeight` and `clientWidth` properties. In this example we use an inline CSS rule to set the height to `100px`, but you can also use other other means to set the height.
 
 While functional, our first Timenav is rather bare-bones:
 
-{% include getting-started1.html %}
+{% include embedded-timenav.html src="/examples/empty.html" height="100px" %}
 
 We see just two empty panels: a **sidebar** and the **main area**. Notice how the sidebar can be resized with the mouse.
 
@@ -74,4 +72,4 @@ Let's do that, and replace our event data with absolute timestamps too.
 
 {% include getting-started3.html %}
 
-We've also added an [AbsoluteTimeAxis](/docs/AbsoluteTimeAxis/) to this example. This is a special type of [Line](/docs/Line/) that renders an autoranged timescale. This built-in axis has support for displaying absolute time in UTC or local time formats only. For other use cases you are recommended to write a custom [Line](/docs/Line) subclass.
+We've also added an [AbsoluteTimeAxis](/api/AbsoluteTimeAxis/) to this example. This is a special type of [Line](/api/Line/) that renders an autoranged timescale. This built-in axis has support for displaying absolute time in UTC or local time formats only. For other use cases you are recommended to write a custom [Line](/api/Line) subclass.
