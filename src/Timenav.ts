@@ -1,19 +1,16 @@
 import { AnimatableProperty } from './AnimatableProperty';
 import { Bounds } from './Bounds';
-import { Decoration } from './Decoration';
 import { DefaultSidebar } from './DefaultSidebar';
+import { Drawable } from './Drawable';
 import { EventHandling } from './EventHandling';
 import { Line } from './Line';
 import { Sidebar } from './Sidebar';
-import { TimeLocator } from './TimeLocator';
 import * as utils from './utils';
 
 export class Timenav {
 
     private _sidebar?: Sidebar;
-
-    private _lines: Line<any>[] = [];
-    private _decorations: Decoration[] = [];
+    private _drawables: Drawable[] = [];
 
     private rootPanel: HTMLDivElement;
     private scrollPanel: HTMLDivElement;
@@ -134,12 +131,12 @@ export class Timenav {
     }
 
     /**
-     * Returns the leftmost visible start time.
+     * The leftmost visible start time.
      */
     get start() { return this._start.value; }
 
     /**
-     * Returns the rightmost visible stop time.
+     * The rightmost visible stop time.
      */
     get stop() { return this._stop.value; }
 
@@ -150,9 +147,6 @@ export class Timenav {
     get sidebar() { return this._sidebar; }
     set sidebar(sidebar: Sidebar | undefined) {
         this._sidebar = sidebar;
-        if (sidebar) {
-            sidebar.addMutationListener(() => this.requestRepaint());
-        }
     }
 
     /**
@@ -179,26 +173,17 @@ export class Timenav {
         return this.ctx.canvas.width - sidebarWidth;
     }
 
-    addLine<T extends Line<any>>(line: T): T {
-        line.addMutationListener(() => this.requestRepaint());
-        this._lines.push(line);
-        this.requestRepaint();
-        return line;
-    }
-
-    addNowLocator() {
-        return this.addTimeLocator(() => new Date().getTime());
-    }
-
-    addTimeLocator(timeProvider: () => number) {
-        return this.addDecoration(new TimeLocator(timeProvider));
-    }
-
-    addDecoration<T extends Decoration>(decoration: T): T {
-        decoration.addMutationListener(() => this.requestRepaint());
-        this._decorations.push(decoration);
-        this.requestRepaint();
-        return decoration;
+    /**
+     * @hidden
+     */
+    add<T extends Drawable>(drawable: T): T {
+        if (drawable instanceof Sidebar) {
+            this.sidebar = drawable;
+        } else if (this._drawables.indexOf(drawable) === -1) {
+            this._drawables.push(drawable);
+            this.requestRepaint();
+        }
+        return drawable;
     }
 
     /**
@@ -238,11 +223,7 @@ export class Timenav {
     }
 
     getLines() {
-        return [...this._lines];
-    }
-
-    getDecorations() {
-        return [...this._decorations];
+        return this._drawables.filter(l => l instanceof Line) as Line<any>[];
     }
 
     /**
@@ -295,13 +276,6 @@ export class Timenav {
         this.setBounds({ start, stop }, animate);
     }
 
-    get backgroundColor() { return this._backgroundOddColor; }
-    set backgroundColor(backgroundColor: string) {
-        this._backgroundOddColor = backgroundColor;
-        this._backgroundEvenColor = backgroundColor;
-        this.requestRepaint();
-    }
-
     get backgroundOddColor() { return this._backgroundOddColor; };
     set backgroundOddColor(backgroundOddColor: string) {
         this._backgroundOddColor = backgroundOddColor;
@@ -339,27 +313,40 @@ export class Timenav {
     }
 
     private drawScreen() {
-        let innerHeight = 0;
-        for (const line of this._lines) {
-            line.calculateLayout();
-            innerHeight += line.height;
+        for (const drawable of this._drawables) {
+            drawable.beforeDraw();
+        }
+
+        const lines = this.getLines().filter(l => l.frozen)
+            .concat(this.getLines().filter(l => !l.frozen));
+
+        let y = 0;
+        let contentHeight = 0;
+        for (const line of lines) {
+            line.coords.x = 0;
+            line.coords.y = y;
+            line.coords.width = this.mainWidth;
+            line.coords.height = line.calculatePreferredHeight();
+
+            contentHeight += line.height;
+            y += line.height;
         }
 
         this.rootPanel.style.height = this.targetElement.clientHeight + 'px';
 
-        if (innerHeight > this.scrollPanel.clientHeight) {
+        if (contentHeight > this.scrollPanel.clientHeight) {
             this.scrollPanel.style.overflowY = 'scroll';
         } else {
             this.scrollPanel.style.overflowY = 'hidden';
         }
 
         let width = this.scrollPanel.clientWidth;
-        const height = Math.max(innerHeight, this.scrollPanel.clientHeight);
+        const height = Math.max(contentHeight, this.scrollPanel.clientHeight);
         utils.resizeCanvas(this.ctx.canvas, width, height);
 
         this.ctx.fillStyle = this.backgroundOddColor;
         this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
-        this.sidebar?.draw(this.ctx);
+        this.sidebar?.drawContent(this.ctx);
 
         const tmpCanvas = this.drawOffscreen(this.mainWidth, height);
         const x = this.sidebar?.clippedWidth || 0;
@@ -374,19 +361,33 @@ export class Timenav {
         canvas.height = height;
         const ctx = canvas.getContext('2d')!;
 
-        const lines = this._lines.filter(l => l.frozen)
-            .concat(this._lines.filter(l => !l.frozen));
-
-        let y = 0;
         let backgroundColor = this.backgroundOddColor;
-        for (const line of lines) {
-            line.draw(ctx, this, y, backgroundColor);
-            backgroundColor = (backgroundColor === this.backgroundOddColor) ? this.backgroundEvenColor : this.backgroundOddColor;
-            y += line.height;
+        for (const drawable of this._drawables) {
+
+            if (drawable instanceof Line) {
+                ctx.fillStyle = backgroundColor;
+                ctx.fillRect(drawable.x, drawable.y, ctx.canvas.width, drawable.height);
+
+                // Bottom horizontal divider
+                ctx.lineWidth = 1;
+                ctx.strokeStyle = this.rowBorderColor!;
+                const dividerY = drawable.y + drawable.height - 0.5;
+                ctx.beginPath();
+                ctx.moveTo(0, dividerY);
+                ctx.lineTo(ctx.canvas.width, dividerY);
+                ctx.stroke();
+                backgroundColor = (backgroundColor === this.backgroundOddColor) ? this.backgroundEvenColor : this.backgroundOddColor;
+            }
+
+            drawable.drawUnderlay(ctx);
         }
 
-        for (const decoration of this.getDecorations()) {
-            decoration.draw(ctx, this);
+        for (const drawable of this._drawables) {
+            drawable.drawContent(ctx);
+        }
+
+        for (const drawable of this._drawables) {
+            drawable.drawOverlay(ctx);
         }
 
         return canvas;
@@ -399,7 +400,7 @@ export class Timenav {
         const width = this.ctx.canvas.width;
 
         let height = 0;
-        for (const line of this._lines) {
+        for (const line of this.getLines()) {
             if (line.frozen) {
                 height += line.height;
             }

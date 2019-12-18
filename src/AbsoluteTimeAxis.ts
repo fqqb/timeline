@@ -16,13 +16,12 @@ export class AbsoluteTimeAxis extends Line<void> {
     private _utc = false;
     private _scale?: Scale;
 
-    draw(ctx: CanvasRenderingContext2D, timenav: Timenav, y: number, backgroundColor: string) {
-        super.draw(ctx, timenav, y, backgroundColor);
+    drawContent(ctx: CanvasRenderingContext2D) {
         if (this.scale) {
-            this.scale.draw(ctx, timenav, y, this);
+            this.scale.draw(ctx, this.timenav, this.y, this);
         } else {
             const scale = this.determineScale();
-            scale.draw(ctx, timenav, y, this);
+            scale.draw(ctx, this.timenav, this.y, this);
         }
     }
 

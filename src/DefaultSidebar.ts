@@ -1,6 +1,5 @@
 import { Line } from './Line';
 import { Sidebar } from './Sidebar';
-import { Timenav } from './Timenav';
 
 export class DefaultSidebar extends Sidebar {
 
@@ -12,11 +11,7 @@ export class DefaultSidebar extends Sidebar {
     private _fontFamily = 'Verdana, Geneva, sans-serif';
     private _textSize = 10;
 
-    constructor(timenav: Timenav) {
-        super(timenav);
-    }
-
-    draw(ctx: CanvasRenderingContext2D) {
+    drawContent(ctx: CanvasRenderingContext2D) {
         const tmpCanvas = this.drawOffscreen(this.width, ctx.canvas.height);
         ctx.drawImage(tmpCanvas, 0, 0);
     }

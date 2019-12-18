@@ -1,35 +1,25 @@
-import { Timenav } from './Timenav';
+import { Drawable } from './Drawable';
 
-export abstract class Line<T> {
+export interface DrawCoordinates {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+}
 
-    /**
-     * Optional identifier.
-     *
-     * This is available as a user-convenience for callback handling,
-     * and not checked for unicity.
-     */
-    id?: string;
-    protected lineHeight = 20;
+export abstract class Line<T> extends Drawable {
 
     private _label?: string;
     private _frozen = false;
     private _data?: T;
-    private _height = this.lineHeight;
 
-    private mutationListeners: Array<() => void> = [];
-
-    addMutationListener(mutationListener: () => void) {
-        if (this.mutationListeners.indexOf(mutationListener) === -1) {
-            this.mutationListeners.push(mutationListener);
-        }
-    }
-
-    removeMutationListener(mutationListener: () => void) {
-        const idx = this.mutationListeners.indexOf(mutationListener);
-        if (idx !== -1) {
-            this.mutationListeners.splice(idx, 1);
-        }
-    }
+    /** @hidden */
+    coords: DrawCoordinates = {
+        x: 0,
+        y: 0,
+        width: 0,
+        height: 0,
+    };
 
     /**
      * Custom data associated with this line.
@@ -63,49 +53,27 @@ export abstract class Line<T> {
         this.reportMutation();
     }
 
-    /**
-     * Mark this line as dirty. This method is intended for use in Line subclasses
-     * only and should be called in the implementation of set accessors.
-     *
-     * Based on this information, a Timenav instance will know when to recalculate
-     * a new animation frame.
-     *
-     * @category extensions
-     */
-    protected reportMutation() {
-        this.mutationListeners.forEach(listener => listener());
-    }
-
-    /**
-     * Gets called from inside the render loop, but before anything is actually drawn.
-     *
-     * @category extensions
-     */
-    calculateLayout() {
-        this._height = this.lineHeight;
+    calculatePreferredHeight() {
+        return 20;
     }
 
     /**
      * The height of this line.
      */
-    get height() {
-        return this._height;
-    }
+    get height() { return this.coords.height; }
 
     /**
-     * @category extensions
+     * The width of this line.
      */
-    draw(ctx: CanvasRenderingContext2D, timenav: Timenav, y: number, backgroundColor: string) {
-        ctx.fillStyle = backgroundColor;
-        ctx.fillRect(0, y, ctx.canvas.width, this.height);
+    get width() { return this.coords.width; }
 
-        // Bottom horizontal divider
-        ctx.lineWidth = 1;
-        ctx.strokeStyle = timenav.rowBorderColor!;
-        const dividerY = y + this.height - 0.5;
-        ctx.beginPath();
-        ctx.moveTo(0, dividerY);
-        ctx.lineTo(ctx.canvas.width, dividerY);
-        ctx.stroke();
-    }
+    /**
+     * The X-coordinate of this line.
+     */
+    get x() { return this.coords.x; }
+
+    /**
+     * The Y-coordinate of this line.
+     */
+    get y() { return this.coords.y; }
 }

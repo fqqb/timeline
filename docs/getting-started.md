@@ -45,11 +45,11 @@ The main area defaults to showing a numeric range between 0 and 100. We can use 
 ```javascript
 const line1 = new EventLine();
 line1.label = 'Line 1';
-timenav.addLine(line1);
+timenav.add(line1);
 
 const line2 = new EventLine();
 line2.label = 'Line 2';
-timenav.addLine(line2);
+timenav.add(line2);
 
 line1.data = [
     { start: 20, stop: 40, label: 'Event 1' },

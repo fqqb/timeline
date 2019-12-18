@@ -18,10 +18,6 @@ import { Timenav } from 'timenav';
 
 var targetEl = document.getElementById('timenav');
 var timenav = new Timenav(targetEl);
-
-timenav.addAxis();
-timenav.addLine();
-timenav.addNowLocator();
 ```
 
 

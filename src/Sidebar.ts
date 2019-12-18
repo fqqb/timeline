@@ -1,37 +1,11 @@
-import { AnimatableProperty } from './AnimatableProperty';
-import { Timenav } from './Timenav';
+import { Drawable } from './Drawable';
 
-export abstract class Sidebar {
+export abstract class Sidebar extends Drawable {
 
-    protected _width = 200;
-    protected _backgroundColor = 'white';
-    protected _clippedWidth: AnimatableProperty;
-    protected _opened = true;
-
-    private mutationListeners: Array<() => void> = [];
-
-    constructor(protected readonly timenav: Timenav) {
-        this._clippedWidth = timenav.createAnimatableProperty(this._width);
-    }
-
-    addMutationListener(mutationListener: () => void) {
-        if (this.mutationListeners.indexOf(mutationListener) === -1) {
-            this.mutationListeners.push(mutationListener);
-        }
-    }
-
-    removeMutationListener(mutationListener: () => void) {
-        const idx = this.mutationListeners.indexOf(mutationListener);
-        if (idx !== -1) {
-            this.mutationListeners.splice(idx, 1);
-        }
-    }
-
-    protected reportMutation() {
-        this.mutationListeners.forEach(listener => listener());
-    }
-
-    abstract draw(ctx: CanvasRenderingContext2D): void;
+    private _width = 200;
+    private _backgroundColor = 'white';
+    private _clippedWidth = this.createAnimatableProperty(this._width);
+    private _opened = true;
 
     /**
      * The user-controlled pixel width of this sidebar.

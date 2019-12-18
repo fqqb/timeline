@@ -1,7 +1,7 @@
-import { Decoration } from './Decoration';
+import { Drawable } from './Drawable';
 import { Timenav } from './Timenav';
 
-export class TimeLocator extends Decoration {
+export class TimeLocator extends Drawable {
 
     private _knobColor = 'red';
     private _knobRadius = 3;
@@ -9,13 +9,13 @@ export class TimeLocator extends Decoration {
     private _lineWidth = 1;
     private _lineDash: number[] = [];
 
-    constructor(private timeProvider: () => number) {
-        super();
+    constructor(timenav: Timenav, private timeProvider: () => number) {
+        super(timenav);
     }
 
-    draw(ctx: CanvasRenderingContext2D, timenav: Timenav) {
+    drawOverlay(ctx: CanvasRenderingContext2D) {
         const t = this.timeProvider();
-        const x = timenav.positionTime(t);
+        const x = this.timenav.positionTime(t);
 
         ctx.strokeStyle = this.lineColor;
         ctx.lineWidth = this.lineWidth;

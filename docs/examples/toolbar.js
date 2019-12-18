@@ -1,20 +1,19 @@
-import { AbsoluteTimeAxis, EventLine, Timenav } from '/assets/timenav.js';
+import { AbsoluteTimeAxis, EventLine, TimeLocator, Timenav } from '/assets/timenav.js';
 
 window.addEventListener('load', () => {
     const targetEl = document.getElementById('timenav');
     const timenav = new Timenav(targetEl);
 
-    const axis = timenav.addLine(new AbsoluteTimeAxis());
+    const axis = new AbsoluteTimeAxis(timenav);
     axis.frozen = true;
 
-    const locator = timenav.addNowLocator();
+    const locator = new TimeLocator(timenav, () => new Date().getTime());
     locator.knobColor = 'salmon';
     locator.lineColor = 'salmon';
 
-    for (let i = 0; i < 20; i++) {
-        const line = new EventLine();
+    for (let i = 0; i < 30; i++) {
+        const line = new EventLine(timenav);
         line.label = 'Line ' + (i + 1);
-        timenav.addLine(line);
     }
 
     const dt = new Date();
