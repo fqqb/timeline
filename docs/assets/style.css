@@ -9,7 +9,8 @@ body {
     background-color: #f5f5f5;
     min-height: 100%;
     -webkit-font-smoothing: antialiased;
-    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    counter-reset: my-sec-counter;
 }
 
 h2, h3, h4, h5, h6, p, blockquote, pre, ul, ol, dl, figure, .highlight {
@@ -21,6 +22,10 @@ h1 {
     font-weight: 300;
     font-size: 34px;
     line-height: 40px;
+}
+
+h2 {
+    margin-top: 40px;
 }
 
 .tsdoc dl.methods>dt, dl.properties>dt {
@@ -613,8 +618,32 @@ h1 small {
     font-weight: bold;
 }
 
+.timenav-embedded-demo iframe {
+    border: 0;
+    width: 100%;
+    box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2), 0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12);
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+.timenav-embedded-demo .caption {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: small;
+}
+
+.timenav-embedded-demo .caption::before {
+    counter-increment: my-sec-counter;
+    content: 'Example ' counter(my-sec-counter) '. ';
+}
+
 @media print {
     .sidebar, header {
         display: none;
+    }
+    .page-content {
+        margin: 0;
+        padding: 0;
+        border: 0;
     }
 }

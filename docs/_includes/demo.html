@@ -66,6 +66,13 @@
             timenav.addLine(line);
         }
 
+        const dt = new Date();
+        dt.setHours(0, 0, 0, 0);
+        const start = dt.getTime();
+        dt.setDate(dt.getDate() + 1);
+        const stop = dt.getTime();
+        timenav.setBounds({ start, stop });
+
         let moveInterval;
 
         window.toggleMove = (x) => {

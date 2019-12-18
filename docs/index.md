@@ -1,5 +1,7 @@
 ---
 layout: base
+title: About timenav.js
+order: 10
 ---
 
 **timenav.js** is a framework-agnostic JavaScript library for rendering interactive timeline charts such as this:

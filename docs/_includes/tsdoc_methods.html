@@ -9,9 +9,9 @@
             </dt>
             <dd>
                 {% if child.comment %}
-                    <p>{{ child.comment.shortText }}</p>
+                    {{ child.comment.shortText | markdownify }}
                     {%- if child.comment.text -%}
-                        <p>{{ child.comment.text }}</p>
+                        {{ child.comment.text | markdownify }}
                     {%- endif -%}
                 {% endif %}
                 {%- if signature.parameters -%}
@@ -25,7 +25,7 @@
                                         {{ parameter.name }}
                                         {% if parameter.comment %}
                                             &ndash;
-                                            {{ parameter.comment.text }}
+                                            {{ parameter.comment.text | markdownify }}
                                         {% endif %}
                                     </li>
                                 {%- endfor -%}
@@ -46,9 +46,9 @@
                 </dt>
                 <dd>
                     {%- if signature.comment -%}
-                        <p class="comment">{{- signature.comment.shortText -}}</p>
+                        {{- signature.comment.shortText | markdownify -}}
                         {%- if signature.comment.text -%}
-                            <p>{{ signature.comment.text }}</p>
+                            {{ signature.comment.text | markdownify }}
                         {%- endif -%}
                     {%- endif -%}
                     <dl class="field-list">
@@ -62,7 +62,7 @@
                                             {{ parameter.name }}
                                             {% if parameter.comment %}
                                                 &ndash;
-                                                {{ parameter.comment.text }}
+                                                {{ parameter.comment.text | markdownify }}
                                             {% endif %}
                                         </li>
                                     {%- endfor -%}
@@ -85,7 +85,7 @@
                                             </code>
                                             {% if parameter.comment %}
                                                 &ndash;
-                                                {{ parameter.comment.text }}
+                                                {{ parameter.comment.text | markdownify }}
                                             {% endif %}
                                         </li>
                                     {%- endfor -%}

@@ -36,9 +36,9 @@
                         {%- endif -%}
                     </h1>
                     {% if moduleChild.comment %}
-                        <p>{{ moduleChild.comment.shortText }}</p>
+                        {{ moduleChild.comment.shortText | markdownify }}
                         {%- if moduleChild.comment.text -%}
-                            <p>{{ moduleChild.comment.text }}</p>
+                            {{ moduleChild.comment.text | markdownify }}
                         {%- endif -%}
                     {% endif %}
 

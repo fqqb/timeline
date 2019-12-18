@@ -3,3 +3,8 @@ theme: null
 # Dist used in examples
 dist: '/assets/timenav.js'
 #dist: 'https://unpkg.com/timenav/timenav.js'
+
+collections:
+  api:
+    output: true
+    permalink: /:collection/:path/

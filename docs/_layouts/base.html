@@ -63,30 +63,22 @@
 
     <div class="sidebar">
         <ul>
-            <li class="{% if page.url == '/' %}active{% endif %}">
-                <a href="/">About timenav.js</a>
-            </li>
-            <li class="{% if page.url == '/getting-started/' %}active{% endif %}">
-                <a href="/getting-started/">Getting Started</a>
-            </li>
-            <li class="{% if page.url == '/data/' %}active{% endif %}">
-                <a href="/data/">Providing Data</a>
-            </li>
-            <li class="{% if page.url == '/extensions/' %}active{% endif %}">
-                <a href="/extensions/">Extensions</a>
-            </li>
+            {% assign sorted_pages = site.pages | sort:"order" %}
+            {% for p in sorted_pages %}
+                <li class="{% if page.url == p.url %}active{% endif %}">
+                    <a href="{{- p.url -}}">{{- p.title -}}</a>
+                </li>
+            {% endfor %}
         </ul>
 
         <h3>
             API Reference
         </h3>
         <ul>
-            {%- for p in site.pages -%}
-                {%- if p.tsdoc -%}
-                    <li class="{% if p.url == page.url %}active{% endif %}">
-                        <a href="{{- p.url -}}">{{- p.title -}}</a>
-                    </li>
-                {%- endif -%}
+            {%- for p in site.api -%}
+                <li class="{% if p.url == page.url %}active{% endif %}">
+                    <a href="{{- p.url -}}">{{- p.title -}}</a>
+                </li>
             {%- endfor -%}
         </ul>
     </div>
