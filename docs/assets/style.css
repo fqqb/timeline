@@ -528,54 +528,6 @@ h1 small {
     font-size: 1rem;
 }
 
-.btn {
-    background-color: white;
-    border: none;
-    color: black;
-    padding: 6px 8px;
-    font-size: 12px;
-    cursor: pointer;
-    box-shadow: 0 3px 1px -2px rgba(0, 0, 0, .2), 0 2px 2px 0 rgba(0, 0, 0, .14), 0 1px 5px 0 rgba(0, 0, 0, .12);
-}
-
-.btn:hover {
-    background-color: #f5f5f5;
-}
-
-.btn-group {
-    display: inline-block;
-    font-size: 0;
-    margin-right: 5px;
-}
-
-.btn-group .btn {
-    margin-left: 0;
-    margin-right: 1px;
-}
-
-.btn-group .btn:first-child {
-    border-top-left-radius: 3px;
-    border-bottom-left-radius: 3px;
-}
-
-.btn-group .btn:last-child {
-    border-top-right-radius: 3px;
-    border-bottom-right-radius: 3px;
-}
-
-.timenav-with-toolbar {
-    box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2), 0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12);
-    margin-top: 30px;
-    margin-bottom: 45px;
-}
-
-.toolbar {
-    background-color: salmon;
-    height: 50px;
-    line-height: 50px;
-    padding-left: 1em;
-}
-
 .sidebar {
     position: absolute;
     top: 60px;
@@ -618,7 +570,7 @@ h1 small {
     font-weight: bold;
 }
 
-.timenav-embedded-demo iframe {
+.timenav-demo iframe {
     border: 0;
     width: 100%;
     box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2), 0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12);
@@ -626,13 +578,13 @@ h1 small {
     margin-bottom: 15px;
 }
 
-.timenav-embedded-demo .caption {
+.timenav-demo .caption {
     text-align: center;
     margin-bottom: 30px;
     font-size: small;
 }
 
-.timenav-embedded-demo .caption::before {
+.timenav-demo .caption::before {
     counter-increment: my-sec-counter;
     content: 'Example ' counter(my-sec-counter) '. ';
 }

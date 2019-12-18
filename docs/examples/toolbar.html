@@ -1,0 +1,54 @@
+---
+---
+<!doctype html>
+<html>
+<head>
+    <link rel="stylesheet" href="toolbar.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.11.2/css/all.min.css">
+    <script type="module" src="toolbar.js"></script>
+</head>
+<body>
+    <div class="toolbar">
+        <div class="btn-group">
+            <button onclick="toggleSidebar()">
+                <i class="fas fa-fw fa-bars"></i>
+            </button>
+        </div>
+        <div class="btn-group">
+            <button onclick="pageLeft()">
+                <i class="fas fa-fw fa-angle-double-left"></i>
+            </button>
+            <button onmousedown="toggleMove(-50)"
+                    onmouseup="untoggleMove()"
+                    onmouseleave="untoggleMove()">
+                <i class="fas fa-fw fa-angle-left"></i>
+            </button>
+            <button onmousedown="toggleMove(50)"
+                    onmouseup="untoggleMove()"
+                    onmouseleave="untoggleMove()">
+                <i class="fas fa-fw fa-angle-right"></i>
+            </button>
+            <button onclick="pageRight()">
+                <i class="fas fa-fw fa-angle-double-right"></i>
+            </button>
+        </div>
+        <div class="btn-group">
+            <button onclick="jumpToToday()">
+                <i class="far fa-fw fa-calendar"></i>
+                Today
+            </button>
+            <button onclick="jumpToNow()">
+                <i class="fas fa-fw fa-crosshairs"></i>
+            </button>
+        </div>
+        <div class="btn-group">
+            <button onclick="zoomIn()">
+                <i class="fas fa-fw fa-plus"></i>
+            </button>
+            <button onclick="zoomOut()">
+                <i class="fas fa-fw fa-minus"></i>
+            </button>
+        </div>
+    </div>
+    <div id="timenav" style="height: 500px"></div>
+</html>

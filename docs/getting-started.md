@@ -31,9 +31,9 @@ A Timenav instance will automatically use all of the available space of its host
 
 While functional, our first Timenav looks rather bare-bones:
 
-{% include embedded-timenav.html src="/examples/getting-started1.html"
-                                 height="100px"
-                                 caption="An empty timenav" %}
+{% include demo.html src="/examples/getting-started1.html"
+                     height="100px"
+                     caption="An empty timenav" %}
 
 We see just two empty panels: a **sidebar** and the **main area**. Notice how the sidebar can be resized with the mouse.
 
@@ -62,9 +62,9 @@ line2.data = [
 ];
 ```
 
-{% include embedded-timenav.html src="/examples/getting-started2.html"
-                                 height="100px"
-                                 caption="First data" %}
+{% include demo.html src="/examples/getting-started2.html"
+                     height="100px"
+                     caption="First data" %}
 
 Event 4 is not fully visible, but you can use the mouse to pan the Timenav canvas.
 
@@ -75,10 +75,8 @@ If we consider time to be milliseconds since 1 January 1970 UTC, we can use Java
 
 Let's do that, and replace our event data with absolute timestamps too.
 
-{% include embedded-timenav.html src="/examples/getting-started3.html"
-                                 height="100px"
-                                 caption="Absolute time" %}
+{% include demo.html src="/examples/getting-started3.html"
+                     height="100px"
+                     caption="Absolute time" %}
 
-We've also added an [AbsoluteTimeAxis](/api/AbsoluteTimeAxis/) to this example. This is a special type of [Line](/api/Line/) that renders an autoranged timescale. This built-in axis has support for displaying absolute time in UTC or local time formats only. For other use cases you are recommended to write a custom [Line](/api/Line) subclass.
-
-well {{ page.next }}
+We've also added an [AbsoluteTimeAxis](/api/AbsoluteTimeAxis/) to this example. This is a special type of [Line](/api/Line/) that renders an autoranged timescale. This built-in axis has support for displaying absolute time in UTC or local time formats only. For other use cases you are recommended to write a custom [Line](/api/Line/) subclass.

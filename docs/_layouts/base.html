@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="/assets/style.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.11.2/css/all.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Roboto+Mono&display=swap">
-    <title>{% if page.title %}{{ page.title }} | timenav.js{% else %}timenav.js{% endif %}</title>
+    <title>{{ page.title }} | timenav.js</title>
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-154715249-1"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
@@ -17,6 +17,15 @@
         gtag('config', 'UA-154715249-1');
     </script>
 </head>
+
+{%- assign sorted_pages = site.pages | sort:"order" -%}
+{%- assign next_page = nil -%}
+{%- for p in sorted_pages -%}
+    {%- if p.order > page.order -%}
+        {%- assign next_page = p -%}
+        {%- break -%}
+    {%- endif -%}
+{%- endfor -%}
 
 <body>
     <header class="site-header">
@@ -37,11 +46,6 @@
                 <div class="trigger">
                     <a class="page-link"
                        href="https://www.npmjs.com/package/timenav"
-                       title="JSFiddle">
-                        <i class="fab fa-jsfiddle" style="font-size: 24px; vertical-align: middle;"></i>
-                    </a>
-                    <a class="page-link"
-                       href="https://www.npmjs.com/package/timenav"
                        title="npm">
                         <i class="fab fa-npm" style="font-size: 24px; vertical-align: middle;"></i>
                     </a>
@@ -58,12 +62,20 @@
     <div class="wrapper">
         <div class="page-content">
             {{ content }}
+
+            {%- if next_page -%}
+                <div style="text-align: right; margin-top: 5em;">
+                    <a href="{{ next_page.url }}">
+                        {{ next_page.title }}
+                        <i class="fas fa-chevron-circle-right"></i>
+                    </a>
+                </div>
+            {%- endif -%}
         </div>
     </div>
 
     <div class="sidebar">
         <ul>
-            {% assign sorted_pages = site.pages | sort:"order" %}
             {% for p in sorted_pages %}
                 <li class="{% if page.url == p.url %}active{% endif %}">
                     <a href="{{- p.url -}}">{{- p.title -}}</a>
