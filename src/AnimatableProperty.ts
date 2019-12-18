@@ -37,10 +37,14 @@ export class AnimatableProperty {
      * @param time0 initial wallclock time
      * @param dst the target value of the transition
      */
-    setTransition(time0: number, dst: number) {
-        this.time0 = time0;
-        this.src = this.value;
-        this.dst = dst;
+    setTransition(time0: number | undefined, dst: number) {
+        if (time0 === undefined) {
+            this._value = dst;
+        } else {
+            this.time0 = time0;
+            this.src = this.value;
+            this.dst = dst;
+        }
     }
 
     /**

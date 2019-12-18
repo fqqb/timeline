@@ -124,8 +124,8 @@ export class Timenav {
      */
     setBounds(bounds: Bounds, animate = true) {
         if (this.animated && animate) {
-            this._start.setTransition(this.frameTime!, bounds.start);
-            this._stop.setTransition(this.frameTime!, bounds.stop);
+            this._start.setTransition(this.frameTime, bounds.start);
+            this._stop.setTransition(this.frameTime, bounds.stop);
         } else {
             this._start.value = bounds.start;
             this._stop.value = bounds.stop;
