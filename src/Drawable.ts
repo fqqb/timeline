@@ -13,6 +13,7 @@ export abstract class Drawable {
     private mutationListeners: Array<() => void> = [];
 
     constructor(readonly timenav: Timenav) {
+        this.timenav = timenav;
         timenav.add(this);
     }
 

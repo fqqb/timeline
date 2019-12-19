@@ -5,7 +5,16 @@ import { Drawable } from './Drawable';
 import { EventHandling } from './EventHandling';
 import { Line } from './Line';
 import { Sidebar } from './Sidebar';
-import * as utils from './utils';
+
+/**
+ * Resizes a canvas, but only if the new bounds are different.
+ */
+function resizeCanvas(canvas: HTMLCanvasElement, width: number, height: number) {
+    if (canvas.width != width || canvas.height != height) { // Avoid performance hit when resetting width
+        canvas.width = width;
+        canvas.height = height;
+    }
+}
 
 export class Timenav {
 
@@ -313,10 +322,6 @@ export class Timenav {
     }
 
     private drawScreen() {
-        for (const drawable of this._drawables) {
-            drawable.beforeDraw();
-        }
-
         const lines = this.getLines().filter(l => l.frozen)
             .concat(this.getLines().filter(l => !l.frozen));
 
@@ -342,7 +347,7 @@ export class Timenav {
 
         let width = this.scrollPanel.clientWidth;
         const height = Math.max(contentHeight, this.scrollPanel.clientHeight);
-        utils.resizeCanvas(this.ctx.canvas, width, height);
+        resizeCanvas(this.ctx.canvas, width, height);
 
         this.ctx.fillStyle = this.backgroundOddColor;
         this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
@@ -360,6 +365,10 @@ export class Timenav {
         canvas.width = width;
         canvas.height = height;
         const ctx = canvas.getContext('2d')!;
+
+        for (const drawable of this._drawables) {
+            drawable.beforeDraw();
+        }
 
         let backgroundColor = this.backgroundOddColor;
         for (const drawable of this._drawables) {
@@ -406,7 +415,7 @@ export class Timenav {
             }
         }
 
-        utils.resizeCanvas(this.frozenCanvas, width, height);
+        resizeCanvas(this.frozenCanvas, width, height);
         if (height) {
             frozenCtx.drawImage(this.ctx.canvas, 0, 0);
         }

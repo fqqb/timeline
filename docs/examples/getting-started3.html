@@ -18,17 +18,14 @@
 
             timenav.setBounds({start: start.getTime(), stop: stop.getTime()}, true);
 
-            const axis = new AbsoluteTimeAxis();
+            const axis = new AbsoluteTimeAxis(timenav);
             axis.label = 'Time';
-            timenav.add(axis);
 
-            const line1 = new EventLine();
+            const line1 = new EventLine(timenav);
             line1.label = 'Line 1';
-            timenav.add(line1);
 
-            const line2 = new EventLine();
+            const line2 = new EventLine(timenav);
             line2.label = 'Line 2';
-            timenav.add(line2);
         });
     </script>
 </body>

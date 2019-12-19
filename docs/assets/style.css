@@ -71,12 +71,12 @@ h2 {
 }
 
 .tsdoc dl.field-list>dt {
-    flex-basis: 20%;
+    flex-basis: 15%;
     margin-top: 0.5em;
 }
 
 .tsdoc dl.field-list>dd {
-    flex-basis: 70%;
+    flex-basis: 80%;
     padding: 0;
     margin: 0;
     margin-top: 0.5em;
