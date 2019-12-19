@@ -57,4 +57,10 @@ export abstract class Drawable {
 
     drawOverlay(ctx: CanvasRenderingContext2D) {
     }
+
+    /**
+     * Called when this drawable is removed from its Timenav.
+     */
+    disconnectedCallback() {
+    }
 }

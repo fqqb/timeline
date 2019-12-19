@@ -12,8 +12,9 @@ export abstract class Sidebar extends Drawable {
      */
     get width() { return this._width; }
     set width(width: number) {
+        this._opened = true;
         this._width = width;
-        this._clippedWidth.value = Math.min(width, this._clippedWidth.value);
+        this._clippedWidth.value = width;
         this.reportMutation();
     }
 

@@ -2,7 +2,7 @@ import { AnimatableProperty } from './AnimatableProperty';
 import { Bounds } from './Bounds';
 import { DefaultSidebar } from './DefaultSidebar';
 import { Drawable } from './Drawable';
-import { EventHandling } from './EventHandling';
+import { EventHandler } from './EventHandler';
 import { TimenavEvent, TimenavEventHandlers, TimenavEventMap } from './events';
 import { Line } from './Line';
 import { Sidebar } from './Sidebar';
@@ -86,7 +86,7 @@ export class Timenav {
             // console.log('scroll', this.scrollPane.scrollTop);
         });
 
-        new EventHandling(this, canvas);
+        new EventHandler(this, canvas);
 
         this.frozenCanvas = document.createElement('canvas');
         this.frozenCanvas.className = 'timenav-frozen';
@@ -207,6 +207,15 @@ export class Timenav {
             throw new Error(`Unknown event '${type}'`);
         }
         this.eventListeners[type].push(listener);
+    }
+
+    removeEventListener<K extends keyof TimenavEventMap>(type: K, listener: ((ev: TimenavEventMap[K]) => void)): void;
+    removeEventListener(type: string, listener: (ev: TimenavEvent) => void): void {
+        if (!(type in this.eventListeners)) {
+            throw new Error(`Unknown event '${type}'`);
+        }
+        this.eventListeners[type] = this.eventListeners[type]
+            .filter((el: any) => (el !== listener));
     }
 
     fireEvent(type: string, event: TimenavEvent) {

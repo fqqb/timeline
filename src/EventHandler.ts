@@ -1,10 +1,12 @@
 import { ViewportMouseMoveEvent, ViewportMouseOutEvent } from './events';
 import { Timenav } from './Timenav';
 
-export class EventHandling {
+export class EventHandler {
 
-    private isDown = false;
-    private startX?: number;
+    private grabTarget?: 'DIVIDER' | 'VIEWPORT';
+    private grabMouseX?: number;
+
+    private isDividerHover = false;
     private isViewportHover = false;
 
     constructor(private timenav: Timenav, private canvas: HTMLCanvasElement) {
@@ -25,15 +27,25 @@ export class EventHandling {
 
         // calc the starting mouse X,Y for the drag
         var bbox = this.canvas.getBoundingClientRect();
-        this.startX = event.clientX - bbox.left;
+        const mouseX = event.clientX - bbox.left;
 
-        this.isDown = true;
+        if (this.timenav.sidebar) {
+            const sidebarWidth = this.timenav.sidebar.clippedWidth;
+            if (sidebarWidth - 5 < mouseX && mouseX <= sidebarWidth + 5) {
+                this.grabTarget = 'DIVIDER';
+                this.grabMouseX = mouseX;
+                return;
+            }
+        }
+
+        this.grabTarget = 'VIEWPORT';
+        this.grabMouseX = mouseX;
     }
 
     private onCanvasMouseUp(event: MouseEvent) {
         event.preventDefault();
         event.stopPropagation();
-        this.isDown = false;
+        this.grabTarget = undefined;
     }
 
     private onCanvasMouseOut(event: MouseEvent) {
@@ -42,7 +54,7 @@ export class EventHandling {
 
         event.preventDefault();
         event.stopPropagation();
-        this.isDown = false;
+        this.grabTarget = undefined;
     }
 
     private onCanvasMouseMove(event: MouseEvent) {
@@ -50,13 +62,24 @@ export class EventHandling {
         const mouseX = event.clientX - bbox.left;
         const sidebarWidth = this.timenav.sidebar?.clippedWidth || 0;
 
-        const overSidebar = mouseX <= sidebarWidth;
-        const overViewport = sidebarWidth < mouseX && mouseX <= this.timenav.width;
+        let overSidebar;
+        let overDivider;
+        let overViewport;
+        if (this.timenav.sidebar) {
+            overSidebar = mouseX <= sidebarWidth - 5;
+            overDivider = !overSidebar && mouseX <= sidebarWidth + 5;
+            overViewport = !overSidebar && !overDivider;
+        } else {
+            overSidebar = false;
+            overDivider = false;
+            overViewport = true;
+        }
 
         if (!overViewport) {
             this.maybeFireViewportMouseOut(event);
         }
         this.isViewportHover = overViewport;
+        this.isDividerHover = overDivider;
 
         if (overViewport) {
             const viewportX = mouseX - sidebarWidth;
@@ -74,23 +97,28 @@ export class EventHandling {
             this.timenav.fireEvent('viewportmousemove', vpEvent);
         }
 
-        if (!this.isDown) {
-            return;
+        this.updateCursor();
+
+        if (this.grabTarget) {
+            event.preventDefault();
+            event.stopPropagation();
+            switch (this.grabTarget) {
+                case 'DIVIDER':
+                    if (this.timenav.sidebar) {
+                        this.timenav.sidebar.width = mouseX;
+                    }
+                    break;
+                case 'VIEWPORT':
+                    // dx & dy are the distance the mouse has moved since
+                    // the last mousemove event
+                    const dx = mouseX - this.grabMouseX!;
+                    this.timenav.panBy(-dx, false);
+                    break;
+            }
+
+            // reset the vars for next mousemove
+            this.grabMouseX = mouseX;
         }
-
-        event.preventDefault();
-        event.stopPropagation();
-
-        // console.log('got x', mouseX);
-        // this.timenav.getSidebar().setWidth(mouseX);
-
-        // dx & dy are the distance the mouse has moved since
-        // the last mousemove event
-        const dx = mouseX - this.startX!;
-        this.timenav.panBy(-dx, false);
-
-        // reset the vars for next mousemove
-        this.startX = mouseX;
     }
 
     private maybeFireViewportMouseOut(event: MouseEvent) {
@@ -100,6 +128,17 @@ export class EventHandling {
                 clientY: event.clientY,
             };
             this.timenav.fireEvent('viewportmouseout', vpEvent);
+        }
+    }
+
+    private updateCursor() {
+        let newCursor = 'default';
+        if (this.grabTarget === 'DIVIDER' || this.isDividerHover) {
+            newCursor = 'col-resize';
+        }
+
+        if (newCursor != this.canvas.style.cursor) {
+            this.canvas.style.cursor = newCursor;
         }
     }
 }
