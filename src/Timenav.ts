@@ -3,6 +3,7 @@ import { Bounds } from './Bounds';
 import { DefaultSidebar } from './DefaultSidebar';
 import { Drawable } from './Drawable';
 import { EventHandling } from './EventHandling';
+import { TimenavEvent, TimenavEventHandlers, TimenavEventMap } from './events';
 import { Line } from './Line';
 import { Sidebar } from './Sidebar';
 
@@ -35,6 +36,11 @@ export class Timenav {
 
     // A canvas outside of the scrollpane
     private frozenCanvas: HTMLCanvasElement;
+
+    private eventListeners: TimenavEventHandlers = {
+        viewportmousemove: [],
+        viewportmouseout: [],
+    };
 
     /**
      * If true, some actions (e.g. panBy) will animate
@@ -92,7 +98,7 @@ export class Timenav {
 
         this.sidebar = new DefaultSidebar(this);
 
-        window.requestAnimationFrame((t) => this.step(t));
+        window.requestAnimationFrame(t => this.step(t));
 
         // Periodically redraw everything (used by continuously changing elements)
         window.setInterval(() => this.requestRepaint(), this.autoRepaintDelay);
@@ -105,7 +111,7 @@ export class Timenav {
     }
 
     private step(t: number) {
-        window.requestAnimationFrame((t) => this.step(t));
+        window.requestAnimationFrame(t => this.step(t));
         this.frameTime = t;
 
         for (const property of this.animatableProperties) {
@@ -193,6 +199,19 @@ export class Timenav {
             this.requestRepaint();
         }
         return drawable;
+    }
+
+    addEventListener<K extends keyof TimenavEventMap>(type: K, listener: ((ev: TimenavEventMap[K]) => void)): void;
+    addEventListener(type: string, listener: (ev: TimenavEvent) => void): void {
+        if (!(type in this.eventListeners)) {
+            throw new Error(`Unknown event '${type}'`);
+        }
+        this.eventListeners[type].push(listener);
+    }
+
+    fireEvent(type: string, event: TimenavEvent) {
+        const listeners = this.eventListeners[type];
+        listeners.forEach(listener => listener(event));
     }
 
     /**

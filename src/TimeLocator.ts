@@ -9,12 +9,16 @@ export class TimeLocator extends Drawable {
     private _lineWidth = 1;
     private _lineDash: number[] = [];
 
-    constructor(timenav: Timenav, private timeProvider: () => number) {
+    constructor(timenav: Timenav, private timeProvider: () => number | undefined) {
         super(timenav);
     }
 
     drawOverlay(ctx: CanvasRenderingContext2D) {
         const t = this.timeProvider();
+        if (t === undefined) {
+            return;
+        }
+
         const x = this.timenav.positionTime(t);
 
         ctx.strokeStyle = this.lineColor;

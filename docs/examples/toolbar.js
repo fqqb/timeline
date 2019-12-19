@@ -1,4 +1,4 @@
-import { AbsoluteTimeAxis, EventLine, TimeLocator, Timenav } from '/assets/timenav.js';
+import { AbsoluteTimeAxis, EventLine, MouseTracker, TimeLocator, Timenav } from '/assets/timenav.js';
 
 window.addEventListener('load', () => {
     const targetEl = document.getElementById('timenav');
@@ -10,6 +10,8 @@ window.addEventListener('load', () => {
     const locator = new TimeLocator(timenav, () => new Date().getTime());
     locator.knobColor = 'salmon';
     locator.lineColor = 'salmon';
+
+    const tracker = new MouseTracker(timenav);
 
     for (let i = 0; i < 30; i++) {
         const line = new EventLine(timenav);

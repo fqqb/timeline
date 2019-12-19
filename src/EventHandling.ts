@@ -1,23 +1,25 @@
+import { ViewportMouseMoveEvent, ViewportMouseOutEvent } from './events';
 import { Timenav } from './Timenav';
 
 export class EventHandling {
 
     private isDown = false;
     private startX?: number;
+    private isViewportHover = false;
 
     constructor(private timenav: Timenav, private canvas: HTMLCanvasElement) {
-        canvas.addEventListener('click', e => this.onClick(e), false);
-        canvas.addEventListener('mousedown', e => this.onMouseDown(e), false);
-        canvas.addEventListener('mouseup', e => this.onMouseUp(e), false);
-        canvas.addEventListener('mouseout', e => this.onMouseOut(e), false);
-        canvas.addEventListener('mousemove', e => this.onMouseMove(e), false);
+        canvas.addEventListener('click', e => this.onCanvasClick(e), false);
+        canvas.addEventListener('mousedown', e => this.onCanvasMouseDown(e), false);
+        canvas.addEventListener('mouseup', e => this.onCanvasMouseUp(e), false);
+        canvas.addEventListener('mouseout', e => this.onCanvasMouseOut(e), false);
+        canvas.addEventListener('mousemove', e => this.onCanvasMouseMove(e), false);
     }
 
-    private onClick(event: MouseEvent) {
+    private onCanvasClick(event: MouseEvent) {
         console.log('a click');
     }
 
-    private onMouseDown(event: MouseEvent) {
+    private onCanvasMouseDown(event: MouseEvent) {
         event.preventDefault();
         event.stopPropagation();
 
@@ -28,21 +30,49 @@ export class EventHandling {
         this.isDown = true;
     }
 
-    private onMouseUp(event: MouseEvent) {
+    private onCanvasMouseUp(event: MouseEvent) {
         event.preventDefault();
         event.stopPropagation();
         this.isDown = false;
     }
 
-    private onMouseOut(event: MouseEvent) {
+    private onCanvasMouseOut(event: MouseEvent) {
+        this.maybeFireViewportMouseOut(event);
+        this.isViewportHover = false;
+
         event.preventDefault();
         event.stopPropagation();
         this.isDown = false;
     }
 
-    private onMouseMove(event: MouseEvent) {
+    private onCanvasMouseMove(event: MouseEvent) {
         var bbox = this.canvas.getBoundingClientRect();
         const mouseX = event.clientX - bbox.left;
+        const sidebarWidth = this.timenav.sidebar?.clippedWidth || 0;
+
+        const overSidebar = mouseX <= sidebarWidth;
+        const overViewport = sidebarWidth < mouseX && mouseX <= this.timenav.width;
+
+        if (!overViewport) {
+            this.maybeFireViewportMouseOut(event);
+        }
+        this.isViewportHover = overViewport;
+
+        if (overViewport) {
+            const viewportX = mouseX - sidebarWidth;
+            const totalMillis = this.timenav.stop - this.timenav.start;
+            const totalPixels = this.timenav.mainWidth;
+            const offsetMillis = (viewportX / totalPixels) * totalMillis;
+
+            const vpEvent: ViewportMouseMoveEvent = {
+                clientX: event.clientX,
+                clientY: event.clientY,
+                viewportX,
+                viewportY: event.clientY - bbox.top,
+                time: this.timenav.start + offsetMillis,
+            };
+            this.timenav.fireEvent('viewportmousemove', vpEvent);
+        }
 
         if (!this.isDown) {
             return;
@@ -51,7 +81,7 @@ export class EventHandling {
         event.preventDefault();
         event.stopPropagation();
 
-        console.log('got x', mouseX);
+        // console.log('got x', mouseX);
         // this.timenav.getSidebar().setWidth(mouseX);
 
         // dx & dy are the distance the mouse has moved since
@@ -61,5 +91,15 @@ export class EventHandling {
 
         // reset the vars for next mousemove
         this.startX = mouseX;
+    }
+
+    private maybeFireViewportMouseOut(event: MouseEvent) {
+        if (this.isViewportHover) {
+            const vpEvent: ViewportMouseOutEvent = {
+                clientX: event.clientX,
+                clientY: event.clientY,
+            };
+            this.timenav.fireEvent('viewportmouseout', vpEvent);
+        }
     }
 }
