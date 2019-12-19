@@ -67,11 +67,19 @@
         {%- include tsdoc_call_signature.html signature=signature -%}
     {%- endfor -%}
 
+
+{%- elsif include.type.type == 'typeOperator' and include.type.operator == 'keyof' -%}
+    {{- include.type.operator }}
+    {% include tsdoc_type.html type=include.type.target -%}
+
+
 {%- elsif include.type.type == 'stringLiteral' -%}
     "{{- include.type.value -}}"
 
+
 {%- elsif include.type.type == 'unknown' -%}
     {{- include.type.name -}}
+
 
 {%- else -%}
     {{- include.type -}}

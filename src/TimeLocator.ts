@@ -19,7 +19,7 @@ export class TimeLocator extends Drawable {
             return;
         }
 
-        const x = this.timenav.positionTime(t);
+        const x = Math.round(this.timenav.positionTime(t));
 
         ctx.strokeStyle = this.lineColor;
         ctx.lineWidth = this.lineWidth;

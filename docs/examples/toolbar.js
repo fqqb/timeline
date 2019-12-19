@@ -23,7 +23,7 @@ window.addEventListener('load', () => {
     const start = dt.getTime();
     dt.setDate(dt.getDate() + 1);
     const stop = dt.getTime();
-    timenav.setBounds({ start, stop });
+    timenav.setBounds(start, stop);
 
     let moveInterval;
 
@@ -57,7 +57,7 @@ window.addEventListener('load', () => {
         const start = dt.getTime();
         dt.setDate(dt.getDate() + 1);
         const stop = dt.getTime();
-        timenav.setBounds({ start, stop });
+        timenav.setBounds(start, stop);
     };
 
     window.jumpToNow = () => timenav.panTo(new Date().getTime());

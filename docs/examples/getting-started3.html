@@ -16,7 +16,7 @@
             const stop = new Date(start.getTime());
             stop.setDate(stop.getDate() + 1);
 
-            timenav.setBounds({start: start.getTime(), stop: stop.getTime()}, true);
+            timenav.setBounds(start.getTime(), stop.getTime());
 
             const axis = new AbsoluteTimeAxis(timenav);
             axis.label = 'Time';

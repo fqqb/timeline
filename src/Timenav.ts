@@ -1,5 +1,4 @@
 import { AnimatableProperty } from './AnimatableProperty';
-import { Bounds } from './Bounds';
 import { DefaultSidebar } from './DefaultSidebar';
 import { Drawable } from './Drawable';
 import { EventHandler } from './EventHandler';
@@ -11,7 +10,7 @@ import { Sidebar } from './Sidebar';
  * Resizes a canvas, but only if the new bounds are different.
  */
 function resizeCanvas(canvas: HTMLCanvasElement, width: number, height: number) {
-    if (canvas.width != width || canvas.height != height) { // Avoid performance hit when resetting width
+    if (canvas.width != width || canvas.height != height) {
         canvas.width = width;
         canvas.height = height;
     }
@@ -28,6 +27,7 @@ export class Timenav {
 
     private _start: AnimatableProperty;
     private _stop: AnimatableProperty;
+    private selection?: { start: number, stop: number; };
 
     frameTime?: number;
 
@@ -56,6 +56,13 @@ export class Timenav {
     private _fontFamily = 'Verdana, Geneva, sans-serif';
     private _textSize = 10;
 
+    private _unselectedBackgroundColor = '#aaa';
+    private _unselectedOpacity = 0.3;
+    private _selectedBackgroundColor = 'transparent';
+    private _selectedOpacity = 0.2;
+    private _selectedLineDash = [4, 3];
+    private _selectedLineColor = 'transparent';
+
     constructor(private readonly targetElement: HTMLElement) {
 
         // Wrapper to not modify the user element much more
@@ -83,7 +90,6 @@ export class Timenav {
 
         this.scrollPanel.addEventListener('scroll', () => {
             this.requestRepaint();
-            // console.log('scroll', this.scrollPane.scrollTop);
         });
 
         new EventHandler(this, canvas);
@@ -102,6 +108,13 @@ export class Timenav {
 
         // Periodically redraw everything (used by continuously changing elements)
         window.setInterval(() => this.requestRepaint(), this.autoRepaintDelay);
+    }
+
+    disconnect() {
+        for (const drawable of this._drawables) {
+            drawable.disconnectedCallback();
+        }
+        this.sidebar?.disconnectedCallback();
     }
 
     createAnimatableProperty(value: number) {
@@ -134,14 +147,28 @@ export class Timenav {
     /**
      * Sets the visible range.
      */
-    setBounds(bounds: Bounds, animate = true) {
+    setBounds(start: number, stop: number, animate = true) {
         if (this.animated && animate) {
-            this._start.setTransition(this.frameTime, bounds.start);
-            this._stop.setTransition(this.frameTime, bounds.stop);
+            this._start.setTransition(this.frameTime, start);
+            this._stop.setTransition(this.frameTime, stop);
         } else {
-            this._start.value = bounds.start;
-            this._stop.value = bounds.stop;
+            this._start.value = start;
+            this._stop.value = stop;
         }
+        this.requestRepaint();
+    }
+
+    setSelection(start: number, stop: number) {
+        if (stop > start) {
+            this.selection = { start, stop };
+        } else {
+            this.selection = { start: stop, stop: start };
+        }
+        this.requestRepaint();
+    }
+
+    clearSelection() {
+        this.selection = undefined;
         this.requestRepaint();
     }
 
@@ -155,13 +182,23 @@ export class Timenav {
      */
     get stop() { return this._stop.value; }
 
+    /**
+     * The pixel width of this Timenav (incl. sidebar)
+     */
     get width() {
         return this.ctx.canvas.width;
     }
 
+    /**
+     * Optional sidebar. If set, this is positioned left of
+     * the main area.
+     */
     get sidebar() { return this._sidebar; }
     set sidebar(sidebar: Sidebar | undefined) {
-        this._sidebar = sidebar;
+        if (this._sidebar !== sidebar) {
+            this._sidebar?.disconnectedCallback();
+            this._sidebar = sidebar;
+        }
     }
 
     /**
@@ -183,6 +220,9 @@ export class Timenav {
         this.repaintRequested = true;
     }
 
+    /**
+     * The pixel width of this Timenav (excl. sidebar)
+     */
     get mainWidth() {
         let sidebarWidth = this.sidebar?.clippedWidth || 0;
         return this.ctx.canvas.width - sidebarWidth;
@@ -236,7 +276,7 @@ export class Timenav {
 
         const start = this.start + offsetMillis;
         const stop = this.stop + offsetMillis;
-        this.setBounds({ start, stop }, animate);
+        this.setBounds(start, stop, animate);
     }
 
     /**
@@ -248,19 +288,19 @@ export class Timenav {
         const delta = (this.stop - this.start) / 2;
         const start = time - delta;
         const stop = time + delta;
-        this.setBounds({ start, stop }, animate);
+        this.setBounds(start, stop, animate);
     }
 
+    /**
+     * The time corresponding with the visible center.
+     */
+    get center() { return (this.stop - this.start) / 2; }
     set center(time: number) {
         this.panTo(time, false);
     }
 
-    get center() {
-        return (this.stop - this.start) / 2;
-    }
-
     getLines() {
-        return this._drawables.filter(l => l instanceof Line) as Line<any>[];
+        return this._drawables.filter(l => l instanceof Line) as Line<unknown>[];
     }
 
     /**
@@ -310,7 +350,7 @@ export class Timenav {
 
         const start = this.start - delta;
         const stop = this.stop + delta;
-        this.setBounds({ start, stop }, animate);
+        this.setBounds(start, stop, animate);
     }
 
     get backgroundOddColor() { return this._backgroundOddColor; };
@@ -401,22 +441,25 @@ export class Timenav {
         let backgroundColor = this.backgroundOddColor;
         for (const drawable of this._drawables) {
 
+            // Default (striped) background
             if (drawable instanceof Line) {
                 ctx.fillStyle = backgroundColor;
                 ctx.fillRect(drawable.x, drawable.y, ctx.canvas.width, drawable.height);
+                backgroundColor = (backgroundColor === this.backgroundOddColor) ? this.backgroundEvenColor : this.backgroundOddColor;
+            }
 
-                // Bottom horizontal divider
+            drawable.drawUnderlay(ctx);
+
+            // Bottom horizontal divider
+            if (drawable instanceof Line) {
                 ctx.lineWidth = 1;
-                ctx.strokeStyle = this.rowBorderColor!;
+                ctx.strokeStyle = this.rowBorderColor;
                 const dividerY = drawable.y + drawable.height - 0.5;
                 ctx.beginPath();
                 ctx.moveTo(0, dividerY);
                 ctx.lineTo(ctx.canvas.width, dividerY);
                 ctx.stroke();
-                backgroundColor = (backgroundColor === this.backgroundOddColor) ? this.backgroundEvenColor : this.backgroundOddColor;
             }
-
-            drawable.drawUnderlay(ctx);
         }
 
         for (const drawable of this._drawables) {
@@ -427,7 +470,38 @@ export class Timenav {
             drawable.drawOverlay(ctx);
         }
 
+        this.drawSelection(ctx);
+
         return canvas;
+    }
+
+    private drawSelection(ctx: CanvasRenderingContext2D) {
+        if (!this.selection) {
+            return;
+        }
+
+        const x1 = Math.round(this.positionTime(this.selection.start));
+        const x2 = Math.round(this.positionTime(this.selection.stop));
+
+        ctx.globalAlpha = this._unselectedOpacity;
+        ctx.fillStyle = this._unselectedBackgroundColor;
+        ctx.fillRect(0, 0, x1, ctx.canvas.height);
+        ctx.fillRect(x2, 0, ctx.canvas.width - x2, ctx.canvas.height);
+
+        ctx.globalAlpha = this._selectedOpacity;
+        ctx.fillStyle = this._selectedBackgroundColor;
+        ctx.fillRect(x1, 0, ctx.canvas.width - x2, ctx.canvas.height);
+
+        ctx.globalAlpha = 1;
+        ctx.strokeStyle = this._selectedLineColor;
+        ctx.lineWidth = 1;
+        ctx.setLineDash(this._selectedLineDash);
+        ctx.beginPath();
+        ctx.moveTo(x1 + 0.5, 0);
+        ctx.lineTo(x1 + 0.5, ctx.canvas.height);
+        ctx.moveTo(x2 - 0.5, 0);
+        ctx.lineTo(x2 - 0.5, ctx.canvas.height);
+        ctx.stroke();
     }
 
     // Draw frozen header in separate DOM canvas so that it is still possible to image dump

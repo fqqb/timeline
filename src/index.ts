@@ -1,6 +1,5 @@
 export { AbsoluteTimeAxis } from './AbsoluteTimeAxis';
 export { AnimatableProperty } from './AnimatableProperty';
-export { Bounds } from './Bounds';
 export { DefaultSidebar } from './DefaultSidebar';
 export { Drawable } from './Drawable';
 export { EventLine } from './EventLine';
