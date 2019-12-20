@@ -13,17 +13,24 @@ window.addEventListener('load', () => {
 
     const tracker = new MouseTracker(timenav);
 
+    const start = luxon.DateTime.local().startOf('day');
+    const stop = luxon.DateTime.local().endOf('day');
+    timenav.setBounds(start.toMillis(), stop.toMillis());
+
+
     for (let i = 0; i < 30; i++) {
         const line = new EventLine(timenav);
+        line.data = [
+            {
+                start: start.plus({ hours: 5 }).toMillis(),
+                stop: start.plus({ hours: 10 }).toMillis(),
+                title: 'A',
+            },
+        ]
         line.label = 'Line ' + (i + 1);
     }
 
-    const dt = new Date();
-    dt.setHours(0, 0, 0, 0);
-    const start = dt.getTime();
-    dt.setDate(dt.getDate() + 1);
-    const stop = dt.getTime();
-    timenav.setBounds(start, stop);
+    document.getElementById('hand').className = 'active';
 
     let moveInterval;
 
@@ -63,4 +70,11 @@ window.addEventListener('load', () => {
     window.jumpToNow = () => timenav.panTo(new Date().getTime());
 
     window.toggleSidebar = () => timenav.sidebar.toggle();
+
+    window.changeTool = tool => {
+        timenav.setActiveTool(tool);
+        for (const id of ['hand', 'range-select']) {
+            document.getElementById(id).className = (tool === id ? 'active' : '');
+        }
+    };
 });

@@ -1,7 +1,7 @@
 import { AnimatableProperty } from './AnimatableProperty';
 import { DefaultSidebar } from './DefaultSidebar';
 import { Drawable } from './Drawable';
-import { EventHandler } from './EventHandler';
+import { EventHandler, Tool } from './EventHandler';
 import { TimenavEvent, TimenavEventHandlers, TimenavEventMap } from './events';
 import { Line } from './Line';
 import { Sidebar } from './Sidebar';
@@ -42,6 +42,8 @@ export class Timenav {
         viewportmouseout: [],
     };
 
+    private eventHandler: EventHandler;
+
     /**
      * If true, some actions (e.g. panBy) will animate
      * property transitions.
@@ -53,6 +55,7 @@ export class Timenav {
     private _backgroundEvenColor = '#f5f5f5';
     private _foregroundColor = 'grey';
     private _rowBorderColor = '#e8e8e8';
+    private _rowBorderLineWidth = 1;
     private _fontFamily = 'Verdana, Geneva, sans-serif';
     private _textSize = 10;
 
@@ -92,7 +95,7 @@ export class Timenav {
             this.requestRepaint();
         });
 
-        new EventHandler(this, canvas);
+        this.eventHandler = new EventHandler(this, canvas);
 
         this.frozenCanvas = document.createElement('canvas');
         this.frozenCanvas.className = 'timenav-frozen';
@@ -320,6 +323,10 @@ export class Timenav {
         return this.mainWidth * (millis / totalMillis);
     }
 
+    setActiveTool(tool?: Tool) {
+        this.eventHandler.tool = tool;
+    }
+
     /**
      * Zooms in with a scale factor of 0.5. This means a range half as long
      * will be in view.
@@ -389,6 +396,12 @@ export class Timenav {
         this.requestRepaint();
     }
 
+    get rowBorderLineWidth() { return this._rowBorderLineWidth; }
+    set rowBorderLineWidth(rowBorderLineWidth: number) {
+        this._rowBorderLineWidth = rowBorderLineWidth;
+        this.requestRepaint();
+    }
+
     private drawScreen() {
         const lines = this.getLines().filter(l => l.frozen)
             .concat(this.getLines().filter(l => !l.frozen));
@@ -402,7 +415,7 @@ export class Timenav {
             line.coords.height = line.calculatePreferredHeight();
 
             contentHeight += line.height;
-            y += line.height;
+            y += line.height + this.rowBorderLineWidth;
         }
 
         this.rootPanel.style.height = this.targetElement.clientHeight + 'px';
@@ -452,9 +465,9 @@ export class Timenav {
 
             // Bottom horizontal divider
             if (drawable instanceof Line) {
-                ctx.lineWidth = 1;
+                ctx.lineWidth = this.rowBorderLineWidth;
                 ctx.strokeStyle = this.rowBorderColor;
-                const dividerY = drawable.y + drawable.height - 0.5;
+                const dividerY = drawable.y + drawable.height + 0.5;
                 ctx.beginPath();
                 ctx.moveTo(0, dividerY);
                 ctx.lineTo(ctx.canvas.width, dividerY);

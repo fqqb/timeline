@@ -29,9 +29,11 @@ function measureDistance(x1: number, y1: number, x2: number, y2: number) {
     return Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
 }
 
+export type Tool = 'hand' | 'range-select';
+
 export class EventHandler {
 
-    private defaultGrabAction?: 'PAN' | 'SELECT' = 'SELECT';
+    tool?: Tool = 'hand';
 
     private grabbing = false;
     private grabTarget?: 'DIVIDER' | 'VIEWPORT';
@@ -75,7 +77,7 @@ export class EventHandler {
                 event.preventDefault();
                 event.stopPropagation();
                 return false;
-            } else if (this.defaultGrabAction) {
+            } else if (this.tool) {
                 this.grabTarget = 'VIEWPORT';
                 this.grabPoint = { x: mouseX, y: mouseY };
                 // Actual grab initialisation is subject to snap (see mousemove)
@@ -140,7 +142,7 @@ export class EventHandler {
                 document.addEventListener('mousemove', this.documentMouseMoveListener);
                 this.grabbing = true;
                 // Prevent stutter on first move
-                if (snap > 0 && this.grabPoint && this.defaultGrabAction !== 'SELECT') {
+                if (snap > 0 && this.grabPoint && this.tool !== 'range-select') {
                     this.grabPoint = { x: mouseX, y: mouseY };
                 }
             }
@@ -158,13 +160,13 @@ export class EventHandler {
                     }
                     break;
                 case 'VIEWPORT':
-                    switch (this.defaultGrabAction) {
-                        case 'PAN':
+                    switch (this.tool) {
+                        case 'hand':
                             const dx = mouseX - this.grabPoint!.x;
                             this.timenav.panBy(-dx, false);
                             this.grabPoint = { x: mouseX, y: mouseY };
                             break;
-                        case 'SELECT':
+                        case 'range-select':
                             const start = this.mouse2time(this.grabPoint!.x);
                             const stop = this.mouse2time(mouseX);
                             this.timenav.setSelection(start, stop);
@@ -212,9 +214,9 @@ export class EventHandler {
         let newCursor = 'default';
         if (this.grabTarget === 'DIVIDER' || this.isDividerHover) {
             newCursor = 'col-resize';
-        } else if (this.grabbing && this.defaultGrabAction === 'SELECT') {
+        } else if (this.grabbing && this.tool === 'range-select') {
             newCursor = 'col-resize';
-        } else if (this.grabbing && this.defaultGrabAction === 'PAN') {
+        } else if (this.grabbing && this.tool === 'hand') {
             newCursor = 'grabbing';
         }
 
