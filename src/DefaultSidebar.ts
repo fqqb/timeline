@@ -34,7 +34,7 @@ export class DefaultSidebar extends Sidebar {
         for (const line of lines) {
             this.drawLine(ctx, line, y, backgroundColor);
             backgroundColor = (backgroundColor === this.backgroundOddColor) ? this.backgroundEvenColor : this.backgroundOddColor;
-            y += line.height;
+            y += line.height + this.timenav.rowBorderLineWidth;
         }
 
         // Right vertical divider
@@ -60,9 +60,9 @@ export class DefaultSidebar extends Sidebar {
         }
 
         // Bottom horizontal divider
-        ctx.lineWidth = 1;
+        ctx.lineWidth = this.timenav.rowBorderLineWidth;
         ctx.strokeStyle = this.rowBorderColor;
-        const dividerY = y + line.height - 0.5;
+        const dividerY = y + line.height + 0.5;
         ctx.beginPath();
         ctx.moveTo(0, dividerY);
         ctx.lineTo(this.clippedWidth, dividerY);
