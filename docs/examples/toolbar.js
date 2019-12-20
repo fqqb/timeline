@@ -18,7 +18,7 @@ window.addEventListener('load', () => {
     timenav.setBounds(start.toMillis(), stop.toMillis());
 
 
-    for (let i = 0; i < 30; i++) {
+    for (let i = 0; i < 10; i++) {
         const line = new EventLine(timenav);
         line.data = [
             {

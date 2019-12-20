@@ -56,7 +56,6 @@ export class EventHandler {
     }
 
     private onCanvasClick(event: MouseEvent) {
-        console.log('a click');
         this.timenav.clearSelection();
     }
 
@@ -72,7 +71,7 @@ export class EventHandler {
             if (this.timenav.sidebar && sidebarWidth - 5 < mouseX && mouseX <= sidebarWidth + 5) {
                 this.grabTarget = 'DIVIDER';
                 this.grabPoint = { x: mouseX, y: mouseY };
-                this.grabbing = true; // No snap detection for this
+                this.initiateGrab(); // No snap detection for this
 
                 event.preventDefault();
                 event.stopPropagation();
@@ -95,7 +94,6 @@ export class EventHandler {
 
         event.preventDefault();
         event.stopPropagation();
-        // this.grabTarget = undefined;
     }
 
     private onCanvasMouseMove(event: MouseEvent) {
@@ -137,10 +135,7 @@ export class EventHandler {
         if (this.grabPoint && !this.grabbing && isLeftPressed(event)) {
             const distance = measureDistance(this.grabPoint.x, this.grabPoint.y, mouseX, mouseY);
             if (Math.abs(distance) > snap) {
-                document.addEventListener('click', clickBlocker, true /* capture ! */);
-                document.addEventListener('mouseup', this.documentMouseUpListener);
-                document.addEventListener('mousemove', this.documentMouseMoveListener);
-                this.grabbing = true;
+                this.initiateGrab();
                 // Prevent stutter on first move
                 if (snap > 0 && this.grabPoint && this.tool !== 'range-select') {
                     this.grabPoint = { x: mouseX, y: mouseY };
@@ -177,6 +172,13 @@ export class EventHandler {
         }
     }
 
+    private initiateGrab() {
+        document.addEventListener('click', clickBlocker, true /* capture ! */);
+        document.addEventListener('mouseup', this.documentMouseUpListener);
+        document.addEventListener('mousemove', this.documentMouseMoveListener);
+        this.grabbing = true;
+    }
+
     private onDocumentMouseUp(event: MouseEvent) {
         if (this.grabbing) {
             document.removeEventListener('mouseup', this.documentMouseUpListener);
@@ -184,6 +186,7 @@ export class EventHandler {
             this.grabbing = false;
             this.grabPoint = undefined;
             this.grabTarget = undefined;
+            this.updateCursor();
         }
     }
 

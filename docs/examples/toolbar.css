@@ -4,16 +4,18 @@ body {
 }
 
 .toolbar {
-    background-color: salmon;
+    background-color: #e6e6e6;
+    border-bottom: 1px solid#a5a5a5;
     height: 50px;
     line-height: 50px;
     padding-left: 1em;
+    box-sizing: border-box;
 }
 
 button {
-    background-color: white;
+    background: linear-gradient(white, #efefef);
     border: none;
-    color: black;
+    color: #555;
     padding: 6px 8px;
     font-size: 12px;
     cursor: pointer;
@@ -22,7 +24,7 @@ button {
 }
 
 button:hover, button.active {
-    background-color: #e0e0e0;
+    color: #4597fd;
 }
 
 .btn-group {
