@@ -1,7 +1,7 @@
 import { AnimatableProperty } from './AnimatableProperty';
 import { DefaultSidebar } from './DefaultSidebar';
+import { DOMEventHandler, Tool } from './DOMEventHandler';
 import { Drawable } from './Drawable';
-import { EventHandler, Tool } from './EventHandler';
 import { TimenavEvent, TimenavEventHandlers, TimenavEventMap } from './events';
 import { Line } from './Line';
 import { Sidebar } from './Sidebar';
@@ -42,7 +42,7 @@ export class Timenav {
         viewportmouseout: [],
     };
 
-    private eventHandler: EventHandler;
+    private eventHandler: DOMEventHandler;
 
     /**
      * If true, some actions (e.g. panBy) will animate
@@ -95,7 +95,7 @@ export class Timenav {
             this.requestRepaint();
         });
 
-        this.eventHandler = new EventHandler(this, canvas);
+        this.eventHandler = new DOMEventHandler(this, canvas);
 
         this.frozenCanvas = document.createElement('canvas');
         this.frozenCanvas.className = 'timenav-frozen';

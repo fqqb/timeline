@@ -1,23 +1,42 @@
-import { nvl, roundRect } from './drawutils';
+import { DOMTarget } from './DOMTarget';
+import { Event } from './Event';
 import { Line } from './Line';
+import { nvl, roundRect } from './utils';
 
-export interface Event {
+class ComputedEvent {
+
     start: number;
     stop: number;
     title?: string;
-    color?: string;
-    textColor?: string;
-    textSize?: number;
-    fontFamily?: string;
-    borderColor?: string;
-    borderWidth?: number;
-    marginLeft?: number;
-    cornerRadius?: number;
-    data?: any;
-}
+    color: string;
+    textColor: string;
+    textSize: number;
+    fontFamily: string;
+    borderColor: string;
+    borderWidth: number;
+    marginLeft: number;
+    cornerRadius: number;
 
-interface ComputedEvent extends Event {
-    original: Event;
+    target: DOMTarget;
+
+    constructor(line: EventLine, readonly event: Event) {
+        this.start = event.start;
+        this.stop = event.stop;
+        this.title = event.title;
+        this.color = nvl(event.color, line.eventColor);
+        this.textColor = nvl(event.textColor, line.textColor);
+        this.textSize = nvl(event.textSize, line.textSize);
+        this.fontFamily = nvl(event.fontFamily, line.fontFamily);
+        this.borderColor = nvl(event.borderColor, line.borderColor);
+        this.borderWidth = nvl(event.borderWidth, line.borderWidth);
+        this.marginLeft = nvl(event.marginLeft, line.eventMarginLeft);
+        this.cornerRadius = nvl(event.cornerRadius, line.cornerRadius);
+
+        this.target = new DOMTarget();
+        this.target.onclick = () => { console.log('got click', event); };
+        this.target.onmousemove = () => { console.log('got mousemove', event); };
+        this.target.onmouseout = () => { console.log('got mouseout', event); };
+    }
 }
 
 export class EventLine extends Line<Event[]> {
@@ -38,45 +57,54 @@ export class EventLine extends Line<Event[]> {
     private events: ComputedEvent[] = [];
 
     onDataUpdate() {
-        const events = this.data || [];
-        for (const originalEvent of events) {
-            const event: ComputedEvent = { ...originalEvent, original: originalEvent };
-            this.events.push(event);
+        this.events.length = 0;
+        for (const event of (this.data || [])) {
+            this.events.push(new ComputedEvent(this, event));
         }
     }
 
     drawLineContent(ctx: CanvasRenderingContext2D) {
         ctx.canvas.height = this._eventHeight + this._marginBottom + this._marginTop;
 
-        const events = this.events;
-        for (const event of events) {
+        for (const event of this.events) {
             const t1 = this.timenav.positionTime(event.start);
             const t2 = this.timenav.positionTime(event.stop);
-            ctx.fillStyle = nvl(event.color, this._eventColor);
+            ctx.fillStyle = event.color;
 
             const x = Math.round(t1);
             const y = Math.round(this._marginTop);
-            const w = Math.round(t2 - x);
-            const h = this._eventHeight;
-            const r = nvl(event.cornerRadius, this._cornerRadius);
-            roundRect(ctx, x, y, w, h, r);
+            const width = Math.round(t2 - x);
+            const height = this._eventHeight;
+            const r = event.cornerRadius;
+            roundRect(ctx, x, y, width, height, r);
             ctx.fill();
 
-            const borderWidth = nvl(event.borderWidth, this._borderWidth);
+            event.target.bbox = { x, y, width, height };
+
+            const borderWidth = event.borderWidth;
             if (borderWidth) {
-                ctx.strokeStyle = nvl(event.borderColor, this._borderColor);
+                ctx.strokeStyle = event.borderColor;
                 ctx.lineWidth = borderWidth;
-                roundRect(ctx, x + 0.5, y + 0.5, w - 1, h - 1, r);
+                roundRect(ctx, x + 0.5, y + 0.5, width - 1, height - 1, r);
                 ctx.stroke();
             }
 
             if (event.title) {
-                ctx.fillStyle = nvl(event.textColor, this._textColor);
-                ctx.font = `${nvl(event.textSize, this._textSize)}px ${nvl(event.fontFamily, this._fontFamily)}`;
+                ctx.fillStyle = event.textColor;
+                ctx.font = `${event.textSize}px ${event.fontFamily}`;
                 ctx.textBaseline = 'middle';
-                const textX = x + nvl(event.marginLeft, this._eventMarginLeft);
-                ctx.fillText(event.title, textX, y + (h / 2));
+                const textX = x + event.marginLeft;
+                ctx.fillText(event.title, textX, y + (height / 2));
             }
         }
     }
+
+    get eventColor() { return this._eventColor; }
+    get textColor() { return this._textColor; }
+    get textSize() { return this._textSize; }
+    get fontFamily() { return this._fontFamily; }
+    get borderWidth() { return this._borderWidth; }
+    get borderColor() { return this._borderColor; };
+    get eventMarginLeft() { return this._eventMarginLeft; }
+    get cornerRadius() { return this._cornerRadius; }
 }

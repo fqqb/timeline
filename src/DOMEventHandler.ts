@@ -31,7 +31,7 @@ function measureDistance(x1: number, y1: number, x2: number, y2: number) {
 
 export type Tool = 'hand' | 'range-select';
 
-export class EventHandler {
+export class DOMEventHandler {
 
     tool?: Tool = 'hand';
 
