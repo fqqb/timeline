@@ -13,6 +13,8 @@ export abstract class Line<T> extends Drawable {
     private _frozen = false;
     private _data?: T;
 
+    private offscreenCanvas = document.createElement('canvas');
+
     /** @hidden */
     coords: DrawCoordinates = {
         x: 0,
@@ -53,8 +55,21 @@ export abstract class Line<T> extends Drawable {
         this.reportMutation();
     }
 
+    beforeDraw() {
+        this.offscreenCanvas.width = this.timenav.mainWidth;
+        this.offscreenCanvas.height = 20;
+        const ctx = this.offscreenCanvas.getContext('2d')!;
+        this.drawLineContent(ctx);
+    }
+
+    abstract drawLineContent(ctx: CanvasRenderingContext2D): void;
+
+    drawContent(ctx: CanvasRenderingContext2D) {
+        ctx.drawImage(this.offscreenCanvas, this.x, this.y);
+    }
+
     getPreferredHeight() {
-        return 20;
+        return this.offscreenCanvas.height;
     }
 
     /**

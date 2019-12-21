@@ -17,12 +17,8 @@ export class AbsoluteTimeAxis extends Line<void> {
 
     private hourScale = new HourScale();
 
-    beforeDraw() {
-        this.determineScale().beforeDraw(this);
-    }
-
-    drawContent(ctx: CanvasRenderingContext2D) {
-        this.determineScale().drawContent(ctx, this);
+    drawLineContent(ctx: CanvasRenderingContext2D) {
+        this.determineScale().drawLineContent(ctx, this);
     }
 
     drawOverlay(ctx: CanvasRenderingContext2D) {
@@ -70,8 +66,7 @@ export class AbsoluteTimeAxis extends Line<void> {
 }
 
 interface Scale {
-    beforeDraw(axis: AbsoluteTimeAxis): void;
-    drawContent(ctx: CanvasRenderingContext2D, axis: AbsoluteTimeAxis): void;
+    drawLineContent(ctx: CanvasRenderingContext2D, axis: AbsoluteTimeAxis): void;
     drawOverlay(ctx: CanvasRenderingContext2D, axis: AbsoluteTimeAxis): void;
 }
 
@@ -85,7 +80,7 @@ class HourScale implements Scale {
     private midX: number[] = [];
     private minorX: number[] = [];
 
-    beforeDraw(axis: AbsoluteTimeAxis) {
+    drawLineContent(ctx: CanvasRenderingContext2D, axis: AbsoluteTimeAxis) {
         // Trunc to hours before positioning
         let t = startOfHour(axis.timenav.start);
 
@@ -116,24 +111,22 @@ class HourScale implements Scale {
 
             t += ONE_HOUR;
         }
-    }
 
-    drawContent(ctx: CanvasRenderingContext2D, axis: AbsoluteTimeAxis) {
-        const height = axis.height;
+        const height = ctx.canvas.height;
         ctx.lineWidth = 1;
         ctx.strokeStyle = axis.timenav.rowBorderColor;
         ctx.beginPath();
         for (const x of this.majorX) {
-            ctx.moveTo(x, axis.y);
-            ctx.lineTo(x, axis.y + height);
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x, height);
         }
         for (const x of this.midX) {
-            ctx.moveTo(x, axis.y + height * 0.6);
-            ctx.lineTo(x, axis.y + height);
+            ctx.moveTo(x, height * 0.6);
+            ctx.lineTo(x, height);
         }
         for (const x of this.minorX) {
-            ctx.moveTo(x, axis.y + height * 0.8);
-            ctx.lineTo(x, axis.y + height);
+            ctx.moveTo(x, height * 0.8);
+            ctx.lineTo(x, height);
         }
         ctx.stroke();
 
@@ -144,10 +137,10 @@ class HourScale implements Scale {
             const label = this.majorLabels[i];
             const x = this.majorX[i];
             if (label.length > 2) {
-                ctx.fillText('00', x + 2, axis.y + height * 0.75);
-                ctx.fillText(label, x + 2, axis.y + height / 4);
+                ctx.fillText('00', x + 2, height * 0.75);
+                ctx.fillText(label, x + 2, height / 4);
             } else {
-                ctx.fillText(label, x + 2, axis.y + height / 2);
+                ctx.fillText(label, x + 2, height / 2);
             }
         }
     }
