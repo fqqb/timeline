@@ -44,20 +44,21 @@ export class EventLine extends Line<Event[]> {
     private _eventLeftMargin = 5;
     private _cornerRadius = 1;
 
-    calculatePreferredHeight() {
-        return this._eventHeight + this._marginBottom + this._marginTop;
-    }
+    private offscreenCanvas = document.createElement('canvas');
 
-    drawContent(ctx: CanvasRenderingContext2D) {
+    beforeDraw() {
+        this.offscreenCanvas.width = this.timenav.mainWidth;
+        this.offscreenCanvas.height = this._eventHeight + this._marginBottom + this._marginTop;
+        const ctx = this.offscreenCanvas.getContext('2d')!;
         const events = this.data || [];
         for (const event of events) {
             const t1 = this.timenav.positionTime(event.start);
             const t2 = this.timenav.positionTime(event.stop);
             ctx.fillStyle = '#77b1e1';
 
-            const x = Math.round(this.x + t1);
-            const y = Math.round(this.y + this._marginTop);
-            const w = t2 - t1;
+            const x = Math.round(t1);
+            const y = Math.round(this._marginTop);
+            const w = Math.round(t2 - x);
             const h = this._eventHeight;
             roundRect(ctx, x, y, w, h, this._cornerRadius);
             ctx.fill();
@@ -76,5 +77,13 @@ export class EventLine extends Line<Event[]> {
                 ctx.fillText(event.title, x + this._eventLeftMargin, y + (h / 2));
             }
         }
+    }
+
+    getPreferredHeight() {
+        return this.offscreenCanvas.height;
+    }
+
+    drawContent(ctx: CanvasRenderingContext2D) {
+        ctx.drawImage(this.offscreenCanvas, this.x, this.y);
     }
 }

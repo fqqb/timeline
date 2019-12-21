@@ -189,7 +189,7 @@ export class Timenav {
      * The pixel width of this Timenav (incl. sidebar)
      */
     get width() {
-        return this.ctx.canvas.width;
+        return this.scrollPanel.clientWidth;
     }
 
     /**
@@ -228,7 +228,7 @@ export class Timenav {
      */
     get mainWidth() {
         let sidebarWidth = this.sidebar?.clippedWidth || 0;
-        return this.ctx.canvas.width - sidebarWidth;
+        return this.width - sidebarWidth;
     }
 
     /**
@@ -409,6 +409,10 @@ export class Timenav {
     }
 
     private drawScreen() {
+        for (const drawable of this._drawables) {
+            drawable.beforeDraw();
+        }
+
         const lines = this.getLines().filter(l => l.frozen)
             .concat(this.getLines().filter(l => !l.frozen));
 
@@ -418,7 +422,7 @@ export class Timenav {
             line.coords.x = 0;
             line.coords.y = y;
             line.coords.width = this.mainWidth;
-            line.coords.height = line.calculatePreferredHeight();
+            line.coords.height = line.getPreferredHeight();
 
             contentHeight += line.height;
             y += line.height + this.rowBorderLineWidth;
@@ -452,10 +456,6 @@ export class Timenav {
         canvas.width = width;
         canvas.height = height;
         const ctx = canvas.getContext('2d')!;
-
-        for (const drawable of this._drawables) {
-            drawable.beforeDraw();
-        }
 
         let backgroundColor = this.backgroundOddColor;
         for (const drawable of this._drawables) {

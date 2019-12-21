@@ -98,7 +98,7 @@ export class EventHandler {
     }
 
     private onCanvasMouseMove(event: MouseEvent) {
-        var bbox = this.canvas.getBoundingClientRect();
+        const bbox = this.canvas.getBoundingClientRect();
         const mouseX = event.clientX - bbox.left;
         const mouseY = event.clientY - bbox.top;
         const sidebarWidth = this.timenav.sidebar?.clippedWidth || 0;

@@ -53,7 +53,7 @@ export abstract class Line<T> extends Drawable {
         this.reportMutation();
     }
 
-    calculatePreferredHeight() {
+    getPreferredHeight() {
         return 20;
     }
 
