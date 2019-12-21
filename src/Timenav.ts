@@ -297,7 +297,7 @@ export class Timenav {
     /**
      * The time corresponding with the visible center.
      */
-    get center() { return (this.stop - this.start) / 2; }
+    get center() { return this.start + (this.stop - this.start) / 2; }
     set center(time: number) {
         this.panTo(time, false);
     }
@@ -346,17 +346,23 @@ export class Timenav {
     /**
      * Zoom by a scale factor relative to the current range.
      * For example: 2 shows twice the current range, 0.5 shows half the current range.
+     *
+     * @param relto time around which to center the zoom. If unspecified, the
+     *              zoom will be around the current centered time.
      */
-    zoom(factor: number, animate = true) {
+    zoom(factor: number, animate = true, relto?: number) {
         if (factor <= 0) {
             throw new Error('Zoom factor should be a positive number');
         }
-        const prevMillis = this.stop - this.start;
-        const nextMillis = prevMillis * factor;
-        const delta = (nextMillis - prevMillis) / 2;
+        if (relto === undefined) {
+            relto = this.center;
+        }
+        const reltoRatio = (relto - this.start) / (this.stop - this.start);
+        const prevRange = this.stop - this.start;
+        const nextRange = prevRange * factor;
 
-        const start = this.start - delta;
-        const stop = this.stop + delta;
+        const start = relto - (reltoRatio * nextRange);
+        const stop = relto + ((1 - reltoRatio) * nextRange);
         this.setBounds(start, stop, animate);
     }
 

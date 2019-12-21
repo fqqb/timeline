@@ -53,6 +53,7 @@ export class EventHandler {
         canvas.addEventListener('mousedown', e => this.onCanvasMouseDown(e), false);
         canvas.addEventListener('mouseout', e => this.onCanvasMouseOut(e), false);
         canvas.addEventListener('mousemove', e => this.onCanvasMouseMove(e), false);
+        canvas.addEventListener('wheel', e => this.onWheel(e), false);
     }
 
     private onCanvasClick(event: MouseEvent) {
@@ -177,6 +178,27 @@ export class EventHandler {
         document.addEventListener('mouseup', this.documentMouseUpListener);
         document.addEventListener('mousemove', this.documentMouseMoveListener);
         this.grabbing = true;
+    }
+
+    /**
+     * Use wheel delta to determine zoom in/out
+     */
+    private onWheel(event: WheelEvent) {
+        const bbox = this.canvas.getBoundingClientRect();
+        const mouseX = event.clientX - bbox.left;
+        const sidebarWidth = this.timenav.sidebar?.clippedWidth || 0;
+
+        if (mouseX > sidebarWidth) {
+            const relto = this.mouse2time(mouseX);
+            if (event.deltaY > 0) {
+                this.timenav.zoom(2, true, relto);
+            } else if (event.deltaY < 0) {
+                this.timenav.zoom(0.5, true, relto);
+            }
+            event.preventDefault();
+            event.stopPropagation();
+            return false;
+        }
     }
 
     private onDocumentMouseUp(event: MouseEvent) {
