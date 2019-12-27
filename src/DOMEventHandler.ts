@@ -180,21 +180,25 @@ export class DOMEventHandler {
         this.grabbing = true;
     }
 
-    /**
-     * Use wheel delta to determine zoom in/out
-     */
     private onWheel(event: WheelEvent) {
         const bbox = this.canvas.getBoundingClientRect();
         const mouseX = event.clientX - bbox.left;
         const sidebarWidth = this.timenav.sidebar?.clippedWidth || 0;
 
         if (mouseX > sidebarWidth) {
+            if (event.deltaX > 0) {
+                this.timenav.panBy(50);
+            } else if (event.deltaX < 0) {
+                this.timenav.panBy(-50);
+            }
+
             const relto = this.mouse2time(mouseX);
             if (event.deltaY > 0) {
                 this.timenav.zoom(2, true, relto);
             } else if (event.deltaY < 0) {
                 this.timenav.zoom(0.5, true, relto);
             }
+
             event.preventDefault();
             event.stopPropagation();
             return false;
