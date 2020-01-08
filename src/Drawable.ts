@@ -1,16 +1,10 @@
+import { RetargetableEventListener } from './RetargetableEventListener';
 import { Timenav } from './Timenav';
 
 export abstract class Drawable {
 
-    /**
-     * Optional identifier.
-     *
-     * This is available as a user-convenience for callback handling,
-     * and not checked for unicity.
-     */
-    id?: string;
-
     private mutationListeners: Array<() => void> = [];
+    private eventListeners: RetargetableEventListener[] = [];
 
     constructor(readonly timenav: Timenav) {
         this.timenav = timenav;
@@ -41,6 +35,18 @@ export abstract class Drawable {
 
     protected createAnimatableProperty(value: number) {
         return this.timenav.createAnimatableProperty(value);
+    }
+
+    protected addClickListener(listener: () => void) {
+        const l: RetargetableEventListener = {
+            type: 'click',
+            listener,
+        };
+        this.eventListeners.push(l);
+        return l;
+    }
+
+    protected addHoverListener(listener: () => void, cursor?: string) {
     }
 
     /**

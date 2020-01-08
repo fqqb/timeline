@@ -1,42 +1,12 @@
-import { DOMTarget } from './DOMTarget';
 import { Event } from './Event';
 import { Line } from './Line';
+import { RetargetableEventListener } from './RetargetableEventListener';
+import { Timenav } from './Timenav';
 import { nvl, roundRect } from './utils';
 
-class ComputedEvent {
-
-    start: number;
-    stop: number;
-    title?: string;
-    color: string;
-    textColor: string;
-    textSize: number;
-    fontFamily: string;
-    borderColor: string;
-    borderWidth: number;
-    marginLeft: number;
-    cornerRadius: number;
-
-    target: DOMTarget;
-
-    constructor(line: EventLine, readonly event: Event) {
-        this.start = event.start;
-        this.stop = event.stop;
-        this.title = event.title;
-        this.color = nvl(event.color, line.eventColor);
-        this.textColor = nvl(event.textColor, line.textColor);
-        this.textSize = nvl(event.textSize, line.textSize);
-        this.fontFamily = nvl(event.fontFamily, line.fontFamily);
-        this.borderColor = nvl(event.borderColor, line.borderColor);
-        this.borderWidth = nvl(event.borderWidth, line.borderWidth);
-        this.marginLeft = nvl(event.marginLeft, line.eventMarginLeft);
-        this.cornerRadius = nvl(event.cornerRadius, line.cornerRadius);
-
-        this.target = new DOMTarget();
-        this.target.onclick = () => { console.log('got click', event); };
-        this.target.onmousemove = () => { console.log('got mousemove', event); };
-        this.target.onmouseout = () => { console.log('got mouseout', event); };
-    }
+export interface AnnotatedEvent extends Event {
+    clickListener?: RetargetableEventListener;
+    hover: boolean;
 }
 
 export class EventLine extends Line<Event[]> {
@@ -54,57 +24,129 @@ export class EventLine extends Line<Event[]> {
     private _eventMarginLeft = 5;
     private _cornerRadius = 1;
 
-    private events: ComputedEvent[] = [];
+    private annotatedEvents: AnnotatedEvent[] = [];
 
-    onDataUpdate() {
-        this.events.length = 0;
+    constructor(timenav: Timenav) {
+        super(timenav);
+        this.addMutationListener(() => this.processData());
+    }
+
+    private processData() {
+        this.annotatedEvents.length = 0;
         for (const event of (this.data || [])) {
-            this.events.push(new ComputedEvent(this, event));
+            const annotatedEvent: AnnotatedEvent = { ...event, hover: false };
+
+            annotatedEvent.clickListener = this.addClickListener(() => {
+                console.log('event got clicked', event);
+            });
+            this.addHoverListener(() => {
+                annotatedEvent.hover = true;
+            });
+
+            annotatedEvent.clickListener.cursor = 'pointer';
+            this.annotatedEvents.push(annotatedEvent);
         }
     }
 
     drawLineContent(ctx: CanvasRenderingContext2D) {
-        ctx.canvas.height = this._eventHeight + this._marginBottom + this._marginTop;
+        ctx.canvas.height = this.eventHeight + this.marginBottom + this.marginTop;
 
-        for (const event of this.events) {
+        for (const event of this.annotatedEvents) {
             const t1 = this.timenav.positionTime(event.start);
             const t2 = this.timenav.positionTime(event.stop);
-            ctx.fillStyle = event.color;
+            ctx.fillStyle = nvl(event.color, this.eventColor);
 
             const x = Math.round(t1);
-            const y = Math.round(this._marginTop);
+            const y = Math.round(this.marginTop);
             const width = Math.round(t2 - x);
             const height = this._eventHeight;
-            const r = event.cornerRadius;
+            const r = nvl(event.cornerRadius, this.cornerRadius);
             roundRect(ctx, x, y, width, height, r);
             ctx.fill();
 
-            event.target.bbox = { x, y, width, height };
+            event.clickListener!.target = { x, y, width, height };
 
-            const borderWidth = event.borderWidth;
+            const borderWidth = nvl(event.borderWidth, this.borderWidth);
             if (borderWidth) {
-                ctx.strokeStyle = event.borderColor;
+                ctx.strokeStyle = nvl(event.borderColor, this.borderColor);
                 ctx.lineWidth = borderWidth;
                 roundRect(ctx, x + 0.5, y + 0.5, width - 1, height - 1, r);
                 ctx.stroke();
             }
 
             if (event.title) {
-                ctx.fillStyle = event.textColor;
-                ctx.font = `${event.textSize}px ${event.fontFamily}`;
+                ctx.fillStyle = nvl(event.textColor, this.textColor);
+                ctx.font = `${nvl(event.textSize, this.textSize)}px ${nvl(event.fontFamily, this.fontFamily)}`;
                 ctx.textBaseline = 'middle';
-                const textX = x + event.marginLeft;
+                const textX = x + nvl(event.marginLeft, this.eventMarginLeft);
                 ctx.fillText(event.title, textX, y + (height / 2));
             }
         }
     }
 
+    get marginTop() { return this._marginTop; }
+    set marginTop(marginTop: number) {
+        this._marginTop = marginTop;
+        this.reportMutation();
+    }
+
+    get marginBottom() { return this._marginBottom; }
+    set marginBottom(marginBottom: number) {
+        this._marginBottom = marginBottom;
+        this.reportMutation();
+    }
+
+    get eventHeight() { return this._eventHeight; }
+    set eventHeight(eventHeight: number) {
+        this._eventHeight = eventHeight;
+        this.reportMutation();
+    }
+
     get eventColor() { return this._eventColor; }
+    set eventColor(eventColor: string) {
+        this._eventColor = eventColor;
+        this.reportMutation();
+    }
+
     get textColor() { return this._textColor; }
+    set textColor(textColor: string) {
+        this._textColor = textColor;
+        this.reportMutation();
+    }
+
     get textSize() { return this._textSize; }
+    set textSize(textSize: number) {
+        this._textSize = textSize;
+        this.reportMutation();
+    }
+
     get fontFamily() { return this._fontFamily; }
+    set fontFamily(fontFamily: string) {
+        this._fontFamily = fontFamily;
+        this.reportMutation();
+    }
+
     get borderWidth() { return this._borderWidth; }
+    set borderWidth(borderWidth: number) {
+        this._borderWidth = borderWidth;
+        this.reportMutation();
+    }
+
     get borderColor() { return this._borderColor; };
+    set borderColor(borderColor: string) {
+        this._borderColor = borderColor;
+        this.reportMutation();
+    }
+
     get eventMarginLeft() { return this._eventMarginLeft; }
+    set eventMarginLeft(eventMarginLeft: number) {
+        this._eventMarginLeft = eventMarginLeft;
+        this.reportMutation();
+    }
+
     get cornerRadius() { return this._cornerRadius; }
+    set cornerRadius(cornerRadius: number) {
+        this._cornerRadius = cornerRadius;
+        this.reportMutation();
+    }
 }

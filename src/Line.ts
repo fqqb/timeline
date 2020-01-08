@@ -29,11 +29,7 @@ export abstract class Line<T> extends Drawable {
     get data() { return this._data; }
     set data(data: T | undefined) {
         this._data = data;
-        this.onDataUpdate(data);
         this.reportMutation();
-    }
-
-    protected onDataUpdate(data?: T) {
     }
 
     /**

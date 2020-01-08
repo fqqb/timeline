@@ -131,6 +131,10 @@ export class DOMEventHandler {
                 time: this.mouse2time(mouseX),
             };
             this.timenav.fireEvent('viewportmousemove', vpEvent);
+
+            for (const line of this.timenav.getLines()) {
+                // line.dispatchEvent(vpEvent);
+            }
         }
 
         if (this.grabPoint && !this.grabbing && isLeftPressed(event)) {

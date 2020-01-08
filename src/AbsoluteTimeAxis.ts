@@ -117,16 +117,16 @@ class HourScale implements Scale {
         ctx.strokeStyle = axis.timenav.rowBorderColor;
         ctx.beginPath();
         for (const x of this.majorX) {
-            ctx.moveTo(x, 0);
-            ctx.lineTo(x, height);
+            ctx.moveTo(Math.round(x) + 0.5, 0);
+            ctx.lineTo(Math.round(x) + 0.5, height);
         }
         for (const x of this.midX) {
-            ctx.moveTo(x, height * 0.6);
-            ctx.lineTo(x, height);
+            ctx.moveTo(Math.round(x) + 0.5, height * 0.6);
+            ctx.lineTo(Math.round(x) + 0.5, height);
         }
         for (const x of this.minorX) {
-            ctx.moveTo(x, height * 0.8);
-            ctx.lineTo(x, height);
+            ctx.moveTo(Math.round(x) + 0.5, height * 0.8);
+            ctx.lineTo(Math.round(x) + 0.5, height);
         }
         ctx.stroke();
 
@@ -151,8 +151,8 @@ class HourScale implements Scale {
             ctx.strokeStyle = axis.timenav.rowBorderColor;
             ctx.beginPath();
             for (const x of this.majorX) {
-                ctx.moveTo(x, axis.y + axis.height);
-                ctx.lineTo(x, ctx.canvas.height);
+                ctx.moveTo(Math.round(x) + 0.5, axis.y + axis.height);
+                ctx.lineTo(Math.round(x) + 0.5, ctx.canvas.height);
             }
             ctx.stroke();
         }
