@@ -7,18 +7,18 @@ order: 20
 
 # Getting Started
 
-A minimal setup for creating a Timenav component goes like this:
+A minimal setup for creating a Timeline component goes like this:
 
 ```html
 <!doctype html>
 <html>
 <body>
-    <div id="timenav" style="height: 100px"></div>
+    <div id="timeline" style="height: 100px"></div>
     <script type="module">
-        import { Timenav } from 'https://unpkg.com/timenav/timenav.js';
+        import { Timeline } from 'https://unpkg.com/timeline/timeline.js';
         window.addEventListener('load', () => {
-            const targetEl = document.getElementById('timenav');
-            new Timenav(targetEl);
+            const targetEl = document.getElementById('timeline');
+            new Timeline(targetEl);
         });
     </script>
 </body>
@@ -27,13 +27,13 @@ A minimal setup for creating a Timenav component goes like this:
 
 You must specify an existing HTML DOM element as the host. This is typically a `<div>`, but any block element will do.
 
-A Timenav instance will automatically use all of the available space of its host element, based on the effective `clientHeight` and `clientWidth` properties. In this example we use an inline CSS rule to set the height to `100px`, but you can also use other other means to set the height.
+A Timeline instance will automatically use all of the available space of its host element, based on the effective `clientHeight` and `clientWidth` properties. In this example we use an inline CSS rule to set the height to `100px`, but you can also use other other means to set the height.
 
-While functional, our first Timenav looks rather bare-bones:
+While functional, our first Timeline looks rather bare-bones:
 
 {% include demo.html src="/examples/getting-started1.html"
                      height="100px"
-                     caption="An empty timenav" %}
+                     caption="An empty timeline" %}
 
 We see just two empty panels: a **sidebar** and the **main area**. Notice how the sidebar can be resized with the mouse.
 
@@ -45,11 +45,11 @@ The main area defaults to showing a numeric range between 0 and 100. We can use 
 ```javascript
 const line1 = new EventLine();
 line1.label = 'Line 1';
-timenav.add(line1);
+timeline.add(line1);
 
 const line2 = new EventLine();
 line2.label = 'Line 2';
-timenav.add(line2);
+timeline.add(line2);
 
 line1.data = [
     { start: 20, stop: 40, label: 'Event 1' },
@@ -66,7 +66,7 @@ line2.data = [
                      height="100px"
                      caption="First data" %}
 
-Event 4 is not fully visible, but you can use the mouse to pan the Timenav canvas.
+Event 4 is not fully visible, but you can use the mouse to pan the Timeline canvas.
 
 
 ## Absolute Time

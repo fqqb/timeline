@@ -1,5 +1,5 @@
 import { Drawable } from './Drawable';
-import { Timenav } from './Timenav';
+import { Timeline } from './Timeline';
 
 export class TimeLocator extends Drawable {
 
@@ -9,8 +9,8 @@ export class TimeLocator extends Drawable {
     private _lineWidth = 1;
     private _lineDash: number[] = [];
 
-    constructor(timenav: Timenav, private timeProvider: () => number | undefined) {
-        super(timenav);
+    constructor(timeline: Timeline, private timeProvider: () => number | undefined) {
+        super(timeline);
     }
 
     drawOverlay(ctx: CanvasRenderingContext2D) {
@@ -19,7 +19,7 @@ export class TimeLocator extends Drawable {
             return;
         }
 
-        const x = Math.round(this.timenav.positionTime(t));
+        const x = Math.round(this.timeline.positionTime(t));
 
         ctx.strokeStyle = this.lineColor;
         ctx.lineWidth = this.lineWidth;

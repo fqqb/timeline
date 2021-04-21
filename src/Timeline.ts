@@ -2,7 +2,7 @@ import { AnimatableProperty } from './AnimatableProperty';
 import { DefaultSidebar } from './DefaultSidebar';
 import { DOMEventHandler, Tool } from './DOMEventHandler';
 import { Drawable } from './Drawable';
-import { TimenavEvent, TimenavEventHandlers, TimenavEventMap } from './events';
+import { TimelineEvent, TimelineEventHandlers, TimelineEventMap } from './events';
 import { Line } from './Line';
 import { Sidebar } from './Sidebar';
 
@@ -16,7 +16,7 @@ function resizeCanvas(canvas: HTMLCanvasElement, width: number, height: number) 
     }
 }
 
-export class Timenav {
+export class Timeline {
 
     private _sidebar?: Sidebar;
     private _drawables: Drawable[] = [];
@@ -37,7 +37,7 @@ export class Timenav {
     // A canvas outside of the scrollpane
     private frozenCanvas: HTMLCanvasElement;
 
-    private eventListeners: TimenavEventHandlers = {
+    private eventListeners: TimelineEventHandlers = {
         viewportmousemove: [],
         viewportmouseout: [],
     };
@@ -70,14 +70,14 @@ export class Timenav {
 
         // Wrapper to not modify the user element much more
         this.rootPanel = document.createElement('div');
-        this.rootPanel.className = 'timenav-root';
+        this.rootPanel.className = 'timeline-root';
         this.rootPanel.style.overflow = 'hidden';
         this.rootPanel.style.position = 'relative';
         this.rootPanel.style.fontSize = '0';
         targetElement.appendChild(this.rootPanel);
 
         this.scrollPanel = document.createElement('div');
-        this.scrollPanel.className = 'timenav-scroll';
+        this.scrollPanel.className = 'timeline-scroll';
         this.scrollPanel.style.height = '100%';
         this.scrollPanel.style.overflow = 'hidden';
         this.scrollPanel.style.position = 'relative';
@@ -98,7 +98,7 @@ export class Timenav {
         this.eventHandler = new DOMEventHandler(this, canvas);
 
         this.frozenCanvas = document.createElement('canvas');
-        this.frozenCanvas.className = 'timenav-frozen';
+        this.frozenCanvas.className = 'timeline-frozen';
         this.frozenCanvas.style.position = 'absolute';
         this.frozenCanvas.style.top = '0';
         this.frozenCanvas.style.left = '0';
@@ -186,7 +186,7 @@ export class Timenav {
     get stop() { return this._stop.value; }
 
     /**
-     * The pixel width of this Timenav (incl. sidebar)
+     * The pixel width of this Timeline (incl. sidebar)
      */
     get width() {
         return this.scrollPanel.clientWidth;
@@ -224,7 +224,7 @@ export class Timenav {
     }
 
     /**
-     * The pixel width of this Timenav (excl. sidebar)
+     * The pixel width of this Timeline (excl. sidebar)
      */
     get mainWidth() {
         let sidebarWidth = this.sidebar?.clippedWidth || 0;
@@ -244,16 +244,16 @@ export class Timenav {
         return drawable;
     }
 
-    addEventListener<K extends keyof TimenavEventMap>(type: K, listener: ((ev: TimenavEventMap[K]) => void)): void;
-    addEventListener(type: string, listener: (ev: TimenavEvent) => void): void {
+    addEventListener<K extends keyof TimelineEventMap>(type: K, listener: ((ev: TimelineEventMap[K]) => void)): void;
+    addEventListener(type: string, listener: (ev: TimelineEvent) => void): void {
         if (!(type in this.eventListeners)) {
             throw new Error(`Unknown event '${type}'`);
         }
         this.eventListeners[type].push(listener);
     }
 
-    removeEventListener<K extends keyof TimenavEventMap>(type: K, listener: ((ev: TimenavEventMap[K]) => void)): void;
-    removeEventListener(type: string, listener: (ev: TimenavEvent) => void): void {
+    removeEventListener<K extends keyof TimelineEventMap>(type: K, listener: ((ev: TimelineEventMap[K]) => void)): void;
+    removeEventListener(type: string, listener: (ev: TimelineEvent) => void): void {
         if (!(type in this.eventListeners)) {
             throw new Error(`Unknown event '${type}'`);
         }
@@ -261,7 +261,7 @@ export class Timenav {
             .filter((el: any) => (el !== listener));
     }
 
-    fireEvent(type: string, event: TimenavEvent) {
+    fireEvent(type: string, event: TimelineEvent) {
         const listeners = this.eventListeners[type];
         listeners.forEach(listener => listener(event));
     }

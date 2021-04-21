@@ -1,25 +1,25 @@
-import { AbsoluteTimeAxis, EventLine, MouseTracker, TimeLocator, Timenav } from '/assets/timenav.js';
+import { AbsoluteTimeAxis, EventLine, MouseTracker, Timeline, TimeLocator } from '/assets/timeline.js';
 
 window.addEventListener('load', () => {
-    const targetEl = document.getElementById('timenav');
-    const timenav = new Timenav(targetEl);
+    const targetEl = document.getElementById('timeline');
+    const timeline = new Timeline(targetEl);
 
-    const axis = new AbsoluteTimeAxis(timenav);
+    const axis = new AbsoluteTimeAxis(timeline);
     axis.frozen = true;
 
-    const locator = new TimeLocator(timenav, () => new Date().getTime());
+    const locator = new TimeLocator(timeline, () => new Date().getTime());
     locator.knobColor = 'salmon';
     locator.lineColor = 'salmon';
 
-    const tracker = new MouseTracker(timenav);
+    const tracker = new MouseTracker(timeline);
 
     const start = luxon.DateTime.local().startOf('day');
     const stop = luxon.DateTime.local().endOf('day');
-    timenav.setBounds(start.toMillis(), stop.toMillis());
+    timeline.setBounds(start.toMillis(), stop.toMillis());
 
 
     for (let i = 0; i < 10; i++) {
-        const line = new EventLine(timenav);
+        const line = new EventLine(timeline);
         line.data = [
             {
                 start: start.plus({ hours: 5 }).toMillis(),
@@ -35,9 +35,9 @@ window.addEventListener('load', () => {
     let moveInterval;
 
     window.toggleMove = (x) => {
-        timenav.panBy(x);
+        timeline.panBy(x);
         clearInterval(moveInterval);
-        moveInterval = setInterval(() => timenav.panBy(x), 50);
+        moveInterval = setInterval(() => timeline.panBy(x), 50);
     };
 
     window.untoggleMove = () => {
@@ -46,17 +46,17 @@ window.addEventListener('load', () => {
     };
 
     window.pageLeft = () => {
-        const x = timenav.distanceBetween(timenav.start, timenav.stop);
-        timenav.panBy(-x);
+        const x = timeline.distanceBetween(timeline.start, timeline.stop);
+        timeline.panBy(-x);
     };
 
     window.pageRight = () => {
-        const x = timenav.distanceBetween(timenav.start, timenav.stop);
-        timenav.panBy(x);
+        const x = timeline.distanceBetween(timeline.start, timeline.stop);
+        timeline.panBy(x);
     };
 
-    window.zoomIn = () => timenav.zoomIn();
-    window.zoomOut = () => timenav.zoomOut();
+    window.zoomIn = () => timeline.zoomIn();
+    window.zoomOut = () => timeline.zoomOut();
 
     window.jumpToToday = () => {
         const dt = new Date();
@@ -64,15 +64,15 @@ window.addEventListener('load', () => {
         const start = dt.getTime();
         dt.setDate(dt.getDate() + 1);
         const stop = dt.getTime();
-        timenav.setBounds(start, stop);
+        timeline.setBounds(start, stop);
     };
 
-    window.jumpToNow = () => timenav.panTo(new Date().getTime());
+    window.jumpToNow = () => timeline.panTo(new Date().getTime());
 
-    window.toggleSidebar = () => timenav.sidebar.toggle();
+    window.toggleSidebar = () => timeline.sidebar.toggle();
 
     window.changeTool = tool => {
-        timenav.setActiveTool(tool);
+        timeline.setActiveTool(tool);
         for (const id of ['hand', 'range-select']) {
             document.getElementById(id).className = (tool === id ? 'active' : '');
         }

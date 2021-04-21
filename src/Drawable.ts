@@ -1,14 +1,13 @@
 import { RetargetableEventListener } from './RetargetableEventListener';
-import { Timenav } from './Timenav';
+import { Timeline } from './Timeline';
 
 export abstract class Drawable {
 
     private mutationListeners: Array<() => void> = [];
     private eventListeners: RetargetableEventListener[] = [];
 
-    constructor(readonly timenav: Timenav) {
-        this.timenav = timenav;
-        timenav.add(this);
+    constructor(readonly timeline: Timeline) {
+        timeline.add(this);
     }
 
     addMutationListener(mutationListener: () => void) {
@@ -30,11 +29,11 @@ export abstract class Drawable {
      */
     reportMutation() {
         this.mutationListeners.forEach(listener => listener());
-        this.timenav.requestRepaint();
+        this.timeline.requestRepaint();
     }
 
     protected createAnimatableProperty(value: number) {
-        return this.timenav.createAnimatableProperty(value);
+        return this.timeline.createAnimatableProperty(value);
     }
 
     protected addClickListener(listener: () => void) {
@@ -65,7 +64,7 @@ export abstract class Drawable {
     }
 
     /**
-     * Called when this drawable is removed from its Timenav.
+     * Called when this drawable is removed from its Timeline
      */
     disconnectedCallback() {
     }

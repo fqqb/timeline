@@ -1,11 +1,11 @@
 {
-  "name": "timenav",
+  "name": "@fqqb/timeline",
   "version": "1.0.0",
   "description": "Render events on an interactive timeline chart",
   "author": "fqqb",
   "license": "MIT",
-  "repository": "fqqb/timenav.js",
-  "homepage": "https://fqqb.github.io/timenav.js",
+  "repository": "fqqb/timeline",
+  "homepage": "https://fqqb.github.io/timeline",
   "scripts": {
     "build": "rollup -c",
     "clean": "rm -rf dist",
@@ -16,8 +16,8 @@
     "jekyll": "npm run tsdoc && npm run serve",
     "dev": "npx concurrently -n rollup,jekyll -c yellow,magenta npm:watch npm:jekyll"
   },
-  "main": "dist/timenav.umd.js",
-  "module": "dist/timenav.js",
+  "main": "dist/timeline.umd.js",
+  "module": "dist/timeline.js",
   "types": "dist/types/index.d.ts",
   "files": [
     "dist/"

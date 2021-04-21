@@ -570,7 +570,7 @@ h1 small {
     font-weight: bold;
 }
 
-.timenav-demo iframe {
+.timeline-demo iframe {
     border: 0;
     width: 100%;
     box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2), 0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12);
@@ -578,13 +578,13 @@ h1 small {
     margin-bottom: 15px;
 }
 
-.timenav-demo .caption {
+.timeline-demo .caption {
     text-align: center;
     margin-bottom: 30px;
     font-size: small;
 }
 
-.timenav-demo .caption::before {
+.timeline-demo .caption::before {
     counter-increment: my-sec-counter;
     content: 'Example ' counter(my-sec-counter) '. ';
 }

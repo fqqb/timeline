@@ -1,10 +1,10 @@
 ---
 layout: base
-title: About timenav.js
+title: About @fqqb/timeline
 order: 10
 ---
 
-**timenav.js** is a framework-agnostic JavaScript library for rendering interactive timeline charts such as this:
+**@fqqb/timeline** is a framework-agnostic JavaScript library for rendering interactive timeline charts such as this:
 
 {% include demo.html src="/examples/toolbar.html"
                      height="550px" %}
@@ -13,7 +13,7 @@ order: 10
 ## Download
 
 ````
-npm install --save timenav
+npm install --save @fqqb/timeline
 ````
 
 
@@ -22,12 +22,12 @@ npm install --save timenav
 ES Modules:
 
 ```html
-<div id="timenav"></div>
+<div id="timeline"></div>
 <script type="module">
-    import { Timenav } from 'https://unpkg.com/timenav/timenav.js';
+    import { Timeline } from 'https://unpkg.com/timeline/timeline.js';
 
-    const targetEl = document.getElementById('timenav');
-    const timenav = new Timenav(targetEl);
+    const targetEl = document.getElementById('timeline');
+    const timeline = new Timeline(targetEl);
     // ...
 </script>
 ```
@@ -36,11 +36,11 @@ ES Modules:
 UMD:
 
 ```html
-<div id="timenav"></div>
-<script src="https://unpkg.com/timenav/timenav.umd.js"></script>
+<div id="timeline"></div>
+<script src="https://unpkg.com/timeline/timeline.umd.js"></script>
 <script>
-    const targetEl = document.getElementById('timenav');
-    const timenav = new tn.Timenav(targetEl);
+    const targetEl = document.getElementById('timeline');
+    const timeline = new tn.Timeline(targetEl);
     // ...
 </script>
 ```

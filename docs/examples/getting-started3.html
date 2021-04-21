@@ -3,12 +3,12 @@
 <!doctype html>
 <html>
 <body style="padding: 0; margin: 0">
-    <div id="timenav" style="height: 100px"></div>
+    <div id="timeline" style="height: 100px"></div>
     <script type="module">
-        import { AbsoluteTimeAxis, EventLine, Timenav } from '{{- site.dist -}}';
+        import { AbsoluteTimeAxis, EventLine, Timeline } from '{{- site.dist -}}';
         window.addEventListener('load', () => {
-            const targetEl = document.getElementById('timenav');
-            const timenav = new Timenav(targetEl);
+            const targetEl = document.getElementById('timeline');
+            const timeline = new Timeline(targetEl);
 
             // Show 'today' (using local time)
             const start = new Date();
@@ -16,15 +16,15 @@
             const stop = new Date(start.getTime());
             stop.setDate(stop.getDate() + 1);
 
-            timenav.setBounds(start.getTime(), stop.getTime());
+            timeline.setBounds(start.getTime(), stop.getTime());
 
-            const axis = new AbsoluteTimeAxis(timenav);
+            const axis = new AbsoluteTimeAxis(timeline);
             axis.label = 'Time';
 
-            const line1 = new EventLine(timenav);
+            const line1 = new EventLine(timeline);
             line1.label = 'Line 1';
 
-            const line2 = new EventLine(timenav);
+            const line2 = new EventLine(timeline);
             line2.label = 'Line 2';
         });
     </script>

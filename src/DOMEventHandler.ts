@@ -1,5 +1,5 @@
 import { ViewportMouseMoveEvent, ViewportMouseOutEvent } from './events';
-import { Timenav } from './Timenav';
+import { Timeline } from './Timeline';
 
 /**
  * Swallows any click event wherever they may originate.
@@ -48,7 +48,7 @@ export class DOMEventHandler {
     private documentMouseUpListener = (e: MouseEvent) => this.onDocumentMouseUp(e);
     // private documentMouseLeaveListener = (e: any) => this.onDocumentMouseLeave(e);
 
-    constructor(private timenav: Timenav, private canvas: HTMLCanvasElement) {
+    constructor(private timeline: Timeline, private canvas: HTMLCanvasElement) {
         canvas.addEventListener('click', e => this.onCanvasClick(e), false);
         canvas.addEventListener('mousedown', e => this.onCanvasMouseDown(e), false);
         canvas.addEventListener('mouseout', e => this.onCanvasMouseOut(e), false);
@@ -57,19 +57,19 @@ export class DOMEventHandler {
     }
 
     private onCanvasClick(event: MouseEvent) {
-        this.timenav.clearSelection();
+        this.timeline.clearSelection();
     }
 
     private onCanvasMouseDown(event: MouseEvent) {
         document.removeEventListener('click', clickBlocker, true /* Must be same as when created */);
 
         if (isLeftPressed(event)) {
-            const sidebarWidth = this.timenav.sidebar?.clippedWidth || 0;
+            const sidebarWidth = this.timeline.sidebar?.clippedWidth || 0;
             const bbox = this.canvas.getBoundingClientRect();
             const mouseX = event.clientX - bbox.left;
             const mouseY = event.clientY - bbox.top;
 
-            if (this.timenav.sidebar && sidebarWidth - 5 < mouseX && mouseX <= sidebarWidth + 5) {
+            if (this.timeline.sidebar && sidebarWidth - 5 < mouseX && mouseX <= sidebarWidth + 5) {
                 this.grabTarget = 'DIVIDER';
                 this.grabPoint = { x: mouseX, y: mouseY };
                 this.initiateGrab(); // No snap detection for this
@@ -101,12 +101,12 @@ export class DOMEventHandler {
         const bbox = this.canvas.getBoundingClientRect();
         const mouseX = event.clientX - bbox.left;
         const mouseY = event.clientY - bbox.top;
-        const sidebarWidth = this.timenav.sidebar?.clippedWidth || 0;
+        const sidebarWidth = this.timeline.sidebar?.clippedWidth || 0;
 
         let overSidebar;
         let overDivider;
         let overViewport;
-        if (this.timenav.sidebar) {
+        if (this.timeline.sidebar) {
             overSidebar = mouseX <= sidebarWidth - 5;
             overDivider = !overSidebar && mouseX <= sidebarWidth + 5;
             overViewport = !overSidebar && !overDivider;
@@ -130,9 +130,9 @@ export class DOMEventHandler {
                 viewportY: event.clientY - bbox.top,
                 time: this.mouse2time(mouseX),
             };
-            this.timenav.fireEvent('viewportmousemove', vpEvent);
+            this.timeline.fireEvent('viewportmousemove', vpEvent);
 
-            for (const line of this.timenav.getLines()) {
+            for (const line of this.timeline.getLines()) {
                 // line.dispatchEvent(vpEvent);
             }
         }
@@ -155,21 +155,21 @@ export class DOMEventHandler {
             event.stopPropagation();
             switch (this.grabTarget) {
                 case 'DIVIDER':
-                    if (this.timenav.sidebar) {
-                        this.timenav.sidebar.width = mouseX;
+                    if (this.timeline.sidebar) {
+                        this.timeline.sidebar.width = mouseX;
                     }
                     break;
                 case 'VIEWPORT':
                     switch (this.tool) {
                         case 'hand':
                             const dx = mouseX - this.grabPoint!.x;
-                            this.timenav.panBy(-dx, false);
+                            this.timeline.panBy(-dx, false);
                             this.grabPoint = { x: mouseX, y: mouseY };
                             break;
                         case 'range-select':
                             const start = this.mouse2time(this.grabPoint!.x);
                             const stop = this.mouse2time(mouseX);
-                            this.timenav.setSelection(start, stop);
+                            this.timeline.setSelection(start, stop);
                             break;
                     }
                     break;
@@ -187,20 +187,20 @@ export class DOMEventHandler {
     private onWheel(event: WheelEvent) {
         const bbox = this.canvas.getBoundingClientRect();
         const mouseX = event.clientX - bbox.left;
-        const sidebarWidth = this.timenav.sidebar?.clippedWidth || 0;
+        const sidebarWidth = this.timeline.sidebar?.clippedWidth || 0;
 
         if (mouseX > sidebarWidth) {
             if (event.deltaX > 0) {
-                this.timenav.panBy(50);
+                this.timeline.panBy(50);
             } else if (event.deltaX < 0) {
-                this.timenav.panBy(-50);
+                this.timeline.panBy(-50);
             }
 
             const relto = this.mouse2time(mouseX);
             if (event.deltaY > 0) {
-                this.timenav.zoom(2, true, relto);
+                this.timeline.zoom(2, true, relto);
             } else if (event.deltaY < 0) {
-                this.timenav.zoom(0.5, true, relto);
+                this.timeline.zoom(0.5, true, relto);
             }
 
             event.preventDefault();
@@ -225,12 +225,12 @@ export class DOMEventHandler {
     }
 
     private mouse2time(mouseX: number) {
-        const sidebarWidth = this.timenav.sidebar?.clippedWidth || 0;
+        const sidebarWidth = this.timeline.sidebar?.clippedWidth || 0;
         const viewportX = mouseX - sidebarWidth;
-        const totalMillis = this.timenav.stop - this.timenav.start;
-        const totalPixels = this.timenav.mainWidth;
+        const totalMillis = this.timeline.stop - this.timeline.start;
+        const totalPixels = this.timeline.mainWidth;
         const offsetMillis = (viewportX / totalPixels) * totalMillis;
-        return this.timenav.start + offsetMillis;
+        return this.timeline.start + offsetMillis;
     }
 
     private maybeFireViewportMouseOut(event: MouseEvent) {
@@ -239,7 +239,7 @@ export class DOMEventHandler {
                 clientX: event.clientX,
                 clientY: event.clientY,
             };
-            this.timenav.fireEvent('viewportmouseout', vpEvent);
+            this.timeline.fireEvent('viewportmouseout', vpEvent);
         }
     }
 

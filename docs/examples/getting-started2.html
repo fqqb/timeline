@@ -3,17 +3,17 @@
 <!doctype html>
 <html>
 <body style="padding: 0; margin: 0">
-    <div id="timenav" style="height: 100px"></div>
+    <div id="timeline" style="height: 100px"></div>
     <script type="module">
-        import { EventLine, Timenav } from '{{- site.dist -}}';
+        import { EventLine, Timeline } from '{{- site.dist -}}';
         window.addEventListener('load', () => {
-            const targetEl = document.getElementById('timenav');
-            const timenav = new Timenav(targetEl);
+            const targetEl = document.getElementById('timeline');
+            const timeline = new Timeline(targetEl);
 
-            const line1 = new EventLine(timenav);
+            const line1 = new EventLine(timeline);
             line1.label = 'Line 1';
 
-            const line2 = new EventLine(timenav);
+            const line2 = new EventLine(timeline);
             line2.label = 'Line 2';
         });
     </script>

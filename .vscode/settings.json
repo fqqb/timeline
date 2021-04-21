@@ -14,7 +14,7 @@
     "search.exclude": {
         "**/dist": true,
         "**/docs/_site": true,
-        "**/docs/assets/timenav.js": true,
-        "**/docs/assets/timenav.js.map": true
+        "**/docs/assets/timeline.js": true,
+        "**/docs/assets/timeline.js.map": true
     }
 }

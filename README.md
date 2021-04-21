@@ -1,4 +1,4 @@
-# timenav.js
+# @fqqb/timeline
 
 Render events on an interactive timeline chart.
 
@@ -6,18 +6,18 @@ Render events on an interactive timeline chart.
 ## Getting Started
 
 ```shell
-npm install --save timenav
+npm install --save @fqqb/timeline
 ```
 
 ```html
-<div id="timenav"></div>
+<div id="timeline"></div>
 ```
 
 ```js
-import { Timenav } from 'timenav';
+import { Timeline } from '@fqqb/timeline';
 
-var targetEl = document.getElementById('timenav');
-var timenav = new Timenav(targetEl);
+var targetEl = document.getElementById('timeline');
+var timeline = new Timeline(targetEl);
 ```
 
 

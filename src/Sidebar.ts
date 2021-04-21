@@ -37,7 +37,7 @@ export abstract class Sidebar extends Drawable {
     open() {
         if (!this.opened) {
             this._opened = true;
-            this._clippedWidth.setTransition(this.timenav.frameTime, this._width);
+            this._clippedWidth.setTransition(this.timeline.frameTime, this._width);
             this.reportMutation();
         }
     }
@@ -45,7 +45,7 @@ export abstract class Sidebar extends Drawable {
     close() {
         if (this.opened) {
             this._opened = false;
-            this._clippedWidth.setTransition(this.timenav.frameTime, 0);
+            this._clippedWidth.setTransition(this.timeline.frameTime, 0);
             this.reportMutation();
         }
     }

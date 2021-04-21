@@ -1,7 +1,7 @@
 import { Event } from './Event';
 import { Line } from './Line';
 import { RetargetableEventListener } from './RetargetableEventListener';
-import { Timenav } from './Timenav';
+import { Timeline } from './Timeline';
 import { nvl, roundRect } from './utils';
 
 export interface AnnotatedEvent extends Event {
@@ -26,8 +26,8 @@ export class EventLine extends Line<Event[]> {
 
     private annotatedEvents: AnnotatedEvent[] = [];
 
-    constructor(timenav: Timenav) {
-        super(timenav);
+    constructor(timeline: Timeline) {
+        super(timeline);
         this.addMutationListener(() => this.processData());
     }
 
@@ -52,8 +52,8 @@ export class EventLine extends Line<Event[]> {
         ctx.canvas.height = this.eventHeight + this.marginBottom + this.marginTop;
 
         for (const event of this.annotatedEvents) {
-            const t1 = this.timenav.positionTime(event.start);
-            const t2 = this.timenav.positionTime(event.stop);
+            const t1 = this.timeline.positionTime(event.start);
+            const t2 = this.timeline.positionTime(event.stop);
             ctx.fillStyle = nvl(event.color, this.eventColor);
 
             const x = Math.round(t1);

@@ -1,14 +1,14 @@
-export interface TimenavEvent {
+export interface TimelineEvent {
     detail?: any;
 }
 
-export interface TimenavEventMap {
-    [index: string]: TimenavEvent;
+export interface TimelineEventMap {
+    [index: string]: TimelineEvent;
     'viewportmousemove': ViewportMouseMoveEvent;
     'viewportmouseout': ViewportMouseOutEvent;
 }
 
-export interface ViewportMouseMoveEvent extends TimenavEvent {
+export interface ViewportMouseMoveEvent extends TimelineEvent {
     clientX: number;
     clientY: number;
     viewportX: number;
@@ -16,11 +16,11 @@ export interface ViewportMouseMoveEvent extends TimenavEvent {
     time: number;
 }
 
-export interface ViewportMouseOutEvent extends TimenavEvent {
+export interface ViewportMouseOutEvent extends TimelineEvent {
     clientX: number;
     clientY: number;
 }
 
-export type TimenavEventHandlers = {
-    [index: string]: Array<(ev: TimenavEvent) => void>;
+export type TimelineEventHandlers = {
+    [index: string]: Array<(ev: TimelineEvent) => void>;
 };

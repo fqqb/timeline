@@ -82,10 +82,10 @@ class HourScale implements Scale {
 
     drawLineContent(ctx: CanvasRenderingContext2D, axis: AbsoluteTimeAxis) {
         // Trunc to hours before positioning
-        let t = startOfHour(axis.timenav.start);
+        let t = startOfHour(axis.timeline.start);
 
-        const halfHourDistance = axis.timenav.distanceBetween(t, t + HALF_HOUR);
-        const quarterHourDistance = axis.timenav.distanceBetween(t, t + QUARTER_HOUR);
+        const halfHourDistance = axis.timeline.distanceBetween(t, t + HALF_HOUR);
+        const quarterHourDistance = axis.timeline.distanceBetween(t, t + QUARTER_HOUR);
 
         this.majorX.length = 0;
         this.majorLabels.length = 0;
@@ -93,8 +93,8 @@ class HourScale implements Scale {
         this.minorX.length = 0;
 
         const dt = new Date();
-        while (t <= axis.timenav.stop) {
-            const x = axis.timenav.positionTime(t);
+        while (t <= axis.timeline.stop) {
+            const x = axis.timeline.positionTime(t);
             dt.setTime(t);
 
             this.majorX.push(x);
@@ -114,7 +114,7 @@ class HourScale implements Scale {
 
         const height = ctx.canvas.height;
         ctx.lineWidth = 1;
-        ctx.strokeStyle = axis.timenav.rowBorderColor;
+        ctx.strokeStyle = axis.timeline.rowBorderColor;
         ctx.beginPath();
         for (const x of this.majorX) {
             ctx.moveTo(Math.round(x) + 0.5, 0);
@@ -130,7 +130,7 @@ class HourScale implements Scale {
         }
         ctx.stroke();
 
-        ctx.font = `${axis.timenav.textSize}px ${axis.timenav.fontFamily}`;
+        ctx.font = `${axis.timeline.textSize}px ${axis.timeline.fontFamily}`;
         ctx.fillStyle = 'grey';
         ctx.textBaseline = 'middle';
         for (let i = 0; i < this.majorLabels.length; i++) {
@@ -148,7 +148,7 @@ class HourScale implements Scale {
     drawOverlay(ctx: CanvasRenderingContext2D, axis: AbsoluteTimeAxis) {
         if (axis.fullHeight) {
             ctx.lineWidth = 1;
-            ctx.strokeStyle = axis.timenav.rowBorderColor;
+            ctx.strokeStyle = axis.timeline.rowBorderColor;
             ctx.beginPath();
             for (const x of this.majorX) {
                 ctx.moveTo(Math.round(x) + 0.5, axis.y + axis.height);

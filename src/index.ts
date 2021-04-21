@@ -9,6 +9,6 @@ export { Line } from './Line';
 export { MouseTracker } from './MouseTracker';
 export { RetargetableEventListener } from './RetargetableEventListener';
 export { Sidebar } from './Sidebar';
+export { Timeline } from './Timeline';
 export { TimeLocator } from './TimeLocator';
-export { Timenav } from './Timenav';
 

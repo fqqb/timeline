@@ -1,6 +1,6 @@
 import { ViewportMouseMoveEvent } from './events';
+import { Timeline } from './Timeline';
 import { TimeLocator } from './TimeLocator';
-import { Timenav } from './Timenav';
 
 
 /**
@@ -21,18 +21,18 @@ export class MouseTracker extends TimeLocator {
         this.reportMutation();
     };
 
-    constructor(timenav: Timenav) {
-        super(timenav, () => this.time);
+    constructor(timeline: Timeline) {
+        super(timeline, () => this.time);
         this.lineColor = '#ccc';
         this.knobColor = '#ccc';
         this.lineDash = [4, 3];
 
-        timenav.addEventListener('viewportmousemove', this.mouseMoveListener);
-        timenav.addEventListener('viewportmouseout', this.mouseOutListener);
+        timeline.addEventListener('viewportmousemove', this.mouseMoveListener);
+        timeline.addEventListener('viewportmouseout', this.mouseOutListener);
     }
 
     disconnectedCallback() {
-        this.timenav.removeEventListener('viewportmousemove', this.mouseMoveListener);
-        this.timenav.removeEventListener('viewportmouseout', this.mouseOutListener);
+        this.timeline.removeEventListener('viewportmousemove', this.mouseMoveListener);
+        this.timeline.removeEventListener('viewportmouseout', this.mouseOutListener);
     }
 }

@@ -15,16 +15,16 @@ export default {
   ],
   output: [
     {
-      file: 'dist/timenav.umd.js',
+      file: 'dist/timeline.umd.js',
       name: 'tn',
       format: 'umd',
       sourcemap: true
     }, {
-      file: 'dist/timenav.js',
+      file: 'dist/timeline.js',
       format: 'esm',
       sourcemap: true
     }, {
-      file: 'docs/assets/timenav.js',
+      file: 'docs/assets/timeline.js',
       format: 'esm',
       sourcemap: true
     }

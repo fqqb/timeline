@@ -56,7 +56,7 @@ export abstract class Line<T> extends Drawable {
     }
 
     beforeDraw() {
-        this.offscreenCanvas.width = this.timenav.mainWidth;
+        this.offscreenCanvas.width = this.timeline.mainWidth;
         this.offscreenCanvas.height = 20;
         const ctx = this.offscreenCanvas.getContext('2d')!;
         this.drawLineContent(ctx);
