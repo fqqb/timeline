@@ -33,7 +33,7 @@ export class DefaultSidebar extends Sidebar {
         }
 
         ctx.globalAlpha = 0.2;
-        ctx.fillStyle = '#aaa';
+        ctx.fillStyle = '#eee';
         ctx.fillRect(0, 0, this.clippedWidth, canvas.height);
         ctx.globalAlpha = 1;
 

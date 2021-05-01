@@ -43,6 +43,7 @@ export class Timeline {
     };
 
     private eventHandler: DOMEventHandler;
+    private repaintIntervalHandle?: number;
 
     /**
      * If true, some actions (e.g. panBy) will animate
@@ -110,10 +111,13 @@ export class Timeline {
         window.requestAnimationFrame(t => this.step(t));
 
         // Periodically redraw everything (used by continuously changing elements)
-        window.setInterval(() => this.requestRepaint(), this.autoRepaintDelay);
+        this.repaintIntervalHandle = window.setInterval(() => this.requestRepaint(), this.autoRepaintDelay);
     }
 
     disconnect() {
+        if (this.repaintIntervalHandle) {
+            window.clearInterval(this.repaintIntervalHandle);
+        }
         for (const drawable of this._drawables) {
             drawable.disconnectedCallback();
         }

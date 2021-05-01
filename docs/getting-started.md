@@ -43,13 +43,11 @@ We see just two empty panels: a **sidebar** and the **main area**. Notice how th
 The main area defaults to showing a numeric range between 0 and 100. We can use this knowledge to position a few events.
 
 ```javascript
-const line1 = new EventLine();
+const line1 = new EventLine(timeline);
 line1.label = 'Line 1';
-timeline.add(line1);
 
-const line2 = new EventLine();
+const line2 = new EventLine(timeline);
 line2.label = 'Line 2';
-timeline.add(line2);
 
 line1.data = [
     { start: 20, stop: 40, label: 'Event 1' },
