@@ -1,3 +1,4 @@
+import { Graphics, Path } from './Graphics';
 import { Line } from './Line';
 import { Sidebar } from './Sidebar';
 
@@ -8,67 +9,77 @@ export class DefaultSidebar extends Sidebar {
     private _fontFamily = 'Verdana, Geneva, sans-serif';
     private _textSize = 10;
 
-    drawContent(ctx: CanvasRenderingContext2D) {
-        const tmpCanvas = this.drawOffscreen(this.width, ctx.canvas.height);
-        ctx.drawImage(tmpCanvas, 0, 0);
+    drawContent(g: Graphics) {
+        const offscreen = g.createChild(this.width, g.canvas.height);
+        this.drawOffscreen(offscreen);
+        g.copy(offscreen, 0, 0);
     }
 
-    private drawOffscreen(width: number, height: number) {
-        const canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
-
-        const ctx = canvas.getContext('2d')!;
-
-        ctx.fillStyle = this.timeline.backgroundOddColor;
-        ctx.fillRect(0, 0, this.clippedWidth, canvas.height);
+    private drawOffscreen(g: Graphics) {
+        g.fillRect({
+            x: 0,
+            y: 0,
+            width: this.clippedWidth,
+            height: g.canvas.height,
+            color: this.timeline.backgroundOddColor,
+        });
 
         const lines = this.timeline.getLines().filter(l => l.frozen)
             .concat(this.timeline.getLines().filter(l => !l.frozen));
 
         let backgroundColor = this.timeline.backgroundOddColor;
         for (const line of lines) {
-            this.drawLine(ctx, line, backgroundColor);
+            this.drawLine(g, line, backgroundColor);
             backgroundColor = (backgroundColor === this.timeline.backgroundOddColor) ? this.timeline.backgroundEvenColor : this.timeline.backgroundOddColor;
         }
 
-        ctx.globalAlpha = 0.2;
-        ctx.fillStyle = '#eee';
-        ctx.fillRect(0, 0, this.clippedWidth, canvas.height);
-        ctx.globalAlpha = 1;
+        g.fillRect({
+            x: 0,
+            y: 0,
+            width: this.clippedWidth,
+            height: g.canvas.height,
+            color: '#eee',
+            opacity: 0.2,
+        });
 
         for (const line of lines) {
             if (line.label) {
-                ctx.fillStyle = this.foregroundColor;
-                ctx.font = `${this.textSize}px ${this.fontFamily}`;
-                ctx.textBaseline = 'middle';
-                ctx.fillText(line.label, 5, line.y + (line.height / 2));
+                g.fillText({
+                    x: 5,
+                    y: line.y + (line.height / 2),
+                    align: 'left',
+                    baseline: 'middle',
+                    color: this.foregroundColor,
+                    font: `${this.textSize}px ${this.fontFamily}`,
+                    text: line.label,
+                });
             }
         }
 
         // Right vertical divider
-        ctx.lineWidth = 1;
-        ctx.strokeStyle = this.dividerColor;
-        ctx.beginPath();
-        ctx.moveTo(this.clippedWidth - 0.5, 0);
-        ctx.lineTo(this.clippedWidth - 0.5, canvas.height);
-        ctx.stroke();
-
-        return canvas;
+        const dividerX = this.clippedWidth - 0.5;
+        g.strokePath({
+            color: this.dividerColor,
+            path: new Path(dividerX, 0).lineTo(dividerX, g.canvas.height),
+        });
     }
 
-    private drawLine(ctx: CanvasRenderingContext2D, line: Line<any>, backgroundColor: string) {
-        ctx.fillStyle = backgroundColor;
-        ctx.fillRect(0, line.y, this.width, line.height);
+    private drawLine(g: Graphics, line: Line<any>, backgroundColor: string) {
+        g.fillRect({
+            x: 0,
+            y: line.y,
+            width: this.width,
+            height: line.height,
+            color: backgroundColor,
+        });
 
         // Bottom horizontal divider
-        ctx.lineWidth = this.timeline.rowBorderLineWidth;
-        ctx.strokeStyle = this.timeline.rowBorderColor;
         const dividerY = line.y + line.height + 0.5;
-        ctx.beginPath();
-        ctx.moveTo(0, dividerY);
-        ctx.lineTo(this.clippedWidth, dividerY);
-        ctx.stroke();
+        g.strokePath({
+            color: this.timeline.rowBorderColor,
+            path: new Path(0, dividerY).lineTo(this.clippedWidth, dividerY),
+            lineWidth: this.timeline.rowBorderLineWidth,
+        });
     }
 
     get foregroundColor() { return this._foregroundColor; }

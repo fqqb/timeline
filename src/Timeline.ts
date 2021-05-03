@@ -3,6 +3,7 @@ import { DefaultSidebar } from './DefaultSidebar';
 import { DOMEventHandler, Tool } from './DOMEventHandler';
 import { Drawable } from './Drawable';
 import { TimelineEvent, TimelineEventHandlers, TimelineEventMap } from './events';
+import { Graphics, Path } from './Graphics';
 import { Line } from './Line';
 import { Sidebar } from './Sidebar';
 
@@ -23,7 +24,7 @@ export class Timeline {
 
     private rootPanel: HTMLDivElement;
     private scrollPanel: HTMLDivElement;
-    private ctx: CanvasRenderingContext2D;
+    private g: Graphics;
 
     private _start: AnimatableProperty;
     private _stop: AnimatableProperty;
@@ -34,8 +35,8 @@ export class Timeline {
     private repaintRequested = false;
     private autoRepaintDelay = 1000;
 
-    // A canvas outside of the scrollpane
-    private frozenCanvas: HTMLCanvasElement;
+    // Frozen header outside of the scrollpane
+    private frozenGraphics: Graphics;
 
     private eventListeners: TimelineEventHandlers = {
         viewportmousemove: [],
@@ -87,7 +88,7 @@ export class Timeline {
 
         const canvas = document.createElement('canvas');
         this.scrollPanel.appendChild(canvas);
-        this.ctx = canvas.getContext('2d')!;
+        this.g = new Graphics(canvas);
 
         this._start = this.createAnimatableProperty(0);
         this._stop = this.createAnimatableProperty(100);
@@ -98,13 +99,14 @@ export class Timeline {
 
         this.eventHandler = new DOMEventHandler(this, canvas);
 
-        this.frozenCanvas = document.createElement('canvas');
-        this.frozenCanvas.className = 'timeline-frozen';
-        this.frozenCanvas.style.position = 'absolute';
-        this.frozenCanvas.style.top = '0';
-        this.frozenCanvas.style.left = '0';
-        this.frozenCanvas.style.pointerEvents = 'none';
-        this.rootPanel.appendChild(this.frozenCanvas);
+        const frozenCanvas = document.createElement('canvas');
+        frozenCanvas.className = 'timeline-frozen';
+        frozenCanvas.style.position = 'absolute';
+        frozenCanvas.style.top = '0';
+        frozenCanvas.style.left = '0';
+        frozenCanvas.style.pointerEvents = 'none';
+        this.rootPanel.appendChild(frozenCanvas);
+        this.frozenGraphics = new Graphics(frozenCanvas);
 
         this.sidebar = new DefaultSidebar(this);
 
@@ -146,6 +148,7 @@ export class Timeline {
 
         // Limit CPU usage to when we need it
         if (this.repaintRequested) {
+            this.g.clearHitCanvas();
             this.drawScreen();
             this.repaintRequested = false;
         }
@@ -212,7 +215,7 @@ export class Timeline {
     * Returns the content of the current canvas as an image.
     */
     toDataURL(type = 'image/png', quality?: any) {
-        return this.ctx.canvas.toDataURL(type, quality);
+        return this.g.ctx.canvas.toDataURL(type, quality);
     }
 
     /**
@@ -414,7 +417,7 @@ export class Timeline {
 
     private drawScreen() {
         for (const drawable of this._drawables) {
-            drawable.beforeDraw();
+            drawable.beforeDraw(this.g);
         }
 
         const lines = this.getLines().filter(l => l.frozen)
@@ -442,63 +445,60 @@ export class Timeline {
 
         let width = this.scrollPanel.clientWidth;
         const height = Math.max(contentHeight, this.scrollPanel.clientHeight);
-        resizeCanvas(this.ctx.canvas, width, height);
+        this.g.resize(width, height);
 
-        this.ctx.fillStyle = this.backgroundOddColor;
-        this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
-        this.sidebar?.drawContent(this.ctx);
+        this.g.fillCanvas(this.backgroundOddColor);
+        this.sidebar?.drawContent(this.g);
 
-        const tmpCanvas = this.drawOffscreen(this.mainWidth, height);
+        const offscreen = this.g.createChild(this.mainWidth, height);
         const x = this.sidebar?.clippedWidth || 0;
-        this.ctx.drawImage(tmpCanvas, x, 0);
+        this.drawOffscreen(offscreen);
+        this.g.copy(offscreen, x, 0);
 
         this.drawFrozenTop();
     }
 
-    private drawOffscreen(width: number, height: number) {
-        const canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d')!;
-
+    private drawOffscreen(g: Graphics) {
         let backgroundColor = this.backgroundOddColor;
         for (const drawable of this._drawables) {
 
             // Default (striped) background
             if (drawable instanceof Line) {
-                ctx.fillStyle = backgroundColor;
-                ctx.fillRect(drawable.x, drawable.y, ctx.canvas.width, drawable.height);
+                g.fillRect({
+                    x: drawable.x,
+                    y: drawable.y,
+                    width: g.canvas.width,
+                    height: drawable.height,
+                    color: backgroundColor,
+                });
                 backgroundColor = (backgroundColor === this.backgroundOddColor) ? this.backgroundEvenColor : this.backgroundOddColor;
             }
 
-            drawable.drawUnderlay(ctx);
+            drawable.drawUnderlay(g);
 
             // Bottom horizontal divider
             if (drawable instanceof Line) {
-                ctx.lineWidth = this.rowBorderLineWidth;
-                ctx.strokeStyle = this.rowBorderColor;
                 const dividerY = drawable.y + drawable.height + 0.5;
-                ctx.beginPath();
-                ctx.moveTo(0, dividerY);
-                ctx.lineTo(ctx.canvas.width, dividerY);
-                ctx.stroke();
+                g.strokePath({
+                    color: this.rowBorderColor,
+                    lineWidth: this.rowBorderLineWidth,
+                    path: new Path(0, dividerY).lineTo(g.canvas.width, dividerY),
+                });
             }
         }
 
         for (const drawable of this._drawables) {
-            drawable.drawContent(ctx);
+            drawable.drawContent(g);
         }
 
         for (const drawable of this._drawables) {
-            drawable.drawOverlay(ctx);
+            drawable.drawOverlay(g);
         }
 
-        this.drawSelection(ctx);
-
-        return canvas;
+        this.drawSelection(g);
     }
 
-    private drawSelection(ctx: CanvasRenderingContext2D) {
+    private drawSelection(g: Graphics) {
         if (!this.selection) {
             return;
         }
@@ -506,32 +506,47 @@ export class Timeline {
         const x1 = Math.round(this.positionTime(this.selection.start));
         const x2 = Math.round(this.positionTime(this.selection.stop));
 
-        ctx.globalAlpha = this._unselectedOpacity;
-        ctx.fillStyle = this._unselectedBackgroundColor;
-        ctx.fillRect(0, 0, x1, ctx.canvas.height);
-        ctx.fillRect(x2, 0, ctx.canvas.width - x2, ctx.canvas.height);
+        g.fillRect({
+            x: 0,
+            y: 0,
+            width: x1,
+            height: g.canvas.height,
+            color: this._unselectedBackgroundColor,
+            opacity: this._unselectedOpacity,
+        });
+        g.fillRect({
+            x: x2,
+            y: 0,
+            width: g.canvas.width - x2,
+            height: g.canvas.height,
+            color: this._unselectedBackgroundColor,
+            opacity: this._unselectedOpacity,
+        });
 
-        ctx.globalAlpha = this._selectedOpacity;
-        ctx.fillStyle = this._selectedBackgroundColor;
-        ctx.fillRect(x1, 0, ctx.canvas.width - x2, ctx.canvas.height);
+        g.fillRect({
+            x: x1,
+            y: 0,
+            width: g.canvas.width,
+            height: g.canvas.height,
+            color: this._selectedBackgroundColor,
+            opacity: this._selectedOpacity,
+        });
 
-        ctx.globalAlpha = 1;
-        ctx.strokeStyle = this._selectedLineColor;
-        ctx.lineWidth = 1;
-        ctx.setLineDash(this._selectedLineDash);
-        ctx.beginPath();
-        ctx.moveTo(x1 + 0.5, 0);
-        ctx.lineTo(x1 + 0.5, ctx.canvas.height);
-        ctx.moveTo(x2 - 0.5, 0);
-        ctx.lineTo(x2 - 0.5, ctx.canvas.height);
-        ctx.stroke();
+        g.strokePath({
+            color: this._selectedLineColor,
+            dash: this._selectedLineDash,
+            path: new Path(x1 + 0.5, 0)
+                .lineTo(x1 + 0.5, g.canvas.height)
+                .moveTo(x2 - 0.5, 0)
+                .lineTo(x2 - 0.5, g.canvas.height)
+        });
     }
 
     // Draw frozen header in separate DOM canvas so that it is still possible to image dump
     // the entire main canvas.
     private drawFrozenTop() {
-        const frozenCtx = this.frozenCanvas.getContext('2d')!;
-        const width = this.ctx.canvas.width;
+        const frozenCtx = this.frozenGraphics.ctx;
+        const width = this.g.canvas.width;
 
         let height = 0;
         for (const line of this.getLines()) {
@@ -540,9 +555,9 @@ export class Timeline {
             }
         }
 
-        resizeCanvas(this.frozenCanvas, width, height);
+        resizeCanvas(this.frozenGraphics.canvas, width, height);
         if (height) {
-            frozenCtx.drawImage(this.ctx.canvas, 0, 0);
+            frozenCtx.drawImage(this.g.canvas, 0, 0);
         }
     }
 }

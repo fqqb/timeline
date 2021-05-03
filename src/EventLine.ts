@@ -1,8 +1,10 @@
 import { Event } from './Event';
+import { Graphics } from './Graphics';
 import { Line } from './Line';
+import { Bounds } from './positioning';
 import { RetargetableEventListener } from './RetargetableEventListener';
 import { Timeline } from './Timeline';
-import { nvl, roundRect } from './utils';
+import { nvl } from './utils';
 
 export interface AnnotatedEvent extends Event {
     clickListener?: RetargetableEventListener;
@@ -48,39 +50,48 @@ export class EventLine extends Line<Event[]> {
         }
     }
 
-    drawLineContent(ctx: CanvasRenderingContext2D) {
-        ctx.canvas.height = this.eventHeight + this.marginBottom + this.marginTop;
+    drawLineContent(g: Graphics) {
+        const newHeight = this.eventHeight + this.marginBottom + this.marginTop;
+        g.resize(g.canvas.width, newHeight);
 
         for (const event of this.annotatedEvents) {
             const t1 = this.timeline.positionTime(event.start);
             const t2 = this.timeline.positionTime(event.stop);
-            ctx.fillStyle = nvl(event.color, this.eventColor);
-
-            const x = Math.round(t1);
-            const y = Math.round(this.marginTop);
-            const width = Math.round(t2 - x);
-            const height = this._eventHeight;
+            const box: Bounds = {
+                x: Math.round(t1),
+                y: Math.round(this.marginTop),
+                width: Math.round(t2 - Math.round(t1)),
+                height: this._eventHeight,
+            };
             const r = nvl(event.cornerRadius, this.cornerRadius);
-            roundRect(ctx, x, y, width, height, r);
-            ctx.fill();
+            g.fillRect({
+                ...box,
+                rx: r,
+                ry: r,
+                color: nvl(event.color, this.eventColor),
+            });
 
-            event.clickListener!.target = { x, y, width, height };
+            event.clickListener!.target = box;
 
             const borderWidth = nvl(event.borderWidth, this.borderWidth);
-            if (borderWidth) {
-                ctx.strokeStyle = nvl(event.borderColor, this.borderColor);
-                ctx.lineWidth = borderWidth;
-                roundRect(ctx, x + 0.5, y + 0.5, width - 1, height - 1, r);
-                ctx.stroke();
-            }
+            borderWidth && g.strokeRect({
+                ...box,
+                rx: r,
+                ry: r,
+                color: nvl(event.borderColor, this.borderColor),
+                lineWidth: borderWidth,
+                crispen: true,
+            });
 
-            if (event.title) {
-                ctx.fillStyle = nvl(event.textColor, this.textColor);
-                ctx.font = `${nvl(event.textSize, this.textSize)}px ${nvl(event.fontFamily, this.fontFamily)}`;
-                ctx.textBaseline = 'middle';
-                const textX = x + nvl(event.marginLeft, this.eventMarginLeft);
-                ctx.fillText(event.title, textX, y + (height / 2));
-            }
+            event.title && g.fillText({
+                x: box.x + nvl(event.marginLeft, this.eventMarginLeft),
+                y: box.y + (box.height / 2),
+                text: event.title,
+                font: `${nvl(event.textSize, this.textSize)}px ${nvl(event.fontFamily, this.fontFamily)}`,
+                baseline: 'middle',
+                align: 'left',
+                color: nvl(event.textColor, this.textColor),
+            });
         }
     }
 

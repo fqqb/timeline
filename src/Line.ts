@@ -1,4 +1,5 @@
 import { Drawable } from './Drawable';
+import { Graphics } from './Graphics';
 
 export interface DrawCoordinates {
     x: number;
@@ -13,7 +14,7 @@ export abstract class Line<T> extends Drawable {
     private _frozen = false;
     private _data?: T;
 
-    private offscreenCanvas = document.createElement('canvas');
+    private offscreen?: Graphics;
 
     /** @hidden */
     coords: DrawCoordinates = {
@@ -55,21 +56,21 @@ export abstract class Line<T> extends Drawable {
         this.reportMutation();
     }
 
-    beforeDraw() {
-        this.offscreenCanvas.width = this.timeline.mainWidth;
-        this.offscreenCanvas.height = 20;
-        const ctx = this.offscreenCanvas.getContext('2d')!;
-        this.drawLineContent(ctx);
+    beforeDraw(g: Graphics) {
+        this.offscreen = g.createChild(this.timeline.mainWidth, 20);
+        this.drawLineContent(this.offscreen);
     }
 
-    abstract drawLineContent(ctx: CanvasRenderingContext2D): void;
+    abstract drawLineContent(g: Graphics): void;
 
-    drawContent(ctx: CanvasRenderingContext2D) {
-        ctx.drawImage(this.offscreenCanvas, this.x, this.y);
+    drawContent(g: Graphics) {
+        if (this.offscreen) {
+            g.copy(this.offscreen, this.x, this.y);
+        }
     }
 
     getPreferredHeight() {
-        return this.offscreenCanvas.height;
+        return this.offscreen?.canvas.height || 0;
     }
 
     /**

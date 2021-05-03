@@ -1,4 +1,5 @@
 import { Drawable } from './Drawable';
+import { Graphics, Path } from './Graphics';
 import { Timeline } from './Timeline';
 
 export class TimeLocator extends Drawable {
@@ -13,7 +14,7 @@ export class TimeLocator extends Drawable {
         super(timeline);
     }
 
-    drawOverlay(ctx: CanvasRenderingContext2D) {
+    drawOverlay(g: Graphics) {
         const t = this.timeProvider();
         if (t === undefined) {
             return;
@@ -21,18 +22,17 @@ export class TimeLocator extends Drawable {
 
         const x = Math.round(this.timeline.positionTime(t));
 
-        ctx.strokeStyle = this.lineColor;
-        ctx.lineWidth = this.lineWidth;
-        ctx.setLineDash(this.lineDash);
-        ctx.beginPath();
-        ctx.moveTo(x + 0.5, 0);
-        ctx.lineTo(x + 0.5, ctx.canvas.height);
-        ctx.stroke();
+        g.strokePath({
+            color: this.lineColor,
+            lineWidth: this.lineWidth,
+            dash: this.lineDash,
+            path: new Path(x + 0.5, 0).lineTo(x + 0.5, g.canvas.height),
+        });
 
-        ctx.beginPath();
-        ctx.arc(x + 0.5, 0, this.knobRadius, 0, 2 * Math.PI);
-        ctx.fillStyle = this.knobColor;
-        ctx.fill();
+        g.ctx.beginPath();
+        g.ctx.arc(x + 0.5, 0, this.knobRadius, 0, 2 * Math.PI);
+        g.ctx.fillStyle = this.knobColor;
+        g.ctx.fill();
     }
 
     get knobColor() { return this._knobColor; }

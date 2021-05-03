@@ -1,3 +1,4 @@
+import { Graphics } from './Graphics';
 import { RetargetableEventListener } from './RetargetableEventListener';
 import { Timeline } from './Timeline';
 
@@ -51,16 +52,16 @@ export abstract class Drawable {
     /**
      * Gets called before any of the draw methods.
      */
-    beforeDraw() {
+    beforeDraw(g: Graphics) {
     }
 
-    drawUnderlay(ctx: CanvasRenderingContext2D) {
+    drawUnderlay(g: Graphics) {
     }
 
-    drawContent(ctx: CanvasRenderingContext2D) {
+    drawContent(g: Graphics) {
     }
 
-    drawOverlay(ctx: CanvasRenderingContext2D) {
+    drawOverlay(g: Graphics) {
     }
 
     /**

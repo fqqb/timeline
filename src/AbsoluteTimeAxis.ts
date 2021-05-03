@@ -1,3 +1,4 @@
+import { Graphics, Path } from './Graphics';
 import { Line } from './Line';
 
 const ONE_HOUR = 60 * 60 * 1000;
@@ -17,12 +18,12 @@ export class AbsoluteTimeAxis extends Line<void> {
 
     private hourScale = new HourScale();
 
-    drawLineContent(ctx: CanvasRenderingContext2D) {
-        this.determineScale().drawLineContent(ctx, this);
+    drawLineContent(g: Graphics) {
+        this.determineScale().drawLineContent(g, this);
     }
 
-    drawOverlay(ctx: CanvasRenderingContext2D) {
-        this.determineScale().drawOverlay(ctx, this);
+    drawOverlay(g: Graphics) {
+        this.determineScale().drawOverlay(g, this);
     }
 
     get fullHeight() { return this._fullHeight; }
@@ -66,8 +67,8 @@ export class AbsoluteTimeAxis extends Line<void> {
 }
 
 interface Scale {
-    drawLineContent(ctx: CanvasRenderingContext2D, axis: AbsoluteTimeAxis): void;
-    drawOverlay(ctx: CanvasRenderingContext2D, axis: AbsoluteTimeAxis): void;
+    drawLineContent(g: Graphics, axis: AbsoluteTimeAxis): void;
+    drawOverlay(g: Graphics, axis: AbsoluteTimeAxis): void;
 }
 
 /**
@@ -80,7 +81,7 @@ class HourScale implements Scale {
     private midX: number[] = [];
     private minorX: number[] = [];
 
-    drawLineContent(ctx: CanvasRenderingContext2D, axis: AbsoluteTimeAxis) {
+    drawLineContent(g: Graphics, axis: AbsoluteTimeAxis) {
         // Trunc to hours before positioning
         let t = startOfHour(axis.timeline.start);
 
@@ -112,49 +113,73 @@ class HourScale implements Scale {
             t += ONE_HOUR;
         }
 
-        const height = ctx.canvas.height;
-        ctx.lineWidth = 1;
-        ctx.strokeStyle = axis.timeline.rowBorderColor;
-        ctx.beginPath();
+        const height = g.canvas.height;
+        const path = new Path(0, 0);
         for (const x of this.majorX) {
-            ctx.moveTo(Math.round(x) + 0.5, 0);
-            ctx.lineTo(Math.round(x) + 0.5, height);
+            path.moveTo(Math.round(x) + 0.5, 0);
+            path.lineTo(Math.round(x) + 0.5, height);
         }
         for (const x of this.midX) {
-            ctx.moveTo(Math.round(x) + 0.5, height * 0.6);
-            ctx.lineTo(Math.round(x) + 0.5, height);
+            path.moveTo(Math.round(x) + 0.5, height * 0.6);
+            path.lineTo(Math.round(x) + 0.5, height);
         }
         for (const x of this.minorX) {
-            ctx.moveTo(Math.round(x) + 0.5, height * 0.8);
-            ctx.lineTo(Math.round(x) + 0.5, height);
+            path.moveTo(Math.round(x) + 0.5, height * 0.8);
+            path.lineTo(Math.round(x) + 0.5, height);
         }
-        ctx.stroke();
+        g.strokePath({
+            color: axis.timeline.rowBorderColor,
+            path,
+        });
 
-        ctx.font = `${axis.timeline.textSize}px ${axis.timeline.fontFamily}`;
-        ctx.fillStyle = 'grey';
-        ctx.textBaseline = 'middle';
+        const font = `${axis.timeline.textSize}px ${axis.timeline.fontFamily}`;
         for (let i = 0; i < this.majorLabels.length; i++) {
             const label = this.majorLabels[i];
             const x = this.majorX[i];
             if (label.length > 2) {
-                ctx.fillText('00', x + 2, height * 0.75);
-                ctx.fillText(label, x + 2, height / 4);
+                g.fillText({
+                    x: x + 2,
+                    y: height * 0.75,
+                    text: '00',
+                    font,
+                    color: 'grey',
+                    baseline: 'middle',
+                    align: 'left',
+                });
+                g.fillText({
+                    x: x + 2,
+                    y: height / 4,
+                    text: label,
+                    font,
+                    color: 'grey',
+                    baseline: 'middle',
+                    align: 'left',
+                });
             } else {
-                ctx.fillText(label, x + 2, height / 2);
+                g.fillText({
+                    x: x + 2,
+                    y: height / 2,
+                    text: label,
+                    font,
+                    color: 'grey',
+                    baseline: 'middle',
+                    align: 'left',
+                });
             }
         }
     }
 
-    drawOverlay(ctx: CanvasRenderingContext2D, axis: AbsoluteTimeAxis) {
+    drawOverlay(g: Graphics, axis: AbsoluteTimeAxis) {
         if (axis.fullHeight) {
-            ctx.lineWidth = 1;
-            ctx.strokeStyle = axis.timeline.rowBorderColor;
-            ctx.beginPath();
+            const path = new Path(0, 0);
             for (const x of this.majorX) {
-                ctx.moveTo(Math.round(x) + 0.5, axis.y + axis.height);
-                ctx.lineTo(Math.round(x) + 0.5, ctx.canvas.height);
+                path.moveTo(Math.round(x) + 0.5, axis.y + axis.height);
+                path.lineTo(Math.round(x) + 0.5, g.canvas.height);
             }
-            ctx.stroke();
+            g.strokePath({
+                color: axis.timeline.rowBorderColor,
+                path,
+            });
         }
     }
 }
