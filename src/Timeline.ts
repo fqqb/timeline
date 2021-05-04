@@ -39,6 +39,7 @@ export class Timeline {
     private frozenGraphics: Graphics;
 
     private eventListeners: TimelineEventHandlers = {
+        eventclick: [],
         viewportmousemove: [],
         viewportmouseout: [],
     };
@@ -97,7 +98,7 @@ export class Timeline {
             this.requestRepaint();
         });
 
-        this.eventHandler = new DOMEventHandler(this, canvas);
+        this.eventHandler = new DOMEventHandler(this, canvas, this.g.hitCanvas);
 
         const frozenCanvas = document.createElement('canvas');
         frozenCanvas.className = 'timeline-frozen';
@@ -208,6 +209,13 @@ export class Timeline {
         if (this._sidebar !== sidebar) {
             this._sidebar?.disconnectedCallback();
             this._sidebar = sidebar;
+        }
+    }
+
+    get cursor() { return this.g.canvas.style.cursor; }
+    set cursor(cursor: string) {
+        if (cursor !== this.cursor) {
+            this.g.canvas.style.cursor = cursor;
         }
     }
 

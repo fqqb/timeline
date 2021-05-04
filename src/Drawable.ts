@@ -1,11 +1,9 @@
 import { Graphics } from './Graphics';
-import { RetargetableEventListener } from './RetargetableEventListener';
 import { Timeline } from './Timeline';
 
 export abstract class Drawable {
 
     private mutationListeners: Array<() => void> = [];
-    private eventListeners: RetargetableEventListener[] = [];
 
     constructor(readonly timeline: Timeline) {
         timeline.add(this);
@@ -35,18 +33,6 @@ export abstract class Drawable {
 
     protected createAnimatableProperty(value: number) {
         return this.timeline.createAnimatableProperty(value);
-    }
-
-    protected addClickListener(listener: () => void) {
-        const l: RetargetableEventListener = {
-            type: 'click',
-            listener,
-        };
-        this.eventListeners.push(l);
-        return l;
-    }
-
-    protected addHoverListener(listener: () => void, cursor?: string) {
     }
 
     /**

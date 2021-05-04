@@ -1,4 +1,6 @@
 import { ViewportMouseMoveEvent, ViewportMouseOutEvent } from './events';
+import { HitCanvas, HitRegionSpecification } from './HitCanvas';
+import { Point } from './positioning';
 import { Timeline } from './Timeline';
 
 /**
@@ -31,6 +33,20 @@ function measureDistance(x1: number, y1: number, x2: number, y2: number) {
 
 export type Tool = 'hand' | 'range-select';
 
+// Compare by id instead of references. HitRegions are allowed to be generated
+// on each draw, whereas the "id" could be something more long-term.
+function regionMatches(region1?: HitRegionSpecification, region2?: HitRegionSpecification) {
+    return region1 && region2 && region1.id === region2.id;
+}
+
+export interface TimelineMouseEvent {
+    point: Point;
+    viewportPoint: Point;
+    overSidebar: boolean;
+    overDivider: boolean;
+    overViewport: boolean;
+}
+
 export class DOMEventHandler {
 
     tool?: Tool = 'hand';
@@ -48,7 +64,9 @@ export class DOMEventHandler {
     private documentMouseUpListener = (e: MouseEvent) => this.onDocumentMouseUp(e);
     // private documentMouseLeaveListener = (e: any) => this.onDocumentMouseLeave(e);
 
-    constructor(private timeline: Timeline, private canvas: HTMLCanvasElement) {
+    private prevEnteredRegion?: HitRegionSpecification;
+
+    constructor(private timeline: Timeline, private canvas: HTMLCanvasElement, private hitCanvas: HitCanvas) {
         canvas.addEventListener('click', e => this.onCanvasClick(e), false);
         canvas.addEventListener('mousedown', e => this.onCanvasMouseDown(e), false);
         canvas.addEventListener('mouseout', e => this.onCanvasMouseOut(e), false);
@@ -56,8 +74,46 @@ export class DOMEventHandler {
         canvas.addEventListener('wheel', e => this.onWheel(e), false);
     }
 
-    private onCanvasClick(event: MouseEvent) {
+    private toPoint(event: MouseEvent): Point {
+        const bbox = this.canvas.getBoundingClientRect();
+        return { x: event.clientX - bbox.left, y: event.clientY - bbox.top };
+    }
+
+    private toTimelineMouseEvent(domEvent: MouseEvent): TimelineMouseEvent {
+        const point = this.toPoint(domEvent);
+        const sidebarWidth = this.timeline.sidebar?.clippedWidth || 0;
+
+        let overSidebar;
+        let overDivider;
+        let overViewport;
+        if (this.timeline.sidebar) {
+            overSidebar = point.x <= sidebarWidth - 5;
+            overDivider = !overSidebar && point.x <= sidebarWidth + 5;
+            overViewport = !overSidebar && !overDivider;
+        } else {
+            overSidebar = false;
+            overDivider = false;
+            overViewport = true;
+        }
+
+        return {
+            point,
+            viewportPoint: { x: point.x - sidebarWidth, y: point.y },
+            overSidebar,
+            overDivider,
+            overViewport,
+        };
+    }
+
+    private onCanvasClick(domEvent: MouseEvent) {
         this.timeline.clearSelection();
+
+        const mouseEvent = this.toTimelineMouseEvent(domEvent);
+        if (mouseEvent.overViewport) {
+            const region = this.hitCanvas.getActiveRegion(
+                mouseEvent.viewportPoint.x, mouseEvent.viewportPoint.y);
+            region?.click && region.click();
+        }
     }
 
     private onCanvasMouseDown(event: MouseEvent) {
@@ -97,78 +153,79 @@ export class DOMEventHandler {
         event.stopPropagation();
     }
 
-    private onCanvasMouseMove(event: MouseEvent) {
-        const bbox = this.canvas.getBoundingClientRect();
-        const mouseX = event.clientX - bbox.left;
-        const mouseY = event.clientY - bbox.top;
-        const sidebarWidth = this.timeline.sidebar?.clippedWidth || 0;
+    private onCanvasMouseMove(domEvent: MouseEvent) {
+        const mouseEvent = this.toTimelineMouseEvent(domEvent);
 
-        let overSidebar;
-        let overDivider;
-        let overViewport;
-        if (this.timeline.sidebar) {
-            overSidebar = mouseX <= sidebarWidth - 5;
-            overDivider = !overSidebar && mouseX <= sidebarWidth + 5;
-            overViewport = !overSidebar && !overDivider;
-        } else {
-            overSidebar = false;
-            overDivider = false;
-            overViewport = true;
+        if (!mouseEvent.overViewport) {
+            this.maybeFireViewportMouseOut(domEvent);
         }
+        this.isViewportHover = mouseEvent.overViewport;
+        this.isDividerHover = mouseEvent.overDivider;
 
-        if (!overViewport) {
-            this.maybeFireViewportMouseOut(event);
-        }
-        this.isViewportHover = overViewport;
-        this.isDividerHover = overDivider;
-
-        if (overViewport) {
+        let defaultCursor = 'default';
+        if (mouseEvent.overViewport) {
             const vpEvent: ViewportMouseMoveEvent = {
-                clientX: event.clientX,
-                clientY: event.clientY,
-                viewportX: mouseX - sidebarWidth,
-                viewportY: event.clientY - bbox.top,
-                time: this.mouse2time(mouseX),
+                clientX: domEvent.clientX,
+                clientY: domEvent.clientY,
+                viewportX: mouseEvent.viewportPoint.x,
+                viewportY: mouseEvent.viewportPoint.y,
+                time: this.mouse2time(mouseEvent.point.x),
             };
             this.timeline.fireEvent('viewportmousemove', vpEvent);
 
-            for (const line of this.timeline.getLines()) {
-                // line.dispatchEvent(vpEvent);
+            const region = this.hitCanvas.getActiveRegion(
+                mouseEvent.viewportPoint.x, mouseEvent.viewportPoint.y);
+
+            if (this.prevEnteredRegion && this.prevEnteredRegion.mouseOut) {
+                if (!regionMatches(this.prevEnteredRegion, region)) {
+                    this.prevEnteredRegion.mouseOut();
+                }
             }
+
+            if (region && region.mouseEnter) {
+                if (!regionMatches(this.prevEnteredRegion, region)) {
+                    region.mouseEnter();
+                }
+            }
+
+            this.prevEnteredRegion = region;
+            defaultCursor = region?.cursor || 'default';
         }
 
-        if (this.grabPoint && !this.grabbing && isLeftPressed(event)) {
-            const distance = measureDistance(this.grabPoint.x, this.grabPoint.y, mouseX, mouseY);
+        if (this.grabPoint && !this.grabbing && isLeftPressed(domEvent)) {
+            const { point } = mouseEvent;
+            const distance = measureDistance(this.grabPoint.x, this.grabPoint.y, point.x, point.y);
             if (Math.abs(distance) > snap) {
                 this.initiateGrab();
                 // Prevent stutter on first move
                 if (snap > 0 && this.grabPoint && this.tool !== 'range-select') {
-                    this.grabPoint = { x: mouseX, y: mouseY };
+                    this.grabPoint = point;
                 }
             }
         }
 
 
-        this.updateCursor();
-        if (this.grabbing && this.grabTarget && isLeftPressed(event)) {
-            event.preventDefault();
-            event.stopPropagation();
+        this.updateCursor(defaultCursor);
+        if (this.grabbing && this.grabTarget && isLeftPressed(domEvent)) {
+            domEvent.preventDefault();
+            domEvent.stopPropagation();
+            const { point } = mouseEvent;
             switch (this.grabTarget) {
                 case 'DIVIDER':
                     if (this.timeline.sidebar) {
-                        this.timeline.sidebar.width = mouseX;
+                        this.timeline.sidebar.width = point.x;
                     }
                     break;
                 case 'VIEWPORT':
                     switch (this.tool) {
                         case 'hand':
-                            const dx = mouseX - this.grabPoint!.x;
+                            const dx = point.x - this.grabPoint!.x;
                             this.timeline.panBy(-dx, false);
-                            this.grabPoint = { x: mouseX, y: mouseY };
+                            this.grabPoint = point;
                             break;
                         case 'range-select':
                             const start = this.mouse2time(this.grabPoint!.x);
-                            const stop = this.mouse2time(mouseX);
+                            const stop = this.mouse2time(point.x);
                             this.timeline.setSelection(start, stop);
                             break;
                     }
@@ -243,8 +300,8 @@ export class DOMEventHandler {
         }
     }
 
-    private updateCursor() {
-        let newCursor = 'default';
+    private updateCursor(defaultCursor = 'default') {
+        let newCursor = defaultCursor;
         if (this.grabTarget === 'DIVIDER' || this.isDividerHover) {
             newCursor = 'col-resize';
         } else if (this.grabbing && this.tool === 'range-select') {

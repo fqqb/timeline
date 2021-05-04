@@ -1,15 +1,17 @@
 import { Event } from './Event';
+import { EventClickEvent } from './events';
 import { Graphics } from './Graphics';
+import { HitRegionSpecification } from './HitCanvas';
 import { Line } from './Line';
 import { Bounds } from './positioning';
-import { RetargetableEventListener } from './RetargetableEventListener';
 import { Timeline } from './Timeline';
 import { nvl } from './utils';
 
-export interface AnnotatedEvent extends Event {
-    clickListener?: RetargetableEventListener;
-    hover: boolean;
+interface AnnotatedEvent extends Event {
+    region: HitRegionSpecification;
 }
+
+let eventSequence = 1;
 
 export class EventLine extends Line<Event[]> {
 
@@ -26,6 +28,7 @@ export class EventLine extends Line<Event[]> {
     private _eventMarginLeft = 5;
     private _cornerRadius = 1;
 
+    private eventsById = new Map<Event, string>();
     private annotatedEvents: AnnotatedEvent[] = [];
 
     constructor(timeline: Timeline) {
@@ -33,20 +36,34 @@ export class EventLine extends Line<Event[]> {
         this.addMutationListener(() => this.processData());
     }
 
+    // Link a long-term identifier with each event
+    // TODO should make it customizable to have custom
+    // equality check, instead of only by-reference.
     private processData() {
         this.annotatedEvents.length = 0;
         for (const event of (this.data || [])) {
-            const annotatedEvent: AnnotatedEvent = { ...event, hover: false };
+            let id = this.eventsById.get(event);
+            if (id === undefined) {
+                id = 'id' + eventSequence++;
+            }
+            const annotatedEvent: AnnotatedEvent = {
+                ...event,
+                region: {
+                    id,
+                    cursor: 'pointer',
+                    click: () => {
+                        const clickEvent: EventClickEvent = { event };
+                        this.timeline.fireEvent('eventclick', clickEvent);
+                    },
+                },
+            };
 
-            annotatedEvent.clickListener = this.addClickListener(() => {
-                console.log('event got clicked', event);
-            });
-            this.addHoverListener(() => {
-                annotatedEvent.hover = true;
-            });
-
-            annotatedEvent.clickListener.cursor = 'pointer';
             this.annotatedEvents.push(annotatedEvent);
+        }
+
+        this.eventsById.clear();
+        for (const event of this.annotatedEvents) {
+            this.eventsById.set(event, event.region.id);
         }
     }
 
@@ -71,7 +88,8 @@ export class EventLine extends Line<Event[]> {
                 color: nvl(event.color, this.eventColor),
             });
 
-            event.clickListener!.target = box;
+            const hitRegion = g.addHitRegion(event.region);
+            hitRegion.addRect(box.x, box.y, box.width, box.height);
 
             const borderWidth = nvl(event.borderWidth, this.borderWidth);
             borderWidth && g.strokeRect({
