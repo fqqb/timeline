@@ -141,19 +141,31 @@ export class EventLine extends Line<Event[]> {
 
         if (event.title) {
             let textX = box.x + drawInfo.marginLeft;
+            const textY = box.y + (box.height / 2);
             if (drawInfo.offscreenStart) {
                 textX = this.timeline.positionTime(this.timeline.start);
             }
             if (drawInfo.titleFitsBox || this.textOverflow === 'show') {
                 g.fillText({
                     x: textX,
-                    y: box.y + (box.height / 2),
+                    y: textY,
                     text: drawInfo.title,
                     font: drawInfo.font,
                     baseline: 'middle',
                     align: 'left',
                     color: nvl(event.textColor, this.textColor),
                 });
+            } else if (this.textOverflow === 'clip') {
+                const tmpCanvas = document.createElement('canvas');
+                tmpCanvas.width = box.width;
+                tmpCanvas.height = box.height;
+                const offscreenCtx = tmpCanvas.getContext('2d')!;
+                offscreenCtx.fillStyle = nvl(event.textColor, this.textColor);
+                offscreenCtx.font = drawInfo.font;
+                offscreenCtx.textBaseline = 'middle';
+                offscreenCtx.textAlign = 'left';
+                offscreenCtx.fillText(drawInfo.title, drawInfo.marginLeft, box.height / 2);
+                g.ctx.drawImage(tmpCanvas, box.x, box.y);
             }
         }
     }
