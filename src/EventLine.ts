@@ -7,11 +7,26 @@ import { Bounds } from './positioning';
 import { Timeline } from './Timeline';
 import { nvl } from './utils';
 
+interface DrawInfo {
+    title: string; // Actual text to be shown on event (may include extra decoration: ◀)
+    startX: number; // Left of bbox (event only)
+    stopX: number; // Right of bbox (event only)
+    renderStartX: number; // Left of bbox containing event and maybe outside label
+    renderStopX: number; // Right of bbox containing event and maybe outside label
+    offscreenStart: boolean; // True if the event starts before the visible range
+    marginLeft: number; // Margin specific to the event, or else inherited from its band
+    titleFitsBox: boolean; // True if the title fits in the actual event box
+    font: string; // Font specific to the event, or else inherited from its band
+}
+
 interface AnnotatedEvent extends Event {
     region: HitRegionSpecification;
+    drawInfo?: DrawInfo;
 }
 
 let eventSequence = 1;
+
+export type TextOverflow = 'clip' | 'show' | 'hide';
 
 export class EventLine extends Line<Event[]> {
 
@@ -27,6 +42,10 @@ export class EventLine extends Line<Event[]> {
     private _borderColor = '#3d94c7';
     private _eventMarginLeft = 5;
     private _cornerRadius = 1;
+    private _wrap = true;
+    private _textOverflow: TextOverflow = 'show';
+    private _spaceBetween = 0;
+    private _lineSpacing = 2;
 
     private eventsById = new Map<Event, string>();
     private annotatedEvents: AnnotatedEvent[] = [];
@@ -68,49 +87,162 @@ export class EventLine extends Line<Event[]> {
     }
 
     drawLineContent(g: Graphics) {
-        const newHeight = this.eventHeight + this.marginBottom + this.marginTop;
+        this.analyzeEvents(g);
+        const lines = this.wrap ? this.wrapEvents() : [this.annotatedEvents];
+
+        let newHeight;
+        if (lines.length) {
+            newHeight = this.marginTop + this.marginBottom;
+            newHeight += this.eventHeight * lines.length;
+            newHeight += this.lineSpacing * (lines.length - 1);
+        } else {
+            newHeight = this.marginTop + this.eventHeight + this.marginBottom;
+        }
         g.resize(g.canvas.width, newHeight);
 
-        for (const event of this.annotatedEvents) {
-            const t1 = this.timeline.positionTime(event.start);
-            const t2 = this.timeline.positionTime(event.stop);
-            const box: Bounds = {
-                x: Math.round(t1),
-                y: Math.round(this.marginTop),
-                width: Math.round(t2 - Math.round(t1)),
-                height: this._eventHeight,
-            };
-            const r = nvl(event.cornerRadius, this.cornerRadius);
-            g.fillRect({
-                ...box,
-                rx: r,
-                ry: r,
-                color: nvl(event.color, this.eventColor),
-            });
-
-            const hitRegion = g.addHitRegion(event.region);
-            hitRegion.addRect(box.x, box.y, box.width, box.height);
-
-            const borderWidth = nvl(event.borderWidth, this.borderWidth);
-            borderWidth && g.strokeRect({
-                ...box,
-                rx: r,
-                ry: r,
-                color: nvl(event.borderColor, this.borderColor),
-                lineWidth: borderWidth,
-                crispen: true,
-            });
-
-            event.title && g.fillText({
-                x: box.x + nvl(event.marginLeft, this.eventMarginLeft),
-                y: box.y + (box.height / 2),
-                text: event.title,
-                font: `${nvl(event.textSize, this.textSize)}px ${nvl(event.fontFamily, this.fontFamily)}`,
-                baseline: 'middle',
-                align: 'left',
-                color: nvl(event.textColor, this.textColor),
-            });
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i];
+            const offsetY = this.marginTop + (i * (this.lineSpacing + this.eventHeight));
+            for (const event of line) {
+                this.drawEvent(g, event, offsetY);
+            }
         }
+    }
+
+    private drawEvent(g: Graphics, event: AnnotatedEvent, y: number) {
+        const drawInfo = event.drawInfo!;
+        const box: Bounds = {
+            x: Math.round(drawInfo.startX),
+            y,
+            width: Math.round(drawInfo.stopX - Math.round(drawInfo.startX)),
+            height: this.eventHeight,
+        };
+        const r = nvl(event.cornerRadius, this.cornerRadius);
+        g.fillRect({
+            ...box,
+            rx: r,
+            ry: r,
+            color: nvl(event.color, this.eventColor),
+        });
+
+        // Hit region covers both the box, and potential outside text
+        const hitRegion = g.addHitRegion(event.region);
+        hitRegion.addRect(drawInfo.renderStartX, y, drawInfo.renderStopX - drawInfo.renderStartX, this.eventHeight);
+
+        const borderWidth = nvl(event.borderWidth, this.borderWidth);
+        borderWidth && g.strokeRect({
+            ...box,
+            rx: r,
+            ry: r,
+            color: nvl(event.borderColor, this.borderColor),
+            lineWidth: borderWidth,
+            crispen: true,
+        });
+
+        if (event.title) {
+            let textX = box.x + drawInfo.marginLeft;
+            if (drawInfo.offscreenStart) {
+                textX = this.timeline.positionTime(this.timeline.start);
+            }
+            if (drawInfo.titleFitsBox || this.textOverflow === 'show') {
+                g.fillText({
+                    x: textX,
+                    y: box.y + (box.height / 2),
+                    text: drawInfo.title,
+                    font: drawInfo.font,
+                    baseline: 'middle',
+                    align: 'left',
+                    color: nvl(event.textColor, this.textColor),
+                });
+            }
+        }
+    }
+
+    private analyzeEvents(g: Graphics) {
+        for (const event of this.annotatedEvents) {
+            if (event.start > this.timeline.stop || event.stop < this.timeline.start) {
+                event.drawInfo = undefined; // Forget draw info from previous step
+                continue;
+            }
+            const startX = this.timeline.positionTime(event.start);
+            const stopX = this.timeline.positionTime(event.stop);
+            const renderStartX = startX;
+            let renderStopX = stopX;
+            const offscreenStart = event.start < this.timeline.start && event.stop > this.timeline.start;
+
+            let title = event.title || '';
+            if (offscreenStart) {
+                title = '◀' + title;
+            }
+
+            const font = `${nvl(event.textSize, this.textSize)}px ${nvl(event.fontFamily, this.fontFamily)}`;
+            const marginLeft = nvl(event.marginLeft, this.eventMarginLeft);
+
+            const fm = g.measureText(title, font);
+            let availableTitleWidth = renderStopX - renderStartX - marginLeft;
+            if (offscreenStart) {
+                availableTitleWidth = renderStopX - this.timeline.positionTime(this.timeline.start) - marginLeft;
+            }
+
+            const titleFitsBox = availableTitleWidth >= fm.width;
+            if (!titleFitsBox) {
+                if (this.textOverflow === 'show') {
+                    renderStopX = this.timeline.positionTime(this.timeline.start) + marginLeft + fm.width;
+                } else if (this.textOverflow === 'hide') {
+                    title = '';
+                }
+            }
+
+            event.drawInfo = {
+                font,
+                marginLeft,
+                offscreenStart,
+                startX,
+                stopX,
+                renderStartX,
+                renderStopX,
+                title,
+                titleFitsBox,
+            };
+        }
+    }
+
+    private wrapEvents() {
+        const lines: AnnotatedEvent[][] = [];
+        for (const event of this.annotatedEvents) {
+            const drawInfo = event.drawInfo;
+            if (!drawInfo) {
+                continue;
+            }
+            let inserted = false;
+            const startX = drawInfo.renderStartX;
+            const stopX = drawInfo.renderStopX;
+            for (const line of lines) {
+                let min = 0;
+                let max = line.length - 1;
+                while (min <= max) {
+                    const mid = Math.floor((min + max) / 2);
+                    const midStartX = line[mid].drawInfo!.renderStartX;
+                    const midStopX = line[mid].drawInfo!.renderStopX;
+                    if ((stopX + this.spaceBetween) <= midStartX) {
+                        max = mid - 1; // Put cursor before mid
+                    } else if (startX >= (midStopX + this.spaceBetween)) {
+                        min = mid + 1; // Put cursor after mid
+                    } else {
+                        break; // Overlap
+                    }
+                }
+                if (min > max) {
+                    line.splice(min, 0, event);
+                    inserted = true;
+                    break;
+                }
+            }
+            if (!inserted) {
+                lines.push([event]); // A new line
+            }
+        }
+        return lines;
     }
 
     get marginTop() { return this._marginTop; }
@@ -176,6 +308,30 @@ export class EventLine extends Line<Event[]> {
     get cornerRadius() { return this._cornerRadius; }
     set cornerRadius(cornerRadius: number) {
         this._cornerRadius = cornerRadius;
+        this.reportMutation();
+    }
+
+    get wrap() { return this._wrap; }
+    set wrap(wrap: boolean) {
+        this._wrap = wrap;
+        this.reportMutation();
+    }
+
+    get spaceBetween() { return this._spaceBetween; }
+    set spaceBetween(spaceBetween: number) {
+        this._spaceBetween = spaceBetween;
+        this.reportMutation();
+    }
+
+    get lineSpacing() { return this._lineSpacing; }
+    set lineSpacing(lineSpacing: number) {
+        this._lineSpacing = lineSpacing;
+        this.reportMutation();
+    }
+
+    get textOverflow() { return this._textOverflow; }
+    set textOverflow(textOverflow: TextOverflow) {
+        this._textOverflow = textOverflow;
         this.reportMutation();
     }
 }

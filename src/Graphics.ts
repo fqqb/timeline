@@ -144,6 +144,12 @@ export class Graphics {
         this.ctx.fillText(fill.text, fill.x, fill.y);
     }
 
+    measureText(text: string, font: string) {
+        this.ctx.font = font;
+        const fm = this.ctx.measureText(text);
+        return { width: fm.width };
+    }
+
     strokeRect(stroke: RectStroke) {
         if (stroke.dash) {
             this.ctx.setLineDash(stroke.dash);
