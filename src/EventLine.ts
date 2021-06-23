@@ -199,7 +199,7 @@ export class EventLine extends Line<Event[]> {
             const titleFitsBox = availableTitleWidth >= fm.width;
             if (!titleFitsBox) {
                 if (this.textOverflow === 'show') {
-                    renderStopX = this.timeline.positionTime(this.timeline.start) + marginLeft + fm.width;
+                    renderStopX = renderStartX + marginLeft + fm.width;
                 } else if (this.textOverflow === 'hide') {
                     title = '';
                 }
