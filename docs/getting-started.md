@@ -77,4 +77,4 @@ Let's do that, and replace our event data with absolute timestamps too.
                      height="100px"
                      caption="Absolute time" %}
 
-We've also added an [AbsoluteTimeAxis](/api/AbsoluteTimeAxis/) to this example. This is a special type of [Line](/api/Line/) that renders an autoranged timescale. This built-in axis has support for displaying absolute time in UTC or local time formats only. For other use cases you are recommended to write a custom [Line](/api/Line/) subclass.
+We've also added an [AbsoluteTimeAxis](/api/AbsoluteTimeAxis/) to this example. This is a special type of [Line](/api/Line/) that renders an autoranged timescale. This built-in axis has support for displaying absolute time using IANA timezone names.

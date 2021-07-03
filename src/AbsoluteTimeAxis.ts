@@ -13,7 +13,7 @@ type ScaleKind = 'auto' | 'hour';
 export class AbsoluteTimeAxis extends Line<void> {
 
     private _fullHeight = false;
-    private _utc = false;
+    private _timezone?: string;
     private _scale: ScaleKind = 'auto';
 
     private hourScale = new HourScale();
@@ -36,11 +36,24 @@ export class AbsoluteTimeAxis extends Line<void> {
      * If true, the assigned scale should format time as UTC, otherwise according to
      * the local timezone.
      *
-     * Note that other timezones are only possible by implementing a custom Scale.
+     * @deprecated use 'timezone' attribute
      */
-    get utc() { return this._utc; }
+    get utc() {
+        console.warn('Do not use AbsoluteTimeAxis.utc boolean attribute. Instead switch to AbsoluteTimeAxis.timezone string attribute.');
+        return this._timezone === 'UTC';
+    }
     set utc(utc: boolean) {
-        this._utc = utc;
+        console.warn('Do not use AbsoluteTimeAxis.utc boolean attribute. Instead switch to AbsoluteTimeAxis.timezone string attribute.');
+        this._timezone = utc ? 'UTC' : undefined;
+        this.reportMutation();
+    }
+
+    /**
+     * Set the timezone by which to format scale labels. If undefined, the local timezone is used.
+     */
+    get timezone() { return this._timezone; }
+    set timezone(timezone: string | undefined) {
+        this._timezone = timezone;
         this.reportMutation();
     }
 
@@ -103,10 +116,10 @@ class HourScale implements Scale {
             this.midX.push(x + halfHourDistance);
             this.minorX.push(x + halfHourDistance + quarterHourDistance);
 
-            let label = formatDate(dt, 'HH', axis.utc);
+            let label = formatDate(dt, 'HH', axis.timezone);
             if (label === '00') {
-                label = formatDate(dt, 'MMM', axis.utc)
-                    + ' ' + formatDate(dt, 'DD', axis.utc);
+                label = formatDate(dt, 'MMM', axis.timezone)
+                    + ' ' + formatDate(dt, 'DD', axis.timezone);
             }
             this.majorLabels.push(label);
 
@@ -184,51 +197,40 @@ class HourScale implements Scale {
     }
 }
 
-function formatDate(date: Date, format: string, utc: boolean) {
+function formatDate(date: Date, format: string, timeZone?: string) {
     if (format === 'YYYY') {
-        return String(utc ? date.getUTCFullYear() : date.getFullYear());
+        return new Intl.DateTimeFormat('en-US', { timeZone, year: 'numeric' }).format(date);
     } else if (format === 'MM') {
-        const m = (utc ? date.getUTCMonth() : date.getMonth()) + 1;
-        return (m < 10) ? '0' + m : ' ' + m;
+        return new Intl.DateTimeFormat('en-US', { timeZone, month: '2-digit' }).format(date);
     } else if (format === 'MMM') {
-        const monthAbbr = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        const m = (utc ? date.getUTCMonth() : date.getMonth());
-        return monthAbbr[m];
+        return new Intl.DateTimeFormat('en-US', { timeZone, month: 'short' }).format(date);
     } else if (format === 'MMMM') {
-        const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-        const m = (utc ? date.getUTCMonth() : date.getMonth());
-        return months[m];
+        return new Intl.DateTimeFormat('en-US', { timeZone, month: 'long' }).format(date);
     } else if (format === 'DD') {
-        const d = (utc ? date.getUTCDate() : date.getDate());
-        return (d < 10) ? '0' + d : ' ' + d;
+        return new Intl.DateTimeFormat('en-US', { timeZone, day: '2-digit' }).format(date);
     } else if (format === 'DDDD') { // Day of year
         const dayCount = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
-        const m = (utc ? date.getUTCMonth() : date.getMonth());
-        const d = (utc ? date.getUTCDate() : date.getDate());
+        const m = parseInt(new Intl.DateTimeFormat('en-US', { timeZone, month: 'numeric' }).format(date));
+        const d = parseInt(new Intl.DateTimeFormat('en-US', { timeZone, day: 'numeric' }).format(date));
         let dayOfYear = dayCount[m] + d;
-        if (m > 1 && isLeapYear(date, utc)) {
+        if (m > 1 && isLeapYear(date, timeZone)) {
             dayOfYear++;
         }
         return leftPad(dayOfYear, 3);
-    } else if (format === 'dd') { // Day of week
-        const weekAbbr = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
-        return weekAbbr[utc ? date.getUTCDay() : date.getDay()];
     } else if (format === 'ddd') { // Day of week
-        const weekAbbr = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-        return weekAbbr[utc ? date.getUTCDay() : date.getDay()];
+        return new Intl.DateTimeFormat('en-US', { timeZone, weekday: 'short' }).format(date);
     } else if (format === 'Do') {
-        const d = (utc ? date.getUTCDate() : date.getDate());
+        const d = parseInt(new Intl.DateTimeFormat('en-US', { timeZone, day: 'numeric' }).format(date));
         return (d === 1 || d === 31) ? d + 'st' : (d === 2) ? d + 'nd' : d + 'th';
     } else if (format === 'HH') {
-        const h = (utc ? date.getUTCHours() : date.getHours());
-        return (h < 10) ? '0' + h : '' + h;
+        return new Intl.DateTimeFormat('en-US', { timeZone, hour: '2-digit', hour12: false }).format(date);
     } else {
         throw new Error(`Unexpected format '${format}'`);
     }
 }
 
-function isLeapYear(date: Date, utc: boolean) {
-    const year = (utc ? date.getUTCFullYear() : date.getFullYear());
+function isLeapYear(date: Date, timeZone?: string) {
+    const year = parseInt(new Intl.DateTimeFormat('en-US', { timeZone, year: 'numeric' }).format(date));
     if ((year & 3) !== 0) {
         return false;
     }
