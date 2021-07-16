@@ -16,18 +16,21 @@ export class HitCanvas {
     readonly ctx: CanvasRenderingContext2D;
     private regions: { [key: string]: HitRegionSpecification; } = {};
 
-    // If present, use the parent instead of the local regions map.
+    // If present, use the root instead of the local regions map.
     // This avoids color collisions.
-    private parent?: HitCanvas;
+    private root?: HitCanvas;
 
-    constructor(parent?: HitCanvas, width?: number, height?: number) {
+    constructor(private parent?: HitCanvas, width?: number, height?: number) {
         const canvas = document.createElement('canvas');
         canvas.width = width || canvas.width;
         canvas.height = height || canvas.height;
         this.ctx = canvas.getContext('2d')!;
-        while (parent) { // find the root
-            this.parent = parent;
-            parent = parent.parent;
+
+        // Find the root
+        let candidate = parent;
+        while (candidate) {
+            this.root = candidate;
+            candidate = candidate.parent;
         }
     }
 
@@ -38,8 +41,8 @@ export class HitCanvas {
     }
 
     beginHitRegion(hitRegion: HitRegionSpecification) {
-        const color = (this.parent || this).generateUniqueColor();
-        (this.parent || this).regions[color] = hitRegion;
+        const color = (this.root || this).generateUniqueColor();
+        (this.root || this).regions[color] = hitRegion;
 
         this.ctx.beginPath();
         this.ctx.fillStyle = color;
@@ -52,16 +55,17 @@ export class HitCanvas {
         return this.regions[color] || undefined;
     }
 
+    drawRegions(ctx: CanvasRenderingContext2D, dx: number, dy: number) {
+        ctx.drawImage(this.ctx.canvas, dx, dy);
+    }
+
     createChild(width: number, height: number) {
         // Dimensions are needed for redraw onto a parent HitCanvas.
         return new HitCanvas(this, width, height);
     }
 
-    transferToParent(dx: number, dy: number, dw: number, dh: number) {
-        if (!this.parent) {
-            throw new Error('No parent to transfer to');
-        }
-        this.parent.ctx.drawImage(this.ctx.canvas, dx, dy, dw, dh);
+    transferTo(ctx: CanvasRenderingContext2D, dx: number, dy: number, dw: number, dh: number) {
+        ctx.drawImage(this.ctx.canvas, dx, dy, dw, dh);
     }
 
     private generateUniqueColor(): string {
@@ -71,7 +75,7 @@ export class HitCanvas {
             const b = Math.round(Math.random() * 255);
             const color = `rgb(${r},${g},${b})`;
 
-            if (!this.regions[color] && color != WHITE) {
+            if (!this.regions[color] && color !== WHITE) {
                 return color;
             }
         }

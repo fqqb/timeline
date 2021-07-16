@@ -91,7 +91,7 @@ export class Graphics {
 
     copy(g: Graphics, dx: number, dy: number) {
         this.ctx.drawImage(g.canvas, dx, dy);
-        g.hitCanvas.transferToParent(dx, dy, g.canvas.width, g.canvas.height);
+        g.hitCanvas.transferTo(this.hitCtx, dx, dy, g.canvas.width, g.canvas.height);
     }
 
     clearHitCanvas() {
@@ -105,7 +105,7 @@ export class Graphics {
 
     resize(width: number, height: number) {
         // Careful not to reset dimensions all the time (it does lots of stuff)
-        if (this.ctx.canvas.width != width || this.ctx.canvas.height != height) {
+        if (this.ctx.canvas.width !== width || this.ctx.canvas.height !== height) {
             this.ctx.canvas.width = width;
             this.ctx.canvas.height = height;
             this.hitCanvas.ctx.canvas.width = width;

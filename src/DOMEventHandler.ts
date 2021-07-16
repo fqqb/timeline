@@ -111,7 +111,7 @@ export class DOMEventHandler {
         const mouseEvent = this.toTimelineMouseEvent(domEvent);
         if (mouseEvent.overViewport) {
             const region = this.hitCanvas.getActiveRegion(
-                mouseEvent.viewportPoint.x, mouseEvent.viewportPoint.y);
+                mouseEvent.point.x, mouseEvent.point.y);
             region?.click && region.click();
         }
     }
@@ -174,7 +174,7 @@ export class DOMEventHandler {
             this.timeline.fireEvent('viewportmousemove', vpEvent);
 
             const region = this.hitCanvas.getActiveRegion(
-                mouseEvent.viewportPoint.x, mouseEvent.viewportPoint.y);
+                mouseEvent.point.x, mouseEvent.point.y);
 
             if (this.prevEnteredRegion && this.prevEnteredRegion.mouseOut) {
                 if (!regionMatches(this.prevEnteredRegion, region)) {
