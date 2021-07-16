@@ -109,11 +109,9 @@ export class DOMEventHandler {
         this.timeline.clearSelection();
 
         const mouseEvent = this.toTimelineMouseEvent(domEvent);
-        if (mouseEvent.overViewport) {
-            const region = this.hitCanvas.getActiveRegion(
-                mouseEvent.point.x, mouseEvent.point.y);
-            region?.click && region.click();
-        }
+        const region = this.hitCanvas.getActiveRegion(
+            mouseEvent.point.x, mouseEvent.point.y);
+        region?.click && region.click();
     }
 
     private onCanvasMouseDown(event: MouseEvent) {
@@ -172,25 +170,25 @@ export class DOMEventHandler {
                 time: this.mouse2time(mouseEvent.point.x),
             };
             this.timeline.fireEvent('viewportmousemove', vpEvent);
-
-            const region = this.hitCanvas.getActiveRegion(
-                mouseEvent.point.x, mouseEvent.point.y);
-
-            if (this.prevEnteredRegion && this.prevEnteredRegion.mouseOut) {
-                if (!regionMatches(this.prevEnteredRegion, region)) {
-                    this.prevEnteredRegion.mouseOut();
-                }
-            }
-
-            if (region && region.mouseEnter) {
-                if (!regionMatches(this.prevEnteredRegion, region)) {
-                    region.mouseEnter();
-                }
-            }
-
-            this.prevEnteredRegion = region;
-            defaultCursor = region?.cursor || 'default';
         }
+
+        const region = this.hitCanvas.getActiveRegion(
+            mouseEvent.point.x, mouseEvent.point.y);
+
+        if (this.prevEnteredRegion && this.prevEnteredRegion.mouseOut) {
+            if (!regionMatches(this.prevEnteredRegion, region)) {
+                this.prevEnteredRegion.mouseOut();
+            }
+        }
+
+        if (region && region.mouseEnter) {
+            if (!regionMatches(this.prevEnteredRegion, region)) {
+                region.mouseEnter();
+            }
+        }
+
+        this.prevEnteredRegion = region;
+        defaultCursor = region?.cursor || 'default';
 
         if (this.grabPoint && !this.grabbing && isLeftPressed(domEvent)) {
             const { point } = mouseEvent;

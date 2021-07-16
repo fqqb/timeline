@@ -1,4 +1,6 @@
+import { HeaderClickEvent } from './events';
 import { Graphics, Path } from './Graphics';
+import { HitRegionSpecification } from './HitCanvas';
 import { Line } from './Line';
 import { Sidebar } from './Sidebar';
 
@@ -8,6 +10,8 @@ export class DefaultSidebar extends Sidebar {
     private _foregroundColor = '#333';
     private _fontFamily = 'Verdana, Geneva, sans-serif';
     private _textSize = 10;
+
+    private hoveredIndex?: number;
 
     drawContent(g: Graphics) {
         const offscreen = g.createChild(this.width, g.canvas.height);
@@ -28,8 +32,9 @@ export class DefaultSidebar extends Sidebar {
             .concat(this.timeline.getLines().filter(l => !l.frozen));
 
         let backgroundColor = this.timeline.backgroundOddColor;
-        for (const line of lines) {
-            this.drawLine(g, line, backgroundColor);
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i];
+            this.drawLine(g, line, backgroundColor, i);
             backgroundColor = (backgroundColor === this.timeline.backgroundOddColor) ? this.timeline.backgroundEvenColor : this.timeline.backgroundOddColor;
         }
 
@@ -64,7 +69,7 @@ export class DefaultSidebar extends Sidebar {
         });
     }
 
-    private drawLine(g: Graphics, line: Line<any>, backgroundColor: string) {
+    private drawLine(g: Graphics, line: Line<any>, backgroundColor: string, idx: number) {
         g.fillRect({
             x: 0,
             y: line.y,
@@ -72,6 +77,36 @@ export class DefaultSidebar extends Sidebar {
             height: line.height,
             color: backgroundColor,
         });
+
+        if (this.hoveredIndex === idx) {
+            g.fillRect({
+                x: 0,
+                y: line.y,
+                width: this.width,
+                height: line.height,
+                color: '#aaa',
+                opacity: 0.3,
+            });
+        }
+
+        const hitRegionSpec: HitRegionSpecification = {
+            id: `line-${idx}-header`,
+            cursor: 'pointer',
+            mouseEnter: () => {
+                this.hoveredIndex = idx;
+                this.reportMutation();
+            },
+            mouseOut: () => {
+                this.hoveredIndex = undefined;
+                this.reportMutation();
+            },
+            click: () => {
+                const clickEvent: HeaderClickEvent = { line };
+                this.timeline.fireEvent('headerclick', clickEvent);
+            },
+        };
+        const hitRegion = g.addHitRegion(hitRegionSpec);
+        hitRegion.addRect(0, line.y, this.width, line.height);
 
         // Bottom horizontal divider
         const dividerY = line.y + line.height + 0.5;

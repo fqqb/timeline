@@ -1,4 +1,5 @@
 import { Event } from './Event';
+import { Line } from './Line';
 
 export interface TimelineEvent {
     detail?: any;
@@ -7,12 +8,17 @@ export interface TimelineEvent {
 export interface TimelineEventMap {
     [index: string]: TimelineEvent;
     'eventclick': EventClickEvent;
+    'headerclick': HeaderClickEvent;
     'viewportmousemove': ViewportMouseMoveEvent;
     'viewportmouseout': ViewportMouseOutEvent;
 }
 
 export interface EventClickEvent extends TimelineEvent {
     event: Event;
+}
+
+export interface HeaderClickEvent extends TimelineEvent {
+    line: Line<any>;
 }
 
 export interface ViewportMouseMoveEvent extends TimelineEvent {

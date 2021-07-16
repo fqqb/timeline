@@ -39,6 +39,7 @@ export class Timeline {
     private frozenGraphics: Graphics;
 
     private eventListeners: TimelineEventHandlers = {
+        headerclick: [],
         eventclick: [],
         viewportmousemove: [],
         viewportmouseout: [],
