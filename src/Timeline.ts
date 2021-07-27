@@ -322,6 +322,13 @@ export class Timeline {
         return this._drawables.filter(l => l instanceof Line) as Line<unknown>[];
     }
 
+    removeLine(line: Line<any>) {
+        const idx = this._drawables.indexOf(line);
+        if (idx !== -1) {
+            this._drawables.splice(idx, 1);
+        }
+    }
+
     /**
      * Returns the x position in svg points for the given date
      */
