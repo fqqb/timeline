@@ -2,7 +2,7 @@ import { AnimatableProperty } from './AnimatableProperty';
 import { DefaultSidebar } from './DefaultSidebar';
 import { DOMEventHandler, Tool } from './DOMEventHandler';
 import { Drawable } from './Drawable';
-import { TimelineEvent, TimelineEventHandlers, TimelineEventMap } from './events';
+import { TimelineEvent, TimelineEventHandlers, TimelineEventMap, ViewportChangeEvent } from './events';
 import { Graphics, Path } from './Graphics';
 import { Line } from './Line';
 import { Sidebar } from './Sidebar';
@@ -41,6 +41,7 @@ export class Timeline {
     private eventListeners: TimelineEventHandlers = {
         headerclick: [],
         eventclick: [],
+        viewportchange: [],
         viewportmousemove: [],
         viewportmouseout: [],
     };
@@ -167,6 +168,8 @@ export class Timeline {
             this._start.value = start;
             this._stop.value = stop;
         }
+        const vpEvent: ViewportChangeEvent = { start, stop };
+        this.fireEvent('viewportchange', vpEvent);
         this.requestRepaint();
     }
 

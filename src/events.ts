@@ -9,6 +9,7 @@ export interface TimelineEventMap {
     [index: string]: TimelineEvent;
     'eventclick': EventClickEvent;
     'headerclick': HeaderClickEvent;
+    'viewportchange': ViewportChangeEvent;
     'viewportmousemove': ViewportMouseMoveEvent;
     'viewportmouseout': ViewportMouseOutEvent;
 }
@@ -19,6 +20,11 @@ export interface EventClickEvent extends TimelineEvent {
 
 export interface HeaderClickEvent extends TimelineEvent {
     line: Line<any>;
+}
+
+export interface ViewportChangeEvent extends TimelineEvent {
+    start: number;
+    stop: number;
 }
 
 export interface ViewportMouseMoveEvent extends TimelineEvent {
