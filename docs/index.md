@@ -24,7 +24,7 @@ ES Modules:
 ```html
 <div id="timeline"></div>
 <script type="module">
-    import { Timeline } from 'https://unpkg.com/timeline/timeline.js';
+    import { Timeline } from 'https://unpkg.com/@fqqb/timeline';
 
     const targetEl = document.getElementById('timeline');
     const timeline = new Timeline(targetEl);
@@ -37,7 +37,7 @@ UMD:
 
 ```html
 <div id="timeline"></div>
-<script src="https://unpkg.com/timeline/timeline.umd.js"></script>
+<script src="https://unpkg.com/@fqqb/timeline"></script>
 <script>
     const targetEl = document.getElementById('timeline');
     const timeline = new tn.Timeline(targetEl);

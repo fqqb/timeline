@@ -7,7 +7,7 @@ order: 20
 
 # Getting Started
 
-A minimal setup for creating a Timeline component goes like this:
+This is a minimal setup for creating a Timeline component:
 
 ```html
 <!doctype html>
@@ -15,48 +15,48 @@ A minimal setup for creating a Timeline component goes like this:
 <body>
     <div id="timeline" style="height: 100px"></div>
     <script type="module">
-        import { Timeline } from 'https://unpkg.com/timeline/timeline.js';
+        import { Timeline } from 'https://unpkg.com/@fqqb/timeline';
         window.addEventListener('load', () => {
             const targetEl = document.getElementById('timeline');
-            new Timeline(targetEl);
+            const timeline = new Timeline(targetEl);
         });
     </script>
 </body>
 </html>
 ```
 
-You must specify an existing HTML DOM element as the host. This is typically a `<div>`, but any block element will do.
+An existing HTML DOM element is used as the host, usually a `<div>`.
 
-A Timeline instance will automatically use all of the available space of its host element, based on the effective `clientHeight` and `clientWidth` properties. In this example we use an inline CSS rule to set the height to `100px`, but you can also use other other means to set the height.
+A Timeline instance will automatically use all of the available space of its host element based on the effective `clientHeight` and `clientWidth` properties. If it runs out of space, it will automatically activate a vertical scrollbar.
 
-While functional, our first Timeline looks rather bare-bones:
+This example uses an inline CSS rule to set the height to `100px`. Relative heights or an absolutely positioned host element works just as well.
 
 {% include demo.html src="/examples/getting-started1.html"
                      height="100px"
                      caption="An empty timeline" %}
 
-We see just two empty panels: a **sidebar** and the **main area**. Notice how the sidebar can be resized with the mouse.
+This empty Timeline shows the main structure: a left **sidebar** and the **main area**. Notice how the sidebar can be resized.
 
 
 ## Adding Lines
 
-The main area defaults to showing a numeric range between 0 and 100. We can use this knowledge to position a few events.
+The main area defaults to showing a numeric range between 0 and 100. With this knowledge, let's display a few events.
 
 ```javascript
 const line1 = new EventLine(timeline);
 line1.label = 'Line 1';
+line1.data = [
+    { start: 20, stop: 40, title: 'Event 1' },
+];
 
 const line2 = new EventLine(timeline);
 line2.label = 'Line 2';
-
-line1.data = [
-    { start: 20, stop: 40, label: 'Event 1' },
-];
-
+line2.borderWidth = 0;
+line2.eventColor = '#ffe4b5';
 line2.data = [
-    { start: 10, stop: 50, label: 'Event 2' },
-    { start: 40, stop: 70, label: 'Event 3' },
-    { start: 60, stop: 120, label: 'Event 4' },
+    { start: 10, stop: 50, title: 'Event 2' },
+    { start: 40, stop: 70, title: 'Event 3', color: 'orange', cornerRadius: 5 },
+    { start: 60, stop: 120, title: 'Event 4' },
 ];
 ```
 
@@ -64,17 +64,48 @@ line2.data = [
                      height="100px"
                      caption="First data" %}
 
-Event 4 is not fully visible, but you can use the mouse to pan the Timeline canvas.
+Event 4 is not fully visible, but you can pan the Timeline canvas.
 
 
 ## Absolute Time
+
+A common use case is to render real life events. That is to say &ndash; using absolute time.
 
 If we consider time to be milliseconds since 1 January 1970 UTC, we can use JavaScript Dates to show a specific calendar time range.
 
 Let's do that, and replace our event data with absolute timestamps too.
 
+```javascript
+// Show 'today' (using local time)
+const start = new Date();
+start.setHours(0, 0, 0, 0);
+const stop = new Date(start.getTime());
+stop.setDate(stop.getDate() + 1);
+
+timeline.setBounds(start.getTime(), stop.getTime());
+
+const axis = new AbsoluteTimeAxis(timeline);
+axis.label = 'Time';
+
+const line1 = new EventLine(timeline);
+line1.label = 'Line 1';
+line1.data = [{
+    start: start.getTime() + 3000000,
+    stop: start.getTime() + 50000000,
+    title: 'Event 1'
+}];
+
+const line2 = new EventLine(timeline);
+line2.label = 'Line 2';
+line2.data = [{
+    start: start.getTime() + 6000000,
+    stop: start.getTime() + 12500000,
+    title: 'Event 2'
+}];
+```
+
 {% include demo.html src="/examples/getting-started3.html"
                      height="100px"
                      caption="Absolute time" %}
 
-We've also added an [AbsoluteTimeAxis](/api/AbsoluteTimeAxis/) to this example. This is a special type of [Line](/api/Line/) that renders an autoranged timescale. This built-in axis has support for displaying absolute time using IANA timezone names.
+This example adds an [AbsoluteTimeAxis](/api/AbsoluteTimeAxis/), a special type of [Line](/api/Line/) that renders an autoranged timescale.

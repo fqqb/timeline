@@ -1,7 +1,7 @@
 theme: null
 
 # Dist used in examples
-dist: 'https://unpkg.com/@fqqb/timeline'
+dist: '/assets/timeline.js'
 
 collections:
   api:

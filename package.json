@@ -12,7 +12,7 @@
     "prepublishOnly": "npm run build",
     "watch": "rollup -cw",
     "tsdoc": "typedoc --entryPoints ./src --excludePrivate --json docs/_data/tsdoc.json",
-    "serve": "cd docs; bundle exec jekyll serve",
+    "serve": "cd docs; bundle exec jekyll serve --config _config.dev.yml",
     "jekyll": "npm run tsdoc && npm run serve",
     "dev": "npx concurrently -n rollup,jekyll -c yellow,magenta npm:watch npm:jekyll"
   },

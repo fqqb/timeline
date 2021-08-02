@@ -333,7 +333,7 @@ export class Timeline {
     }
 
     /**
-     * Returns the x position in svg points for the given date
+     * Returns the x position in points for the given date
      */
     positionTime(time: number) {
         return this.distanceBetween(this.start, time);
