@@ -1,9 +1,11 @@
+import { nodeResolve } from '@rollup/plugin-node-resolve';
 import { terser } from 'rollup-plugin-terser';
 import typescript from 'rollup-plugin-typescript2';
 
 export default {
   input: 'src/index.ts',
   plugins: [
+    nodeResolve(),
     typescript({
       useTsconfigDeclarationDir: true
     }),
@@ -31,5 +33,10 @@ export default {
   ],
   watch: {
     include: 'src/**',
-  }
+  },
+  onwarn: (warning, warn) => {
+    // Suppress circular dependency warnings coming from Luxon
+    if (warning.code === 'CIRCULAR_DEPENDENCY') return;
+    warn(warning);
+  },
 }
