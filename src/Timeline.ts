@@ -321,14 +321,35 @@ export class Timeline {
         this.panTo(time, false);
     }
 
+    getChildren() {
+        return [...this._drawables];
+    }
+
     getLines() {
         return this._drawables.filter(l => l instanceof Line) as Line<unknown>[];
     }
 
+    /**
+     * @hidden
+     * @deprecated use 'remove' method.
+     */
     removeLine(line: Line<any>) {
-        const idx = this._drawables.indexOf(line);
-        if (idx !== -1) {
-            this._drawables.splice(idx, 1);
+        this.removeChild(line);
+    }
+
+    removeChild(drawable: Drawable): boolean {
+        if (drawable === this.sidebar) {
+            this.sidebar = undefined;
+            this.requestRepaint();
+            return true;
+        } else {
+            const idx = this._drawables.indexOf(drawable);
+            if (idx !== -1) {
+                this._drawables.splice(idx, 1);
+                this.requestRepaint();
+                return true;
+            }
+            return false;
         }
     }
 
