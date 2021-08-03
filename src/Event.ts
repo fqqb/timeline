@@ -1,6 +1,10 @@
 export interface Event {
     start: number;
     stop: number;
+    label?: string;
+    /**
+     * @deprecated use 'label' attribute
+     */
     title?: string;
     color?: string;
     textColor?: string;

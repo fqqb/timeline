@@ -46,7 +46,7 @@ The main area defaults to showing a numeric range between 0 and 100. With this k
 const line1 = new EventLine(timeline);
 line1.label = 'Line 1';
 line1.data = [
-    { start: 20, stop: 40, title: 'Event 1' },
+    { start: 20, stop: 40, label: 'Event 1' },
 ];
 
 const line2 = new EventLine(timeline);
@@ -54,9 +54,9 @@ line2.label = 'Line 2';
 line2.borderWidth = 0;
 line2.eventColor = '#ffe4b5';
 line2.data = [
-    { start: 10, stop: 50, title: 'Event 2' },
-    { start: 40, stop: 70, title: 'Event 3', color: 'orange', cornerRadius: 5 },
-    { start: 60, stop: 120, title: 'Event 4' },
+    { start: 10, stop: 50, label: 'Event 2' },
+    { start: 40, stop: 70, label: 'Event 3', color: 'orange', cornerRadius: 5 },
+    { start: 60, stop: 120, label: 'Event 4' },
 ];
 ```
 
@@ -92,7 +92,7 @@ line1.label = 'Line 1';
 line1.data = [{
     start: start.getTime() + 3000000,
     stop: start.getTime() + 50000000,
-    title: 'Event 1'
+    label: 'Event 1'
 }];
 
 const line2 = new EventLine(timeline);
@@ -100,7 +100,7 @@ line2.label = 'Line 2';
 line2.data = [{
     start: start.getTime() + 6000000,
     stop: start.getTime() + 12500000,
-    title: 'Event 2'
+    label: 'Event 2'
 }];
 ```
 

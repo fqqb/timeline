@@ -8,14 +8,14 @@ import { Timeline } from './Timeline';
 import { nvl } from './utils';
 
 interface DrawInfo {
-    title: string; // Actual text to be shown on event (may include extra decoration: ◀)
+    label: string; // Actual text to be shown on event (may include extra decoration: ◀)
     startX: number; // Left of bbox (event only)
     stopX: number; // Right of bbox (event only)
     renderStartX: number; // Left of bbox containing event and maybe outside label
     renderStopX: number; // Right of bbox containing event and maybe outside label
     offscreenStart: boolean; // True if the event starts before the visible range
     marginLeft: number; // Margin specific to the event, or else inherited from its band
-    titleFitsBox: boolean; // True if the title fits in the actual event box
+    labelFitsBox: boolean; // True if the label fits in the actual event box
     font: string; // Font specific to the event, or else inherited from its band
 }
 
@@ -139,17 +139,17 @@ export class EventLine extends Line<Event[]> {
             crispen: true,
         });
 
-        if (event.title) {
+        if (drawInfo.label) {
             let textX = box.x + drawInfo.marginLeft;
             const textY = box.y + (box.height / 2);
             if (drawInfo.offscreenStart) {
                 textX = this.timeline.positionTime(this.timeline.start);
             }
-            if (drawInfo.titleFitsBox || this.textOverflow === 'show') {
+            if (drawInfo.labelFitsBox || this.textOverflow === 'show') {
                 g.fillText({
                     x: textX,
                     y: textY,
-                    text: drawInfo.title,
+                    text: drawInfo.label,
                     font: drawInfo.font,
                     baseline: 'middle',
                     align: 'left',
@@ -164,7 +164,7 @@ export class EventLine extends Line<Event[]> {
                 offscreenCtx.font = drawInfo.font;
                 offscreenCtx.textBaseline = 'middle';
                 offscreenCtx.textAlign = 'left';
-                offscreenCtx.fillText(drawInfo.title, drawInfo.marginLeft, box.height / 2);
+                offscreenCtx.fillText(drawInfo.label, drawInfo.marginLeft, box.height / 2);
                 g.ctx.drawImage(tmpCanvas, box.x, box.y);
             }
         }
@@ -182,26 +182,30 @@ export class EventLine extends Line<Event[]> {
             let renderStopX = stopX;
             const offscreenStart = event.start < this.timeline.start && event.stop > this.timeline.start;
 
-            let title = event.title || '';
+            if (event.title) {
+                console.warn('DEPRECATION: Please use Event "label" property instead of "title"');
+            }
+
+            let label = event.label || event.title || '';
             if (offscreenStart) {
-                title = '◀' + title;
+                label = '◀' + label;
             }
 
             const font = `${nvl(event.textSize, this.textSize)}px ${nvl(event.fontFamily, this.fontFamily)}`;
             const marginLeft = nvl(event.marginLeft, this.eventMarginLeft);
 
-            const fm = g.measureText(title, font);
-            let availableTitleWidth = renderStopX - renderStartX - marginLeft;
+            const fm = g.measureText(label, font);
+            let availableLabelWidth = renderStopX - renderStartX - marginLeft;
             if (offscreenStart) {
-                availableTitleWidth = renderStopX - this.timeline.positionTime(this.timeline.start) - marginLeft;
+                availableLabelWidth = renderStopX - this.timeline.positionTime(this.timeline.start) - marginLeft;
             }
 
-            const titleFitsBox = availableTitleWidth >= fm.width;
-            if (!titleFitsBox) {
+            const labelFitsBox = availableLabelWidth >= fm.width;
+            if (!labelFitsBox) {
                 if (this.textOverflow === 'show') {
                     renderStopX = renderStartX + marginLeft + fm.width;
                 } else if (this.textOverflow === 'hide') {
-                    title = '';
+                    label = '';
                 }
             }
 
@@ -213,8 +217,8 @@ export class EventLine extends Line<Event[]> {
                 stopX,
                 renderStartX,
                 renderStopX,
-                title,
-                titleFitsBox,
+                label,
+                labelFitsBox: labelFitsBox,
             };
         }
     }
