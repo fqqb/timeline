@@ -7,6 +7,9 @@
             {%- if child.getSignature -%}
                 <span class="tag tag-get">get</span>
             {%- endif -%}
+            {%- if child.flags.isReadonly -%}
+                <span class="tag tag-get">get</span>
+            {%- endif -%}
             {%- if child.setSignature -%}
                 <span class="tag tag-set">set</span>
             {%- endif -%}
@@ -29,6 +32,11 @@
                             </p>
                         {%- endif -%}
                     {%- endfor -%}
+                {%- endif -%}
+            {%- elsif child.getSignature[0].comment -%}
+                {{ child.getSignature[0].comment.shortText | markdownify }}
+                {%- if child.getSignature[0].comment.text -%}
+                    {{ child.getSignature[0].comment.text | markdownify }}
                 {%- endif -%}
             {%- endif -%}
 

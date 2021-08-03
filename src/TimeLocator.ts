@@ -10,10 +10,15 @@ export class TimeLocator extends Drawable {
     private _lineWidth = 1;
     private _lineDash: number[] = [];
 
+    /**
+     * @param timeline Timeline instance that this drawable is bound to.
+     * @param timeProvider Function that returns time for this locator (called upon each redraw).
+     */
     constructor(timeline: Timeline, private timeProvider: () => number | undefined) {
         super(timeline);
     }
 
+    /** @hidden */
     drawOverlay(g: Graphics) {
         const t = this.timeProvider();
         if (t === undefined) {
@@ -35,30 +40,47 @@ export class TimeLocator extends Drawable {
         g.ctx.fill();
     }
 
+    /**
+     * Color of the top knob
+     */
     get knobColor() { return this._knobColor; }
     set knobColor(knobColor: string) {
         this._knobColor = knobColor;
         this.reportMutation();
     }
 
+    /**
+     * Radius of the top knob
+     */
     get knobRadius() { return this._knobRadius; }
     set knobRadius(knobRadius: number) {
         this._knobRadius = knobRadius;
         this.reportMutation();
     }
 
+    /**
+     * Color of this locator
+     */
     get lineColor() { return this._lineColor; }
     set lineColor(lineColor: string) {
         this._lineColor = lineColor;
         this.reportMutation();
     }
 
+    /**
+     * Thickness of this locator
+     */
     get lineWidth() { return this._lineWidth; }
     set lineWidth(lineWidth: number) {
         this._lineWidth = lineWidth;
         this.reportMutation();
     }
 
+    /**
+     * An array of numbers discribing a dash array. For
+     * example: [4, 3] alternates between a line of 4 points
+     * and a gap of 3. Set to [] to show a solid line.
+     */
     get lineDash() { return this._lineDash; }
     set lineDash(lineDash: number[]) {
         this._lineDash = lineDash;

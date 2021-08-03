@@ -12,7 +12,7 @@
 
             const line1 = new EventLine(timeline);
             line1.label = 'Line 1';
-            line1.data = [
+            line1.events = [
                 { start: 20, stop: 40, label: 'Event 1' },
             ];
 
@@ -20,7 +20,7 @@
             line2.label = 'Line 2';
             line2.borderWidth = 0;
             line2.eventColor = '#ffe4b5';
-            line2.data = [
+            line2.events = [
                 { start: 10, stop: 50, label: 'Event 2' },
                 { start: 40, stop: 70, label: 'Event 3', color: 'orange', cornerRadius: 5 },
                 { start: 60, stop: 120, label: 'Event 4' },

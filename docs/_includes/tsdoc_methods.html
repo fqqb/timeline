@@ -25,7 +25,10 @@
                                         {{ parameter.name }}
                                         {% if parameter.comment %}
                                             &ndash;
-                                            {{ parameter.comment.text | markdownify }}
+                                            {{- parameter.comment.shortText | markdownify -}}
+                                            {%- if signature.comment.text -%}
+                                                {{ parameter.comment.text | markdownify }}
+                                            {%- endif -%}
                                         {% endif %}
                                     </li>
                                 {%- endfor -%}

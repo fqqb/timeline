@@ -5,9 +5,10 @@ import { Line } from './Line';
 export type ScaleKind = 'auto' | 'hour' | 'quarterDay' | 'weekDay' | 'week' | 'month' | 'year' | 'decade';
 
 /**
- * An axis that interprets time as milliseconds since January 01, 1970, 00:00:00 UTC. Same as JavaScript Date.
+ * An axis that interprets time as milliseconds since January 01, 1970, 00:00:00 UTC.
+ * Same as JavaScript Date.
  */
-export class AbsoluteTimeAxis extends Line<void> {
+export class AbsoluteTimeAxis extends Line {
 
     private _textColor = 'grey';
     private _fullHeight = false;
@@ -34,11 +35,13 @@ export class AbsoluteTimeAxis extends Line<void> {
 
     private scaleRenderer?: Scale;
 
+    /** @hidden */
     drawLineContent(g: Graphics) {
         this.scaleRenderer = this.determineScale();
         this.scaleRenderer!.drawLineContent(g, this);
     }
 
+    /** @hidden */
     drawOverlay(g: Graphics) {
         this.scaleRenderer!.drawOverlay(g, this);
     }

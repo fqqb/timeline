@@ -24,6 +24,10 @@ export class AnimatableProperty {
      */
     private duration = 200;
 
+    /**
+     * @param initialValue initial value (not animated)
+     * @param easing easing function, defaults to identity (same rate from start to finish).
+     */
     constructor(initialValue: number, private easing: ((x: number) => number) = LINEAR) {
         this._value = initialValue;
     }

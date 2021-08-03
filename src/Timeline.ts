@@ -420,7 +420,7 @@ export class Timeline {
      * Returns all Line instances bound to this Timeline instance.
      */
     getLines() {
-        return this._drawables.filter(l => l instanceof Line) as Line<unknown>[];
+        return this._drawables.filter(l => l instanceof Line) as Line[];
     }
 
     /**

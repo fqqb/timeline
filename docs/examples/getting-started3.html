@@ -23,7 +23,7 @@
 
             const line1 = new EventLine(timeline);
             line1.label = 'Line 1';
-            line1.data = [{
+            line1.events = [{
                 start: start.getTime() + 3000000,
                 stop: start.getTime() + 50000000,
                 label: 'Event 1'
@@ -31,7 +31,7 @@
 
             const line2 = new EventLine(timeline);
             line2.label = 'Line 2';
-            line2.data = [{
+            line2.events = [{
                 start: start.getTime() + 6000000,
                 stop: start.getTime() + 12500000,
                 label: 'Event 2'

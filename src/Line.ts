@@ -8,11 +8,10 @@ export interface DrawCoordinates {
     height: number;
 }
 
-export abstract class Line<T> extends Drawable {
+export abstract class Line extends Drawable {
 
     private _label?: string;
     private _frozen = false;
-    private _data?: T;
 
     private offscreen?: Graphics;
 
@@ -25,15 +24,6 @@ export abstract class Line<T> extends Drawable {
     };
 
     /**
-     * Custom data associated with this line.
-     */
-    get data() { return this._data; }
-    set data(data: T | undefined) {
-        this._data = data;
-        this.reportMutation();
-    }
-
-    /**
      * Human-friendly label for this line. Typically used
      * in sidebars.
      */
@@ -44,7 +34,7 @@ export abstract class Line<T> extends Drawable {
     }
 
     /**
-     * If set to true, this line should stay fixed on top, even while
+     * If set to true, this line stays fixed on top, even while
      * scrolling vertically.
      *
      * Frozen lines precede non-frozen lines, regardless of the order in

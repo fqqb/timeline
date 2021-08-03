@@ -21,6 +21,9 @@ export class MouseTracker extends TimeLocator {
         this.reportMutation();
     };
 
+    /**
+     * @param timeline Timeline instance that this drawable is bound to.
+     */
     constructor(timeline: Timeline) {
         super(timeline, () => this.time);
         this.lineColor = '#ccc';
@@ -31,6 +34,7 @@ export class MouseTracker extends TimeLocator {
         timeline.addViewportMouseOutListener(this.mouseOutListener);
     }
 
+    /** @hidden */
     disconnectedCallback() {
         this.timeline.removeViewportMouseMoveListener(this.mouseMoveListener);
         this.timeline.removeViewportMouseOutListener(this.mouseOutListener);

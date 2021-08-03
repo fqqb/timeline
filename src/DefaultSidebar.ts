@@ -13,6 +13,7 @@ export class DefaultSidebar extends Sidebar {
 
     private hoveredIndex?: number;
 
+    /** @hidden */
     drawContent(g: Graphics) {
         const offscreen = g.createChild(this.width, g.canvas.height);
         this.drawOffscreen(offscreen);
@@ -69,7 +70,7 @@ export class DefaultSidebar extends Sidebar {
         });
     }
 
-    private drawLine(g: Graphics, line: Line<any>, backgroundColor: string, idx: number) {
+    private drawLine(g: Graphics, line: Line, backgroundColor: string, idx: number) {
         g.fillRect({
             x: 0,
             y: line.y,

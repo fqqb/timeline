@@ -90,19 +90,19 @@
             for (let i = 0; i < 10; i++) {
                 const line = new EventLine(timeline);
 
-                const randomData = [];
+                const randomEvents = [];
                 const dataStart = start.minus({ days: 5 }).toMillis();
                 const dataStop = start.plus({ days: 5 }).toMillis();
                 for (let j = 0; j < 50; j++) {
                     const eventStart = getRandomInt(dataStart, dataStop);
                     const eventDuration = getRandomInt(2000000, 8000000);
-                    randomData.push({
+                    randomEvents.push({
                         start: eventStart,
                         stop: eventStart + eventDuration,
                         label: `${i + 1}.${j + 1}`,
                     });
                 }
-                line.data = randomData;
+                line.events = randomEvents;
                 line.label = 'Line ' + (i + 1);
             }
 

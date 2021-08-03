@@ -25,7 +25,7 @@ export interface HeaderClickEvent extends TimelineEvent {
     /**
      * The line who's header was clicked.
      */
-    line: Line<any>;
+    line: Line;
 }
 
 /**
