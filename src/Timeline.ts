@@ -251,6 +251,10 @@ export class Timeline {
     }
 
     /**
+     * Internal method to bind a drawable to this Timeline instance.
+     * This method is called in the top-level constructor implementation
+     * of a Drawable.
+     *
      * @hidden
      */
     add<T extends Drawable>(drawable: T): T {

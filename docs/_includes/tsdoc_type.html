@@ -77,6 +77,16 @@
     "{{- include.type.value -}}"
 
 
+{%- elsif include.type.type == 'literal' -%}
+    "{{- include.type.value -}}"
+
+
+{%- elsif include.type.type == 'indexedAccess' -%}
+    {%- include tsdoc_type.html type=include.type.indexType %}
+    extends keyof
+    {% include tsdoc_type.html type=include.type.objectType -%}
+
+
 {%- elsif include.type.type == 'unknown' -%}
     {{- include.type.name -}}
 

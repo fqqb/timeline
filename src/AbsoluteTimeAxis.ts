@@ -2,7 +2,7 @@ import { DateTime } from 'luxon';
 import { Graphics, Path } from './Graphics';
 import { Line } from './Line';
 
-type ScaleKind = 'auto' | 'hour' | 'quarterDay' | 'weekDay' | 'week' | 'month' | 'year' | 'decade';
+export type ScaleKind = 'auto' | 'hour' | 'quarterDay' | 'weekDay' | 'week' | 'month' | 'year' | 'decade';
 
 /**
  * An axis that interprets time as milliseconds since January 01, 1970, 00:00:00 UTC. Same as JavaScript Date.

@@ -2,7 +2,7 @@ import { HitCanvas, HitRegionSpecification } from './HitCanvas';
 import { Bounds, Point, shrink } from './positioning';
 import * as utils from './utils';
 
-interface RectColorFill {
+export interface RectColorFill {
     x: number;
     y: number;
     width: number;
@@ -13,7 +13,7 @@ interface RectColorFill {
     opacity?: number;
 }
 
-interface RectGradientFill {
+export interface RectGradientFill {
     x: number;
     y: number;
     width: number;
@@ -24,7 +24,7 @@ interface RectGradientFill {
     opacity?: number;
 }
 
-type RectFill = RectColorFill | RectGradientFill;
+export type RectFill = RectColorFill | RectGradientFill;
 
 export interface TextFill {
     x: number;
@@ -36,7 +36,7 @@ export interface TextFill {
     text: string;
 }
 
-interface RectStroke {
+export interface RectStroke {
     x: number;
     y: number;
     width: number;
@@ -49,24 +49,28 @@ interface RectStroke {
     crispen?: boolean;
 }
 
-interface PathStroke {
+export interface PathStroke {
     path: Path;
     color: string;
     lineWidth?: number;
     dash?: number[];
 }
 
-interface PathColorFill {
+export interface PathColorFill {
     path: Path;
     color: string;
 }
 
-interface PathGradientFill {
+export interface PathGradientFill {
     path: Path;
     gradient: CanvasGradient;
 }
 
-type PathFill = PathColorFill | PathGradientFill;
+export type PathFill = PathColorFill | PathGradientFill;
+
+export interface TextMetrics {
+    width: number;
+}
 
 export class Graphics {
 
@@ -144,7 +148,7 @@ export class Graphics {
         this.ctx.fillText(fill.text, fill.x, fill.y);
     }
 
-    measureText(text: string, font: string) {
+    measureText(text: string, font: string): TextMetrics {
         this.ctx.font = font;
         const fm = this.ctx.measureText(text);
         return { width: fm.width };
@@ -220,7 +224,7 @@ export class Graphics {
     }
 }
 
-interface PathSegment {
+export interface PathSegment {
     x: number;
     y: number;
     line: boolean;

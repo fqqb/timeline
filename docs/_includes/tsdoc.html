@@ -1,4 +1,7 @@
 {% for child in site.data.tsdoc.children -%}
+    {%- if child.name == "index" -%}
+        {%- continue -%}
+    {%- endif -%}
     {% if child.kind == 1 -%} {% comment %}External Module{% endcomment %}
         {% for moduleChild in child.children %}
             {% if moduleChild.name == include.name  %}
@@ -71,6 +74,20 @@
                                     </code>
                                 </dd>
                             {%- endfor -%}
+                        </dl>
+
+                    {%- elsif moduleChild.kindString == "Type alias" -%}
+                        <dl class="field-list">
+                            {%- if moduleChild.type -%}
+                                <dt>
+                                    Type:
+                                </dt>
+                                <dd>
+                                    <code>
+                                        {%- include tsdoc_type.html type=moduleChild.type -%}
+                                    </code>
+                                </dd>
+                            {%- endif -%}
                         </dl>
 
                     {%- else -%}

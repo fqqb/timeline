@@ -2,6 +2,7 @@
     {%- for parameter in include.signature.parameters -%}
         {{- parameter.name -}}
         {%- if parameter.flags.isOptional -%}?{%- endif -%}
+        : {% include tsdoc_type.html type=parameter.type -%}
         {%- if parameter.defaultValue -%}
             ={{- parameter.defaultValue -}}
         {%- endif -%}

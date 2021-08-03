@@ -17,7 +17,27 @@
                 {%- if child.comment.text -%}
                     {{ child.comment.text | markdownify }}
                 {%- endif -%}
+                {%- if child.comment.tags -%}
+                    {%- for tag in child.comment.tags -%}
+                        {%- if tag.tag == "deprecated" -%}
+                            <p>
+                                <strong>Deprecated: </strong>
+                                {{- tag.text -}}
+                            </p>
+                        {%- endif -%}
+                    {%- endfor -%}
+                {%- endif -%}
             {%- endif -%}
+
+            {%- for tag in child.getSignature[0].comment.tags -%}
+                {%- if tag.tag == "deprecated" -%}
+                    <p>
+                        <strong>Deprecated: </strong>
+                        {{- tag.text -}}
+                    </p>
+                {%- endif -%}
+            {%- endfor -%}
+
             <dl class="field-list">
                 <dt>Type:</dt>
                 <dd>
