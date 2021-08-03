@@ -27,12 +27,12 @@ export class MouseTracker extends TimeLocator {
         this.knobColor = '#ccc';
         this.lineDash = [4, 3];
 
-        timeline.addEventListener('viewportmousemove', this.mouseMoveListener);
-        timeline.addEventListener('viewportmouseout', this.mouseOutListener);
+        timeline.addViewportMouseMoveListener(this.mouseMoveListener);
+        timeline.addViewportMouseOutListener(this.mouseOutListener);
     }
 
     disconnectedCallback() {
-        this.timeline.removeEventListener('viewportmousemove', this.mouseMoveListener);
-        this.timeline.removeEventListener('viewportmouseout', this.mouseOutListener);
+        this.timeline.removeViewportMouseMoveListener(this.mouseMoveListener);
+        this.timeline.removeViewportMouseOutListener(this.mouseOutListener);
     }
 }

@@ -2,7 +2,7 @@ import { AnimatableProperty } from './AnimatableProperty';
 import { DefaultSidebar } from './DefaultSidebar';
 import { DOMEventHandler, Tool } from './DOMEventHandler';
 import { Drawable } from './Drawable';
-import { TimelineEvent, TimelineEventHandlers, TimelineEventMap, ViewportChangeEvent } from './events';
+import { EventClickEvent, HeaderClickEvent, TimelineEvent, TimelineEventHandlers, ViewportChangeEvent, ViewportMouseMoveEvent, ViewportMouseOutEvent } from './events';
 import { Graphics, Path } from './Graphics';
 import { Line } from './Line';
 import { Sidebar } from './Sidebar';
@@ -119,6 +119,9 @@ export class Timeline {
         this.repaintIntervalHandle = window.setInterval(() => this.requestRepaint(), this.autoRepaintDelay);
     }
 
+    /**
+     * Free resources used by this Timeline instance (like intervals).
+     */
     disconnect() {
         if (this.repaintIntervalHandle) {
             window.clearInterval(this.repaintIntervalHandle);
@@ -173,6 +176,12 @@ export class Timeline {
         this.requestRepaint();
     }
 
+    /**
+     * Highlight a time range as being selected.
+     *
+     * @param start Left bound of the selection window.
+     * @param stop Right bound of the selection window.
+     */
     setSelection(start: number, stop: number) {
         if (stop > start) {
             this.selection = { start, stop };
@@ -182,6 +191,9 @@ export class Timeline {
         this.requestRepaint();
     }
 
+    /**
+     * Clear the current time range selection (if any)
+     */
     clearSelection() {
         this.selection = undefined;
         this.requestRepaint();
@@ -267,26 +279,98 @@ export class Timeline {
         return drawable;
     }
 
-    addEventListener<K extends keyof TimelineEventMap>(type: K, listener: ((ev: TimelineEventMap[K]) => void)): void;
-    addEventListener(type: string, listener: (ev: TimelineEvent) => void): void {
-        if (!(type in this.eventListeners)) {
-            throw new Error(`Unknown event '${type}'`);
-        }
-        this.eventListeners[type].push(listener);
+    /**
+     * Register a listener that receives an update when an Event is clicked.
+     */
+    addEventClickListener(listener: (ev: EventClickEvent) => void) {
+        this.eventListeners.eventclick.push(listener);
     }
 
-    removeEventListener<K extends keyof TimelineEventMap>(type: K, listener: ((ev: TimelineEventMap[K]) => void)): void;
-    removeEventListener(type: string, listener: (ev: TimelineEvent) => void): void {
-        if (!(type in this.eventListeners)) {
-            throw new Error(`Unknown event '${type}'`);
-        }
-        this.eventListeners[type] = this.eventListeners[type]
-            .filter((el: any) => (el !== listener));
+    /**
+     * Unregister a previously registered listener to stop receiving
+     * event click events.
+     */
+    removeEventClickListener(listener: (ev: EventClickEvent) => void) {
+        this.eventListeners.eventclick = this.eventListeners.eventclick
+            .filter(el => (el !== listener));
     }
 
-    fireEvent(type: string, event: TimelineEvent) {
+    /**
+     * Register a listener that receives updates when a line header is clicked.
+     */
+    addHeaderClickListener(listener: (ev: HeaderClickEvent) => void) {
+        this.eventListeners.headerclick.push(listener);
+    }
+
+    /**
+     * Unregister a previously registered listener to stop receiving
+     * header click events.
+     */
+    removeHeaderClickListener(listener: (ev: HeaderClickEvent) => void) {
+        this.eventListeners.headerclick = this.eventListeners.headerclick
+            .filter(el => (el !== listener));
+    }
+
+    /**
+     * Register a listener that receives updates when the viewport bounds
+     * have changed.
+     *
+     * This generates a lot of events, especially while panning. You can
+     * use this method as a signal for backend data fetches, but be sure
+     * to debounce the events (for example by taking the last event after
+     * ~400 ms have passed without another update).
+     */
+    addViewportChangeListener(listener: (ev: ViewportChangeEvent) => void) {
+        this.eventListeners.viewportchange.push(listener);
+    }
+
+    /**
+     * Unregister a previously registered listener to stop receiving
+     * viewport change events.
+     */
+    removeViewportChangeListener(listener: (ev: ViewportChangeEvent) => void) {
+        this.eventListeners.viewportchange = this.eventListeners.viewportchange
+            .filter(el => (el !== listener));
+    }
+
+    /**
+     * Register a listener that receives updates whenever the mouse is moving
+     * over the viewport.
+     */
+    addViewportMouseMoveListener(listener: (ev: ViewportMouseMoveEvent) => void) {
+        this.eventListeners.viewportmousemove.push(listener);
+    }
+
+    /**
+     * Unregister a previously registered listener to stop receiving
+     * viewport mouse-move events.
+     */
+    removeViewportMouseMoveListener(listener: (ev: ViewportMouseMoveEvent) => void) {
+        this.eventListeners.viewportmousemove = this.eventListeners.viewportmousemove
+            .filter(el => (el !== listener));
+    }
+
+    /**
+     * Register a listener that receives updates whenever the mouse is moving
+     * outside the viewport.
+     */
+    addViewportMouseOutListener(listener: (ev: ViewportMouseOutEvent) => void) {
+        this.eventListeners.viewportmouseout.push(listener);
+    }
+
+    /**
+     * Unregister a previously registered listener to stop receiving
+     * viewport mouse-out events.
+     */
+    removeViewportMouseOutListener(listener: (ev: ViewportMouseOutEvent) => void) {
+        this.eventListeners.viewportmouseout = this.eventListeners.viewportmouseout
+            .filter(el => (el !== listener));
+    }
+
+    /** @hidden */
+    fireEvent<K extends keyof TimelineEventHandlers>(type: K, event: TimelineEvent) {
         const listeners = this.eventListeners[type];
-        listeners.forEach(listener => listener(event));
+        listeners.forEach((listener: any) => listener(event));
     }
 
     /**
@@ -325,30 +409,35 @@ export class Timeline {
         this.panTo(time, false);
     }
 
+    /**
+     * Returns the drawables bound to this Timeline instance.
+     */
     getChildren() {
         return [...this._drawables];
     }
 
+    /**
+     * Returns all Line instances bound to this Timeline instance.
+     */
     getLines() {
         return this._drawables.filter(l => l instanceof Line) as Line<unknown>[];
     }
 
     /**
-     * @hidden
-     * @deprecated use 'remove' method.
+     * Remove a drawable from this Timeline instance.
+     *
+     * @returns Whether an element was actually removed.
      */
-    removeLine(line: Line<any>) {
-        this.removeChild(line);
-    }
-
     removeChild(drawable: Drawable): boolean {
         if (drawable === this.sidebar) {
+            drawable.disconnectedCallback();
             this.sidebar = undefined;
             this.requestRepaint();
             return true;
         } else {
             const idx = this._drawables.indexOf(drawable);
             if (idx !== -1) {
+                drawable.disconnectedCallback();
                 this._drawables.splice(idx, 1);
                 this.requestRepaint();
                 return true;
@@ -358,7 +447,7 @@ export class Timeline {
     }
 
     /**
-     * Returns the x position in points for the given date
+     * Returns the x position in points for the given time
      */
     positionTime(time: number) {
         return this.distanceBetween(this.start, time);
