@@ -156,7 +156,7 @@ class HourScale implements Scale {
     drawLineContent(g: Graphics, axis: AbsoluteTimeAxis) {
         let t = DateTime.fromMillis(axis.timeline.start);
         if (axis.timezone) {
-            t.setZone(axis.timezone);
+            t = t.setZone(axis.timezone);
         }
         t = t.startOf('hour');
 
@@ -272,7 +272,7 @@ class QuarterDayScale implements Scale {
     drawLineContent(g: Graphics, axis: AbsoluteTimeAxis) {
         let t = DateTime.fromMillis(axis.timeline.start);
         if (axis.timezone) {
-            t.setZone(axis.timezone);
+            t = t.setZone(axis.timezone);
         }
         t = t.startOf('day');
 
@@ -293,11 +293,10 @@ class QuarterDayScale implements Scale {
                     .moveTo(Math.round(x) + 0.5, 0)
                     .lineTo(Math.round(x) + 0.5, height),
             });
-            const topLabel = t.toFormat('EEE dd/MM');
             g.fillText({
                 x: x + 2,
                 y: height / 4,
-                text: topLabel,
+                text: t.toFormat('EEE dd/MM'),
                 font,
                 color: axis.textColor,
                 baseline: 'middle',
@@ -366,7 +365,7 @@ class WeekDayScale implements Scale {
     drawLineContent(g: Graphics, axis: AbsoluteTimeAxis) {
         let t = DateTime.fromMillis(axis.timeline.start);
         if (axis.timezone) {
-            t.setZone(axis.timezone);
+            t = t.setZone(axis.timezone);
         }
         t = t.startOf('week');
 
@@ -387,11 +386,10 @@ class WeekDayScale implements Scale {
                     .moveTo(Math.round(x) + 0.5, 0)
                     .lineTo(Math.round(x) + 0.5, height),
             });
-            const topLabel = t.toFormat("dd MMM, yy");
             g.fillText({
                 x: x + 2,
                 y: height / 4,
-                text: topLabel,
+                text: t.toFormat("dd MMM, yy"),
                 font,
                 color: axis.textColor,
                 baseline: 'middle',
@@ -460,7 +458,7 @@ class WeekScale implements Scale {
     drawLineContent(g: Graphics, axis: AbsoluteTimeAxis) {
         let t = DateTime.fromMillis(axis.timeline.start);
         if (axis.timezone) {
-            t.setZone(axis.timezone);
+            t = t.setZone(axis.timezone);
         }
         t = t.startOf('month');
 
@@ -482,11 +480,10 @@ class WeekScale implements Scale {
                     .moveTo(Math.round(x) + 0.5, 0)
                     .lineTo(Math.round(x) + 0.5, height / 2),
             });
-            const topLabel = t.toFormat("LLLL");
             g.fillText({
                 x: x + 2,
                 y: height / 4,
-                text: topLabel,
+                text: t.toFormat("LLLL"),
                 font,
                 color: axis.textColor,
                 baseline: 'middle',
@@ -556,7 +553,7 @@ class MonthScale implements Scale {
     drawLineContent(g: Graphics, axis: AbsoluteTimeAxis) {
         let t = DateTime.fromMillis(axis.timeline.start);
         if (axis.timezone) {
-            t.setZone(axis.timezone);
+            t = t.setZone(axis.timezone);
         }
         t = t.startOf('year');
 
@@ -577,11 +574,10 @@ class MonthScale implements Scale {
                     .moveTo(Math.round(x) + 0.5, 0)
                     .lineTo(Math.round(x) + 0.5, height),
             });
-            const topLabel = t.toFormat("yyyy");
             g.fillText({
                 x: x + 2,
                 y: height / 4,
-                text: topLabel,
+                text: t.toFormat("yyyy"),
                 font,
                 color: axis.textColor,
                 baseline: 'middle',
@@ -649,7 +645,7 @@ class YearScale implements Scale {
     drawLineContent(g: Graphics, axis: AbsoluteTimeAxis) {
         let t = DateTime.fromMillis(axis.timeline.start);
         if (axis.timezone) {
-            t.setZone(axis.timezone);
+            t = t.setZone(axis.timezone);
         }
         t = t.startOf('year');
 
@@ -703,7 +699,7 @@ class DecadeScale implements Scale {
     drawLineContent(g: Graphics, axis: AbsoluteTimeAxis) {
         let t = DateTime.fromMillis(axis.timeline.start);
         if (axis.timezone) {
-            t.setZone(axis.timezone);
+            t = t.setZone(axis.timezone);
         }
         t = t.startOf('year');
         t = t.set({ year: t.year - (t.year % 10) });
