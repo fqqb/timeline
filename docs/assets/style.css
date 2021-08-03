@@ -65,6 +65,11 @@ h2 {
     background-color: darkorange;
 }
 
+.tsdoc .tag.tag-optional {
+    background-color: lime;
+    color: black;
+}
+
 .tsdoc dl.field-list {
     display: flex;
     flex-wrap: wrap;

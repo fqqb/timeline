@@ -10,6 +10,9 @@
             {%- if child.setSignature -%}
                 <span class="tag tag-set">set</span>
             {%- endif -%}
+            {%- if child.flags.isOptional -%}
+                <span class="tag tag-optional">optional</span>
+            {%- endif -%}
         </dt>
         <dd>
             {%- if child.comment -%}
