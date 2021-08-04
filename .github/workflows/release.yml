@@ -15,6 +15,7 @@ jobs:
       uses: actions/setup-node@v2
       with:
         node-version: 14
+
     - name: npm install and build
       run: |
         npm ci
@@ -22,7 +23,25 @@ jobs:
         npm run tsdoc
       env:
         CI: true
+
     - name: Publish
       run: |
         echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_AUTH_TOKEN }}" > ~/.npmrc
         npm publish --access public
+
+    - name: Set version
+      id: set-version
+      run: |
+        REF=${{ github.ref }}
+        VERSION=${REF/refs\/tags\/v/}
+        echo "::set-output name=version::$VERSION"
+
+    - name: Draft Release
+      id: create_release
+      uses: actions/create-release@latest
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: v${{ steps.set-version.outputs.version }}
+        draft: true  # Only publish after manual trigger
