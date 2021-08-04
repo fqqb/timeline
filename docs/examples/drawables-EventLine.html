@@ -1,0 +1,20 @@
+---
+---
+<!doctype html>
+<html>
+<body style="padding: 0; margin: 0">
+    <div id="timeline" style="height: 100px"></div>
+    <script type="module">
+        import { Timeline, EventLine } from '{{- site.dist -}}';
+        window.addEventListener('load', () => {
+            const targetEl = document.getElementById('timeline');
+            const timeline = new Timeline(targetEl);
+            const line = new EventLine(timeline);
+            line.label = 'Line';
+            line.events = [
+                { start: 20, stop: 40, label: 'Event' },
+            ];
+        });
+    </script>
+</body>
+</html>

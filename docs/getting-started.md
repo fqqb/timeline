@@ -29,7 +29,7 @@ An existing HTML DOM element is used as the host, usually a `<div>`.
 
 A Timeline instance will automatically use all of the available space of its host element based on the effective `clientHeight` and `clientWidth` properties. If it runs out of space, it will automatically activate a vertical scrollbar.
 
-This example uses an inline CSS rule to set the height to `100px`. Relative heights or an absolutely positioned host element works just as well.
+This example uses an inline CSS rule to set the height to `100px`. Relative height or an absolutely positioned host element would work too.
 
 {% include demo.html src="/examples/getting-started1.html"
                      height="100px"

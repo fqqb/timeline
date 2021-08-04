@@ -1,0 +1,26 @@
+---
+---
+<!doctype html>
+<html>
+<body style="padding: 0; margin: 0">
+    <div id="timeline" style="height: 100px"></div>
+    <script type="module">
+        import { Timeline, AbsoluteTimeAxis } from '{{- site.dist -}}';
+        window.addEventListener('load', () => {
+            const targetEl = document.getElementById('timeline');
+            const timeline = new Timeline(targetEl);
+
+            const start = new Date();
+            start.setHours(0, 0, 0, 0);
+            const stop = new Date(start.getTime());
+            stop.setDate(stop.getDate() + 21);
+
+            timeline.setBounds(start.getTime(), stop.getTime());
+
+            const line = new AbsoluteTimeAxis(timeline);
+            line.label = 'Time';
+            line.scale = 'weekDay';
+        });
+    </script>
+</body>
+</html>

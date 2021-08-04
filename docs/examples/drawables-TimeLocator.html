@@ -1,0 +1,27 @@
+---
+---
+<!doctype html>
+<html>
+<body style="padding: 0; margin: 0">
+    <div id="timeline" style="height: 100px"></div>
+    <script type="module">
+        import { Timeline, TimeLocator } from '{{- site.dist -}}';
+        window.addEventListener('load', () => {
+            const targetEl = document.getElementById('timeline');
+            const timeline = new Timeline(targetEl);
+            timeline.sidebar = null;
+            timeline.setBounds(0, 100);
+
+            const locator1 = new TimeLocator(timeline, () => 25);
+            locator1.lineColor = 'purple';
+            locator1.knobColor = 'purple';
+            const locator2 = new TimeLocator(timeline, () => 50);
+            locator2.lineColor = 'pink';
+            locator2.knobColor = 'pink';
+            const locator3 = new TimeLocator(timeline, () => 75);
+            locator3.lineColor = 'red';
+            locator3.knobColor = 'red';
+        });
+    </script>
+</body>
+</html>
