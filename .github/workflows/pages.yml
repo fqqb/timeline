@@ -1,0 +1,38 @@
+name: Pages
+
+on:
+  push:
+    branches:
+    - stable
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Set up Node
+      uses: actions/setup-node@v2
+      with:
+        node-version: 14
+    - uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: 2.7
+    - name: Run npm
+      run: |
+        npm ci
+        npm run build
+        npm run tsdoc
+      env:
+        CI: true
+    - name: Build site
+      run: |
+        cd docs
+        gem install bundler
+        bundle install
+        bundle exec jekyll build
+    - name: Deploy
+      uses: JamesIves/github-pages-deploy-action@4.1.4
+      with:
+        branch: gh-pages
+        folder: docs/_site
