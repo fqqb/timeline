@@ -118,8 +118,7 @@ export class EventLine extends Line {
 
     private drawMilestone(g: Graphics, event: AnnotatedEvent, y: number) {
         const {
-            startX, stopX, renderStartX, renderStopX,
-            label, font, marginLeft
+            startX, stopX, renderStartX, renderStopX, label, font, marginLeft
         } = event.drawInfo!;
         const r = this.eventHeight / 2;
         const path = new Path(startX + r, y)
@@ -157,11 +156,14 @@ export class EventLine extends Line {
     }
 
     private drawEvent(g: Graphics, event: AnnotatedEvent, y: number) {
-        const drawInfo = event.drawInfo!;
+        const {
+            startX, stopX, label, renderStartX, renderStopX,
+            marginLeft, offscreenStart, labelFitsBox, font,
+        } = event.drawInfo!;
         const box: Bounds = {
-            x: Math.round(drawInfo.startX),
+            x: Math.round(startX),
             y,
-            width: Math.round(drawInfo.stopX - Math.round(drawInfo.startX)),
+            width: Math.round(stopX - Math.round(startX)),
             height: this.eventHeight,
         };
         const r = nvl(event.cornerRadius, this.cornerRadius);
@@ -174,7 +176,7 @@ export class EventLine extends Line {
 
         // Hit region covers both the box, and potential outside text
         const hitRegion = g.addHitRegion(event.region);
-        hitRegion.addRect(drawInfo.renderStartX, y, drawInfo.renderStopX - drawInfo.renderStartX, this.eventHeight);
+        hitRegion.addRect(renderStartX, y, renderStopX - renderStartX, this.eventHeight);
 
         const borderWidth = nvl(event.borderWidth, this.borderWidth);
         borderWidth && g.strokeRect({
@@ -186,18 +188,18 @@ export class EventLine extends Line {
             crispen: true,
         });
 
-        if (drawInfo.label) {
-            let textX = box.x + drawInfo.marginLeft;
+        if (label) {
+            let textX = box.x + marginLeft;
             const textY = box.y + (box.height / 2);
-            if (drawInfo.offscreenStart) {
+            if (offscreenStart) {
                 textX = this.timeline.positionTime(this.timeline.start);
             }
-            if (drawInfo.labelFitsBox || this.textOverflow === 'show') {
+            if (labelFitsBox || this.textOverflow === 'show') {
                 g.fillText({
                     x: textX,
                     y: textY,
-                    text: drawInfo.label,
-                    font: drawInfo.font,
+                    text: label,
+                    font,
                     baseline: 'middle',
                     align: 'left',
                     color: nvl(event.textColor, this.textColor),
@@ -208,10 +210,10 @@ export class EventLine extends Line {
                 tmpCanvas.height = box.height;
                 const offscreenCtx = tmpCanvas.getContext('2d')!;
                 offscreenCtx.fillStyle = nvl(event.textColor, this.textColor);
-                offscreenCtx.font = drawInfo.font;
+                offscreenCtx.font = font;
                 offscreenCtx.textBaseline = 'middle';
                 offscreenCtx.textAlign = 'left';
-                offscreenCtx.fillText(drawInfo.label, drawInfo.marginLeft, box.height / 2);
+                offscreenCtx.fillText(label, marginLeft, box.height / 2);
                 g.ctx.drawImage(tmpCanvas, box.x, box.y);
             }
         }
@@ -256,22 +258,26 @@ export class EventLine extends Line {
                 }
                 labelFitsBox = false;
             } else {
-                renderStartX = startX;
-                renderStopX = stopX;
                 if (offscreenStart) {
                     label = '◀' + label;
                 }
                 const fm = g.measureText(label, font);
-                let availableLabelWidth = renderStopX - renderStartX - marginLeft;
+
                 if (offscreenStart) {
-                    availableLabelWidth = renderStopX - this.timeline.positionTime(this.timeline.start) - marginLeft;
-                }
-                labelFitsBox = availableLabelWidth >= fm.width;
-                if (!labelFitsBox) {
-                    if (this.textOverflow === 'show') {
-                        renderStopX = renderStartX + marginLeft + fm.width;
-                    } else if (this.textOverflow === 'hide') {
-                        label = '';
+                    renderStartX = this.timeline.positionTime(this.timeline.start);
+                    renderStopX = Math.max(renderStartX + fm.width, stopX);
+                    labelFitsBox = false;
+                } else {
+                    renderStartX = startX;
+                    renderStopX = stopX;
+                    const availableLabelWidth = renderStopX - renderStartX - marginLeft;
+                    labelFitsBox = availableLabelWidth >= fm.width;
+                    if (!labelFitsBox) {
+                        if (this.textOverflow === 'show') {
+                            renderStopX = renderStartX + marginLeft + fm.width;
+                        } else if (this.textOverflow === 'hide') {
+                            label = '';
+                        }
                     }
                 }
             }
