@@ -1,6 +1,6 @@
 import { Event } from './Event';
 import { EventClickEvent } from './events';
-import { Graphics } from './Graphics';
+import { Graphics, Path } from './Graphics';
 import { HitRegionSpecification } from './HitCanvas';
 import { Line } from './Line';
 import { Bounds } from './positioning';
@@ -9,14 +9,15 @@ import { nvl } from './utils';
 
 interface DrawInfo {
     label: string; // Actual text to be shown on event (may include extra decoration: ◀)
-    startX: number; // Left of bbox (event only)
-    stopX: number; // Right of bbox (event only)
+    startX: number; // Left of bbox (event only, not label)
+    stopX: number; // Right of bbox (event only, not label)
     renderStartX: number; // Left of bbox containing event and maybe outside label
     renderStopX: number; // Right of bbox containing event and maybe outside label
     offscreenStart: boolean; // True if the event starts before the visible range
     marginLeft: number; // Margin specific to the event, or else inherited from its band
     labelFitsBox: boolean; // True if the label fits in the actual event box
     font: string; // Font specific to the event, or else inherited from its band
+    milestone: boolean; // True if this event must be rendered as a milestone
 }
 
 interface AnnotatedEvent extends Event {
@@ -89,7 +90,7 @@ export class EventLine extends Line {
 
     /** @hidden */
     drawLineContent(g: Graphics) {
-        this.analyzeEvents(g);
+        this.measureEvents(g);
         const lines = this.wrap ? this.wrapEvents() : [this.annotatedEvents];
 
         let newHeight;
@@ -106,8 +107,52 @@ export class EventLine extends Line {
             const line = lines[i];
             const offsetY = this.marginTop + (i * (this.lineSpacing + this.eventHeight));
             for (const event of line) {
-                this.drawEvent(g, event, offsetY);
+                if (event.drawInfo!.milestone) {
+                    this.drawMilestone(g, event, offsetY);
+                } else {
+                    this.drawEvent(g, event, offsetY);
+                }
             }
+        }
+    }
+
+    private drawMilestone(g: Graphics, event: AnnotatedEvent, y: number) {
+        const {
+            startX, stopX, renderStartX, renderStopX,
+            label, font, marginLeft
+        } = event.drawInfo!;
+        const r = this.eventHeight / 2;
+        const path = new Path(startX + r, y)
+            .lineTo(stopX, y + r)
+            .lineTo(startX + r, y + r + r)
+            .lineTo(startX, y + r);
+
+        g.fillPath({
+            color: nvl(event.color, this.eventColor),
+            path,
+        });
+
+        // Hit region covers both the shape, and potential outside text
+        const hitRegion = g.addHitRegion(event.region);
+        hitRegion.addRect(renderStartX, y, renderStopX - renderStartX, this.eventHeight);
+
+        const borderWidth = nvl(event.borderWidth, this.borderWidth);
+        borderWidth && g.strokePath({
+            path,
+            color: nvl(event.borderColor, this.borderColor),
+            lineWidth: borderWidth,
+        });
+
+        if (label) {
+            g.fillText({
+                x: stopX + marginLeft,
+                y: y + r,
+                text: label,
+                font,
+                baseline: 'middle',
+                align: 'left',
+                color: nvl(event.textColor, this.textColor),
+            });
         }
     }
 
@@ -172,42 +217,62 @@ export class EventLine extends Line {
         }
     }
 
-    private analyzeEvents(g: Graphics) {
+    private measureEvents(g: Graphics) {
         for (const event of this.annotatedEvents) {
-            if (event.start > this.timeline.stop || event.stop < this.timeline.start) {
+            const milestone = !event.stop;
+            const start = event.start;
+            const stop = event.stop || event.start;
+            if (start > this.timeline.stop || stop < this.timeline.start) {
                 event.drawInfo = undefined; // Forget draw info from previous step
                 continue;
             }
-            const startX = this.timeline.positionTime(event.start);
-            const stopX = this.timeline.positionTime(event.stop);
-            const renderStartX = startX;
-            let renderStopX = stopX;
-            const offscreenStart = event.start < this.timeline.start && event.stop > this.timeline.start;
 
             if (event.title) {
                 console.warn('DEPRECATION: Please use Event "label" property instead of "title"');
             }
 
             let label = event.label || event.title || '';
-            if (offscreenStart) {
-                label = '◀' + label;
-            }
-
             const font = `${nvl(event.textSize, this.textSize)}px ${nvl(event.fontFamily, this.fontFamily)}`;
             const marginLeft = nvl(event.marginLeft, this.eventMarginLeft);
+            const offscreenStart = start < this.timeline.start && stop > this.timeline.start;
+            let labelFitsBox;
 
-            const fm = g.measureText(label, font);
-            let availableLabelWidth = renderStopX - renderStartX - marginLeft;
-            if (offscreenStart) {
-                availableLabelWidth = renderStopX - this.timeline.positionTime(this.timeline.start) - marginLeft;
-            }
+            let startX = this.timeline.positionTime(start);
+            let stopX = this.timeline.positionTime(stop);
 
-            const labelFitsBox = availableLabelWidth >= fm.width;
-            if (!labelFitsBox) {
-                if (this.textOverflow === 'show') {
-                    renderStopX = renderStartX + marginLeft + fm.width;
-                } else if (this.textOverflow === 'hide') {
-                    label = '';
+            let renderStartX;
+            let renderStopX;
+
+            if (milestone) {
+                const shapeRadius = this.eventHeight / 2;
+                startX -= shapeRadius;
+                stopX += shapeRadius;
+
+                renderStartX = startX;
+                renderStopX = stopX;
+                if (label) {
+                    const fm = g.measureText(label, font);
+                    renderStopX += marginLeft + fm.width;
+                }
+                labelFitsBox = false;
+            } else {
+                renderStartX = startX;
+                renderStopX = stopX;
+                if (offscreenStart) {
+                    label = '◀' + label;
+                }
+                const fm = g.measureText(label, font);
+                let availableLabelWidth = renderStopX - renderStartX - marginLeft;
+                if (offscreenStart) {
+                    availableLabelWidth = renderStopX - this.timeline.positionTime(this.timeline.start) - marginLeft;
+                }
+                labelFitsBox = availableLabelWidth >= fm.width;
+                if (!labelFitsBox) {
+                    if (this.textOverflow === 'show') {
+                        renderStopX = renderStartX + marginLeft + fm.width;
+                    } else if (this.textOverflow === 'hide') {
+                        label = '';
+                    }
                 }
             }
 
@@ -220,7 +285,8 @@ export class EventLine extends Line {
                 renderStartX,
                 renderStopX,
                 label,
-                labelFitsBox: labelFitsBox,
+                labelFitsBox,
+                milestone,
             };
         }
     }

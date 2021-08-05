@@ -98,7 +98,7 @@
                     const eventDuration = getRandomInt(2000000, 8000000);
                     randomEvents.push({
                         start: eventStart,
-                        stop: eventStart + eventDuration,
+                        stop: j % 10 ? eventStart + eventDuration : undefined,
                         label: `${i + 1}.${j + 1}`,
                     });
                 }

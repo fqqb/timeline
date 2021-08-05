@@ -12,9 +12,11 @@ export interface Event {
     start: number;
 
     /**
-     * Stop time
+     * Stop time.
+     *
+     * If unspecified the event is considered to be a milestone.
      */
-    stop: number;
+    stop?: number;
 
     /**
      * Label of this event
