@@ -32,11 +32,14 @@ export class DefaultSidebar extends Sidebar {
         const lines = this.timeline.getLines().filter(l => l.frozen)
             .concat(this.timeline.getLines().filter(l => !l.frozen));
 
-        let backgroundColor = this.timeline.backgroundOddColor;
+        let stripedColor = this.timeline.backgroundOddColor;
         for (let i = 0; i < lines.length; i++) {
             const line = lines[i];
+            const backgroundColor = line.backgroundColor || stripedColor;
             this.drawLine(g, line, backgroundColor, i);
-            backgroundColor = (backgroundColor === this.timeline.backgroundOddColor) ? this.timeline.backgroundEvenColor : this.timeline.backgroundOddColor;
+            stripedColor = (stripedColor === this.timeline.backgroundOddColor)
+                ? this.timeline.backgroundEvenColor
+                : this.timeline.backgroundOddColor;
         }
 
         g.fillRect({
