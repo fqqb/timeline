@@ -1,7 +1,7 @@
 import { ViewportMouseMoveEvent, ViewportMouseOutEvent } from './events';
 import { HitCanvas, HitRegionSpecification } from './HitCanvas';
 import { Point } from './positioning';
-import { Timeline } from './Timeline';
+import { Timeline, Tool } from './Timeline';
 
 /**
  * Swallows any click event wherever they may originate.
@@ -30,8 +30,6 @@ const snap = 5;
 function measureDistance(x1: number, y1: number, x2: number, y2: number) {
     return Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
 }
-
-export type Tool = 'hand' | 'range-select';
 
 // Compare by id instead of references. HitRegions are allowed to be generated
 // on each draw, whereas the "id" could be something more long-term.

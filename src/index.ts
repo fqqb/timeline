@@ -10,7 +10,7 @@ export { Line } from './Line';
 export { MouseTracker } from './MouseTracker';
 export * from './positioning';
 export { Sidebar } from './Sidebar';
-export { Timeline } from './Timeline';
+export { Timeline, Tool } from './Timeline';
 export { TimeLocator } from './TimeLocator';
 export { TimeRange } from './TimeRange';
 

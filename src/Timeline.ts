@@ -1,6 +1,6 @@
 import { AnimatableProperty } from './AnimatableProperty';
 import { DefaultSidebar } from './DefaultSidebar';
-import { DOMEventHandler, Tool } from './DOMEventHandler';
+import { DOMEventHandler } from './DOMEventHandler';
 import { Drawable } from './Drawable';
 import { EventClickEvent, HeaderClickEvent, TimelineEvent, TimelineEventHandlers, ViewportChangeEvent, ViewportMouseMoveEvent, ViewportMouseOutEvent, ViewportSelectionEvent } from './events';
 import { Graphics, Path } from './Graphics';
@@ -17,6 +17,8 @@ function resizeCanvas(canvas: HTMLCanvasElement, width: number, height: number) 
         canvas.height = height;
     }
 }
+
+export type Tool = 'hand' | 'range-select';
 
 export class Timeline {
 
