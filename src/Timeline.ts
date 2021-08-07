@@ -32,6 +32,8 @@ export class Timeline {
 
     private _start: AnimatableProperty;
     private _stop: AnimatableProperty;
+    private _min?: number;
+    private _max?: number;
     private selection?: TimeRange;
 
     /** @hidden */
@@ -172,6 +174,15 @@ export class Timeline {
      * Sets the visible range.
      */
     setBounds(start: number, stop: number, animate = true) {
+        const millisBetween = stop - start;
+        if (this.min !== undefined && this.min !== null) {
+            start = Math.max(this.min, start);
+            stop = start + millisBetween;
+        }
+        if (this.max !== undefined && this.max !== null) {
+            stop = Math.min(this.max, stop);
+            start = stop - millisBetween;
+        }
         if (this.animated && animate) {
             this._start.setTransition(this.frameTime, start);
             this._stop.setTransition(this.frameTime, stop);
@@ -219,6 +230,27 @@ export class Timeline {
      * The rightmost visible stop time.
      */
     get stop() { return this._stop.value; }
+
+    /**
+     * The minimum possible visible time.
+     */
+    get min() { return this._min; }
+    set min(min: number | undefined) {
+        console.log('min becomes', min);
+        this._min = min;
+        // Enforce new min
+        this.setBounds(this.start, this.stop, false);
+    }
+
+    /**
+     * The maximum possible visible time.
+     */
+    get max() { return this._max; }
+    set max(max: number | undefined) {
+        this._max = max;
+        // Enforce new max
+        this.setBounds(this.start, this.stop, false);
+    }
 
     /**
      * The pixel width of this Timeline (incl. sidebar)
