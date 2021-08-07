@@ -1,8 +1,8 @@
-import { HeaderClickEvent } from './events';
 import { Graphics, Path } from './Graphics';
 import { HitRegionSpecification } from './HitCanvas';
 import { Line } from './Line';
 import { Sidebar } from './Sidebar';
+import { nvl } from './utils';
 
 export class DefaultSidebar extends Sidebar {
 
@@ -105,20 +105,22 @@ export class DefaultSidebar extends Sidebar {
                 this.reportMutation();
             },
             click: () => {
-                const clickEvent: HeaderClickEvent = { line };
-                this.timeline.fireEvent('headerclick', clickEvent);
+                this.timeline.fireEvent('headerclick', { line });
             },
         };
         const hitRegion = g.addHitRegion(hitRegionSpec);
         hitRegion.addRect(0, line.y, this.width, line.height);
 
         // Bottom horizontal divider
-        const dividerY = line.y + line.height + 0.5;
-        g.strokePath({
-            color: line.borderColor || this.timeline.lineBorderColor,
-            path: new Path(0, dividerY).lineTo(this.clippedWidth, dividerY),
-            lineWidth: this.timeline.lineBorderWidth,
-        });
+        const borderWidth = nvl(line.borderWidth, this.timeline.lineBorderWidth);
+        if (borderWidth) {
+            const dividerY = line.y + line.height + (borderWidth / 2);
+            g.strokePath({
+                color: line.borderColor || this.timeline.lineBorderColor,
+                lineWidth: borderWidth,
+                path: new Path(0, dividerY).lineTo(this.clippedWidth, dividerY),
+            });
+        }
     }
 
     get foregroundColor() { return this._foregroundColor; }

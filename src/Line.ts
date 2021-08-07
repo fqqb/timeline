@@ -13,6 +13,8 @@ export abstract class Line extends Drawable {
     private _label?: string;
     private _frozen = false;
     private _backgroundColor?: string;
+    private _borderWidth?: number;
+    private _borderColor?: string;
 
     private offscreen?: Graphics;
 
@@ -40,6 +42,28 @@ export abstract class Line extends Drawable {
     get backgroundColor() { return this._backgroundColor; }
     set backgroundColor(backgroundColor: string | undefined) {
         this._backgroundColor = backgroundColor;
+        this.reportMutation();
+    }
+
+    /**
+     * Border width of this line. If undefined, the width
+     * is determined by the property 'lineBorderWidth'
+     * of the Timeline instance.
+     */
+    get borderWidth() { return this._borderWidth; }
+    set borderWidth(borderWidth: number | undefined) {
+        this._borderWidth = borderWidth;
+        this.reportMutation();
+    }
+
+    /**
+     * Border color of this line. If undefined, the color
+     * is determined by the property 'lineBorderColor'
+     * of the Timeline instance.
+     */
+    get borderColor() { return this._borderColor; }
+    set borderColor(borderColor: string | undefined) {
+        this._borderColor = borderColor;
         this.reportMutation();
     }
 

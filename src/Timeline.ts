@@ -7,6 +7,7 @@ import { Graphics, Path } from './Graphics';
 import { Line } from './Line';
 import { Sidebar } from './Sidebar';
 import { TimeRange } from './TimeRange';
+import { nvl } from './utils';
 
 /**
  * Resizes a canvas, but only if the new bounds are different.
@@ -625,7 +626,7 @@ export class Timeline {
             line.coords.height = line.getPreferredHeight();
 
             contentHeight += line.height;
-            y += line.height + this.lineBorderWidth;
+            y += line.height + nvl(line.borderWidth, this.lineBorderWidth);
         }
 
         this.rootPanel.style.height = this.targetElement.clientHeight + 'px';
@@ -652,7 +653,7 @@ export class Timeline {
     }
 
     private drawOffscreen(g: Graphics) {
-        let backgroundColor = this.backgroundOddColor;
+        let stripedColor = this.backgroundOddColor;
         for (const drawable of this._drawables) {
 
             // Default (striped) background
@@ -662,21 +663,27 @@ export class Timeline {
                     y: drawable.y,
                     width: g.canvas.width,
                     height: drawable.height,
-                    color: backgroundColor,
+                    color: stripedColor,
                 });
-                backgroundColor = (backgroundColor === this.backgroundOddColor) ? this.backgroundEvenColor : this.backgroundOddColor;
+                stripedColor = (stripedColor === this.backgroundOddColor)
+                    ? this.backgroundEvenColor
+                    : this.backgroundOddColor;
             }
 
             drawable.drawUnderlay(g);
 
             // Bottom horizontal divider
             if (drawable instanceof Line) {
-                const dividerY = drawable.y + drawable.height + 0.5;
-                g.strokePath({
-                    color: this.lineBorderColor,
-                    lineWidth: this.lineBorderWidth,
-                    path: new Path(0, dividerY).lineTo(g.canvas.width, dividerY),
-                });
+                const line = drawable as Line;
+                const borderWidth = nvl(line.borderWidth, this.lineBorderWidth);
+                if (borderWidth) {
+                    const dividerY = drawable.y + drawable.height + (borderWidth / 2);
+                    g.strokePath({
+                        color: line.borderColor || this.lineBorderColor,
+                        lineWidth: borderWidth,
+                        path: new Path(0, dividerY).lineTo(g.canvas.width, dividerY),
+                    });
+                }
             }
         }
 
