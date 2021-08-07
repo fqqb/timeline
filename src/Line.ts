@@ -15,6 +15,8 @@ export abstract class Line extends Drawable {
     private _backgroundColor?: string;
     private _borderWidth?: number;
     private _borderColor?: string;
+    private _marginBottom = 0;
+    private _marginTop = 0;
 
     private offscreen?: Graphics;
 
@@ -68,6 +70,26 @@ export abstract class Line extends Drawable {
     }
 
     /**
+     * Whitespace in points between the top of this line and
+     * line content.
+     */
+    get marginTop() { return this._marginTop; }
+    set marginTop(marginTop: number) {
+        this._marginTop = marginTop;
+        this.reportMutation();
+    }
+
+    /**
+     * Whitespace in points between the bottom of this line
+     * and line content.
+     */
+    get marginBottom() { return this._marginBottom; }
+    set marginBottom(marginBottom: number) {
+        this._marginBottom = marginBottom;
+        this.reportMutation();
+    }
+
+    /**
      * If set to true, this line stays fixed on top, even while
      * scrolling vertically.
      *
@@ -80,34 +102,33 @@ export abstract class Line extends Drawable {
         this.reportMutation();
     }
 
+    /** @hidden */
     beforeDraw(g: Graphics) {
-        this.offscreen = g.createChild(this.timeline.mainWidth, 20);
+        const contentHeight = this.calculateContentHeight(g);
+        this.offscreen = g.createChild(this.timeline.mainWidth, contentHeight);
         this.drawLineContent(this.offscreen);
     }
 
-    drawUnderlay(g: Graphics) {
-        // Override odd/even striped pattern
-        // managed by Timeline instance itself.
-        if (this.backgroundColor) {
-            g.fillRect({
-                x: this.x,
-                y: this.y,
-                width: g.canvas.width,
-                height: this.height,
-                color: this.backgroundColor,
-            });
-        }
-    }
+    /**
+     * Implementations should return required content height
+     * (excluding margins) during the current draw operation.
+     *
+     * @hidden
+     */
+    abstract calculateContentHeight(g: Graphics): number;
 
+    /** @hidden */
     abstract drawLineContent(g: Graphics): void;
 
+    /** @hidden */
     drawContent(g: Graphics) {
         if (this.offscreen) {
-            g.copy(this.offscreen, this.x, this.y);
+            g.copy(this.offscreen, this.x, this.y + this.marginTop);
         }
     }
 
-    getPreferredHeight() {
+    /** @hidden */
+    getContentHeight() {
         return this.offscreen?.canvas.height || 0;
     }
 

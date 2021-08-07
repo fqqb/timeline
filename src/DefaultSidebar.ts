@@ -53,9 +53,10 @@ export class DefaultSidebar extends Sidebar {
 
         for (const line of lines) {
             if (line.label) {
+                const contentHeight = line.height - line.marginTop - line.marginBottom;
                 g.fillText({
                     x: 5,
-                    y: line.y + (line.height / 2),
+                    y: line.y + line.marginTop + (contentHeight / 2),
                     align: 'left',
                     baseline: 'middle',
                     color: this.foregroundColor,

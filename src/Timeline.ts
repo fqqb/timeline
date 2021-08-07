@@ -623,7 +623,7 @@ export class Timeline {
             line.coords.x = 0;
             line.coords.y = y;
             line.coords.width = this.mainWidth;
-            line.coords.height = line.getPreferredHeight();
+            line.coords.height = line.marginTop + line.getContentHeight() + line.marginBottom;
 
             contentHeight += line.height;
             y += line.height + nvl(line.borderWidth, this.lineBorderWidth);
@@ -668,6 +668,17 @@ export class Timeline {
                 stripedColor = (stripedColor === this.backgroundOddColor)
                     ? this.backgroundEvenColor
                     : this.backgroundOddColor;
+
+                // Override odd/even striped pattern
+                if (drawable.backgroundColor) {
+                    g.fillRect({
+                        x: drawable.x,
+                        y: drawable.y,
+                        width: g.canvas.width,
+                        height: drawable.height,
+                        color: drawable.backgroundColor,
+                    });
+                }
             }
 
             drawable.drawUnderlay(g);

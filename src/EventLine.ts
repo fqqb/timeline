@@ -3,6 +3,7 @@ import { Graphics, Path } from './Graphics';
 import { HitRegionSpecification } from './HitCanvas';
 import { Line } from './Line';
 import { Bounds } from './positioning';
+import { Timeline } from './Timeline';
 import { nvl } from './utils';
 
 interface DrawInfo {
@@ -44,13 +45,18 @@ export class EventLine extends Line {
     private _eventTextSize = 10;
     private _events: Event[] = [];
     private _lineSpacing = 2;
-    private _marginBottom = 7;
-    private _marginTop = 7;
     private _spaceBetween = 0;
     private _wrap = true;
 
     private eventsById = new Map<Event, string>();
     private annotatedEvents: AnnotatedEvent[] = [];
+    private sublines: AnnotatedEvent[][] = [];
+
+    constructor(timeline: Timeline) {
+        super(timeline);
+        this.marginBottom = 7;
+        this.marginTop = 7;
+    }
 
     // Link a long-term identifier with each event
     // TODO should make it customizable to have custom
@@ -103,26 +109,27 @@ export class EventLine extends Line {
         }
     }
 
-    /** @hidden */
-    drawLineContent(g: Graphics) {
+    calculateContentHeight(g: Graphics) {
         this.measureEvents(g);
         const visibleEvents = this.annotatedEvents.filter(event => !!event.drawInfo);
-        const lines = this.wrap ? this.wrapEvents(visibleEvents) : [visibleEvents];
+        this.sublines = this.wrap ? this.wrapEvents(visibleEvents) : [visibleEvents];
 
         let newHeight;
-        if (lines.length) {
-            newHeight = this.marginTop + this.marginBottom;
-            newHeight += this.eventHeight * lines.length;
-            newHeight += this.lineSpacing * (lines.length - 1);
+        if (this.sublines.length) {
+            newHeight = this.eventHeight * this.sublines.length;
+            newHeight += this.lineSpacing * (this.sublines.length - 1);
+            return newHeight;
         } else {
-            newHeight = this.marginTop + this.eventHeight + this.marginBottom;
+            return this.eventHeight;
         }
-        g.resize(g.canvas.width, newHeight);
+    }
 
-        for (let i = 0; i < lines.length; i++) {
-            const line = lines[i];
-            const offsetY = this.marginTop + (i * (this.lineSpacing + this.eventHeight));
-            for (const event of line) {
+    /** @hidden */
+    drawLineContent(g: Graphics) {
+        for (let i = 0; i < this.sublines.length; i++) {
+            const subline = this.sublines[i];
+            const offsetY = i * (this.lineSpacing + this.eventHeight);
+            for (const event of subline) {
                 if (event.drawInfo!.milestone) {
                     this.drawMilestone(g, event, offsetY);
                 } else {
@@ -368,26 +375,6 @@ export class EventLine extends Line {
     set events(events: Event[]) {
         this._events = events;
         this.processData();
-        this.reportMutation();
-    }
-
-    /**
-     * Whitespace in points between the top of this line, and
-     * the top of its events.
-     */
-    get marginTop() { return this._marginTop; }
-    set marginTop(marginTop: number) {
-        this._marginTop = marginTop;
-        this.reportMutation();
-    }
-
-    /**
-     * Whitespace in points between the bottom of this line,
-     * and the bottom of its events.
-     */
-    get marginBottom() { return this._marginBottom; }
-    set marginBottom(marginBottom: number) {
-        this._marginBottom = marginBottom;
         this.reportMutation();
     }
 

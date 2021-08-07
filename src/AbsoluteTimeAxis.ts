@@ -36,6 +36,11 @@ export class AbsoluteTimeAxis extends Line {
     private scaleRenderer?: Scale;
 
     /** @hidden */
+    calculateContentHeight(g: Graphics) {
+        return 20;
+    }
+
+    /** @hidden */
     drawLineContent(g: Graphics) {
         this.scaleRenderer = this.determineScale();
         this.scaleRenderer!.drawLineContent(g, this);
