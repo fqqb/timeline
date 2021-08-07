@@ -3,7 +3,6 @@ import { Graphics, Path } from './Graphics';
 import { HitRegionSpecification } from './HitCanvas';
 import { Line } from './Line';
 import { Bounds } from './positioning';
-import { Timeline } from './Timeline';
 import { nvl } from './utils';
 
 interface DrawInfo {
@@ -50,11 +49,6 @@ export class EventLine extends Line {
 
     private eventsById = new Map<Event, string>();
     private annotatedEvents: AnnotatedEvent[] = [];
-
-    constructor(timeline: Timeline) {
-        super(timeline);
-        this.addMutationListener(() => this.processData());
-    }
 
     // Link a long-term identifier with each event
     // TODO should make it customizable to have custom
@@ -354,6 +348,7 @@ export class EventLine extends Line {
     get events() { return this._events; }
     set events(events: Event[]) {
         this._events = events;
+        this.processData();
         this.reportMutation();
     }
 
