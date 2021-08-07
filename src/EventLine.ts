@@ -30,25 +30,24 @@ export type TextOverflow = 'clip' | 'show' | 'hide';
 
 export class EventLine extends Line {
 
-    private _marginTop = 7;
-    private _marginBottom = 7;
-    private _eventHeight = 20;
-
+    private _eventBorderColor = '#3d94c7';
+    private _eventBorderWidth = 1;
     private _eventColor = '#77b1e1';
-    private _textColor = '#333';
-    private _textSize = 10;
-    private _fontFamily = 'Verdana, Geneva, sans-serif';
-    private _borderWidth = 1;
-    private _borderColor = '#3d94c7';
-    private _eventMarginLeft = 5;
-    private _cornerRadius = 1;
-    private _wrap = true;
-    private _textOverflow: TextOverflow = 'show';
-    private _spaceBetween = 0;
-    private _lineSpacing = 2;
-    private _eventHoverOpacity = 0.7;
+    private _eventCornerRadius = 1;
     private _eventCursor = 'pointer';
+    private _eventFontFamily = 'Verdana, Geneva, sans-serif';
+    private _eventHeight = 20;
+    private _eventHoverOpacity = 0.7;
+    private _eventMarginLeft = 5;
+    private _eventTextColor = '#333';
+    private _eventTextOverflow: TextOverflow = 'show';
+    private _eventTextSize = 10;
     private _events: Event[] = [];
+    private _lineSpacing = 2;
+    private _marginBottom = 7;
+    private _marginTop = 7;
+    private _spaceBetween = 0;
+    private _wrap = true;
 
     private eventsById = new Map<Event, string>();
     private annotatedEvents: AnnotatedEvent[] = [];
@@ -151,10 +150,10 @@ export class EventLine extends Line {
         const hitRegion = g.addHitRegion(event.region);
         hitRegion.addRect(renderStartX, y, renderStopX - renderStartX, this.eventHeight);
 
-        const borderWidth = nvl(event.borderWidth, this.borderWidth);
+        const borderWidth = nvl(event.borderWidth, this.eventBorderWidth);
         borderWidth && g.strokePath({
             path,
-            color: nvl(event.borderColor, this.borderColor),
+            color: nvl(event.borderColor, this.eventBorderColor),
             lineWidth: borderWidth,
             opacity,
         });
@@ -167,7 +166,7 @@ export class EventLine extends Line {
                 font,
                 baseline: 'middle',
                 align: 'left',
-                color: nvl(event.textColor, this.textColor),
+                color: nvl(event.textColor, this.eventTextColor),
                 opacity,
             });
         }
@@ -185,7 +184,7 @@ export class EventLine extends Line {
             width: Math.round(stopX - Math.round(startX)),
             height: this.eventHeight,
         };
-        const r = nvl(event.cornerRadius, this.cornerRadius);
+        const r = nvl(event.cornerRadius, this.eventCornerRadius);
         g.fillRect({
             ...box,
             rx: r,
@@ -198,12 +197,12 @@ export class EventLine extends Line {
         const hitRegion = g.addHitRegion(event.region);
         hitRegion.addRect(renderStartX, y, renderStopX - renderStartX, this.eventHeight);
 
-        const borderWidth = nvl(event.borderWidth, this.borderWidth);
+        const borderWidth = nvl(event.borderWidth, this.eventBorderWidth);
         borderWidth && g.strokeRect({
             ...box,
             rx: r,
             ry: r,
-            color: nvl(event.borderColor, this.borderColor),
+            color: nvl(event.borderColor, this.eventBorderColor),
             lineWidth: borderWidth,
             crispen: true,
             opacity,
@@ -215,7 +214,7 @@ export class EventLine extends Line {
             if (offscreenStart) {
                 textX = this.timeline.positionTime(this.timeline.start);
             }
-            if (labelFitsBox || this.textOverflow === 'show') {
+            if (labelFitsBox || this.eventTextOverflow === 'show') {
                 g.fillText({
                     x: textX,
                     y: textY,
@@ -223,15 +222,15 @@ export class EventLine extends Line {
                     font,
                     baseline: 'middle',
                     align: 'left',
-                    color: nvl(event.textColor, this.textColor),
+                    color: nvl(event.textColor, this.eventTextColor),
                     opacity,
                 });
-            } else if (this.textOverflow === 'clip') {
+            } else if (this.eventTextOverflow === 'clip') {
                 const tmpCanvas = document.createElement('canvas');
                 tmpCanvas.width = box.width;
                 tmpCanvas.height = box.height;
                 const offscreenCtx = tmpCanvas.getContext('2d')!;
-                offscreenCtx.fillStyle = nvl(event.textColor, this.textColor);
+                offscreenCtx.fillStyle = nvl(event.textColor, this.eventTextColor);
                 offscreenCtx.font = font;
                 offscreenCtx.textBaseline = 'middle';
                 offscreenCtx.textAlign = 'left';
@@ -259,7 +258,9 @@ export class EventLine extends Line {
             }
 
             let label = event.label || event.title || '';
-            const font = `${nvl(event.textSize, this.textSize)}px ${nvl(event.fontFamily, this.fontFamily)}`;
+            const textSize = nvl(event.textSize, this.eventTextSize);
+            const fontFamily = nvl(event.fontFamily, this.eventFontFamily);
+            const font = `${textSize}px ${fontFamily}`;
             const marginLeft = nvl(event.marginLeft, this.eventMarginLeft);
             const offscreenStart = start < this.timeline.start && stop > this.timeline.start;
             let labelFitsBox;
@@ -298,9 +299,9 @@ export class EventLine extends Line {
                     const availableLabelWidth = renderStopX - renderStartX - marginLeft;
                     labelFitsBox = availableLabelWidth >= fm.width;
                     if (!labelFitsBox) {
-                        if (this.textOverflow === 'show') {
+                        if (this.eventTextOverflow === 'show') {
                             renderStopX = renderStartX + marginLeft + fm.width;
-                        } else if (this.textOverflow === 'hide') {
+                        } else if (this.eventTextOverflow === 'hide') {
                             label = '';
                         }
                     }
@@ -412,27 +413,27 @@ export class EventLine extends Line {
     /**
      * Default text color of events belonging to this line.
      */
-    get textColor() { return this._textColor; }
-    set textColor(textColor: string) {
-        this._textColor = textColor;
+    get eventTextColor() { return this._eventTextColor; }
+    set eventTextColor(eventTextColor: string) {
+        this._eventTextColor = eventTextColor;
         this.reportMutation();
     }
 
     /**
      * Default text size of events belonging to this line.
      */
-    get textSize() { return this._textSize; }
-    set textSize(textSize: number) {
-        this._textSize = textSize;
+    get eventTextSize() { return this._eventTextSize; }
+    set eventTextSize(eventTextSize: number) {
+        this._eventTextSize = eventTextSize;
         this.reportMutation();
     }
 
     /**
      * Default font family of events belonging to this line.
      */
-    get fontFamily() { return this._fontFamily; }
-    set fontFamily(fontFamily: string) {
-        this._fontFamily = fontFamily;
+    get eventFontFamily() { return this._eventFontFamily; }
+    set eventFontFamily(eventFontFamily: string) {
+        this._eventFontFamily = eventFontFamily;
         this.reportMutation();
     }
 
@@ -440,18 +441,18 @@ export class EventLine extends Line {
      * Default border thickness of events belonging to this
      * line.
      */
-    get borderWidth() { return this._borderWidth; }
-    set borderWidth(borderWidth: number) {
-        this._borderWidth = borderWidth;
+    get eventBorderWidth() { return this._eventBorderWidth; }
+    set eventBorderWidth(eventBorderWidth: number) {
+        this._eventBorderWidth = eventBorderWidth;
         this.reportMutation();
     }
 
     /**
      * Default border color of events belonging to this line.
      */
-    get borderColor() { return this._borderColor; };
-    set borderColor(borderColor: string) {
-        this._borderColor = borderColor;
+    get eventBorderColor() { return this._eventBorderColor; }
+    set eventBorderColor(eventBorderColor: string) {
+        this._eventBorderColor = eventBorderColor;
         this.reportMutation();
     }
 
@@ -468,9 +469,9 @@ export class EventLine extends Line {
     /**
      * Default corner radius of events belonging to this line.
      */
-    get cornerRadius() { return this._cornerRadius; }
-    set cornerRadius(cornerRadius: number) {
-        this._cornerRadius = cornerRadius;
+    get eventCornerRadius() { return this._eventCornerRadius; }
+    set eventCornerRadius(eventCornerRadius: number) {
+        this._eventCornerRadius = eventCornerRadius;
         this.reportMutation();
     }
 
@@ -509,9 +510,9 @@ export class EventLine extends Line {
      * Indicates what must happen with an event label in case
      * its width would exceed that of the event box.
      */
-    get textOverflow() { return this._textOverflow; }
-    set textOverflow(textOverflow: TextOverflow) {
-        this._textOverflow = textOverflow;
+    get eventTextOverflow() { return this._eventTextOverflow; }
+    set eventTextOverflow(eventTextOverflow: TextOverflow) {
+        this._eventTextOverflow = eventTextOverflow;
         this.reportMutation();
     }
 

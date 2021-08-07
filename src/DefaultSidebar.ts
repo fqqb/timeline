@@ -115,9 +115,9 @@ export class DefaultSidebar extends Sidebar {
         // Bottom horizontal divider
         const dividerY = line.y + line.height + 0.5;
         g.strokePath({
-            color: this.timeline.rowBorderColor,
+            color: line.borderColor || this.timeline.lineBorderColor,
             path: new Path(0, dividerY).lineTo(this.clippedWidth, dividerY),
-            lineWidth: this.timeline.rowBorderLineWidth,
+            lineWidth: this.timeline.lineBorderWidth,
         });
     }
 

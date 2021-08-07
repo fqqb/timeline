@@ -65,8 +65,8 @@ export class Timeline {
     private _backgroundOddColor = 'white';
     private _backgroundEvenColor = '#f5f5f5';
     private _foregroundColor = 'grey';
-    private _rowBorderColor = '#e8e8e8';
-    private _rowBorderLineWidth = 1;
+    private _lineBorderColor = '#e8e8e8';
+    private _lineBorderWidth = 1;
     private _fontFamily = 'Verdana, Geneva, sans-serif';
     private _textSize = 10;
 
@@ -596,15 +596,15 @@ export class Timeline {
         this.requestRepaint();
     }
 
-    get rowBorderColor() { return this._rowBorderColor; }
-    set rowBorderColor(rowBorderColor: string) {
-        this._rowBorderColor = rowBorderColor;
+    get lineBorderColor() { return this._lineBorderColor; }
+    set lineBorderColor(lineBorderColor: string) {
+        this._lineBorderColor = lineBorderColor;
         this.requestRepaint();
     }
 
-    get rowBorderLineWidth() { return this._rowBorderLineWidth; }
-    set rowBorderLineWidth(rowBorderLineWidth: number) {
-        this._rowBorderLineWidth = rowBorderLineWidth;
+    get lineBorderWidth() { return this._lineBorderWidth; }
+    set lineBorderWidth(lineBorderWidth: number) {
+        this._lineBorderWidth = lineBorderWidth;
         this.requestRepaint();
     }
 
@@ -625,7 +625,7 @@ export class Timeline {
             line.coords.height = line.getPreferredHeight();
 
             contentHeight += line.height;
-            y += line.height + this.rowBorderLineWidth;
+            y += line.height + this.lineBorderWidth;
         }
 
         this.rootPanel.style.height = this.targetElement.clientHeight + 'px';
@@ -673,8 +673,8 @@ export class Timeline {
             if (drawable instanceof Line) {
                 const dividerY = drawable.y + drawable.height + 0.5;
                 g.strokePath({
-                    color: this.rowBorderColor,
-                    lineWidth: this.rowBorderLineWidth,
+                    color: this.lineBorderColor,
+                    lineWidth: this.lineBorderWidth,
                     path: new Path(0, dividerY).lineTo(g.canvas.width, dividerY),
                 });
             }

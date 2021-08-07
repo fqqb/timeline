@@ -51,7 +51,7 @@ line1.events = [
 
 const line2 = new EventLine(timeline);
 line2.label = 'Line 2';
-line2.borderWidth = 0;
+line2.eventBorderWidth = 0;
 line2.eventColor = '#ffe4b5';
 line2.events = [
     { start: 10, stop: 50, label: 'Event 2' },

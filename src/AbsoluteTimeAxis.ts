@@ -199,7 +199,7 @@ class HourScale implements Scale {
             path.lineTo(Math.round(x) + 0.5, height);
         }
         g.strokePath({
-            color: axis.timeline.rowBorderColor,
+            color: axis.timeline.lineBorderColor,
             path,
         });
 
@@ -248,7 +248,7 @@ class HourScale implements Scale {
                 path.lineTo(Math.round(x) + 0.5, g.canvas.height);
             }
             g.strokePath({
-                color: axis.timeline.rowBorderColor,
+                color: axis.timeline.lineBorderColor,
                 path,
             });
         }
@@ -291,7 +291,7 @@ class QuarterDayScale implements Scale {
             this.majorX.push(x);
 
             g.strokePath({
-                color: axis.timeline.rowBorderColor,
+                color: axis.timeline.lineBorderColor,
                 path: new Path(0, 0)
                     .moveTo(Math.round(x) + 0.5, 0)
                     .lineTo(Math.round(x) + 0.5, height),
@@ -311,7 +311,7 @@ class QuarterDayScale implements Scale {
                 if (hour !== 0) {
                     const subX = axis.timeline.positionTime(sub.toMillis());
                     g.strokePath({
-                        color: axis.timeline.rowBorderColor,
+                        color: axis.timeline.lineBorderColor,
                         path: new Path(0, 0)
                             .moveTo(Math.round(subX) + 0.5, height / 2)
                             .lineTo(Math.round(subX) + 0.5, height),
@@ -341,7 +341,7 @@ class QuarterDayScale implements Scale {
                 path.lineTo(Math.round(x) + 0.5, g.canvas.height);
             }
             g.strokePath({
-                color: axis.timeline.rowBorderColor,
+                color: axis.timeline.lineBorderColor,
                 path,
             });
         }
@@ -384,7 +384,7 @@ class WeekDayScale implements Scale {
             this.majorX.push(x);
 
             g.strokePath({
-                color: axis.timeline.rowBorderColor,
+                color: axis.timeline.lineBorderColor,
                 path: new Path(0, 0)
                     .moveTo(Math.round(x) + 0.5, 0)
                     .lineTo(Math.round(x) + 0.5, height),
@@ -404,7 +404,7 @@ class WeekDayScale implements Scale {
                 if (weekday !== 1) {
                     const subX = axis.timeline.positionTime(sub.toMillis());
                     g.strokePath({
-                        color: axis.timeline.rowBorderColor,
+                        color: axis.timeline.lineBorderColor,
                         path: new Path(0, 0)
                             .moveTo(Math.round(subX) + 0.5, height / 2)
                             .lineTo(Math.round(subX) + 0.5, height),
@@ -434,7 +434,7 @@ class WeekDayScale implements Scale {
                 path.lineTo(Math.round(x) + 0.5, g.canvas.height);
             }
             g.strokePath({
-                color: axis.timeline.rowBorderColor,
+                color: axis.timeline.lineBorderColor,
                 path,
             });
         }
@@ -478,7 +478,7 @@ class WeekScale implements Scale {
             this.majorX.push(x);
 
             g.strokePath({
-                color: axis.timeline.rowBorderColor,
+                color: axis.timeline.lineBorderColor,
                 path: new Path(0, 0)
                     .moveTo(Math.round(x) + 0.5, 0)
                     .lineTo(Math.round(x) + 0.5, height / 2),
@@ -501,7 +501,7 @@ class WeekScale implements Scale {
             const x = axis.timeline.positionTime(t.toMillis());
 
             g.strokePath({
-                color: axis.timeline.rowBorderColor,
+                color: axis.timeline.lineBorderColor,
                 path: new Path(0, 0)
                     .moveTo(Math.round(x) + 0.5, height / 2)
                     .lineTo(Math.round(x) + 0.5, height),
@@ -529,7 +529,7 @@ class WeekScale implements Scale {
                 path.lineTo(Math.round(x) + 0.5, g.canvas.height);
             }
             g.strokePath({
-                color: axis.timeline.rowBorderColor,
+                color: axis.timeline.lineBorderColor,
                 path,
             });
         }
@@ -572,7 +572,7 @@ class MonthScale implements Scale {
             this.majorX.push(x);
 
             g.strokePath({
-                color: axis.timeline.rowBorderColor,
+                color: axis.timeline.lineBorderColor,
                 path: new Path(0, 0)
                     .moveTo(Math.round(x) + 0.5, 0)
                     .lineTo(Math.round(x) + 0.5, height),
@@ -592,7 +592,7 @@ class MonthScale implements Scale {
                 if (month !== 1) {
                     const subX = axis.timeline.positionTime(sub.toMillis());
                     g.strokePath({
-                        color: axis.timeline.rowBorderColor,
+                        color: axis.timeline.lineBorderColor,
                         path: new Path(0, 0)
                             .moveTo(Math.round(subX) + 0.5, height / 2)
                             .lineTo(Math.round(subX) + 0.5, height),
@@ -623,7 +623,7 @@ class MonthScale implements Scale {
                 path.lineTo(Math.round(x) + 0.5, g.canvas.height);
             }
             g.strokePath({
-                color: axis.timeline.rowBorderColor,
+                color: axis.timeline.lineBorderColor,
                 path,
             });
         }
@@ -661,7 +661,7 @@ class YearScale implements Scale {
             const x = axis.timeline.positionTime(t.toMillis());
 
             g.strokePath({
-                color: axis.timeline.rowBorderColor,
+                color: axis.timeline.lineBorderColor,
                 path: new Path(0, 0)
                     .moveTo(Math.round(x) + 0.5, 0)
                     .lineTo(Math.round(x) + 0.5, height),
@@ -716,7 +716,7 @@ class DecadeScale implements Scale {
             const x = axis.timeline.positionTime(t.toMillis());
 
             g.strokePath({
-                color: axis.timeline.rowBorderColor,
+                color: axis.timeline.lineBorderColor,
                 path: new Path(0, 0)
                     .moveTo(Math.round(x) + 0.5, 0)
                     .lineTo(Math.round(x) + 0.5, height),
