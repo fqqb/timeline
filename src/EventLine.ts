@@ -1,5 +1,4 @@
 import { Event } from './Event';
-import { EventClickEvent } from './events';
 import { Graphics, Path } from './Graphics';
 import { HitRegionSpecification } from './HitCanvas';
 import { Line } from './Line';
@@ -73,9 +72,22 @@ export class EventLine extends Line {
                     id,
                     cursor: 'pointer',
                     click: () => {
-                        const clickEvent: EventClickEvent = { event };
-                        this.timeline.fireEvent('eventclick', clickEvent);
+                        this.timeline.fireEvent('eventclick', { event });
                     },
+                    mouseMove: mouseEvent => {
+                        this.timeline.fireEvent('eventmousemove', {
+                            clientX: mouseEvent.clientX,
+                            clientY: mouseEvent.clientY,
+                            event,
+                        });
+                    },
+                    mouseOut: mouseEvent => {
+                        this.timeline.fireEvent('eventmouseout', {
+                            clientX: mouseEvent.clientX,
+                            clientY: mouseEvent.clientY,
+                            event,
+                        });
+                    }
                 },
             };
 

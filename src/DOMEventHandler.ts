@@ -38,6 +38,8 @@ function regionMatches(region1?: HitRegionSpecification, region2?: HitRegionSpec
 }
 
 export interface TimelineMouseEvent {
+    clientX: number;
+    clientY: number;
     point: Point;
     viewportPoint: Point;
     overSidebar: boolean;
@@ -95,6 +97,8 @@ export class DOMEventHandler {
         }
 
         return {
+            clientX: domEvent.clientX,
+            clientY: domEvent.clientY,
             point,
             viewportPoint: { x: point.x - sidebarWidth, y: point.y },
             overSidebar,
@@ -163,8 +167,6 @@ export class DOMEventHandler {
             const vpEvent: ViewportMouseMoveEvent = {
                 clientX: domEvent.clientX,
                 clientY: domEvent.clientY,
-                viewportX: mouseEvent.viewportPoint.x,
-                viewportY: mouseEvent.viewportPoint.y,
                 time: this.mouse2time(mouseEvent.point.x),
             };
             this.timeline.fireEvent('viewportmousemove', vpEvent);
@@ -175,7 +177,7 @@ export class DOMEventHandler {
 
         if (this.prevEnteredRegion && this.prevEnteredRegion.mouseOut) {
             if (!regionMatches(this.prevEnteredRegion, region)) {
-                this.prevEnteredRegion.mouseOut();
+                this.prevEnteredRegion.mouseOut(mouseEvent);
             }
         }
 
@@ -183,6 +185,10 @@ export class DOMEventHandler {
             if (!regionMatches(this.prevEnteredRegion, region)) {
                 region.mouseEnter();
             }
+        }
+
+        if (region && region.mouseMove) {
+            region.mouseMove(mouseEvent);
         }
 
         this.prevEnteredRegion = region;

@@ -1,11 +1,13 @@
+import { TimelineMouseEvent } from './DOMEventHandler';
+
 const WHITE = 'rgb(255,255,255)';
 
 export interface HitRegionSpecification {
     id: string;
     click?: () => void;
     mouseEnter?: () => void;
-    mouseMove?: () => void;
-    mouseOut?: () => void;
+    mouseMove?: (mouseEvent: TimelineMouseEvent) => void;
+    mouseOut?: (mouseEvent: TimelineMouseEvent) => void;
     mouseDown?: () => void;
     mouseUp?: () => void;
     cursor?: string;

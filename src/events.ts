@@ -19,6 +19,29 @@ export interface EventClickEvent extends TimelineEvent {
 }
 
 /**
+ * Event generated in relation to mouse interactions on Timeline
+ * events.
+ */
+export interface EventMouseEvent extends TimelineEvent {
+    /**
+     * Horizontal coordinate of the mouse pointer, relative to
+     * the browser page.
+     */
+    clientX: number;
+
+    /**
+     * Vertical coordinate of the mouse pointer, relative to the
+     * browser page.
+     */
+    clientY: number;
+
+    /**
+     * The applicable event.
+     */
+    event: Event;
+}
+
+/**
  * Event generated when the header of a Timeline Line was
  * clicked.
  */
@@ -62,25 +85,13 @@ export interface ViewportMouseMoveEvent extends TimelineEvent {
     clientY: number;
 
     /**
-     * Horizontal coordinate of the mouse pointer, relative to
-     * the viewport of the Timeline instance.
-     */
-    viewportX: number;
-
-    /**
-     * Vertical coordinate of the mouse pointer, relative to
-     * the viewport of the Timeline instance.
-     */
-    viewportY: number;
-
-    /**
      * Time matching with the coordinates of the mouse pointer.
      */
     time: number;
 }
 
 /**
- * Event generating when the mouse is moving outside the viewport.
+ * Event generated when the mouse is moving outside the viewport.
  */
 export interface ViewportMouseOutEvent extends TimelineEvent {
     /**
@@ -108,6 +119,8 @@ export interface ViewportSelectionEvent extends TimelineEvent {
 
 export type TimelineEventHandlers = {
     'eventclick': Array<(ev: EventClickEvent) => void>;
+    'eventmousemove': Array<(ev: EventMouseEvent) => void>;
+    'eventmouseout': Array<(ev: EventMouseEvent) => void>;
     'headerclick': Array<(ev: HeaderClickEvent) => void>;
     'viewportchange': Array<(ev: ViewportChangeEvent) => void>;
     'viewportmousemove': Array<(ev: ViewportMouseMoveEvent) => void>;

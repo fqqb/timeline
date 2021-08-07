@@ -2,7 +2,7 @@ import { AnimatableProperty } from './AnimatableProperty';
 import { DefaultSidebar } from './DefaultSidebar';
 import { DOMEventHandler } from './DOMEventHandler';
 import { Drawable } from './Drawable';
-import { EventClickEvent, HeaderClickEvent, TimelineEvent, TimelineEventHandlers, ViewportChangeEvent, ViewportMouseMoveEvent, ViewportMouseOutEvent, ViewportSelectionEvent } from './events';
+import { EventClickEvent, EventMouseEvent, HeaderClickEvent, TimelineEvent, TimelineEventHandlers, ViewportChangeEvent, ViewportMouseMoveEvent, ViewportMouseOutEvent, ViewportSelectionEvent } from './events';
 import { Graphics, Path } from './Graphics';
 import { Line } from './Line';
 import { Sidebar } from './Sidebar';
@@ -44,6 +44,8 @@ export class Timeline {
     private eventListeners: TimelineEventHandlers = {
         headerclick: [],
         eventclick: [],
+        eventmousemove: [],
+        eventmouseout: [],
         viewportchange: [],
         viewportmousemove: [],
         viewportmouseout: [],
@@ -299,6 +301,40 @@ export class Timeline {
      */
     removeEventClickListener(listener: (ev: EventClickEvent) => void) {
         this.eventListeners.eventclick = this.eventListeners.eventclick
+            .filter(el => (el !== listener));
+    }
+
+    /**
+     * Register a listener that receives updates whenever the mouse is moving
+     * over an event.
+     */
+    addEventMouseMoveListener(listener: (ev: EventMouseEvent) => void) {
+        this.eventListeners.eventmousemove.push(listener);
+    }
+
+    /**
+     * Unregister a previously registered listener to stop receiving
+     * event mouse-move events.
+     */
+    removeEventMouseMoveListener(listener: (ev: EventMouseEvent) => void) {
+        this.eventListeners.eventmousemove = this.eventListeners.eventmousemove
+            .filter(el => (el !== listener));
+    }
+
+    /**
+     * Register a listener that receives updates whenever the mouse is moving
+     * outside an event.
+     */
+    addEventMouseOutListener(listener: (ev: EventMouseEvent) => void) {
+        this.eventListeners.eventmouseout.push(listener);
+    }
+
+    /**
+     * Unregister a previously registered listener to stop receiving
+     * event mouse-out events.
+     */
+    removeEventMouseOutListener(listener: (ev: EventMouseEvent) => void) {
+        this.eventListeners.eventmouseout = this.eventListeners.eventmouseout
             .filter(el => (el !== listener));
     }
 
