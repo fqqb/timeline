@@ -20,6 +20,7 @@ interface DrawInfo {
 
 interface AnnotatedEvent extends Event {
     region: HitRegionSpecification;
+    hovered: boolean;
     drawInfo?: DrawInfo;
 }
 
@@ -45,6 +46,8 @@ export class EventLine extends Line {
     private _textOverflow: TextOverflow = 'show';
     private _spaceBetween = 0;
     private _lineSpacing = 2;
+    private _eventHoverOpacity = 0.7;
+    private _eventCursor = 'pointer';
     private _events: Event[] = [];
 
     private eventsById = new Map<Event, string>();
@@ -62,11 +65,16 @@ export class EventLine extends Line {
             }
             const annotatedEvent: AnnotatedEvent = {
                 ...event,
+                hovered: false,
                 region: {
                     id,
-                    cursor: 'pointer',
+                    cursor: this.eventCursor,
                     click: () => {
                         this.timeline.fireEvent('eventclick', { event });
+                    },
+                    mouseEnter: () => {
+                        annotatedEvent.hovered = true;
+                        this.reportMutation();
                     },
                     mouseMove: mouseEvent => {
                         this.timeline.fireEvent('eventmousemove', {
@@ -76,6 +84,8 @@ export class EventLine extends Line {
                         });
                     },
                     mouseOut: mouseEvent => {
+                        annotatedEvent.hovered = false;
+                        this.reportMutation();
                         this.timeline.fireEvent('eventmouseout', {
                             clientX: mouseEvent.clientX,
                             clientY: mouseEvent.clientY,
@@ -132,11 +142,10 @@ export class EventLine extends Line {
             .lineTo(stopX, y + r)
             .lineTo(startX + r, y + r + r)
             .lineTo(startX, y + r);
+        const eventColor = nvl(event.color, this.eventColor);
+        const opacity = event.hovered ? this.eventHoverOpacity : 1;
 
-        g.fillPath({
-            color: nvl(event.color, this.eventColor),
-            path,
-        });
+        g.fillPath({ color: eventColor, path, opacity });
 
         // Hit region covers both the shape, and potential outside text
         const hitRegion = g.addHitRegion(event.region);
@@ -147,6 +156,7 @@ export class EventLine extends Line {
             path,
             color: nvl(event.borderColor, this.borderColor),
             lineWidth: borderWidth,
+            opacity,
         });
 
         if (label) {
@@ -158,6 +168,7 @@ export class EventLine extends Line {
                 baseline: 'middle',
                 align: 'left',
                 color: nvl(event.textColor, this.textColor),
+                opacity,
             });
         }
     }
@@ -167,6 +178,7 @@ export class EventLine extends Line {
             startX, stopX, label, renderStartX, renderStopX,
             marginLeft, offscreenStart, labelFitsBox, font,
         } = event.drawInfo!;
+        const opacity = event.hovered ? this.eventHoverOpacity : 1;
         const box: Bounds = {
             x: Math.round(startX),
             y,
@@ -179,6 +191,7 @@ export class EventLine extends Line {
             rx: r,
             ry: r,
             color: nvl(event.color, this.eventColor),
+            opacity,
         });
 
         // Hit region covers both the box, and potential outside text
@@ -193,6 +206,7 @@ export class EventLine extends Line {
             color: nvl(event.borderColor, this.borderColor),
             lineWidth: borderWidth,
             crispen: true,
+            opacity,
         });
 
         if (label) {
@@ -210,6 +224,7 @@ export class EventLine extends Line {
                     baseline: 'middle',
                     align: 'left',
                     color: nvl(event.textColor, this.textColor),
+                    opacity,
                 });
             } else if (this.textOverflow === 'clip') {
                 const tmpCanvas = document.createElement('canvas');
@@ -220,6 +235,9 @@ export class EventLine extends Line {
                 offscreenCtx.font = font;
                 offscreenCtx.textBaseline = 'middle';
                 offscreenCtx.textAlign = 'left';
+                if (event.hovered) {
+                    offscreenCtx.globalAlpha = this.eventHoverOpacity;
+                }
                 offscreenCtx.fillText(label, marginLeft, box.height / 2);
                 g.ctx.drawImage(tmpCanvas, box.x, box.y);
             }
@@ -494,6 +512,24 @@ export class EventLine extends Line {
     get textOverflow() { return this._textOverflow; }
     set textOverflow(textOverflow: TextOverflow) {
         this._textOverflow = textOverflow;
+        this.reportMutation();
+    }
+
+    /**
+     * Cursor when mouse hovers an event.
+     */
+    get eventCursor() { return this._eventCursor; }
+    set eventCursor(eventCursor: string) {
+        this._eventCursor = eventCursor;
+        this.reportMutation();
+    }
+
+    /**
+     * Event opacity when hovering
+     */
+    get eventHoverOpacity() { return this._eventHoverOpacity; }
+    set eventHoverOpacity(eventHoverOpacity: number) {
+        this._eventHoverOpacity = eventHoverOpacity;
         this.reportMutation();
     }
 }

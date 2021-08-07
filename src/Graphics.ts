@@ -34,6 +34,7 @@ export interface TextFill {
     font: string;
     color: string;
     text: string;
+    opacity?: number;
 }
 
 export interface RectStroke {
@@ -47,6 +48,7 @@ export interface RectStroke {
     lineWidth?: number;
     dash?: number[];
     crispen?: boolean;
+    opacity?: number;
 }
 
 export interface PathStroke {
@@ -54,16 +56,19 @@ export interface PathStroke {
     color: string;
     lineWidth?: number;
     dash?: number[];
+    opacity?: number;
 }
 
 export interface PathColorFill {
     path: Path;
     color: string;
+    opacity?: number;
 }
 
 export interface PathGradientFill {
     path: Path;
     gradient: CanvasGradient;
+    opacity?: number;
 }
 
 export type PathFill = PathColorFill | PathGradientFill;
@@ -145,7 +150,16 @@ export class Graphics {
         this.ctx.textAlign = fill.align;
         this.ctx.font = fill.font;
         this.ctx.fillStyle = fill.color;
+
+        if (fill.opacity !== undefined) {
+            this.ctx.globalAlpha = fill.opacity;
+        }
+
         this.ctx.fillText(fill.text, fill.x, fill.y);
+
+        if (fill.opacity !== undefined) {
+            this.ctx.globalAlpha = 1;
+        }
     }
 
     measureText(text: string, font: string): TextMetrics {
@@ -157,6 +171,9 @@ export class Graphics {
     strokeRect(stroke: RectStroke) {
         if (stroke.dash) {
             this.ctx.setLineDash(stroke.dash);
+        }
+        if (stroke.opacity !== undefined) {
+            this.ctx.globalAlpha = stroke.opacity;
         }
         this.ctx.lineWidth = stroke.lineWidth || 1;
         this.ctx.strokeStyle = stroke.color.toString();
@@ -175,6 +192,9 @@ export class Graphics {
             } else {
                 this.ctx.strokeRect(stroke.x, stroke.y, stroke.width, stroke.height);
             }
+        }
+        if (stroke.opacity !== undefined) {
+            this.ctx.globalAlpha = 1;
         }
         if (stroke.dash) {
             this.ctx.setLineDash([]);
@@ -195,7 +215,16 @@ export class Graphics {
         }
         this.ctx.lineWidth = stroke.lineWidth || 1;
         this.ctx.strokeStyle = stroke.color;
+
+        if (stroke.opacity !== undefined) {
+            this.ctx.globalAlpha = stroke.opacity;
+        }
+
         this.ctx.stroke();
+
+        if (stroke.opacity !== undefined) {
+            this.ctx.globalAlpha = 1;
+        }
         if (stroke.dash) {
             this.ctx.setLineDash([]);
         }
@@ -215,7 +244,16 @@ export class Graphics {
         } else {
             this.ctx.fillStyle = fill.gradient;
         }
+
+        if (fill.opacity !== undefined) {
+            this.ctx.globalAlpha = fill.opacity;
+        }
+
         this.ctx.fill();
+
+        if (fill.opacity !== undefined) {
+            this.ctx.globalAlpha = 1;
+        }
     }
 
     addHitRegion(region: HitRegionSpecification) {
