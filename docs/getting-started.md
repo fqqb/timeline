@@ -27,7 +27,7 @@ This is a minimal setup for creating a Timeline component:
 
 An existing HTML DOM element is used as the host, usually a `<div>`.
 
-A Timeline instance will automatically use all of the available space of its host element based on the effective `clientHeight` and `clientWidth` properties. If it runs out of space, it will automatically activate a vertical scrollbar.
+A Timeline instance uses all of the available space of its host element based on the effective `clientHeight` and `clientWidth` properties. If it runs out of space, it will activate a vertical scrollbar.
 
 This example uses an inline CSS rule to set the height to `100px`. Relative height or an absolutely positioned host element would work too.
 
@@ -69,7 +69,7 @@ Event 4 is not fully visible, but you can pan the Timeline canvas.
 
 ## Absolute Time
 
-A common use case is to render real life events. That is to say &ndash; using absolute time.
+A common use case is to render real life events. That is &ndash; using absolute time.
 
 If we consider time to be milliseconds since 1 January 1970 UTC, we can use JavaScript Dates to show a specific calendar time range.
 

@@ -109,6 +109,7 @@ export class EventLine extends Line {
         }
     }
 
+    /** @hidden */
     calculateContentHeight(g: Graphics) {
         this.measureEvents(g);
         const visibleEvents = this.annotatedEvents.filter(event => !!event.drawInfo);

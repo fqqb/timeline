@@ -59,7 +59,7 @@ export class DOMEventHandler {
     private isViewportHover = false;
 
     // Global handlers attached only during a grab action.
-    // Purpose is to support the user doing grab actions while leaving our canvas.
+    // Purpose is to support the user doing grab actions while leaving the canvas.
     private documentMouseMoveListener = (e: MouseEvent) => this.onDocumentMouseMove(e);
     private documentMouseUpListener = (e: MouseEvent) => this.onDocumentMouseUp(e);
     // private documentMouseLeaveListener = (e: any) => this.onDocumentMouseLeave(e);

@@ -18,6 +18,7 @@ const line = new EventLine(timeline);
 line.label = 'Line';
 line.events = [
     { start: 20, stop: 40, label: 'Event' },
+    { start: 60, label: 'Milestone' },
 ];
 ```
 

@@ -34,6 +34,7 @@ export class Timeline {
     private _stop: AnimatableProperty;
     private selection?: TimeRange;
 
+    /** @hidden */
     frameTime?: number;
 
     private repaintRequested = false;
@@ -57,8 +58,7 @@ export class Timeline {
     private repaintIntervalHandle?: number;
 
     /**
-     * If true, some actions (e.g. panBy) will animate
-     * property transitions.
+     * If true, some actions (e.g. panBy) animate property transitions.
      */
     animated = true;
     private animatableProperties: AnimatableProperty[] = [];
@@ -139,6 +139,7 @@ export class Timeline {
         this.sidebar?.disconnectedCallback();
     }
 
+    /** @hidden */
     createAnimatableProperty(value: number) {
         const property = new AnimatableProperty(value);
         this.animatableProperties.push(property);
@@ -529,16 +530,14 @@ export class Timeline {
     }
 
     /**
-     * Zooms in with a scale factor of 0.5. This means a range half as long
-     * will be in view.
+     * Zooms in with a scale factor of 0.5 (half the current range).
      */
     zoomIn() {
         this.zoom(0.5);
     }
 
     /**
-     * Zooms out with a scale factor of 2. This means a range twice
-     * as long will be in view.
+     * Zooms out with a scale factor of 2 (twice the current range).
      */
     zoomOut() {
         this.zoom(2);
@@ -546,10 +545,11 @@ export class Timeline {
 
     /**
      * Zoom by a scale factor relative to the current range.
-     * For example: 2 shows twice the current range, 0.5 shows half the current range.
+     * For example: 2 shows twice the current range, 0.5 shows
+     * half the current range.
      *
      * @param relto time around which to center the zoom. If unspecified, the
-     *              zoom will be around the current centered time.
+     *              zoom is around the current centered time.
      */
     zoom(factor: number, animate = true, relto?: number) {
         if (factor <= 0) {
@@ -753,8 +753,8 @@ export class Timeline {
         });
     }
 
-    // Draw frozen header in separate DOM canvas so that it is still possible to image dump
-    // the entire main canvas.
+    // Draw frozen header in separate DOM canvas so that it is still
+    // possible to image dump the entire main canvas.
     private drawFrozenTop() {
         const frozenCtx = this.frozenGraphics.ctx;
         const width = this.g.canvas.width;
