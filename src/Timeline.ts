@@ -2,10 +2,11 @@ import { AnimatableProperty } from './AnimatableProperty';
 import { DefaultSidebar } from './DefaultSidebar';
 import { DOMEventHandler, Tool } from './DOMEventHandler';
 import { Drawable } from './Drawable';
-import { EventClickEvent, HeaderClickEvent, TimelineEvent, TimelineEventHandlers, ViewportChangeEvent, ViewportMouseMoveEvent, ViewportMouseOutEvent } from './events';
+import { EventClickEvent, HeaderClickEvent, TimelineEvent, TimelineEventHandlers, ViewportChangeEvent, ViewportMouseMoveEvent, ViewportMouseOutEvent, ViewportSelectionEvent } from './events';
 import { Graphics, Path } from './Graphics';
 import { Line } from './Line';
 import { Sidebar } from './Sidebar';
+import { TimeRange } from './TimeRange';
 
 /**
  * Resizes a canvas, but only if the new bounds are different.
@@ -28,7 +29,7 @@ export class Timeline {
 
     private _start: AnimatableProperty;
     private _stop: AnimatableProperty;
-    private selection?: { start: number, stop: number; };
+    private selection?: TimeRange;
 
     frameTime?: number;
 
@@ -44,6 +45,7 @@ export class Timeline {
         viewportchange: [],
         viewportmousemove: [],
         viewportmouseout: [],
+        viewportselection: [],
     };
 
     private eventHandler: DOMEventHandler;
@@ -171,8 +173,7 @@ export class Timeline {
             this._start.value = start;
             this._stop.value = stop;
         }
-        const vpEvent: ViewportChangeEvent = { start, stop };
-        this.fireEvent('viewportchange', vpEvent);
+        this.fireEvent('viewportchange', { start, stop });
         this.requestRepaint();
     }
 
@@ -185,9 +186,12 @@ export class Timeline {
     setSelection(start: number, stop: number) {
         if (stop > start) {
             this.selection = { start, stop };
+        } else if (stop === start) {
+            this.selection = undefined;
         } else {
             this.selection = { start: stop, stop: start };
         }
+        this.fireEvent('viewportselection', { selection: this.selection });
         this.requestRepaint();
     }
 
@@ -196,6 +200,7 @@ export class Timeline {
      */
     clearSelection() {
         this.selection = undefined;
+        this.fireEvent('viewportselection', { selection: this.selection });
         this.requestRepaint();
     }
 
@@ -364,6 +369,23 @@ export class Timeline {
      */
     removeViewportMouseOutListener(listener: (ev: ViewportMouseOutEvent) => void) {
         this.eventListeners.viewportmouseout = this.eventListeners.viewportmouseout
+            .filter(el => (el !== listener));
+    }
+
+    /**
+     * Register a listener that receives updates whenever the time range selection
+     * has changed.
+     */
+    addViewportSelectionListener(listener: (ev: ViewportSelectionEvent) => void) {
+        this.eventListeners.viewportselection.push(listener);
+    }
+
+    /**
+     * Unregister a previously registered listener to stop receiving viewport
+     * selection events.
+     */
+    removeViewportSelectionListener(listener: (ev: ViewportSelectionEvent) => void) {
+        this.eventListeners.viewportselection = this.eventListeners.viewportselection
             .filter(el => (el !== listener));
     }
 

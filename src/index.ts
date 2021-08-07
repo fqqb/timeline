@@ -12,4 +12,5 @@ export * from './positioning';
 export { Sidebar } from './Sidebar';
 export { Timeline } from './Timeline';
 export { TimeLocator } from './TimeLocator';
+export { TimeRange } from './TimeRange';
 
