@@ -91,7 +91,8 @@ export class EventLine extends Line {
     /** @hidden */
     drawLineContent(g: Graphics) {
         this.measureEvents(g);
-        const lines = this.wrap ? this.wrapEvents() : [this.annotatedEvents];
+        const visibleEvents = this.annotatedEvents.filter(event => !!event.drawInfo);
+        const lines = this.wrap ? this.wrapEvents(visibleEvents) : [visibleEvents];
 
         let newHeight;
         if (lines.length) {
@@ -297,16 +298,11 @@ export class EventLine extends Line {
         }
     }
 
-    private wrapEvents() {
+    private wrapEvents(events: AnnotatedEvent[]) {
         const lines: AnnotatedEvent[][] = [];
-        for (const event of this.annotatedEvents) {
-            const drawInfo = event.drawInfo;
-            if (!drawInfo) {
-                continue;
-            }
+        for (const event of events) {
+            const { renderStartX, renderStopX } = event.drawInfo!;
             let inserted = false;
-            const startX = drawInfo.renderStartX;
-            const stopX = drawInfo.renderStopX;
             for (const line of lines) {
                 let min = 0;
                 let max = line.length - 1;
@@ -314,9 +310,9 @@ export class EventLine extends Line {
                     const mid = Math.floor((min + max) / 2);
                     const midStartX = line[mid].drawInfo!.renderStartX;
                     const midStopX = line[mid].drawInfo!.renderStopX;
-                    if ((stopX + this.spaceBetween) <= midStartX) {
+                    if ((renderStopX + this.spaceBetween) <= midStartX) {
                         max = mid - 1; // Put cursor before mid
-                    } else if (startX >= (midStopX + this.spaceBetween)) {
+                    } else if (renderStartX >= (midStopX + this.spaceBetween)) {
                         min = mid + 1; // Put cursor after mid
                     } else {
                         break; // Overlap
