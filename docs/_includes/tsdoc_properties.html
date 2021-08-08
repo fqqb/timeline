@@ -1,5 +1,8 @@
 <dl class="properties">
     {%- for child in include.properties -%}
+        {%- if child.flags.isPrivate -%}
+            {%- continue -%}
+        {%- endif -%}
         <dt style="display: flex">
             <a class="anchor" name="{{ child.name }}"></a>
             {{- child.name -}}
@@ -68,6 +71,17 @@
                         {%- endif -%}
                     </code>
                 </dd>
+
+                {%- assign private_name = "_" | append: child.name -%}
+                {%- capture default_value -%}
+                    {%- include tsdoc_default_value.html
+                            type=include.moduleChild.name
+                            attribute=private_name -%}
+                {%- endcapture -%}
+                {%- if default_value != nil and default_value != "" -%}
+                    <dt>Default value:</dt>
+                    <dd>{{ default_value }}</dd>
+                {%- endif -%}
             </dl>
         </dd>
     {%- endfor -%}

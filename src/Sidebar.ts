@@ -8,7 +8,7 @@ export abstract class Sidebar extends Drawable {
     private _opened = true;
 
     /**
-     * The user-controlled pixel width of this sidebar.
+     * Pixel width of this sidebar.
      */
     get width() { return this._width; }
     set width(width: number) {
@@ -18,14 +18,25 @@ export abstract class Sidebar extends Drawable {
         this.reportMutation();
     }
 
+    /**
+     * Background color of the entire sidebar.
+     */
     get backgroundColor() { return this._backgroundColor; }
     set backgroundColor(backgroundColor: string) {
         this._backgroundColor = backgroundColor;
         this.reportMutation();
     }
 
+    /**
+     * While a sidebar animation is underway (transitioning from open
+     * to closed, or vice versa), this represents the current width
+     * instead of the target width.
+     */
     get clippedWidth() { return this._clippedWidth.value; }
 
+    /**
+     * Close the sidebar if it is currently opened, else open it.
+     */
     toggle() {
         if (this.opened) {
             this.close();
@@ -34,6 +45,9 @@ export abstract class Sidebar extends Drawable {
         }
     }
 
+    /**
+     * Open the sidebar.
+     */
     open() {
         if (!this.opened) {
             this._opened = true;
@@ -42,6 +56,9 @@ export abstract class Sidebar extends Drawable {
         }
     }
 
+    /**
+     * Close the sidebar.
+     */
     close() {
         if (this.opened) {
             this._opened = false;
@@ -50,11 +67,10 @@ export abstract class Sidebar extends Drawable {
         }
     }
 
+    /**
+     * Returns whether the sidebar is currently opened.
+     */
     get opened() {
         return this._opened;
-    }
-
-    get closed() {
-        return !this._opened;
     }
 }

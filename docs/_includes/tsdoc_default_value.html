@@ -1,0 +1,46 @@
+{%- comment -%}
+    Attempt to find a default value, based on
+    1/ a private attribute in same class
+    2/ a private attribute in upper class
+{%- endcomment -%}
+
+{%- assign default_value = nil -%}
+
+{%- for child in site.data.tsdoc.children -%}
+    {%- if child.name == "index" -%}
+        {%- continue -%}
+    {%- endif -%}
+    {%- if child.kind == 1 -%} {%- comment -%}External Module{%- endcomment -%}
+        {%- for moduleChild in child.children -%}
+            {%- if moduleChild.name == include.type -%}
+                {%- assign match = moduleChild.children
+                     | find: "name", include.attribute -%}
+                {%- if match -%}
+                    {%- assign default_value = match.defaultValue -%}
+                {%- endif -%}
+
+                {%- comment -%}
+
+                Commented out, because it does not account for
+                overrides in subclasses. Oh well.
+
+                {%- if default_value == nil -%}
+                    {%- for ref in moduleChild.extendedTypes -%}
+                        {%- capture default_value -%}
+                            {%- include tsdoc_default_value.html
+                                    type=ref.name
+                                    attribute=include.attribute -%}
+                        {%- endcapture -%}
+                    {%- endfor -%}
+                {%- endif -%}
+
+                {%- endcomment -%}
+
+            {%- endif -%}
+        {%- endfor -%}
+    {%- endif -%}
+{%- endfor -%}
+
+{%- if default_value != nil -%}
+    {{ default_value }}
+{%- endif -%}

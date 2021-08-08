@@ -1,5 +1,8 @@
 <dl class="methods">
     {%- for child in include.methods -%}
+        {%- if child.flags.isPrivate -%}
+            {%- continue -%}
+        {%- endif -%}
         {%- if child.kindString == "Constructor" -%}
             {%- for signature in child.signatures -%}
             <dt>

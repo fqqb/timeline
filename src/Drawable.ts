@@ -24,8 +24,7 @@ export abstract class Drawable {
     }
 
     /**
-     * Arbitrary data associated with this line. For example
-     * an identifier of a backend system.
+     * Arbitrary data. For example an identifier of a backend system.
      */
     get data() { return this._data; }
     set data(data: any) {

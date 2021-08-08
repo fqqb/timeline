@@ -1,10 +1,10 @@
-{% for child in site.data.tsdoc.children -%}
+{%- for child in site.data.tsdoc.children -%}
     {%- if child.name == "index" -%}
         {%- continue -%}
     {%- endif -%}
-    {% if child.kind == 1 -%} {% comment %}External Module{% endcomment %}
-        {% for moduleChild in child.children %}
-            {% if moduleChild.name == include.name  %}
+    {%- if child.kind == 1 -%} {%- comment -%}External Module{%- endcomment -%}
+        {%- for moduleChild in child.children -%}
+            {%- if moduleChild.name == include.name  -%}
                 <div class="tsdoc">
                     <h1>
                         <code>
@@ -92,21 +92,25 @@
 
                     {%- else -%}
                         <dl class="field-list">
-                            {%- assign size = all_properties | size -%}
+                            {%- assign non_private_properties = all_properties
+                                | where_exp: "prop", "prop.flags.isPrivate != true" -%}
+                            {%- assign size = non_private_properties | size -%}
                             {%- if size > 0 -%}
                                 <dt>Properties</dt>
                                 <dd>
-                                    {%- for property in all_properties -%}
+                                    {%- for property in non_private_properties -%}
                                         <a href="#{{ property.name }}">{{- property.name -}}</a>
                                         {%- unless forloop.last -%}, {% endunless -%}
                                     {%- endfor -%}
                                 </dd>
                             {%- endif -%}
-                            {%- assign size = all_methods | size -%}
+                            {%- assign non_private_methods = all_methods
+                                | where_exp: "meth", "meth.flags.isPrivate != true" -%}
+                            {%- assign size = non_private_methods | size -%}
                             {%- if size > 0 -%}
                                 <dt>Methods</dt>
                                 <dd>
-                                    {%- for method in all_methods -%}
+                                    {%- for method in non_private_methods -%}
                                         <a href="#{{ method.name }}">{{- method.name -}}</a>
                                         {%- unless forloop.last -%}, {% endunless -%}
                                     {%- endfor -%}
@@ -123,13 +127,15 @@
                             {%- endif -%}
                         </dl>
 
-                        {%- assign size = all_properties | size -%}
+                        {%- assign size = non_private_properties | size -%}
                         {%- if size > 0 -%}
                             <h2>Properties</h2>
-                            {% include tsdoc_properties.html properties=all_properties %}
+                            {%- include tsdoc_properties.html
+                                    properties=all_properties
+                                    moduleChild=moduleChild -%}
                         {%- endif -%}
 
-                        {%- assign size = all_methods | size -%}
+                        {%- assign size = non_private_methods | size -%}
                         {%- if size > 0 -%}
                             <h2>Methods</h2>
                             {% include tsdoc_methods.html methods=all_methods %}
