@@ -794,7 +794,7 @@ export class Timeline {
         let height = 0;
         for (const line of this.getLines()) {
             if (line.frozen) {
-                height += line.height;
+                height += line.height + nvl(line.borderWidth, this.lineBorderWidth);
             }
         }
 
