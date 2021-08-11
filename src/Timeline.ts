@@ -650,27 +650,25 @@ export class Timeline {
             .concat(this.getLines().filter(l => !l.frozen));
 
         let y = 0;
-        let contentHeight = 0;
         for (const line of lines) {
             line.coords.x = 0;
             line.coords.y = y;
             line.coords.width = this.mainWidth;
             line.coords.height = line.marginTop + line.getContentHeight() + line.marginBottom;
 
-            contentHeight += line.height;
             y += line.height + nvl(line.borderWidth, this.lineBorderWidth);
         }
 
         this.rootPanel.style.height = this.targetElement.clientHeight + 'px';
 
-        if (contentHeight > this.scrollPanel.clientHeight) {
+        if (y > this.scrollPanel.clientHeight) {
             this.scrollPanel.style.overflowY = 'scroll';
         } else {
             this.scrollPanel.style.overflowY = 'hidden';
         }
 
         let width = this.scrollPanel.clientWidth;
-        const height = Math.max(contentHeight, this.scrollPanel.clientHeight);
+        const height = Math.max(y, this.scrollPanel.clientHeight);
         this.g.resize(width, height);
 
         this.g.fillCanvas(this.backgroundOddColor);
