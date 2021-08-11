@@ -26,6 +26,62 @@ export interface RectGradientFill {
 
 export type RectFill = RectColorFill | RectGradientFill;
 
+export interface EllipseColorFill {
+    cx: number;
+    cy: number;
+    rx: number;
+    ry: number;
+    color: string;
+    startAngle?: number;
+    endAngle?: number;
+    anticlockwise?: boolean;
+    opacity?: number;
+}
+
+export interface EllipseGradientFill {
+    cx: number;
+    cy: number;
+    rx: number;
+    ry: number;
+    gradient: CanvasGradient;
+    startAngle?: number;
+    endAngle?: number;
+    anticlockwise?: boolean;
+    opacity?: number;
+}
+
+export type EllipseFill = EllipseColorFill | EllipseGradientFill;
+
+export interface EllipseColorStroke {
+    cx: number;
+    cy: number;
+    rx: number;
+    ry: number;
+    lineWidth: number;
+    color: string;
+    startAngle?: number;
+    endAngle?: number;
+    anticlockwise?: boolean;
+    opacity?: number;
+    dash?: number[];
+}
+
+export interface EllipseGradientStroke {
+    cx: number;
+    cy: number;
+    rx: number;
+    ry: number;
+    lineWidth: number;
+    gradient: CanvasGradient;
+    startAngle?: number;
+    endAngle?: number;
+    anticlockwise?: boolean;
+    opacity?: number;
+    dash?: number[];
+}
+
+export type EllipseStroke = EllipseColorStroke | EllipseGradientStroke;
+
 export interface TextFill {
     x: number;
     y: number;
@@ -145,6 +201,29 @@ export class Graphics {
         }
     }
 
+    fillEllipse(fill: EllipseFill) {
+        if ('color' in fill) {
+            this.ctx.fillStyle = fill.color;
+        } else {
+            this.ctx.fillStyle = fill.gradient;
+        }
+
+        if (fill.opacity !== undefined) {
+            this.ctx.globalAlpha = fill.opacity;
+        }
+
+        this.ctx.beginPath();
+        const startAngle = fill.startAngle ?? 0;
+        const endAngle = fill.endAngle ?? (2 * Math.PI);
+        this.ctx.ellipse(fill.cx, fill.cy, fill.rx, fill.ry, 0, startAngle,
+                endAngle, fill.anticlockwise);
+        this.ctx.fill();
+
+        if (fill.opacity !== undefined) {
+            this.ctx.globalAlpha = 1;
+        }
+    }
+
     fillText(fill: TextFill) {
         this.ctx.textBaseline = fill.baseline;
         this.ctx.textAlign = fill.align;
@@ -175,8 +254,8 @@ export class Graphics {
         if (stroke.opacity !== undefined) {
             this.ctx.globalAlpha = stroke.opacity;
         }
-        this.ctx.lineWidth = stroke.lineWidth || 1;
-        this.ctx.strokeStyle = stroke.color.toString();
+        this.ctx.lineWidth = stroke.lineWidth ?? 1;
+        this.ctx.strokeStyle = stroke.color;
         if (stroke.crispen && stroke.lineWidth) {
             const box = shrink(stroke, stroke.lineWidth / 2, stroke.lineWidth / 2);
             if (stroke.rx || stroke.ry) {
@@ -201,6 +280,33 @@ export class Graphics {
         }
     }
 
+    strokeEllipse(stroke: EllipseStroke) {
+        if (stroke.dash) {
+            this.ctx.setLineDash(stroke.dash);
+        }
+        if (stroke.opacity !== undefined) {
+            this.ctx.globalAlpha = stroke.opacity;
+        }
+        this.ctx.lineWidth = stroke.lineWidth ?? 1;
+        this.ctx.beginPath();
+        const startAngle = stroke.startAngle ?? 0;
+        const endAngle = stroke.endAngle ?? (2 * Math.PI);
+        this.ctx.ellipse(stroke.cx, stroke.cy, stroke.rx, stroke.ry,
+            0, startAngle, endAngle, stroke.anticlockwise);
+        if ('color' in stroke) {
+            this.ctx.strokeStyle = stroke.color;
+        } else {
+            this.ctx.strokeStyle = stroke.gradient;
+        }
+        this.ctx.stroke();
+        if (stroke.opacity !== undefined) {
+            this.ctx.globalAlpha = 1;
+        }
+        if (stroke.dash) {
+            this.ctx.setLineDash([]);
+        }
+    }
+
     strokePath(stroke: PathStroke) {
         if (stroke.dash) {
             this.ctx.setLineDash(stroke.dash);
@@ -213,7 +319,7 @@ export class Graphics {
                 this.ctx.moveTo(segment.x, segment.y);
             }
         }
-        this.ctx.lineWidth = stroke.lineWidth || 1;
+        this.ctx.lineWidth = stroke.lineWidth ?? 1;
         this.ctx.strokeStyle = stroke.color;
 
         if (stroke.opacity !== undefined) {

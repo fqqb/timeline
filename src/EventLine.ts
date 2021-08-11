@@ -1,8 +1,9 @@
 import { Event } from './Event';
-import { Graphics, Path } from './Graphics';
+import { Graphics } from './Graphics';
 import { HitRegionSpecification } from './HitCanvas';
 import { Line } from './Line';
 import { Bounds } from './positioning';
+import { drawCircle, drawDiamond, drawDot, drawReverseTriangle, drawTriangle, ShapeStyle } from './shapes';
 import { Timeline } from './Timeline';
 import { nvl } from './utils';
 
@@ -28,6 +29,7 @@ interface AnnotatedEvent extends Event {
 let eventSequence = 1;
 
 export type TextOverflow = 'clip' | 'show' | 'hide';
+export type MilestoneShape = 'circle' | 'diamond' | 'dot' | 'triangle' | 'reverse_triangle';
 
 export class EventLine extends Line {
 
@@ -47,6 +49,7 @@ export class EventLine extends Line {
     private _lineSpacing = 2;
     private _spaceBetween = 0;
     private _wrap = true;
+    private _milestoneShape: MilestoneShape = 'diamond';
 
     private eventsById = new Map<Event, string>();
     private annotatedEvents: AnnotatedEvent[] = [];
@@ -142,34 +145,50 @@ export class EventLine extends Line {
 
     private drawMilestone(g: Graphics, event: AnnotatedEvent, y: number) {
         const {
-            startX, stopX, renderStartX, renderStopX, label, font, marginLeft
+            startX, renderStartX, renderStopX, label, font, marginLeft
         } = event.drawInfo!;
-        const r = this.eventHeight / 2;
-        const path = new Path(startX + r, y)
-            .lineTo(stopX, y + r)
-            .lineTo(startX + r, y + r + r)
-            .lineTo(startX, y + r);
-        const eventColor = nvl(event.color, this.eventColor);
+
+        const bounds: Bounds = {
+            x: startX,
+            y,
+            width: this.eventHeight,
+            height: this.eventHeight,
+        }
         const opacity = event.hovered ? this.eventHoverOpacity : 1;
 
-        g.fillPath({ color: eventColor, path, opacity });
+        const shapeStyle: ShapeStyle = {
+            color: nvl(event.color, this.eventColor),
+            opacity,
+            borderWidth: nvl(event.borderWidth, this.eventBorderWidth),
+            borderColor: nvl(event.borderColor, this.eventBorderColor),
+        };
+
+        switch (this.milestoneShape) {
+            case 'diamond':
+                drawDiamond(g, bounds, shapeStyle);
+                break;
+            case 'circle':
+                drawCircle(g, bounds, shapeStyle);
+                break;
+            case 'triangle':
+                drawTriangle(g, bounds, shapeStyle);
+                break;
+            case 'reverse_triangle':
+                drawReverseTriangle(g, bounds, shapeStyle);
+                break;
+            case 'dot':
+                drawDot(g, bounds, shapeStyle);
+                break;
+        }
 
         // Hit region covers both the shape, and potential outside text
         const hitRegion = g.addHitRegion(event.region);
         hitRegion.addRect(renderStartX, y, renderStopX - renderStartX, this.eventHeight);
 
-        const borderWidth = nvl(event.borderWidth, this.eventBorderWidth);
-        borderWidth && g.strokePath({
-            path,
-            color: nvl(event.borderColor, this.eventBorderColor),
-            lineWidth: borderWidth,
-            opacity,
-        });
-
         if (label) {
             g.fillText({
-                x: stopX + marginLeft,
-                y: y + r,
+                x: startX + bounds.width + marginLeft,
+                y: y + bounds.height / 2,
                 text: label,
                 font,
                 baseline: 'middle',
@@ -521,6 +540,16 @@ export class EventLine extends Line {
     get eventHoverOpacity() { return this._eventHoverOpacity; }
     set eventHoverOpacity(eventHoverOpacity: number) {
         this._eventHoverOpacity = eventHoverOpacity;
+        this.reportMutation();
+    }
+
+    /**
+     * In case the event is a milestone (when it has no stop time),
+     * this is the shape drawn for it.
+     */
+    get milestoneShape() { return this._milestoneShape; }
+    set milestoneShape(milestoneShape: MilestoneShape) {
+        this._milestoneShape = milestoneShape;
         this.reportMutation();
     }
 }
