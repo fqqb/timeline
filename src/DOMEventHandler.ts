@@ -145,12 +145,19 @@ export class DOMEventHandler {
         }
     }
 
-    private onCanvasMouseOut(event: MouseEvent) {
-        this.maybeFireViewportMouseOut(event);
+    private onCanvasMouseOut(domEvent: MouseEvent) {
+        if (this.prevEnteredRegion && this.prevEnteredRegion.mouseOut) {
+            const mouseEvent = this.toTimelineMouseEvent(domEvent);
+            this.prevEnteredRegion.mouseOut(mouseEvent);
+        }
+        this.prevEnteredRegion = undefined;
+
+        this.maybeFireViewportMouseOut(domEvent);
+        this.isDividerHover = false;
         this.isViewportHover = false;
 
-        event.preventDefault();
-        event.stopPropagation();
+        domEvent.preventDefault();
+        domEvent.stopPropagation();
     }
 
     private onCanvasMouseMove(domEvent: MouseEvent) {
