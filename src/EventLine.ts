@@ -286,11 +286,13 @@ export class EventLine extends Line {
 
                 renderStartX = startX;
                 renderStopX = stopX;
-                if (label) {
+                labelFitsBox = false;
+                if (label && this.eventTextOverflow === 'show') {
                     const fm = g.measureText(label, font);
                     renderStopX += marginLeft + fm.width;
+                } else {
+                    label = '';
                 }
-                labelFitsBox = false;
             } else {
                 if (offscreenStart) {
                     label = '◀' + label;
