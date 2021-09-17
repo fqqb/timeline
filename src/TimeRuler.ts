@@ -47,8 +47,8 @@ export class TimeRuler extends Band {
     }
 
     /** @hidden */
-    drawOverlay(g: Graphics) {
-        this.scaleRenderer!.drawOverlay(g, this);
+    drawUnderlay(g: Graphics) {
+        this.scaleRenderer!.drawUnderlay(g, this);
     }
 
     get fullHeight() { return this._fullHeight; }
@@ -73,7 +73,7 @@ export class TimeRuler extends Band {
     }
 
     /**
-     * The scale for this axis. Scales render ticks and labels.
+     * The scale for this ruler. Scales render ticks and labels.
      *
      * If undefined, an automatic scale is determined based
      * on the visible time range.
@@ -120,9 +120,9 @@ export class TimeRuler extends Band {
 
 interface Scale {
     getPreferredUnitWidth(): number;
-    measureUnitWidth(axis: TimeRuler): number;
-    drawBandContent(g: Graphics, axis: TimeRuler): void;
-    drawOverlay(g: Graphics, axis: TimeRuler): void;
+    measureUnitWidth(ruler: TimeRuler): number;
+    drawBandContent(g: Graphics, ruler: TimeRuler): void;
+    drawUnderlay(g: Graphics, ruler: TimeRuler): void;
 }
 
 /**
@@ -139,30 +139,30 @@ class HourScale implements Scale {
         return 38;
     }
 
-    measureUnitWidth(axis: TimeRuler) {
-        const x1 = axis.timeline.start;
+    measureUnitWidth(ruler: TimeRuler) {
+        const x1 = ruler.timeline.start;
         const x2 = x1 + 3600000; // 1 hour
-        return axis.timeline.positionTime(x2) - axis.timeline.positionTime(x1);
+        return ruler.timeline.positionTime(x2) - ruler.timeline.positionTime(x1);
     }
 
-    drawBandContent(g: Graphics, axis: TimeRuler) {
-        let t = DateTime.fromMillis(axis.timeline.start);
-        if (axis.timezone) {
-            t = t.setZone(axis.timezone);
+    drawBandContent(g: Graphics, ruler: TimeRuler) {
+        let t = DateTime.fromMillis(ruler.timeline.start);
+        if (ruler.timezone) {
+            t = t.setZone(ruler.timezone);
         }
         t = t.startOf('hour');
 
-        const halfHourDistance = axis.timeline.distanceBetween(t.toMillis(), t.plus({ minutes: 30 }).toMillis());
-        const quarterHourDistance = axis.timeline.distanceBetween(t.toMillis(), t.plus({ minutes: 15 }).toMillis());
+        const halfHourDistance = ruler.timeline.distanceBetween(t.toMillis(), t.plus({ minutes: 30 }).toMillis());
+        const quarterHourDistance = ruler.timeline.distanceBetween(t.toMillis(), t.plus({ minutes: 15 }).toMillis());
 
         this.majorX.length = 0;
         this.majorLabels.length = 0;
         this.midX.length = 0;
         this.minorX.length = 0;
 
-        const stop = DateTime.fromMillis(axis.timeline.stop);
+        const stop = DateTime.fromMillis(ruler.timeline.stop);
         while (t <= stop) {
-            const x = axis.timeline.positionTime(t.toMillis());
+            const x = ruler.timeline.positionTime(t.toMillis());
 
             this.majorX.push(x);
             this.minorX.push(x + quarterHourDistance);
@@ -188,11 +188,11 @@ class HourScale implements Scale {
             path.lineTo(Math.round(x) + 0.5, height);
         }
         g.strokePath({
-            color: axis.timeline.lineBorderColor,
+            color: ruler.timeline.bandBorderColor,
             path,
         });
 
-        const font = `${axis.timeline.textSize}px ${axis.timeline.fontFamily}`;
+        const font = `${ruler.timeline.textSize}px ${ruler.timeline.fontFamily}`;
         for (let i = 0; i < this.majorLabels.length; i++) {
             const label = this.majorLabels[i];
             const x = this.majorX[i];
@@ -202,7 +202,7 @@ class HourScale implements Scale {
                     y: height * 0.75,
                     text: '00',
                     font,
-                    color: axis.textColor,
+                    color: ruler.textColor,
                     baseline: 'middle',
                     align: 'left',
                 });
@@ -211,7 +211,7 @@ class HourScale implements Scale {
                     y: height / 4,
                     text: label,
                     font,
-                    color: axis.textColor,
+                    color: ruler.textColor,
                     baseline: 'middle',
                     align: 'left',
                 });
@@ -221,7 +221,7 @@ class HourScale implements Scale {
                     y: height / 2,
                     text: label,
                     font,
-                    color: axis.textColor,
+                    color: ruler.textColor,
                     baseline: 'middle',
                     align: 'left',
                 });
@@ -229,15 +229,15 @@ class HourScale implements Scale {
         }
     }
 
-    drawOverlay(g: Graphics, axis: TimeRuler) {
-        if (axis.fullHeight) {
+    drawUnderlay(g: Graphics, ruler: TimeRuler) {
+        if (ruler.fullHeight) {
             const path = new Path(0, 0);
             for (const x of this.majorX) {
-                path.moveTo(Math.round(x) + 0.5, axis.y + axis.height);
+                path.moveTo(Math.round(x) + 0.5, ruler.y + ruler.height);
                 path.lineTo(Math.round(x) + 0.5, g.canvas.height);
             }
             g.strokePath({
-                color: axis.timeline.lineBorderColor,
+                color: ruler.timeline.bandBorderColor,
                 path,
             });
         }
@@ -255,32 +255,32 @@ class QuarterDayScale implements Scale {
         return 30;
     }
 
-    measureUnitWidth(axis: TimeRuler) {
-        const x1 = axis.timeline.start;
+    measureUnitWidth(ruler: TimeRuler) {
+        const x1 = ruler.timeline.start;
         const x2 = x1 + (6 * 3600000); // 1/4 day
-        return axis.timeline.positionTime(x2) - axis.timeline.positionTime(x1);
+        return ruler.timeline.positionTime(x2) - ruler.timeline.positionTime(x1);
     }
 
-    drawBandContent(g: Graphics, axis: TimeRuler) {
-        let t = DateTime.fromMillis(axis.timeline.start);
-        if (axis.timezone) {
-            t = t.setZone(axis.timezone);
+    drawBandContent(g: Graphics, ruler: TimeRuler) {
+        let t = DateTime.fromMillis(ruler.timeline.start);
+        if (ruler.timezone) {
+            t = t.setZone(ruler.timezone);
         }
         t = t.startOf('day');
 
         this.majorX.length = 0;
 
         const height = g.canvas.height;
-        const font = `${axis.timeline.textSize}px ${axis.timeline.fontFamily}`;
+        const font = `${ruler.timeline.textSize}px ${ruler.timeline.fontFamily}`;
 
-        const stop = DateTime.fromMillis(axis.timeline.stop);
+        const stop = DateTime.fromMillis(ruler.timeline.stop);
 
         while (t <= stop) {
-            const x = axis.timeline.positionTime(t.toMillis());
+            const x = ruler.timeline.positionTime(t.toMillis());
             this.majorX.push(x);
 
             g.strokePath({
-                color: axis.timeline.lineBorderColor,
+                color: ruler.timeline.bandBorderColor,
                 path: new Path(0, 0)
                     .moveTo(Math.round(x) + 0.5, 0)
                     .lineTo(Math.round(x) + 0.5, height),
@@ -290,7 +290,7 @@ class QuarterDayScale implements Scale {
                 y: height / 4,
                 text: t.toFormat('EEE dd/MM'),
                 font,
-                color: axis.textColor,
+                color: ruler.textColor,
                 baseline: 'middle',
                 align: 'left',
             });
@@ -298,21 +298,21 @@ class QuarterDayScale implements Scale {
             for (const hour of [0, 6, 12, 18]) {
                 const sub = t.set({ hour });
                 if (hour !== 0) {
-                    const subX = axis.timeline.positionTime(sub.toMillis());
+                    const subX = ruler.timeline.positionTime(sub.toMillis());
                     g.strokePath({
-                        color: axis.timeline.lineBorderColor,
+                        color: ruler.timeline.bandBorderColor,
                         path: new Path(0, 0)
                             .moveTo(Math.round(subX) + 0.5, height / 2)
                             .lineTo(Math.round(subX) + 0.5, height),
                     });
                 }
-                const subLabelX = axis.timeline.positionTime(sub.plus({ hours: 3 }).toMillis());
+                const subLabelX = ruler.timeline.positionTime(sub.plus({ hours: 3 }).toMillis());
                 g.fillText({
                     x: subLabelX,
                     y: height * 0.75,
                     text: sub.toFormat('HH'),
                     font,
-                    color: axis.textColor,
+                    color: ruler.textColor,
                     baseline: 'middle',
                     align: 'center',
                 });
@@ -322,15 +322,15 @@ class QuarterDayScale implements Scale {
         }
     }
 
-    drawOverlay(g: Graphics, axis: TimeRuler) {
-        if (axis.fullHeight) {
+    drawUnderlay(g: Graphics, ruler: TimeRuler) {
+        if (ruler.fullHeight) {
             const path = new Path(0, 0);
             for (const x of this.majorX) {
-                path.moveTo(Math.round(x) + 0.5, axis.y + axis.height);
+                path.moveTo(Math.round(x) + 0.5, ruler.y + ruler.height);
                 path.lineTo(Math.round(x) + 0.5, g.canvas.height);
             }
             g.strokePath({
-                color: axis.timeline.lineBorderColor,
+                color: ruler.timeline.bandBorderColor,
                 path,
             });
         }
@@ -348,32 +348,32 @@ class WeekDayScale implements Scale {
         return 20;
     }
 
-    measureUnitWidth(axis: TimeRuler) {
-        const x1 = axis.timeline.start;
+    measureUnitWidth(ruler: TimeRuler) {
+        const x1 = ruler.timeline.start;
         const x2 = x1 + (24 * 3600000); // 1 day
-        return axis.timeline.positionTime(x2) - axis.timeline.positionTime(x1);
+        return ruler.timeline.positionTime(x2) - ruler.timeline.positionTime(x1);
     }
 
-    drawBandContent(g: Graphics, axis: TimeRuler) {
-        let t = DateTime.fromMillis(axis.timeline.start);
-        if (axis.timezone) {
-            t = t.setZone(axis.timezone);
+    drawBandContent(g: Graphics, ruler: TimeRuler) {
+        let t = DateTime.fromMillis(ruler.timeline.start);
+        if (ruler.timezone) {
+            t = t.setZone(ruler.timezone);
         }
         t = t.startOf('week');
 
         this.majorX.length = 0;
 
         const height = g.canvas.height;
-        const font = `${axis.timeline.textSize}px ${axis.timeline.fontFamily}`;
+        const font = `${ruler.timeline.textSize}px ${ruler.timeline.fontFamily}`;
 
-        const stop = DateTime.fromMillis(axis.timeline.stop);
+        const stop = DateTime.fromMillis(ruler.timeline.stop);
 
         while (t <= stop) {
-            const x = axis.timeline.positionTime(t.toMillis());
+            const x = ruler.timeline.positionTime(t.toMillis());
             this.majorX.push(x);
 
             g.strokePath({
-                color: axis.timeline.lineBorderColor,
+                color: ruler.timeline.bandBorderColor,
                 path: new Path(0, 0)
                     .moveTo(Math.round(x) + 0.5, 0)
                     .lineTo(Math.round(x) + 0.5, height),
@@ -383,7 +383,7 @@ class WeekDayScale implements Scale {
                 y: height / 4,
                 text: t.toFormat("dd MMM, yy"),
                 font,
-                color: axis.textColor,
+                color: ruler.textColor,
                 baseline: 'middle',
                 align: 'left',
             });
@@ -391,21 +391,21 @@ class WeekDayScale implements Scale {
             for (let weekday = 1; weekday <= 7; weekday++) {
                 const sub = t.set({ weekday });
                 if (weekday !== 1) {
-                    const subX = axis.timeline.positionTime(sub.toMillis());
+                    const subX = ruler.timeline.positionTime(sub.toMillis());
                     g.strokePath({
-                        color: axis.timeline.lineBorderColor,
+                        color: ruler.timeline.bandBorderColor,
                         path: new Path(0, 0)
                             .moveTo(Math.round(subX) + 0.5, height / 2)
                             .lineTo(Math.round(subX) + 0.5, height),
                     });
                 }
-                const subLabelX = axis.timeline.positionTime(sub.plus({ hours: 12 }).toMillis());
+                const subLabelX = ruler.timeline.positionTime(sub.plus({ hours: 12 }).toMillis());
                 g.fillText({
                     x: subLabelX,
                     y: height * 0.75,
                     text: sub.toFormat('EEEEE'),
                     font,
-                    color: axis.textColor,
+                    color: ruler.textColor,
                     baseline: 'middle',
                     align: 'center',
                 });
@@ -415,15 +415,15 @@ class WeekDayScale implements Scale {
         }
     }
 
-    drawOverlay(g: Graphics, axis: TimeRuler) {
-        if (axis.fullHeight) {
+    drawUnderlay(g: Graphics, ruler: TimeRuler) {
+        if (ruler.fullHeight) {
             const path = new Path(0, 0);
             for (const x of this.majorX) {
-                path.moveTo(Math.round(x) + 0.5, axis.y + axis.height);
+                path.moveTo(Math.round(x) + 0.5, ruler.y + ruler.height);
                 path.lineTo(Math.round(x) + 0.5, g.canvas.height);
             }
             g.strokePath({
-                color: axis.timeline.lineBorderColor,
+                color: ruler.timeline.bandBorderColor,
                 path,
             });
         }
@@ -441,33 +441,33 @@ class WeekScale implements Scale {
         return 50;
     }
 
-    measureUnitWidth(axis: TimeRuler) {
-        const x1 = axis.timeline.start;
+    measureUnitWidth(ruler: TimeRuler) {
+        const x1 = ruler.timeline.start;
         const x2 = x1 + (7 * 24 * 3600000); // 1 week
-        return axis.timeline.positionTime(x2) - axis.timeline.positionTime(x1);
+        return ruler.timeline.positionTime(x2) - ruler.timeline.positionTime(x1);
     }
 
-    drawBandContent(g: Graphics, axis: TimeRuler) {
-        let t = DateTime.fromMillis(axis.timeline.start);
-        if (axis.timezone) {
-            t = t.setZone(axis.timezone);
+    drawBandContent(g: Graphics, ruler: TimeRuler) {
+        let t = DateTime.fromMillis(ruler.timeline.start);
+        if (ruler.timezone) {
+            t = t.setZone(ruler.timezone);
         }
         t = t.startOf('month');
 
         this.majorX.length = 0;
 
         const height = g.canvas.height;
-        const font = `${axis.timeline.textSize}px ${axis.timeline.fontFamily}`;
+        const font = `${ruler.timeline.textSize}px ${ruler.timeline.fontFamily}`;
 
         const start = t;
-        const stop = DateTime.fromMillis(axis.timeline.stop);
+        const stop = DateTime.fromMillis(ruler.timeline.stop);
 
         while (t <= stop) {
-            const x = axis.timeline.positionTime(t.toMillis());
+            const x = ruler.timeline.positionTime(t.toMillis());
             this.majorX.push(x);
 
             g.strokePath({
-                color: axis.timeline.lineBorderColor,
+                color: ruler.timeline.bandBorderColor,
                 path: new Path(0, 0)
                     .moveTo(Math.round(x) + 0.5, 0)
                     .lineTo(Math.round(x) + 0.5, height / 2),
@@ -477,7 +477,7 @@ class WeekScale implements Scale {
                 y: height / 4,
                 text: t.toFormat("LLLL"),
                 font,
-                color: axis.textColor,
+                color: ruler.textColor,
                 baseline: 'middle',
                 align: 'left',
             });
@@ -487,21 +487,21 @@ class WeekScale implements Scale {
 
         t = start.startOf('week');
         while (t <= stop) {
-            const x = axis.timeline.positionTime(t.toMillis());
+            const x = ruler.timeline.positionTime(t.toMillis());
 
             g.strokePath({
-                color: axis.timeline.lineBorderColor,
+                color: ruler.timeline.bandBorderColor,
                 path: new Path(0, 0)
                     .moveTo(Math.round(x) + 0.5, height / 2)
                     .lineTo(Math.round(x) + 0.5, height),
             });
-            const subLabelX = axis.timeline.positionTime(t.plus({ days: 3, hours: 12 }).toMillis());
+            const subLabelX = ruler.timeline.positionTime(t.plus({ days: 3, hours: 12 }).toMillis());
             g.fillText({
                 x: subLabelX,
                 y: height * 0.75,
                 text: t.toFormat('dd/MM'),
                 font,
-                color: axis.textColor,
+                color: ruler.textColor,
                 baseline: 'middle',
                 align: 'center',
             });
@@ -510,15 +510,15 @@ class WeekScale implements Scale {
         }
     }
 
-    drawOverlay(g: Graphics, axis: TimeRuler) {
-        if (axis.fullHeight) {
+    drawUnderlay(g: Graphics, ruler: TimeRuler) {
+        if (ruler.fullHeight) {
             const path = new Path(0, 0);
             for (const x of this.majorX) {
-                path.moveTo(Math.round(x) + 0.5, axis.y + axis.height);
+                path.moveTo(Math.round(x) + 0.5, ruler.y + ruler.height);
                 path.lineTo(Math.round(x) + 0.5, g.canvas.height);
             }
             g.strokePath({
-                color: axis.timeline.lineBorderColor,
+                color: ruler.timeline.bandBorderColor,
                 path,
             });
         }
@@ -536,32 +536,32 @@ class MonthScale implements Scale {
         return 32;
     }
 
-    measureUnitWidth(axis: TimeRuler) {
-        const x1 = axis.timeline.start;
+    measureUnitWidth(ruler: TimeRuler) {
+        const x1 = ruler.timeline.start;
         const x2 = x1 + (30 * 24 * 3600000); // ~1 month
-        return axis.timeline.positionTime(x2) - axis.timeline.positionTime(x1);
+        return ruler.timeline.positionTime(x2) - ruler.timeline.positionTime(x1);
     }
 
-    drawBandContent(g: Graphics, axis: TimeRuler) {
-        let t = DateTime.fromMillis(axis.timeline.start);
-        if (axis.timezone) {
-            t = t.setZone(axis.timezone);
+    drawBandContent(g: Graphics, ruler: TimeRuler) {
+        let t = DateTime.fromMillis(ruler.timeline.start);
+        if (ruler.timezone) {
+            t = t.setZone(ruler.timezone);
         }
         t = t.startOf('year');
 
         this.majorX.length = 0;
 
         const height = g.canvas.height;
-        const font = `${axis.timeline.textSize}px ${axis.timeline.fontFamily}`;
+        const font = `${ruler.timeline.textSize}px ${ruler.timeline.fontFamily}`;
 
-        const stop = DateTime.fromMillis(axis.timeline.stop);
+        const stop = DateTime.fromMillis(ruler.timeline.stop);
 
         while (t <= stop) {
-            const x = axis.timeline.positionTime(t.toMillis());
+            const x = ruler.timeline.positionTime(t.toMillis());
             this.majorX.push(x);
 
             g.strokePath({
-                color: axis.timeline.lineBorderColor,
+                color: ruler.timeline.bandBorderColor,
                 path: new Path(0, 0)
                     .moveTo(Math.round(x) + 0.5, 0)
                     .lineTo(Math.round(x) + 0.5, height),
@@ -571,7 +571,7 @@ class MonthScale implements Scale {
                 y: height / 4,
                 text: t.toFormat("yyyy"),
                 font,
-                color: axis.textColor,
+                color: ruler.textColor,
                 baseline: 'middle',
                 align: 'left',
             });
@@ -579,22 +579,22 @@ class MonthScale implements Scale {
             for (let month = 1; month <= 12; month++) {
                 const sub = t.set({ month });
                 if (month !== 1) {
-                    const subX = axis.timeline.positionTime(sub.toMillis());
+                    const subX = ruler.timeline.positionTime(sub.toMillis());
                     g.strokePath({
-                        color: axis.timeline.lineBorderColor,
+                        color: ruler.timeline.bandBorderColor,
                         path: new Path(0, 0)
                             .moveTo(Math.round(subX) + 0.5, height / 2)
                             .lineTo(Math.round(subX) + 0.5, height),
                     });
                 }
                 const x2 = sub.plus({ months: 1 }).toMillis();
-                const subLabelX = axis.timeline.positionTime((sub.toMillis() + x2) / 2);
+                const subLabelX = ruler.timeline.positionTime((sub.toMillis() + x2) / 2);
                 g.fillText({
                     x: subLabelX,
                     y: height * 0.75,
                     text: sub.toFormat('LLL'),
                     font,
-                    color: axis.textColor,
+                    color: ruler.textColor,
                     baseline: 'middle',
                     align: 'center',
                 });
@@ -604,15 +604,15 @@ class MonthScale implements Scale {
         }
     }
 
-    drawOverlay(g: Graphics, axis: TimeRuler) {
-        if (axis.fullHeight) {
+    drawUnderlay(g: Graphics, ruler: TimeRuler) {
+        if (ruler.fullHeight) {
             const path = new Path(0, 0);
             for (const x of this.majorX) {
-                path.moveTo(Math.round(x) + 0.5, axis.y + axis.height);
+                path.moveTo(Math.round(x) + 0.5, ruler.y + ruler.height);
                 path.lineTo(Math.round(x) + 0.5, g.canvas.height);
             }
             g.strokePath({
-                color: axis.timeline.lineBorderColor,
+                color: ruler.timeline.bandBorderColor,
                 path,
             });
         }
@@ -628,29 +628,29 @@ class YearScale implements Scale {
         return 49;
     }
 
-    measureUnitWidth(axis: TimeRuler) {
-        const x1 = axis.timeline.start;
+    measureUnitWidth(ruler: TimeRuler) {
+        const x1 = ruler.timeline.start;
         const x2 = x1 + (365 * 24 * 3600000); // ~1 year
-        return axis.timeline.positionTime(x2) - axis.timeline.positionTime(x1);
+        return ruler.timeline.positionTime(x2) - ruler.timeline.positionTime(x1);
     }
 
-    drawBandContent(g: Graphics, axis: TimeRuler) {
-        let t = DateTime.fromMillis(axis.timeline.start);
-        if (axis.timezone) {
-            t = t.setZone(axis.timezone);
+    drawBandContent(g: Graphics, ruler: TimeRuler) {
+        let t = DateTime.fromMillis(ruler.timeline.start);
+        if (ruler.timezone) {
+            t = t.setZone(ruler.timezone);
         }
         t = t.startOf('year');
 
         const height = g.canvas.height;
-        const font = `${axis.timeline.textSize}px ${axis.timeline.fontFamily}`;
+        const font = `${ruler.timeline.textSize}px ${ruler.timeline.fontFamily}`;
 
-        const stop = DateTime.fromMillis(axis.timeline.stop);
+        const stop = DateTime.fromMillis(ruler.timeline.stop);
 
         while (t <= stop) {
-            const x = axis.timeline.positionTime(t.toMillis());
+            const x = ruler.timeline.positionTime(t.toMillis());
 
             g.strokePath({
-                color: axis.timeline.lineBorderColor,
+                color: ruler.timeline.bandBorderColor,
                 path: new Path(0, 0)
                     .moveTo(Math.round(x) + 0.5, 0)
                     .lineTo(Math.round(x) + 0.5, height),
@@ -660,7 +660,7 @@ class YearScale implements Scale {
                 y: height / 2,
                 text: t.toFormat("yyyy"),
                 font,
-                color: axis.textColor,
+                color: ruler.textColor,
                 baseline: 'middle',
                 align: 'left',
             });
@@ -669,7 +669,7 @@ class YearScale implements Scale {
         }
     }
 
-    drawOverlay(g: Graphics, axis: TimeRuler) {
+    drawUnderlay(g: Graphics, ruler: TimeRuler) {
     }
 }
 
@@ -682,30 +682,30 @@ class DecadeScale implements Scale {
         return 49;
     }
 
-    measureUnitWidth(axis: TimeRuler) {
-        const x1 = axis.timeline.start;
+    measureUnitWidth(ruler: TimeRuler) {
+        const x1 = ruler.timeline.start;
         const x2 = x1 + (10 * 365 * 24 * 3600000); // ~10 year
-        return axis.timeline.positionTime(x2) - axis.timeline.positionTime(x1);
+        return ruler.timeline.positionTime(x2) - ruler.timeline.positionTime(x1);
     }
 
-    drawBandContent(g: Graphics, axis: TimeRuler) {
-        let t = DateTime.fromMillis(axis.timeline.start);
-        if (axis.timezone) {
-            t = t.setZone(axis.timezone);
+    drawBandContent(g: Graphics, ruler: TimeRuler) {
+        let t = DateTime.fromMillis(ruler.timeline.start);
+        if (ruler.timezone) {
+            t = t.setZone(ruler.timezone);
         }
         t = t.startOf('year');
         t = t.set({ year: t.year - (t.year % 10) });
 
         const height = g.canvas.height;
-        const font = `${axis.timeline.textSize}px ${axis.timeline.fontFamily}`;
+        const font = `${ruler.timeline.textSize}px ${ruler.timeline.fontFamily}`;
 
-        const stop = DateTime.fromMillis(axis.timeline.stop);
+        const stop = DateTime.fromMillis(ruler.timeline.stop);
 
         while (t <= stop) {
-            const x = axis.timeline.positionTime(t.toMillis());
+            const x = ruler.timeline.positionTime(t.toMillis());
 
             g.strokePath({
-                color: axis.timeline.lineBorderColor,
+                color: ruler.timeline.bandBorderColor,
                 path: new Path(0, 0)
                     .moveTo(Math.round(x) + 0.5, 0)
                     .lineTo(Math.round(x) + 0.5, height),
@@ -715,7 +715,7 @@ class DecadeScale implements Scale {
                 y: height / 2,
                 text: t.toFormat("yyyy") + 's',
                 font,
-                color: axis.textColor,
+                color: ruler.textColor,
                 baseline: 'middle',
                 align: 'left',
             });
@@ -724,6 +724,6 @@ class DecadeScale implements Scale {
         }
     }
 
-    drawOverlay(g: Graphics, axis: TimeRuler) {
+    drawUnderlay(g: Graphics, ruler: TimeRuler) {
     }
 }

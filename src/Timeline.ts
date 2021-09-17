@@ -684,7 +684,6 @@ export class Timeline {
     private drawOffscreen(g: Graphics) {
         let stripedColor = this.backgroundOddColor;
         for (const drawable of this._drawables) {
-
             // Default (striped) background
             if (drawable instanceof Band) {
                 g.fillRect({
@@ -709,7 +708,9 @@ export class Timeline {
                     });
                 }
             }
+        }
 
+        for (const drawable of this._drawables) {
             drawable.drawUnderlay(g);
 
             // Bottom horizontal divider
