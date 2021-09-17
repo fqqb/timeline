@@ -67,8 +67,8 @@ export class Timeline {
     private _backgroundOddColor = 'white';
     private _backgroundEvenColor = '#f5f5f5';
     private _foregroundColor = 'grey';
-    private _lineBorderColor = '#e8e8e8';
-    private _lineBorderWidth = 1;
+    private _bandBorderColor = '#e8e8e8';
+    private _bandBorderWidth = 1;
     private _fontFamily = 'Verdana, Geneva, sans-serif';
     private _textSize = 10;
 

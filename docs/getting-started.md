@@ -51,7 +51,7 @@ band1.events = [
 
 const band2 = new EventBand(timeline);
 band2.label = 'Band 2';
-band2.eventBorderWidth = 0;
+band2.eventBorderWidth = 1;
 band2.eventColor = '#ffe4b5';
 band2.events = [
     { start: 10, stop: 50, label: 'Event 2' },

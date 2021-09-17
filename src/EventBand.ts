@@ -32,8 +32,8 @@ export type MilestoneShape = 'circle' | 'diamond' | 'dot' | 'triangle' | 'revers
 
 export class EventBand extends Band {
 
-    private _eventBorderColor = '#3d94c7';
-    private _eventBorderWidth = 1;
+    private _eventBorderColor = '#000000';
+    private _eventBorderWidth = 0;
     private _eventColor = '#77b1e1';
     private _eventCornerRadius = 1;
     private _eventCursor = 'pointer';
