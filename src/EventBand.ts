@@ -1,7 +1,7 @@
+import { Band } from './Band';
 import { Event } from './Event';
 import { Graphics } from './Graphics';
 import { HitRegionSpecification } from './HitCanvas';
-import { Line } from './Line';
 import { Bounds } from './positioning';
 import { drawCircle, drawDiamond, drawDot, drawReverseTriangle, drawTriangle, ShapeStyle } from './shapes';
 import { Timeline } from './Timeline';
@@ -30,7 +30,7 @@ let eventSequence = 1;
 export type TextOverflow = 'clip' | 'show' | 'hide';
 export type MilestoneShape = 'circle' | 'diamond' | 'dot' | 'triangle' | 'reverse_triangle';
 
-export class EventLine extends Line {
+export class EventBand extends Band {
 
     private _eventBorderColor = '#3d94c7';
     private _eventBorderWidth = 1;
@@ -47,12 +47,12 @@ export class EventLine extends Line {
     private _events: Event[] = [];
     private _lineSpacing = 2;
     private _spaceBetween = 0;
-    private _wrap = true;
+    private _multiline = true;
     private _milestoneShape: MilestoneShape = 'diamond';
 
     private eventsById = new Map<Event, string>();
     private annotatedEvents: AnnotatedEvent[] = [];
-    private sublines: AnnotatedEvent[][] = [];
+    private lines: AnnotatedEvent[][] = [];
 
     constructor(timeline: Timeline) {
         super(timeline);
@@ -115,12 +115,12 @@ export class EventLine extends Line {
     calculateContentHeight(g: Graphics) {
         this.measureEvents(g);
         const visibleEvents = this.annotatedEvents.filter(event => !!event.drawInfo);
-        this.sublines = this.wrap ? this.wrapEvents(visibleEvents) : [visibleEvents];
+        this.lines = this.multiline ? this.wrapEvents(visibleEvents) : [visibleEvents];
 
         let newHeight;
-        if (this.sublines.length) {
-            newHeight = this.eventHeight * this.sublines.length;
-            newHeight += this.lineSpacing * (this.sublines.length - 1);
+        if (this.lines.length) {
+            newHeight = this.eventHeight * this.lines.length;
+            newHeight += this.lineSpacing * (this.lines.length - 1);
             return newHeight;
         } else {
             return this.eventHeight;
@@ -128,11 +128,11 @@ export class EventLine extends Line {
     }
 
     /** @hidden */
-    drawLineContent(g: Graphics) {
-        for (let i = 0; i < this.sublines.length; i++) {
-            const subline = this.sublines[i];
+    drawBandContent(g: Graphics) {
+        for (let i = 0; i < this.lines.length; i++) {
+            const line = this.lines[i];
             const offsetY = i * (this.lineSpacing + this.eventHeight);
-            for (const event of subline) {
+            for (const event of line) {
                 if (event.drawInfo!.milestone) {
                     this.drawMilestone(g, event, offsetY);
                 } else {
@@ -381,7 +381,7 @@ export class EventLine extends Line {
     }
 
     /**
-     * List of events to be drawn on this line.
+     * List of events to be drawn on this band.
      *
      * An event is allowed to fall outside of the visible
      * time range, and in fact this can be used
@@ -396,7 +396,7 @@ export class EventLine extends Line {
     }
 
     /**
-     * Height in points of events belonging to this line.
+     * Height in points of events belonging to this band.
      */
     get eventHeight() { return this._eventHeight; }
     set eventHeight(eventHeight: number) {
@@ -406,7 +406,7 @@ export class EventLine extends Line {
 
     /**
      * Default background color of events belonging to this
-     * line.
+     * band.
      */
     get eventColor() { return this._eventColor; }
     set eventColor(eventColor: string) {
@@ -415,7 +415,7 @@ export class EventLine extends Line {
     }
 
     /**
-     * Default text color of events belonging to this line.
+     * Default text color of events belonging to this band.
      */
     get eventTextColor() { return this._eventTextColor; }
     set eventTextColor(eventTextColor: string) {
@@ -424,7 +424,7 @@ export class EventLine extends Line {
     }
 
     /**
-     * Default text size of events belonging to this line.
+     * Default text size of events belonging to this band.
      */
     get eventTextSize() { return this._eventTextSize; }
     set eventTextSize(eventTextSize: number) {
@@ -433,7 +433,7 @@ export class EventLine extends Line {
     }
 
     /**
-     * Default font family of events belonging to this line.
+     * Default font family of events belonging to this band.
      */
     get eventFontFamily() { return this._eventFontFamily; }
     set eventFontFamily(eventFontFamily: string) {
@@ -443,7 +443,7 @@ export class EventLine extends Line {
 
     /**
      * Default border thickness of events belonging to this
-     * line.
+     * band.
      */
     get eventBorderWidth() { return this._eventBorderWidth; }
     set eventBorderWidth(eventBorderWidth: number) {
@@ -452,7 +452,7 @@ export class EventLine extends Line {
     }
 
     /**
-     * Default border color of events belonging to this line.
+     * Default border color of events belonging to this band.
      */
     get eventBorderColor() { return this._eventBorderColor; }
     set eventBorderColor(eventBorderColor: string) {
@@ -471,7 +471,7 @@ export class EventLine extends Line {
     }
 
     /**
-     * Default corner radius of events belonging to this line.
+     * Default corner radius of events belonging to this band.
      */
     get eventCornerRadius() { return this._eventCornerRadius; }
     set eventCornerRadius(eventCornerRadius: number) {
@@ -480,17 +480,17 @@ export class EventLine extends Line {
     }
 
     /**
-     * True if events belonging to this line should wrap over
-     * multiple sub-lines when otherwise they would overlap.
+     * True if events belonging to this band should wrap over
+     * multiple lines when otherwise they would overlap.
      */
-    get wrap() { return this._wrap; }
-    set wrap(wrap: boolean) {
-        this._wrap = wrap;
+    get multiline() { return this._multiline; }
+    set multiline(multiline: boolean) {
+        this._multiline = multiline;
         this.reportMutation();
     }
 
     /**
-     * In case of ``wrap=true``, this allows reserving
+     * In case of ``multiline=true``, this allows reserving
      * some extra whitespace that has to be present, or else
      * an event is considered to overlap.
      */
@@ -501,8 +501,8 @@ export class EventLine extends Line {
     }
 
     /**
-     * In case of ``wrap=true``, this specifies the
-     * whitespace between sub-lines.
+     * In case of ``multiline=true``, this specifies the
+     * whitespace between lines.
      */
     get lineSpacing() { return this._lineSpacing; }
     set lineSpacing(lineSpacing: number) {

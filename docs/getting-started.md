@@ -38,22 +38,22 @@ This example uses an inline CSS rule to set the height to `100px`. Relative heig
 This empty Timeline shows the main structure: a left **sidebar** and the **main area**. Notice how the sidebar can be resized.
 
 
-## Adding Lines
+## Adding Bands
 
 The main area defaults to showing a numeric range between 0 and 100. With this knowledge, let's display a few events.
 
 ```javascript
-const line1 = new EventLine(timeline);
-line1.label = 'Line 1';
-line1.events = [
+const band1 = new EventBand(timeline);
+band1.label = 'Band 1';
+band1.events = [
     { start: 20, stop: 40, label: 'Event 1' },
 ];
 
-const line2 = new EventLine(timeline);
-line2.label = 'Line 2';
-line2.eventBorderWidth = 0;
-line2.eventColor = '#ffe4b5';
-line2.events = [
+const band2 = new EventBand(timeline);
+band2.label = 'Band 2';
+band2.eventBorderWidth = 0;
+band2.eventColor = '#ffe4b5';
+band2.events = [
     { start: 10, stop: 50, label: 'Event 2' },
     { start: 40, stop: 70, label: 'Event 3', color: 'orange', cornerRadius: 5 },
     { start: 60, stop: 120, label: 'Event 4' },
@@ -82,22 +82,22 @@ start.setHours(0, 0, 0, 0);
 const stop = new Date(start.getTime());
 stop.setDate(stop.getDate() + 1);
 
-timeline.setBounds(start.getTime(), stop.getTime());
+timeline.setViewRange(start.getTime(), stop.getTime());
 
-const axis = new AbsoluteTimeAxis(timeline);
-axis.label = 'Time';
+const ruler = new TimeRuler(timeline);
+ruler.label = 'Time';
 
-const line1 = new EventLine(timeline);
-line1.label = 'Line 1';
-line1.events = [{
+const band1 = new EventBand(timeline);
+band1.label = 'Band 1';
+band1.events = [{
     start: start.getTime() + 3000000,
     stop: start.getTime() + 50000000,
     label: 'Event 1'
 }];
 
-const line2 = new EventLine(timeline);
-line2.label = 'Line 2';
-line2.events = [{
+const band2 = new EventBand(timeline);
+band2.label = 'Band 2';
+band2.events = [{
     start: start.getTime() + 6000000,
     stop: start.getTime() + 12500000,
     label: 'Event 2'
@@ -108,4 +108,4 @@ line2.events = [{
                      height="100px"
                      caption="Absolute time" %}
 
-This example adds an [AbsoluteTimeAxis](/api/AbsoluteTimeAxis/), a special type of [Line](/api/Line/) that renders an autoranged timescale.
+This example adds an [TimeRuler](/api/TimeRuler/), a special type of [Band](/api/Band/) that renders an autoranged timescale.

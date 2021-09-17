@@ -7,28 +7,28 @@ order: 30
 
 # Drawables
 
-Drawables are lines or decorations that can be drawn on a Timeline instance.
+Drawables are bands or decorations that can be drawn on a Timeline instance.
 
-## EventLine
+## EventBand
 
-A line showing events.
+A band showing events.
 
 ```javascript
-const line = new EventLine(timeline);
-line.label = 'Line';
-line.events = [
+const band = new EventBand(timeline);
+band.label = 'Band';
+band.events = [
     { start: 20, stop: 40, label: 'Event' },
     { start: 60, label: 'Milestone' },
 ];
 ```
 
-{% include demo.html src="/examples/drawables-EventLine.html"
+{% include demo.html src="/examples/drawables-EventBand.html"
                      height="34px"
-                     caption="EventLine" %}
+                     caption="EventBand" %}
 
-## AbsoluteTimeAxis
+## TimeRuler
 
-A line showing time scale indications. The following examples force a specific scale. If no scale is specified, a scale is selected automatically based on the visible time range and available width.
+A band showing time scale indications. The following examples force a specific scale. If no scale is specified, a scale is selected automatically based on the visible time range and available width.
 
 ```javascript
 const start = new Date();
@@ -36,16 +36,16 @@ start.setHours(0, 0, 0, 0);
 const stop = new Date(start.getTime());
 stop.setDate(stop.getDate() + 1);
 
-timeline.setBounds(start.getTime(), stop.getTime());
+timeline.setViewRange(start.getTime(), stop.getTime());
 
-const line = new AbsoluteTimeAxis(timeline);
-line.label = 'Time';
-line.scale = 'hour';
+const band = new TimeRuler(timeline);
+band.label = 'Time';
+band.scale = 'hour';
 ```
 
-{% include demo.html src="/examples/drawables-AbsoluteTimeAxis-hours.html"
+{% include demo.html src="/examples/drawables-TimeRuler-hours.html"
                      height="20px"
-                     caption="AbsoluteTimeAxis showing hours" %}
+                     caption="TimeRuler showing hours" %}
 
 ```javascript
 const start = new Date();
@@ -53,16 +53,16 @@ start.setHours(0, 0, 0, 0);
 const stop = new Date(start.getTime());
 stop.setDate(stop.getDate() + 21);
 
-timeline.setBounds(start.getTime(), stop.getTime());
+timeline.setViewRange(start.getTime(), stop.getTime());
 
-const line = new AbsoluteTimeAxis(timeline);
-line.label = 'Time';
-line.scale = 'weekDay';
+const band = new TimeRuler(timeline);
+band.label = 'Time';
+band.scale = 'weekDay';
 ```
 
-{% include demo.html src="/examples/drawables-AbsoluteTimeAxis-weekdays.html"
+{% include demo.html src="/examples/drawables-TimeRuler-weekdays.html"
                      height="20px"
-                     caption="AbsoluteTimeAxis showing weekdays" %}
+                     caption="TimeRuler showing weekdays" %}
 
 ```javascript
 const start = new Date();
@@ -70,16 +70,16 @@ start.setHours(0, 0, 0, 0);
 const stop = new Date(start.getTime());
 stop.setDate(stop.getDate() + 400);
 
-timeline.setBounds(start.getTime(), stop.getTime());
+timeline.setViewRange(start.getTime(), stop.getTime());
 
-const line = new AbsoluteTimeAxis(timeline);
-line.label = 'Time';
-line.scale = 'month';
+const band = new TimeRuler(timeline);
+band.label = 'Time';
+band.scale = 'month';
 ```
 
-{% include demo.html src="/examples/drawables-AbsoluteTimeAxis-months.html"
+{% include demo.html src="/examples/drawables-TimeRuler-months.html"
                      height="20px"
-                     caption="AbsoluteTimeAxis showing months" %}
+                     caption="TimeRuler showing months" %}
 
 ## MouseTracker
 
@@ -101,7 +101,7 @@ Vertical guideline indicating a specific time (here at 25%, 50%, and 75%). The f
 
 ```javascript
 timeline.sidebar = null;
-timeline.setBounds(0, 100);
+timeline.setViewRange(0, 100);
 
 const locator1 = new TimeLocator(timeline, () => 25);
 locator1.lineColor = 'purple';

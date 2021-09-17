@@ -1,14 +1,14 @@
 import { DateTime } from 'luxon';
+import { Band } from './Band';
 import { Graphics, Path } from './Graphics';
-import { Line } from './Line';
 
 export type ScaleKind = 'auto' | 'hour' | 'quarterDay' | 'weekDay' | 'week' | 'month' | 'year' | 'decade';
 
 /**
- * An axis that interprets time as milliseconds since January 01, 1970, 00:00:00 UTC.
+ * A ruler that interprets time as milliseconds since January 01, 1970, 00:00:00 UTC.
  * Same as JavaScript Date.
  */
-export class AbsoluteTimeAxis extends Line {
+export class TimeRuler extends Band {
 
     private _textColor = 'grey';
     private _fullHeight = false;
@@ -41,9 +41,9 @@ export class AbsoluteTimeAxis extends Line {
     }
 
     /** @hidden */
-    drawLineContent(g: Graphics) {
+    drawBandContent(g: Graphics) {
         this.scaleRenderer = this.determineScale();
-        this.scaleRenderer!.drawLineContent(g, this);
+        this.scaleRenderer!.drawBandContent(g, this);
     }
 
     /** @hidden */
@@ -120,9 +120,9 @@ export class AbsoluteTimeAxis extends Line {
 
 interface Scale {
     getPreferredUnitWidth(): number;
-    measureUnitWidth(axis: AbsoluteTimeAxis): number;
-    drawLineContent(g: Graphics, axis: AbsoluteTimeAxis): void;
-    drawOverlay(g: Graphics, axis: AbsoluteTimeAxis): void;
+    measureUnitWidth(axis: TimeRuler): number;
+    drawBandContent(g: Graphics, axis: TimeRuler): void;
+    drawOverlay(g: Graphics, axis: TimeRuler): void;
 }
 
 /**
@@ -139,13 +139,13 @@ class HourScale implements Scale {
         return 38;
     }
 
-    measureUnitWidth(axis: AbsoluteTimeAxis) {
+    measureUnitWidth(axis: TimeRuler) {
         const x1 = axis.timeline.start;
         const x2 = x1 + 3600000; // 1 hour
         return axis.timeline.positionTime(x2) - axis.timeline.positionTime(x1);
     }
 
-    drawLineContent(g: Graphics, axis: AbsoluteTimeAxis) {
+    drawBandContent(g: Graphics, axis: TimeRuler) {
         let t = DateTime.fromMillis(axis.timeline.start);
         if (axis.timezone) {
             t = t.setZone(axis.timezone);
@@ -229,7 +229,7 @@ class HourScale implements Scale {
         }
     }
 
-    drawOverlay(g: Graphics, axis: AbsoluteTimeAxis) {
+    drawOverlay(g: Graphics, axis: TimeRuler) {
         if (axis.fullHeight) {
             const path = new Path(0, 0);
             for (const x of this.majorX) {
@@ -255,13 +255,13 @@ class QuarterDayScale implements Scale {
         return 30;
     }
 
-    measureUnitWidth(axis: AbsoluteTimeAxis) {
+    measureUnitWidth(axis: TimeRuler) {
         const x1 = axis.timeline.start;
         const x2 = x1 + (6 * 3600000); // 1/4 day
         return axis.timeline.positionTime(x2) - axis.timeline.positionTime(x1);
     }
 
-    drawLineContent(g: Graphics, axis: AbsoluteTimeAxis) {
+    drawBandContent(g: Graphics, axis: TimeRuler) {
         let t = DateTime.fromMillis(axis.timeline.start);
         if (axis.timezone) {
             t = t.setZone(axis.timezone);
@@ -322,7 +322,7 @@ class QuarterDayScale implements Scale {
         }
     }
 
-    drawOverlay(g: Graphics, axis: AbsoluteTimeAxis) {
+    drawOverlay(g: Graphics, axis: TimeRuler) {
         if (axis.fullHeight) {
             const path = new Path(0, 0);
             for (const x of this.majorX) {
@@ -348,13 +348,13 @@ class WeekDayScale implements Scale {
         return 20;
     }
 
-    measureUnitWidth(axis: AbsoluteTimeAxis) {
+    measureUnitWidth(axis: TimeRuler) {
         const x1 = axis.timeline.start;
         const x2 = x1 + (24 * 3600000); // 1 day
         return axis.timeline.positionTime(x2) - axis.timeline.positionTime(x1);
     }
 
-    drawLineContent(g: Graphics, axis: AbsoluteTimeAxis) {
+    drawBandContent(g: Graphics, axis: TimeRuler) {
         let t = DateTime.fromMillis(axis.timeline.start);
         if (axis.timezone) {
             t = t.setZone(axis.timezone);
@@ -415,7 +415,7 @@ class WeekDayScale implements Scale {
         }
     }
 
-    drawOverlay(g: Graphics, axis: AbsoluteTimeAxis) {
+    drawOverlay(g: Graphics, axis: TimeRuler) {
         if (axis.fullHeight) {
             const path = new Path(0, 0);
             for (const x of this.majorX) {
@@ -441,13 +441,13 @@ class WeekScale implements Scale {
         return 50;
     }
 
-    measureUnitWidth(axis: AbsoluteTimeAxis) {
+    measureUnitWidth(axis: TimeRuler) {
         const x1 = axis.timeline.start;
         const x2 = x1 + (7 * 24 * 3600000); // 1 week
         return axis.timeline.positionTime(x2) - axis.timeline.positionTime(x1);
     }
 
-    drawLineContent(g: Graphics, axis: AbsoluteTimeAxis) {
+    drawBandContent(g: Graphics, axis: TimeRuler) {
         let t = DateTime.fromMillis(axis.timeline.start);
         if (axis.timezone) {
             t = t.setZone(axis.timezone);
@@ -510,7 +510,7 @@ class WeekScale implements Scale {
         }
     }
 
-    drawOverlay(g: Graphics, axis: AbsoluteTimeAxis) {
+    drawOverlay(g: Graphics, axis: TimeRuler) {
         if (axis.fullHeight) {
             const path = new Path(0, 0);
             for (const x of this.majorX) {
@@ -536,13 +536,13 @@ class MonthScale implements Scale {
         return 32;
     }
 
-    measureUnitWidth(axis: AbsoluteTimeAxis) {
+    measureUnitWidth(axis: TimeRuler) {
         const x1 = axis.timeline.start;
         const x2 = x1 + (30 * 24 * 3600000); // ~1 month
         return axis.timeline.positionTime(x2) - axis.timeline.positionTime(x1);
     }
 
-    drawLineContent(g: Graphics, axis: AbsoluteTimeAxis) {
+    drawBandContent(g: Graphics, axis: TimeRuler) {
         let t = DateTime.fromMillis(axis.timeline.start);
         if (axis.timezone) {
             t = t.setZone(axis.timezone);
@@ -604,7 +604,7 @@ class MonthScale implements Scale {
         }
     }
 
-    drawOverlay(g: Graphics, axis: AbsoluteTimeAxis) {
+    drawOverlay(g: Graphics, axis: TimeRuler) {
         if (axis.fullHeight) {
             const path = new Path(0, 0);
             for (const x of this.majorX) {
@@ -628,13 +628,13 @@ class YearScale implements Scale {
         return 49;
     }
 
-    measureUnitWidth(axis: AbsoluteTimeAxis) {
+    measureUnitWidth(axis: TimeRuler) {
         const x1 = axis.timeline.start;
         const x2 = x1 + (365 * 24 * 3600000); // ~1 year
         return axis.timeline.positionTime(x2) - axis.timeline.positionTime(x1);
     }
 
-    drawLineContent(g: Graphics, axis: AbsoluteTimeAxis) {
+    drawBandContent(g: Graphics, axis: TimeRuler) {
         let t = DateTime.fromMillis(axis.timeline.start);
         if (axis.timezone) {
             t = t.setZone(axis.timezone);
@@ -669,7 +669,7 @@ class YearScale implements Scale {
         }
     }
 
-    drawOverlay(g: Graphics, axis: AbsoluteTimeAxis) {
+    drawOverlay(g: Graphics, axis: TimeRuler) {
     }
 }
 
@@ -682,13 +682,13 @@ class DecadeScale implements Scale {
         return 49;
     }
 
-    measureUnitWidth(axis: AbsoluteTimeAxis) {
+    measureUnitWidth(axis: TimeRuler) {
         const x1 = axis.timeline.start;
         const x2 = x1 + (10 * 365 * 24 * 3600000); // ~10 year
         return axis.timeline.positionTime(x2) - axis.timeline.positionTime(x1);
     }
 
-    drawLineContent(g: Graphics, axis: AbsoluteTimeAxis) {
+    drawBandContent(g: Graphics, axis: TimeRuler) {
         let t = DateTime.fromMillis(axis.timeline.start);
         if (axis.timezone) {
             t = t.setZone(axis.timezone);
@@ -724,6 +724,6 @@ class DecadeScale implements Scale {
         }
     }
 
-    drawOverlay(g: Graphics, axis: AbsoluteTimeAxis) {
+    drawOverlay(g: Graphics, axis: TimeRuler) {
     }
 }

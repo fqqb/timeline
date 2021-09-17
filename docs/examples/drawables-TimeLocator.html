@@ -10,7 +10,7 @@
             const targetEl = document.getElementById('timeline');
             const timeline = new Timeline(targetEl);
             timeline.sidebar = null;
-            timeline.setBounds(0, 100);
+            timeline.setViewRange(0, 100);
 
             const locator1 = new TimeLocator(timeline, () => 25);
             locator1.lineColor = 'purple';

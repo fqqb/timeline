@@ -5,22 +5,22 @@
 <body style="padding: 0; margin: 0">
     <div id="timeline" style="height: 100px"></div>
     <script type="module">
-        import { EventLine, Timeline } from '{{- site.dist -}}';
+        import { EventBand, Timeline } from '{{- site.dist -}}';
         window.addEventListener('load', () => {
             const targetEl = document.getElementById('timeline');
             const timeline = new Timeline(targetEl);
 
-            const line1 = new EventLine(timeline);
-            line1.label = 'Line 1';
-            line1.events = [
+            const band1 = new EventBand(timeline);
+            band1.label = 'Band 1';
+            band1.events = [
                 { start: 20, stop: 40, label: 'Event 1' },
             ];
 
-            const line2 = new EventLine(timeline);
-            line2.label = 'Line 2';
-            line2.eventBorderWidth = 0;
-            line2.eventColor = '#ffe4b5';
-            line2.events = [
+            const band2 = new EventBand(timeline);
+            band2.label = 'Band 2';
+            band2.eventBorderWidth = 0;
+            band2.eventColor = '#ffe4b5';
+            band2.events = [
                 { start: 10, stop: 50, label: 'Event 2' },
                 { start: 40, stop: 70, label: 'Event 3', color: 'orange', cornerRadius: 5 },
                 { start: 60, stop: 120, label: 'Event 4' },

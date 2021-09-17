@@ -5,13 +5,13 @@
 <body style="padding: 0; margin: 0">
     <div id="timeline" style="height: 100px"></div>
     <script type="module">
-        import { Timeline, EventLine } from '{{- site.dist -}}';
+        import { Timeline, EventBand } from '{{- site.dist -}}';
         window.addEventListener('load', () => {
             const targetEl = document.getElementById('timeline');
             const timeline = new Timeline(targetEl);
-            const line = new EventLine(timeline);
-            line.label = 'Line';
-            line.events = [
+            const band = new EventBand(timeline);
+            band.label = 'Band';
+            band.events = [
                 { start: 20, stop: 40, label: 'Event' },
                 { start: 60, label: 'Milestone' },
             ];

@@ -3,7 +3,7 @@ import { Timeline } from './Timeline';
 
 /**
  * Base class for any visual component that can be added to a
- * Timeline instance (lines or decorations).
+ * Timeline instance (bands or decorations).
  */
 export abstract class Drawable {
 

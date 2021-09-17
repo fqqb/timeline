@@ -1,5 +1,5 @@
+import { Band } from './Band';
 import { Event } from './Event';
-import { Line } from './Line';
 import { TimeRange } from './TimeRange';
 
 /**
@@ -42,14 +42,14 @@ export interface EventMouseEvent extends TimelineEvent {
 }
 
 /**
- * Event generated when the header of a Timeline Line was
+ * Event generated when the header of a Timeline Band was
  * clicked.
  */
 export interface HeaderClickEvent extends TimelineEvent {
     /**
-     * The line who's header was clicked.
+     * The band who's header was clicked.
      */
-    line: Line;
+    band: Band;
 }
 
 /**

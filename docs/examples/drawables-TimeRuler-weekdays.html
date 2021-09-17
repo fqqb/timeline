@@ -5,7 +5,7 @@
 <body style="padding: 0; margin: 0">
     <div id="timeline" style="height: 100px"></div>
     <script type="module">
-        import { Timeline, AbsoluteTimeAxis } from '{{- site.dist -}}';
+        import { Timeline, TimeRuler } from '{{- site.dist -}}';
         window.addEventListener('load', () => {
             const targetEl = document.getElementById('timeline');
             const timeline = new Timeline(targetEl);
@@ -15,9 +15,9 @@
             const stop = new Date(start.getTime());
             stop.setDate(stop.getDate() + 21);
 
-            timeline.setBounds(start.getTime(), stop.getTime());
+            timeline.setViewRange(start.getTime(), stop.getTime());
 
-            const line = new AbsoluteTimeAxis(timeline);
+            const line = new TimeRuler(timeline);
             line.label = 'Time';
             line.scale = 'weekDay';
         });

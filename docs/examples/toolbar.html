@@ -61,7 +61,7 @@
     <div id="timeline" style="height: 500px"></div>
 
     <script type="module">
-        import { AbsoluteTimeAxis, EventLine, MouseTracker, Timeline, TimeLocator } from '{{- site.dist -}}';
+        import { TimeRuler, EventBand, MouseTracker, Timeline, TimeLocator } from '{{- site.dist -}}';
 
         function getRandomInt(min, max) {
             min = Math.ceil(min);
@@ -73,8 +73,9 @@
             const targetEl = document.getElementById('timeline');
             const timeline = new Timeline(targetEl);
 
-            const axis = new AbsoluteTimeAxis(timeline);
-            axis.frozen = true;
+            const timeRuler = new TimeRuler(timeline);
+            timeRuler.fullHeight = true;
+            timeRuler.frozen = true;
 
             const locator = new TimeLocator(timeline, () => new Date().getTime());
             locator.knobColor = 'salmon';
@@ -84,11 +85,11 @@
 
             const start = luxon.DateTime.local().startOf('day');
             const stop = luxon.DateTime.local().endOf('day');
-            timeline.setBounds(start.toMillis(), stop.toMillis());
+            timeline.setViewRange(start.toMillis(), stop.toMillis());
 
 
             for (let i = 0; i < 10; i++) {
-                const line = new EventLine(timeline);
+                const band = new EventBand(timeline);
 
                 const randomEvents = [];
                 const dataStart = start.minus({ days: 5 }).toMillis();
@@ -102,8 +103,8 @@
                         label: `${i + 1}.${j + 1}`,
                     });
                 }
-                line.events = randomEvents;
-                line.label = 'Line ' + (i + 1);
+                band.events = randomEvents;
+                band.label = 'Band ' + (i + 1);
             }
 
             document.getElementById('hand').className = 'active';
@@ -140,7 +141,7 @@
                 const start = dt.getTime();
                 dt.setDate(dt.getDate() + 1);
                 const stop = dt.getTime();
-                timeline.setBounds(start, stop);
+                timeline.setViewRange(start, stop);
             };
 
             window.jumpToNow = () => timeline.panTo(new Date().getTime());

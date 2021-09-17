@@ -1,10 +1,10 @@
 import { AnimatableProperty } from './AnimatableProperty';
+import { Band } from './Band';
 import { DefaultSidebar } from './DefaultSidebar';
 import { DOMEventHandler } from './DOMEventHandler';
 import { Drawable } from './Drawable';
 import { EventClickEvent, EventMouseEvent, HeaderClickEvent, TimelineEvent, TimelineEventHandlers, ViewportChangeEvent, ViewportMouseMoveEvent, ViewportMouseOutEvent, ViewportSelectionEvent } from './events';
 import { Graphics, Path } from './Graphics';
-import { Line } from './Line';
 import { Sidebar } from './Sidebar';
 import { TimeRange } from './TimeRange';
 
@@ -172,7 +172,7 @@ export class Timeline {
     /**
      * Sets the visible range.
      */
-    setBounds(start: number, stop: number, animate = true) {
+    setViewRange(start: number, stop: number, animate = true) {
         const millisBetween = stop - start;
         if (this.min !== undefined && this.min !== null) {
             start = Math.max(this.min, start);
@@ -238,7 +238,7 @@ export class Timeline {
         console.log('min becomes', min);
         this._min = min;
         // Enforce new min
-        this.setBounds(this.start, this.stop, false);
+        this.setViewRange(this.start, this.stop, false);
     }
 
     /**
@@ -248,7 +248,7 @@ export class Timeline {
     set max(max: number | undefined) {
         this._max = max;
         // Enforce new max
-        this.setBounds(this.start, this.stop, false);
+        this.setViewRange(this.start, this.stop, false);
     }
 
     /**
@@ -289,7 +289,7 @@ export class Timeline {
      *
      * The repaint is done async from a  UI render loop.
      *
-     * In general it should not be needed to use this method. Lines and decorations
+     * In general it should not be needed to use this method. Bands and decorations
      * trigger repaints automatically.
      */
     requestRepaint() {
@@ -479,7 +479,7 @@ export class Timeline {
 
         const start = this.start + offsetMillis;
         const stop = this.stop + offsetMillis;
-        this.setBounds(start, stop, animate);
+        this.setViewRange(start, stop, animate);
     }
 
     /**
@@ -491,7 +491,7 @@ export class Timeline {
         const delta = (this.stop - this.start) / 2;
         const start = time - delta;
         const stop = time + delta;
-        this.setBounds(start, stop, animate);
+        this.setViewRange(start, stop, animate);
     }
 
     /**
@@ -510,10 +510,10 @@ export class Timeline {
     }
 
     /**
-     * Returns all Line instances bound to this Timeline instance.
+     * Returns all Band instances bound to this Timeline instance.
      */
-    getLines() {
-        return this._drawables.filter(l => l instanceof Line) as Line[];
+    getBands() {
+        return this._drawables.filter(l => l instanceof Band) as Band[];
     }
 
     /**
@@ -595,7 +595,7 @@ export class Timeline {
 
         const start = relto - (reltoRatio * nextRange);
         const stop = relto + ((1 - reltoRatio) * nextRange);
-        this.setBounds(start, stop, animate);
+        this.setViewRange(start, stop, animate);
     }
 
     get backgroundOddColor() { return this._backgroundOddColor; };
@@ -628,15 +628,15 @@ export class Timeline {
         this.requestRepaint();
     }
 
-    get lineBorderColor() { return this._lineBorderColor; }
-    set lineBorderColor(lineBorderColor: string) {
-        this._lineBorderColor = lineBorderColor;
+    get bandBorderColor() { return this._bandBorderColor; }
+    set bandBorderColor(bandBorderColor: string) {
+        this._bandBorderColor = bandBorderColor;
         this.requestRepaint();
     }
 
-    get lineBorderWidth() { return this._lineBorderWidth; }
-    set lineBorderWidth(lineBorderWidth: number) {
-        this._lineBorderWidth = lineBorderWidth;
+    get bandBorderWidth() { return this._bandBorderWidth; }
+    set bandBorderWidth(bandBorderWidth: number) {
+        this._bandBorderWidth = bandBorderWidth;
         this.requestRepaint();
     }
 
@@ -645,17 +645,17 @@ export class Timeline {
             drawable.beforeDraw(this.g);
         }
 
-        const lines = this.getLines().filter(l => l.frozen)
-            .concat(this.getLines().filter(l => !l.frozen));
+        const bands = this.getBands().filter(l => l.frozen)
+            .concat(this.getBands().filter(l => !l.frozen));
 
         let y = 0;
-        for (const line of lines) {
-            line.coords.x = 0;
-            line.coords.y = y;
-            line.coords.width = this.mainWidth;
-            line.coords.height = line.marginTop + line.getContentHeight() + line.marginBottom;
+        for (const band of bands) {
+            band.coords.x = 0;
+            band.coords.y = y;
+            band.coords.width = this.mainWidth;
+            band.coords.height = band.marginTop + band.getContentHeight() + band.marginBottom;
 
-            y += line.height + (line.borderWidth ?? this.lineBorderWidth);
+            y += band.height + (band.borderWidth ?? this.bandBorderWidth);
         }
 
         this.rootPanel.style.height = this.targetElement.clientHeight + 'px';
@@ -686,7 +686,7 @@ export class Timeline {
         for (const drawable of this._drawables) {
 
             // Default (striped) background
-            if (drawable instanceof Line) {
+            if (drawable instanceof Band) {
                 g.fillRect({
                     x: drawable.x,
                     y: drawable.y,
@@ -713,13 +713,13 @@ export class Timeline {
             drawable.drawUnderlay(g);
 
             // Bottom horizontal divider
-            if (drawable instanceof Line) {
-                const line = drawable as Line;
-                const borderWidth = line.borderWidth ?? this.lineBorderWidth;
+            if (drawable instanceof Band) {
+                const band = drawable as Band;
+                const borderWidth = band.borderWidth ?? this.bandBorderWidth;
                 if (borderWidth) {
                     const dividerY = drawable.y + drawable.height + (borderWidth / 2);
                     g.strokePath({
-                        color: line.borderColor || this.lineBorderColor,
+                        color: band.borderColor || this.bandBorderColor,
                         lineWidth: borderWidth,
                         path: new Path(0, dividerY).lineTo(g.canvas.width, dividerY),
                     });
@@ -789,9 +789,9 @@ export class Timeline {
         const width = this.g.canvas.width;
 
         let height = 0;
-        for (const line of this.getLines()) {
-            if (line.frozen) {
-                height += line.height + (line.borderWidth ?? this.lineBorderWidth);
+        for (const band of this.getBands()) {
+            if (band.frozen) {
+                height += band.height + (band.borderWidth ?? this.bandBorderWidth);
             }
         }
 

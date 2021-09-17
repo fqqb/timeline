@@ -1,6 +1,6 @@
+import { Band } from './Band';
 import { Graphics, Path } from './Graphics';
 import { HitRegionSpecification } from './HitCanvas';
-import { Line } from './Line';
 import { Sidebar } from './Sidebar';
 
 export class DefaultSidebar extends Sidebar {
@@ -28,14 +28,14 @@ export class DefaultSidebar extends Sidebar {
             color: this.timeline.backgroundOddColor,
         });
 
-        const lines = this.timeline.getLines().filter(l => l.frozen)
-            .concat(this.timeline.getLines().filter(l => !l.frozen));
+        const bands = this.timeline.getBands().filter(l => l.frozen)
+            .concat(this.timeline.getBands().filter(l => !l.frozen));
 
         let stripedColor = this.timeline.backgroundOddColor;
-        for (let i = 0; i < lines.length; i++) {
-            const line = lines[i];
-            const backgroundColor = line.backgroundColor || stripedColor;
-            this.drawLine(g, line, backgroundColor, i);
+        for (let i = 0; i < bands.length; i++) {
+            const band = bands[i];
+            const backgroundColor = band.backgroundColor || stripedColor;
+            this.drawBand(g, band, backgroundColor, i);
             stripedColor = (stripedColor === this.timeline.backgroundOddColor)
                 ? this.timeline.backgroundEvenColor
                 : this.timeline.backgroundOddColor;
@@ -50,17 +50,17 @@ export class DefaultSidebar extends Sidebar {
             opacity: 0.2,
         });
 
-        for (const line of lines) {
-            if (line.label) {
-                const contentHeight = line.height - line.marginTop - line.marginBottom;
+        for (const band of bands) {
+            if (band.label) {
+                const contentHeight = band.height - band.marginTop - band.marginBottom;
                 g.fillText({
                     x: 5,
-                    y: line.y + line.marginTop + (contentHeight / 2),
+                    y: band.y + band.marginTop + (contentHeight / 2),
                     align: 'left',
                     baseline: 'middle',
                     color: this.foregroundColor,
                     font: `${this.textSize}px ${this.fontFamily}`,
-                    text: line.label,
+                    text: band.label,
                 });
             }
         }
@@ -73,28 +73,28 @@ export class DefaultSidebar extends Sidebar {
         });
     }
 
-    private drawLine(g: Graphics, line: Line, backgroundColor: string, idx: number) {
+    private drawBand(g: Graphics, band: Band, backgroundColor: string, idx: number) {
         g.fillRect({
             x: 0,
-            y: line.y,
+            y: band.y,
             width: this.width,
-            height: line.height,
+            height: band.height,
             color: backgroundColor,
         });
 
         if (this.hoveredIndex === idx) {
             g.fillRect({
                 x: 0,
-                y: line.y,
+                y: band.y,
                 width: this.width,
-                height: line.height,
+                height: band.height,
                 color: '#aaa',
                 opacity: 0.3,
             });
         }
 
         const hitRegionSpec: HitRegionSpecification = {
-            id: `line-${idx}-header`,
+            id: `band-${idx}-header`,
             cursor: 'pointer',
             mouseEnter: () => {
                 this.hoveredIndex = idx;
@@ -105,18 +105,18 @@ export class DefaultSidebar extends Sidebar {
                 this.reportMutation();
             },
             click: () => {
-                this.timeline.fireEvent('headerclick', { line });
+                this.timeline.fireEvent('headerclick', { band });
             },
         };
         const hitRegion = g.addHitRegion(hitRegionSpec);
-        hitRegion.addRect(0, line.y, this.width, line.height);
+        hitRegion.addRect(0, band.y, this.width, band.height);
 
         // Bottom horizontal divider
-        const borderWidth = line.borderWidth ?? this.timeline.lineBorderWidth;
+        const borderWidth = band.borderWidth ?? this.timeline.bandBorderWidth;
         if (borderWidth) {
-            const dividerY = line.y + line.height + (borderWidth / 2);
+            const dividerY = band.y + band.height + (borderWidth / 2);
             g.strokePath({
-                color: line.borderColor || this.timeline.lineBorderColor,
+                color: band.borderColor || this.timeline.bandBorderColor,
                 lineWidth: borderWidth,
                 path: new Path(0, dividerY).lineTo(this.clippedWidth, dividerY),
             });

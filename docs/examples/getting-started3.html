@@ -5,7 +5,7 @@
 <body style="padding: 0; margin: 0">
     <div id="timeline" style="height: 100px"></div>
     <script type="module">
-        import { AbsoluteTimeAxis, EventLine, Timeline } from '{{- site.dist -}}';
+        import { TimeRuler, EventBand, Timeline } from '{{- site.dist -}}';
         window.addEventListener('load', () => {
             const targetEl = document.getElementById('timeline');
             const timeline = new Timeline(targetEl);
@@ -16,22 +16,22 @@
             const stop = new Date(start.getTime());
             stop.setDate(stop.getDate() + 1);
 
-            timeline.setBounds(start.getTime(), stop.getTime());
+            timeline.setViewRange(start.getTime(), stop.getTime());
 
-            const axis = new AbsoluteTimeAxis(timeline);
-            axis.label = 'Time';
+            const ruler = new TimeRuler(timeline);
+            ruler.label = 'Time';
 
-            const line1 = new EventLine(timeline);
-            line1.label = 'Line 1';
-            line1.events = [{
+            const band1 = new EventBand(timeline);
+            band1.label = 'Band 1';
+            band1.events = [{
                 start: start.getTime() + 3000000,
                 stop: start.getTime() + 50000000,
                 label: 'Event 1'
             }];
 
-            const line2 = new EventLine(timeline);
-            line2.label = 'Line 2';
-            line2.events = [{
+            const band2 = new EventBand(timeline);
+            band2.label = 'Band 2';
+            band2.events = [{
                 start: start.getTime() + 6000000,
                 stop: start.getTime() + 12500000,
                 label: 'Event 2'

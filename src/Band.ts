@@ -8,7 +8,7 @@ export interface DrawCoordinates {
     height: number;
 }
 
-export abstract class Line extends Drawable {
+export abstract class Band extends Drawable {
 
     private _label?: string;
     private _frozen = false;
@@ -29,7 +29,7 @@ export abstract class Line extends Drawable {
     };
 
     /**
-     * Human-friendly label for this line. Used in sidebar.
+     * Human-friendly label for this band. Used in sidebar.
      */
     get label() { return this._label; }
     set label(label: string | undefined) {
@@ -38,7 +38,7 @@ export abstract class Line extends Drawable {
     }
 
     /**
-     * Background color of this line. If undefined, the background
+     * Background color of this band. If undefined, the background
      * color defaults to an odd/even pattern.
      */
     get backgroundColor() { return this._backgroundColor; }
@@ -48,8 +48,8 @@ export abstract class Line extends Drawable {
     }
 
     /**
-     * Border width of this line. If undefined, the width
-     * is determined by the property 'lineBorderWidth'
+     * Border width of this band. If undefined, the width
+     * is determined by the property 'bandBorderWidth'
      * of the Timeline instance.
      */
     get borderWidth() { return this._borderWidth; }
@@ -59,8 +59,8 @@ export abstract class Line extends Drawable {
     }
 
     /**
-     * Border color of this line. If undefined, the color
-     * is determined by the property 'lineBorderColor'
+     * Border color of this band. If undefined, the color
+     * is determined by the property 'bandBorderColor'
      * of the Timeline instance.
      */
     get borderColor() { return this._borderColor; }
@@ -70,8 +70,8 @@ export abstract class Line extends Drawable {
     }
 
     /**
-     * Whitespace in points between the top of this line and
-     * line content.
+     * Whitespace in points between the top of this band and
+     * band content.
      */
     get marginTop() { return this._marginTop; }
     set marginTop(marginTop: number) {
@@ -80,8 +80,8 @@ export abstract class Line extends Drawable {
     }
 
     /**
-     * Whitespace in points between the bottom of this line
-     * and line content.
+     * Whitespace in points between the bottom of this band
+     * and band content.
      */
     get marginBottom() { return this._marginBottom; }
     set marginBottom(marginBottom: number) {
@@ -90,11 +90,11 @@ export abstract class Line extends Drawable {
     }
 
     /**
-     * If set to true, this line stays fixed on top, even while
+     * If set to true, this band stays fixed on top, even while
      * scrolling vertically.
      *
-     * Frozen lines precede non-frozen lines, regardless of the order in
-     * which lines were added.
+     * Frozen bands precede non-frozen bands, regardless of the order in
+     * which bands were added.
      */
     get frozen() { return this._frozen; }
     set frozen(frozen: boolean) {
@@ -106,7 +106,7 @@ export abstract class Line extends Drawable {
     beforeDraw(g: Graphics) {
         const contentHeight = this.calculateContentHeight(g);
         this.offscreen = g.createChild(this.timeline.mainWidth, contentHeight);
-        this.drawLineContent(this.offscreen);
+        this.drawBandContent(this.offscreen);
     }
 
     /**
@@ -118,7 +118,7 @@ export abstract class Line extends Drawable {
     abstract calculateContentHeight(g: Graphics): number;
 
     /** @hidden */
-    abstract drawLineContent(g: Graphics): void;
+    abstract drawBandContent(g: Graphics): void;
 
     /** @hidden */
     drawContent(g: Graphics) {
@@ -133,22 +133,22 @@ export abstract class Line extends Drawable {
     }
 
     /**
-     * The height of this line.
+     * The height of this band.
      */
     get height() { return this.coords.height; }
 
     /**
-     * The width of this line.
+     * The width of this band.
      */
     get width() { return this.coords.width; }
 
     /**
-     * The X-coordinate of this line.
+     * The X-coordinate of this band.
      */
     get x() { return this.coords.x; }
 
     /**
-     * The Y-coordinate of this line.
+     * The Y-coordinate of this band.
      */
     get y() { return this.coords.y; }
 }
