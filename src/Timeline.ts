@@ -7,7 +7,6 @@ import { Graphics, Path } from './Graphics';
 import { Line } from './Line';
 import { Sidebar } from './Sidebar';
 import { TimeRange } from './TimeRange';
-import { nvl } from './utils';
 
 /**
  * Resizes a canvas, but only if the new bounds are different.
@@ -656,7 +655,7 @@ export class Timeline {
             line.coords.width = this.mainWidth;
             line.coords.height = line.marginTop + line.getContentHeight() + line.marginBottom;
 
-            y += line.height + nvl(line.borderWidth, this.lineBorderWidth);
+            y += line.height + (line.borderWidth ?? this.lineBorderWidth);
         }
 
         this.rootPanel.style.height = this.targetElement.clientHeight + 'px';
@@ -716,7 +715,7 @@ export class Timeline {
             // Bottom horizontal divider
             if (drawable instanceof Line) {
                 const line = drawable as Line;
-                const borderWidth = nvl(line.borderWidth, this.lineBorderWidth);
+                const borderWidth = line.borderWidth ?? this.lineBorderWidth;
                 if (borderWidth) {
                     const dividerY = drawable.y + drawable.height + (borderWidth / 2);
                     g.strokePath({
@@ -792,7 +791,7 @@ export class Timeline {
         let height = 0;
         for (const line of this.getLines()) {
             if (line.frozen) {
-                height += line.height + nvl(line.borderWidth, this.lineBorderWidth);
+                height += line.height + (line.borderWidth ?? this.lineBorderWidth);
             }
         }
 

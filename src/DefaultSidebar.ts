@@ -2,7 +2,6 @@ import { Graphics, Path } from './Graphics';
 import { HitRegionSpecification } from './HitCanvas';
 import { Line } from './Line';
 import { Sidebar } from './Sidebar';
-import { nvl } from './utils';
 
 export class DefaultSidebar extends Sidebar {
 
@@ -113,7 +112,7 @@ export class DefaultSidebar extends Sidebar {
         hitRegion.addRect(0, line.y, this.width, line.height);
 
         // Bottom horizontal divider
-        const borderWidth = nvl(line.borderWidth, this.timeline.lineBorderWidth);
+        const borderWidth = line.borderWidth ?? this.timeline.lineBorderWidth;
         if (borderWidth) {
             const dividerY = line.y + line.height + (borderWidth / 2);
             g.strokePath({

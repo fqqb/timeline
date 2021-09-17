@@ -20,7 +20,3 @@ export function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w
         ctx.quadraticCurveTo(x, y, x + rx, y);
     }
 }
-
-export function nvl<T extends any>(a: T | undefined, b: T): T {
-    return a !== undefined ? a : b;
-}

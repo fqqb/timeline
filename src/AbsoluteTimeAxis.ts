@@ -64,22 +64,6 @@ export class AbsoluteTimeAxis extends Line {
     }
 
     /**
-     * If true, the assigned scale should format time as UTC, otherwise according to
-     * the local timezone.
-     *
-     * @deprecated use 'timezone' attribute
-     */
-    get utc() {
-        console.warn('Do not use AbsoluteTimeAxis.utc boolean attribute. Instead switch to AbsoluteTimeAxis.timezone string attribute.');
-        return this._timezone === 'UTC';
-    }
-    set utc(utc: boolean) {
-        console.warn('Do not use AbsoluteTimeAxis.utc boolean attribute. Instead switch to AbsoluteTimeAxis.timezone string attribute.');
-        this._timezone = utc ? 'UTC' : undefined;
-        this.reportMutation();
-    }
-
-    /**
      * Set the timezone by which to format scale labels. If undefined, the local timezone is used.
      */
     get timezone() { return this._timezone; }

@@ -5,7 +5,6 @@ import { Line } from './Line';
 import { Bounds } from './positioning';
 import { drawCircle, drawDiamond, drawDot, drawReverseTriangle, drawTriangle, ShapeStyle } from './shapes';
 import { Timeline } from './Timeline';
-import { nvl } from './utils';
 
 interface DrawInfo {
     label: string; // Actual text to be shown on event (may include extra decoration: ◀)
@@ -153,14 +152,14 @@ export class EventLine extends Line {
             y,
             width: this.eventHeight,
             height: this.eventHeight,
-        }
+        };
         const opacity = event.hovered ? this.eventHoverOpacity : 1;
 
         const shapeStyle: ShapeStyle = {
-            color: nvl(event.color, this.eventColor),
+            color: event.color ?? this.eventColor,
             opacity,
-            borderWidth: nvl(event.borderWidth, this.eventBorderWidth),
-            borderColor: nvl(event.borderColor, this.eventBorderColor),
+            borderWidth: event.borderWidth ?? this.eventBorderWidth,
+            borderColor: event.borderColor ?? this.eventBorderColor,
         };
 
         switch (this.milestoneShape) {
@@ -193,7 +192,7 @@ export class EventLine extends Line {
                 font,
                 baseline: 'middle',
                 align: 'left',
-                color: nvl(event.textColor, this.eventTextColor),
+                color: event.textColor ?? this.eventTextColor,
                 opacity,
             });
         }
@@ -211,12 +210,12 @@ export class EventLine extends Line {
             width: Math.round(stopX - Math.round(startX)),
             height: this.eventHeight,
         };
-        const r = nvl(event.cornerRadius, this.eventCornerRadius);
+        const r = event.cornerRadius ?? this.eventCornerRadius;
         g.fillRect({
             ...box,
             rx: r,
             ry: r,
-            color: nvl(event.color, this.eventColor),
+            color: event.color ?? this.eventColor,
             opacity,
         });
 
@@ -224,12 +223,12 @@ export class EventLine extends Line {
         const hitRegion = g.addHitRegion(event.region);
         hitRegion.addRect(renderStartX, y, renderStopX - renderStartX, this.eventHeight);
 
-        const borderWidth = nvl(event.borderWidth, this.eventBorderWidth);
+        const borderWidth = event.borderWidth ?? this.eventBorderWidth;
         borderWidth && g.strokeRect({
             ...box,
             rx: r,
             ry: r,
-            color: nvl(event.borderColor, this.eventBorderColor),
+            color: event.borderColor ?? this.eventBorderColor,
             lineWidth: borderWidth,
             crispen: true,
             opacity,
@@ -249,7 +248,7 @@ export class EventLine extends Line {
                     font,
                     baseline: 'middle',
                     align: 'left',
-                    color: nvl(event.textColor, this.eventTextColor),
+                    color: event.textColor ?? this.eventTextColor,
                     opacity,
                 });
             } else if (this.eventTextOverflow === 'clip') {
@@ -257,7 +256,7 @@ export class EventLine extends Line {
                 tmpCanvas.width = box.width;
                 tmpCanvas.height = box.height;
                 const offscreenCtx = tmpCanvas.getContext('2d')!;
-                offscreenCtx.fillStyle = nvl(event.textColor, this.eventTextColor);
+                offscreenCtx.fillStyle = event.textColor ?? this.eventTextColor;
                 offscreenCtx.font = font;
                 offscreenCtx.textBaseline = 'middle';
                 offscreenCtx.textAlign = 'left';
@@ -280,15 +279,11 @@ export class EventLine extends Line {
                 continue;
             }
 
-            if (event.title) {
-                console.warn('DEPRECATION: Please use Event "label" property instead of "title"');
-            }
-
-            let label = event.label || event.title || '';
-            const textSize = nvl(event.textSize, this.eventTextSize);
-            const fontFamily = nvl(event.fontFamily, this.eventFontFamily);
+            let label = event.label || '';
+            const textSize = event.textSize ?? this.eventTextSize;
+            const fontFamily = event.fontFamily ?? this.eventFontFamily;
             const font = `${textSize}px ${fontFamily}`;
-            const marginLeft = nvl(event.marginLeft, this.eventMarginLeft);
+            const marginLeft = event.marginLeft ?? this.eventMarginLeft;
             const offscreenStart = start < this.timeline.start && stop > this.timeline.start;
             let labelFitsBox;
 

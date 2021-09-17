@@ -24,11 +24,6 @@ export interface Event {
     label?: string;
 
     /**
-     * @deprecated use 'label' attribute
-     */
-    title?: string;
-
-    /**
      * Background color of this event
      */
     color?: string;
