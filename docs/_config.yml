@@ -2,6 +2,7 @@ theme: null
 
 # Dist used in examples
 dist: '/timeline/assets/timeline.js'
+baseurl: /timeline
 
 collections:
   api:
