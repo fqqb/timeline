@@ -22,7 +22,7 @@ band.events = [
 ];
 ```
 
-{% include demo.html src="/examples/drawables-EventBand.html"
+{% include demo.html src="/timeline/examples/drawables-EventBand.html"
                      height="34px"
                      caption="EventBand" %}
 
@@ -43,7 +43,7 @@ band.label = 'Time';
 band.scale = 'hour';
 ```
 
-{% include demo.html src="/examples/drawables-TimeRuler-hours.html"
+{% include demo.html src="/timeline/examples/drawables-TimeRuler-hours.html"
                      height="20px"
                      caption="TimeRuler showing hours" %}
 
@@ -60,7 +60,7 @@ band.label = 'Time';
 band.scale = 'weekDay';
 ```
 
-{% include demo.html src="/examples/drawables-TimeRuler-weekdays.html"
+{% include demo.html src="/timeline/examples/drawables-TimeRuler-weekdays.html"
                      height="20px"
                      caption="TimeRuler showing weekdays" %}
 
@@ -77,7 +77,7 @@ band.label = 'Time';
 band.scale = 'month';
 ```
 
-{% include demo.html src="/examples/drawables-TimeRuler-months.html"
+{% include demo.html src="/timeline/examples/drawables-TimeRuler-months.html"
                      height="20px"
                      caption="TimeRuler showing months" %}
 
@@ -90,7 +90,7 @@ timeline.sidebar = null;
 new MouseTracker(timeline);
 ```
 
-{% include demo.html src="/examples/drawables-MouseTracker.html"
+{% include demo.html src="/timeline/examples/drawables-MouseTracker.html"
                      height="50px"
                      caption="MouseTracker" %}
 
@@ -114,6 +114,6 @@ locator3.lineColor = 'red';
 locator3.knobColor = 'red';
 ```
 
-{% include demo.html src="/examples/drawables-TimeLocator.html"
+{% include demo.html src="/timeline/examples/drawables-TimeLocator.html"
                      height="50px"
                      caption="TimeLocator" %}

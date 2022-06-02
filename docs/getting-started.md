@@ -31,7 +31,7 @@ A Timeline instance uses all of the available space of its host element based on
 
 This example uses an inline CSS rule to set the height to `100px`. Relative height or an absolutely positioned host element would work too.
 
-{% include demo.html src="/examples/getting-started1.html"
+{% include demo.html src="/timeline/examples/getting-started1.html"
                      height="100px"
                      caption="An empty timeline" %}
 
@@ -60,7 +60,7 @@ band2.events = [
 ];
 ```
 
-{% include demo.html src="/examples/getting-started2.html"
+{% include demo.html src="/timeline/examples/getting-started2.html"
                      height="100px"
                      caption="First data" %}
 
@@ -104,8 +104,8 @@ band2.events = [{
 }];
 ```
 
-{% include demo.html src="/examples/getting-started3.html"
+{% include demo.html src="/timeline/examples/getting-started3.html"
                      height="100px"
                      caption="Absolute time" %}
 
-This example adds an [TimeRuler](/api/TimeRuler/), a special type of [Band](/api/Band/) that renders an autoranged timescale.
+This example adds an [TimeRuler](/timeline/api/TimeRuler/), a special type of [Band](/timeline/api/Band/) that renders an autoranged timescale.

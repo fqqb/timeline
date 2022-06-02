@@ -14,7 +14,7 @@
         {%- endfor -%}
 
         {%- if match -%}
-            <a href="{{ match.url }}">{{- include.type.name -}}</a>
+            <a href="/timeline{{ match.url }}">{{- include.type.name -}}</a>
         {%- else -%}
             {%- comment -%}
                 Try to expand a type alias such as:

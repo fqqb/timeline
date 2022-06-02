@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="/assets/style.css">
+    <link rel="stylesheet" href="/timeline/assets/style.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.11.2/css/all.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Roboto+Mono&display=swap">
     <title>{{ page.title }} | @fqqb/timeline</title>
@@ -30,7 +30,7 @@
 <body>
     <header class="site-header">
         <div class="wrapper">
-            <a class="site-title" href="/">@fqqb/timeline</a>
+            <a class="site-title" href="/timeline">@fqqb/timeline</a>
 
             <nav class="site-nav">
                 <input type="checkbox" id="nav-trigger" class="nav-trigger" />
@@ -65,7 +65,7 @@
 
             {%- if next_page -%}
                 <div style="text-align: right; margin-top: 5em;">
-                    <a href="{{ next_page.url }}">
+                    <a href="/timeline{{ next_page.url }}">
                         {{ next_page.title }}
                         <i class="fas fa-chevron-circle-right"></i>
                     </a>
@@ -78,7 +78,7 @@
         <ul>
             {% for p in sorted_pages %}
                 <li class="{% if page.url == p.url %}active{% endif %}">
-                    <a href="{{- p.url -}}">{{- p.title -}}</a>
+                    <a href="/timeline{{- p.url -}}">{{- p.title -}}</a>
                 </li>
             {% endfor %}
         </ul>
@@ -89,7 +89,7 @@
         <ul>
             {%- for p in site.api -%}
                 <li class="{% if p.url == page.url %}active{% endif %}">
-                    <a href="{{- p.url -}}">{{- p.title -}}</a>
+                    <a href="/timeline{{- p.url -}}">{{- p.title -}}</a>
                 </li>
             {%- endfor -%}
         </ul>
