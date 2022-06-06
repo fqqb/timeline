@@ -33,6 +33,7 @@ export type MilestoneShape = 'circle' | 'diamond' | 'dot' | 'triangle' | 'revers
 export class EventBand extends Band {
 
     private _eventBorderColor = '#000000';
+    private _eventBorderDash: number[] = [];
     private _eventBorderWidth = 0;
     private _eventColor = '#77b1e1';
     private _eventCornerRadius = 1;
@@ -160,6 +161,7 @@ export class EventBand extends Band {
             opacity,
             borderWidth: event.borderWidth ?? this.eventBorderWidth,
             borderColor: event.borderColor ?? this.eventBorderColor,
+            borderDash: event.borderDash ?? this.eventBorderDash,
         };
 
         switch (this.milestoneShape) {
@@ -230,6 +232,7 @@ export class EventBand extends Band {
             ry: r,
             color: event.borderColor ?? this.eventBorderColor,
             lineWidth: borderWidth,
+            dash: event.borderDash ?? this.eventBorderDash,
             crispen: true,
             opacity,
         });
@@ -457,6 +460,18 @@ export class EventBand extends Band {
     get eventBorderColor() { return this._eventBorderColor; }
     set eventBorderColor(eventBorderColor: string) {
         this._eventBorderColor = eventBorderColor;
+        this.reportMutation();
+    }
+
+    /**
+     * Default border dash of events belong to this band.
+     *
+     * Provide an array of values that specify alternating lengths
+     * of lines and gaps.
+     */
+    get eventBorderDash() { return this._eventBorderDash; }
+    set eventBorderDash(eventBorderDash: number[]) {
+        this._eventBorderDash = eventBorderDash;
         this.reportMutation();
     }
 

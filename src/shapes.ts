@@ -6,6 +6,7 @@ export interface ShapeStyle {
     opacity: number;
     borderWidth: number;
     borderColor: string;
+    borderDash?: number[];
 }
 
 export type ShapeRenderer = (g: Graphics, bounds: Bounds, style: ShapeStyle) => void;
@@ -28,6 +29,7 @@ export const drawDiamond: ShapeRenderer = (g: Graphics, bounds: Bounds, style: S
     style.borderWidth && g.strokePath({
         path,
         color: style.borderColor,
+        dash: style.borderDash,
         lineWidth: style.borderWidth,
         opacity: style.opacity,
     });
@@ -42,14 +44,15 @@ export const drawDot: ShapeRenderer = (g: Graphics, bounds: Bounds, style: Shape
         color: style.color,
         opacity: style.opacity,
     });
-    g.strokeEllipse({
+    style.borderWidth && g.strokeEllipse({
         cx: bounds.x + bounds.width / 2,
         cy: bounds.y + bounds.height / 2,
         rx: 4 - (style.borderWidth / 2),
         ry: 4 - (style.borderWidth / 2),
-        color: style.color,
-        opacity: style.opacity,
+        color: style.borderColor,
+        dash: style.borderDash,
         lineWidth: style.borderWidth,
+        opacity: style.opacity,
     });
 };
 
@@ -62,14 +65,15 @@ export const drawCircle: ShapeRenderer = (g: Graphics, bounds: Bounds, style: Sh
         color: style.color,
         opacity: style.opacity,
     });
-    g.strokeEllipse({
+    style.borderWidth && g.strokeEllipse({
         cx: bounds.x + bounds.width / 2,
         cy: bounds.y + bounds.height / 2,
         rx: (bounds.width / 2) - (style.borderWidth / 2),
         ry: (bounds.height / 2) - (style.borderWidth / 2),
         color: style.borderColor,
-        opacity: style.opacity,
+        dash: style.borderDash,
         lineWidth: style.borderWidth,
+        opacity: style.opacity,
     });
 };
 
@@ -87,6 +91,7 @@ export const drawTriangle: ShapeRenderer = (g: Graphics, bounds: Bounds, style: 
     style.borderWidth && g.strokePath({
         path,
         color: style.borderColor,
+        dash: style.borderDash,
         lineWidth: style.borderWidth,
         opacity: style.opacity,
     });
@@ -106,6 +111,7 @@ export const drawReverseTriangle: ShapeRenderer = (g: Graphics, bounds: Bounds, 
     style.borderWidth && g.strokePath({
         path,
         color: style.borderColor,
+        dash: style.borderDash,
         lineWidth: style.borderWidth,
         opacity: style.opacity,
     });

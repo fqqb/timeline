@@ -2,7 +2,7 @@
  * Event-specific properties.
  *
  * Style attributes are optional. Values that are defined
- * here are priotized over line attributes.
+ * here are priotized over band attributes.
  */
 export interface Event {
 
@@ -12,7 +12,7 @@ export interface Event {
     start: number;
 
     /**
-     * Stop time.
+     * Stop time
      *
      * If unspecified the event is considered to be a milestone.
      */
@@ -47,6 +47,12 @@ export interface Event {
      * Border color for this event
      */
     borderColor?: string;
+
+    /**
+     * Border dash for this event. Provide an array of values that
+     * specify alternating lengths of lines and gaps.
+     */
+    borderDash?: number[];
 
     /**
      * Thickness of the border for this event

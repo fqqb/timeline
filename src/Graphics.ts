@@ -216,7 +216,7 @@ export class Graphics {
         const startAngle = fill.startAngle ?? 0;
         const endAngle = fill.endAngle ?? (2 * Math.PI);
         this.ctx.ellipse(fill.cx, fill.cy, fill.rx, fill.ry, 0, startAngle,
-                endAngle, fill.anticlockwise);
+            endAngle, fill.anticlockwise);
         this.ctx.fill();
 
         if (fill.opacity !== undefined) {
