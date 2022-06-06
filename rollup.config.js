@@ -1,14 +1,12 @@
 import { nodeResolve } from '@rollup/plugin-node-resolve';
+import typescript from '@rollup/plugin-typescript';
 import { terser } from 'rollup-plugin-terser';
-import typescript from 'rollup-plugin-typescript2';
 
 export default {
   input: 'src/index.ts',
   plugins: [
     nodeResolve(),
-    typescript({
-      useTsconfigDeclarationDir: true
-    }),
+    typescript({ tsconfig: './tsconfig.json' }),
     terser({
       output: {
         comments: false
