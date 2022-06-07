@@ -1,5 +1,5 @@
 export { AnimatableProperty } from './AnimatableProperty';
-export { Band as Line } from './Band';
+export { Band } from './Band';
 export { DefaultSidebar } from './DefaultSidebar';
 export { Drawable } from './Drawable';
 export { Event } from './Event';
@@ -14,4 +14,3 @@ export { Timeline, Tool } from './Timeline';
 export { TimeLocator } from './TimeLocator';
 export { TimeRange } from './TimeRange';
 export { ScaleKind, TimeRuler } from './TimeRuler';
-
