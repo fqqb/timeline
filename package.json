@@ -11,7 +11,7 @@
     "clean": "rm -rf dist",
     "prepublishOnly": "npm run build",
     "watch": "rollup -cw",
-    "tsdoc": "typedoc --entryPoints ./src --json docs/_data/tsdoc.json",
+    "tsdoc": "typedoc --options typedoc.json",
     "serve": "cd docs; bundle exec jekyll serve",
     "jekyll": "npm run tsdoc && npm run serve",
     "dev": "npx concurrently -n rollup,jekyll -c yellow,magenta npm:watch npm:jekyll"
@@ -32,7 +32,7 @@
     "rollup-plugin-terser": "^7.0.2",
     "terser": "^5.14.0",
     "tslib": "^2.4.0",
-    "typedoc": "^0.21.04",
+    "typedoc": "^0.22.17",
     "typescript": "^4.7.3"
   }
 }

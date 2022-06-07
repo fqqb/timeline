@@ -10,34 +10,31 @@
     {%- if child.name == "index" -%}
         {%- continue -%}
     {%- endif -%}
-    {%- if child.kind == 1 -%} {%- comment -%}External Module{%- endcomment -%}
-        {%- for moduleChild in child.children -%}
-            {%- if moduleChild.name == include.type -%}
-                {%- assign match = moduleChild.children
-                     | find: "name", include.attribute -%}
-                {%- if match -%}
-                    {%- assign default_value = match.defaultValue -%}
-                {%- endif -%}
 
-                {%- comment -%}
+    {%- if child.name == include.type -%}
+        {%- assign match = child.children
+                | find: "name", include.attribute -%}
+        {%- if match -%}
+            {%- assign default_value = match.defaultValue -%}
+        {%- endif -%}
 
-                Commented out, because it does not account for
-                overrides in subclasses. Oh well.
+        {%- comment -%}
 
-                {%- if default_value == nil -%}
-                    {%- for ref in moduleChild.extendedTypes -%}
-                        {%- capture default_value -%}
-                            {%- include tsdoc_default_value.html
-                                    type=ref.name
-                                    attribute=include.attribute -%}
-                        {%- endcapture -%}
-                    {%- endfor -%}
-                {%- endif -%}
+        Commented out, because it does not account for
+        overrides in subclasses. Oh well.
 
-                {%- endcomment -%}
+        {%- if default_value == nil -%}
+            {%- for ref in child.extendedTypes -%}
+                {%- capture default_value -%}
+                    {%- include tsdoc_default_value.html
+                            type=ref.name
+                            attribute=include.attribute -%}
+                {%- endcapture -%}
+            {%- endfor -%}
+        {%- endif -%}
 
-            {%- endif -%}
-        {%- endfor -%}
+        {%- endcomment -%}
+
     {%- endif -%}
 {%- endfor -%}
 

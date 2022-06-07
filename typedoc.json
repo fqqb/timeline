@@ -1,0 +1,21 @@
+{
+    "$schema": "https://typedoc.org/schema.json",
+    "entryPoints": [
+        "./src"
+    ],
+    "json": "docs/_data/tsdoc.json",
+    "intentionallyNotExported": [
+        "AnnotatedEvent",
+        "DecadeScale",
+        "DOMEventHandler",
+        "HitCanvas",
+        "HitRegionSpecification",
+        "HourScale",
+        "MonthScale",
+        "QuarterDayScale",
+        "Scale",
+        "WeekDayScale",
+        "WeekScale",
+        "YearScale"
+    ]
+}
