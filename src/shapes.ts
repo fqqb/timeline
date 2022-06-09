@@ -21,8 +21,8 @@ export const drawDiamond: ShapeRenderer = (g: Graphics, bounds: Bounds, style: S
         .lineTo(bounds.x, bounds.y + ry)
         .closePath();
     g.fillPath({
-        color: style.color,
         path,
+        color: style.color,
         opacity: style.opacity,
     });
 

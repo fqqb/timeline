@@ -42,7 +42,7 @@ export class EventBand extends Band {
     private _eventHeight = 20;
     private _eventHoverOpacity = 0.7;
     private _eventMarginLeft = 5;
-    private _eventTextColor = '#333';
+    private _eventTextColor = '#333333';
     private _eventTextOverflow: TextOverflow = 'show';
     private _eventTextSize = 10;
     private _events: Event[] = [];
@@ -165,20 +165,20 @@ export class EventBand extends Band {
         };
 
         switch (this.milestoneShape) {
-            case 'diamond':
-                drawDiamond(g, bounds, shapeStyle);
-                break;
             case 'circle':
                 drawCircle(g, bounds, shapeStyle);
                 break;
-            case 'triangle':
-                drawTriangle(g, bounds, shapeStyle);
+            case 'diamond':
+                drawDiamond(g, bounds, shapeStyle);
+                break;
+            case 'dot':
+                drawDot(g, bounds, shapeStyle);
                 break;
             case 'reverse_triangle':
                 drawReverseTriangle(g, bounds, shapeStyle);
                 break;
-            case 'dot':
-                drawDot(g, bounds, shapeStyle);
+            case 'triangle':
+                drawTriangle(g, bounds, shapeStyle);
                 break;
         }
 

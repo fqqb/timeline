@@ -6,9 +6,13 @@ import { Sidebar } from './Sidebar';
 export class DefaultSidebar extends Sidebar {
 
     private _dividerColor = '#b3b3b3';
-    private _foregroundColor = '#333';
+    private _foregroundColor = '#333333';
     private _fontFamily = 'Verdana, Geneva, sans-serif';
     private _textSize = 10;
+    private _overlayColor = '#eeeeee';
+    private _overlayOpacity = 0.2;
+    private _hoverOverlayColor = '#aaaaaa';
+    private _hoverOverlayOpacity = 0.3;
 
     private hoveredIndex?: number;
 
@@ -46,8 +50,8 @@ export class DefaultSidebar extends Sidebar {
             y: 0,
             width: this.clippedWidth,
             height: g.canvas.height,
-            color: '#eee',
-            opacity: 0.2,
+            color: this.overlayColor,
+            opacity: this.overlayOpacity,
         });
 
         for (const band of bands) {
@@ -88,8 +92,8 @@ export class DefaultSidebar extends Sidebar {
                 y: band.y,
                 width: this.width,
                 height: band.height,
-                color: '#aaa',
-                opacity: 0.3,
+                color: this.hoverOverlayColor,
+                opacity: this.hoverOverlayOpacity,
             });
         }
 
@@ -129,6 +133,10 @@ export class DefaultSidebar extends Sidebar {
         this.reportMutation();
     }
 
+    /**
+     * Color of the right border that separates
+     * the sidebar from the timeline content.
+     */
     get dividerColor() { return this._dividerColor; }
     set dividerColor(dividerColor: string) {
         this._dividerColor = dividerColor;
@@ -144,6 +152,54 @@ export class DefaultSidebar extends Sidebar {
     get textSize() { return this._textSize; }
     set textSize(textSize: number) {
         this._textSize = textSize;
+        this.reportMutation();
+    }
+
+    /**
+     * Color used to cover the background.
+     *
+     * This is intended to be used in combination with
+     * <code>overlayOpacity</code> so that the overlay
+     * does not hide any labels.
+     */
+    get overlayColor() { return this._overlayColor; }
+    set overlayColor(overlayColor: string) {
+        this._overlayColor = overlayColor;
+        this.reportMutation();
+    }
+
+    /**
+     * Opacity of the overlay.
+     *
+     * Set to 0 to effectively disable the overlay.
+     */
+    get overlayOpacity() { return this._overlayOpacity; }
+    set overlayOpacity(overlayOpacity: number) {
+        this._overlayOpacity = overlayOpacity;
+        this.reportMutation();
+    }
+
+    /**
+     * Color overlayed on top of the hovered label.
+     *
+     * This is intended to be used in combination with
+     * <code>hoverOverlayOpacity</code> so that the
+     * overlay does not hide any labels.
+     */
+    get hoverOverlayColor() { return this._hoverOverlayColor; }
+    set hoverOverlayColor(hoverOverlayColor: string) {
+        this._hoverOverlayColor = hoverOverlayColor;
+        this.reportMutation();
+    }
+
+    /**
+     * Opacity of the overlay when a label is hovered.
+     *
+     * Set to 0 to effectively disable hover overlay.
+     */
+    get hoverOverlayOpacity() { return this._hoverOverlayOpacity; }
+    set hoverOverlayOpacity(hoverOverlayOpacity: number) {
+        this._hoverOverlayOpacity = hoverOverlayOpacity;
         this.reportMutation();
     }
 }

@@ -64,7 +64,7 @@ export class Timeline {
     animated = true;
     private animatableProperties: AnimatableProperty[] = [];
 
-    private _backgroundOddColor = 'white';
+    private _backgroundOddColor = '#ffffff';
     private _backgroundEvenColor = '#f5f5f5';
     private _foregroundColor = 'grey';
     private _bandBorderColor = '#e8e8e8';
@@ -72,7 +72,7 @@ export class Timeline {
     private _fontFamily = 'Verdana, Geneva, sans-serif';
     private _textSize = 10;
 
-    private _unselectedBackgroundColor = '#aaa';
+    private _unselectedBackgroundColor = '#aaaaaa';
     private _unselectedOpacity = 0.3;
     private _selectedBackgroundColor = 'transparent';
     private _selectedOpacity = 0.2;

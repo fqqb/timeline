@@ -26,8 +26,8 @@ export class MouseTracker extends TimeLocator {
      */
     constructor(timeline: Timeline) {
         super(timeline, () => this.time);
-        this.lineColor = '#ccc';
-        this.knobColor = '#ccc';
+        this.lineColor = '#cccccc';
+        this.knobColor = '#cccccc';
         this.lineDash = [4, 3];
 
         timeline.addViewportMouseMoveListener(this.mouseMoveListener);
