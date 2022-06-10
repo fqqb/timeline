@@ -24,7 +24,7 @@ export class LinePlot extends Band {
         return value.toFixed(2);
     };
 
-    private processedPoints: Array<{ x: number, y: number | null; }> = [];
+    private processedLines: Array<{ x: number, y: number | null; }>[] = [];
     private processedMinimum?: number;
     private processedMaximum?: number;
 
@@ -33,25 +33,28 @@ export class LinePlot extends Band {
     }
 
     private processData() {
-        this.processedPoints.length = 0;
+        this.processedLines.length = 0;
         this.processedMinimum = this.minimum;
         this.processedMaximum = this.maximum;
         if (this.lines.length) {
-            const line = this.lines[0];
-            for (const [x, y] of line.points) {
-                this.processedPoints.push({ x, y });
-                if (this.minimum === undefined && y !== null) {
-                    if (this.processedMinimum === undefined || y < this.processedMinimum) {
-                        this.processedMinimum = y;
+            for (const line of this.lines) {
+                const processedLine = [];
+                for (const [x, y] of line.points) {
+                    processedLine.push({ x, y });
+                    if (this.minimum === undefined && y !== null) {
+                        if (this.processedMinimum === undefined || y < this.processedMinimum) {
+                            this.processedMinimum = y;
+                        }
+                    }
+                    if (this.maximum === undefined && y !== null) {
+                        if (this.processedMaximum === undefined || y > this.processedMaximum) {
+                            this.processedMaximum = y;
+                        }
                     }
                 }
-                if (this.maximum === undefined && y !== null) {
-                    if (this.processedMaximum === undefined || y > this.processedMaximum) {
-                        this.processedMaximum = y;
-                    }
-                }
+                processedLine.sort((a, b) => a.x - b.x);
+                this.processedLines.push(processedLine);
             }
-            this.processedPoints.sort((a, b) => a.x - b.x);
         }
     }
 
@@ -65,13 +68,16 @@ export class LinePlot extends Band {
         const { contentHeight } = this;
         const { processedMinimum: min, processedMaximum: max } = this;
 
-        if (this.processedPoints.length) {
-            this.plotLines(g, min!, max!);
-        }
+        if (min !== undefined && max !== undefined) {
+            for (let i = 0; i < this.lines.length; i++) {
+                if (this.lines[i].points.size) {
+                    const processedLine = this.processedLines[i];
+                    this.drawLine(g, this.lines[i], processedLine, min, max);
+                }
+            }
 
-        if (this.processedMinimum !== undefined && max !== undefined) {
             g.fillText({
-                text: this.labelFormatter(min!),
+                text: this.labelFormatter(min),
                 align: 'right',
                 baseline: 'bottom',
                 color: this.labelTextColor,
@@ -80,7 +86,7 @@ export class LinePlot extends Band {
                 y: contentHeight,
             });
             g.fillText({
-                text: this.labelFormatter(max!),
+                text: this.labelFormatter(max),
                 align: 'right',
                 baseline: 'top',
                 color: this.labelTextColor,
@@ -91,7 +97,7 @@ export class LinePlot extends Band {
         }
     }
 
-    private plotLines(g: Graphics, min: number, max: number) {
+    private drawLine(g: Graphics, line: Line, processedLine: Array<{ x: number, y: number | null; }>, min: number, max: number) {
         const { contentHeight } = this;
 
         // Plot max should align with mid of top label, and plot min with mid of bottom label.
@@ -103,15 +109,15 @@ export class LinePlot extends Band {
             return contentHeight - margin - ((value - min) / (max - min) * (plotHeight - 0));
         };
 
-        const line = this.lines[0];
         const points: Array<{ x: number, y: number | null; }> = [];
 
         const fillColor = line.fillColor ?? this.fillColor;
         const lineColor = line.lineColor ?? this.lineColor;
         const lineWidth = line.lineWidth ?? this.lineWidth;
+        const pointColor = line.pointColor ?? this.pointColor;
         const pointRadius = line.pointRadius ?? this.pointRadius;
 
-        for (const sample of this.processedPoints) {
+        for (const sample of processedLine) {
             const x = Math.round(this.timeline.positionTime(sample.x));
             if (sample.y === null) {
                 points.push({ x, y: null });
@@ -144,7 +150,7 @@ export class LinePlot extends Band {
 
         g.strokePath({
             path,
-            color: this.lineColor,
+            color: lineColor,
             lineWidth,
         });
 
@@ -156,7 +162,7 @@ export class LinePlot extends Band {
                     cy: point.y,
                     rx: pointRadius,
                     ry: pointRadius,
-                    color: lineColor,
+                    color: pointColor,
                 });
             }
         }
