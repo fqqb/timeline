@@ -118,13 +118,25 @@ export class LinePlot extends Band {
                 }
             }
 
+            const tickLength = 5;
+            const tickMargin = 2;
+            const minY = Math.round(contentHeight - (this.labelTextSize / 2)) - 0.5;
+            const maxY = Math.round(this.labelTextSize / 2) - 0.5;
+            g.strokePath({
+                path: new Path(this.timeline.mainWidth, minY)
+                    .lineTo(this.timeline.mainWidth - tickLength, minY)
+                    .moveTo(this.timeline.mainWidth, maxY)
+                    .lineTo(this.timeline.mainWidth - tickLength, maxY),
+                color: this.labelTextColor,
+            });
+
             g.fillText({
                 text: this.labelFormatter(min),
                 align: 'right',
                 baseline: 'bottom',
                 color: this.labelTextColor,
                 font: `${this.labelTextSize}px ${this.labelFontFamily}`,
-                x: this.timeline.mainWidth,
+                x: this.timeline.mainWidth - tickLength - tickMargin,
                 y: contentHeight,
             });
             g.fillText({
@@ -133,7 +145,7 @@ export class LinePlot extends Band {
                 baseline: 'top',
                 color: this.labelTextColor,
                 font: `${this.labelTextSize}px ${this.labelFontFamily}`,
-                x: this.timeline.mainWidth,
+                x: this.timeline.mainWidth - tickLength - tickMargin,
                 y: 0,
             });
         }
