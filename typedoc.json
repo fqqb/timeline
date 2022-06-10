@@ -6,6 +6,7 @@
     "json": "docs/_data/tsdoc.json",
     "intentionallyNotExported": [
         "AnnotatedEvent",
+        "AnnotatedLine",
         "DecadeScale",
         "DOMEventHandler",
         "HitCanvas",

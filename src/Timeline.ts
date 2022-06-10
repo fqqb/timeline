@@ -3,7 +3,7 @@ import { Band } from './Band';
 import { DefaultSidebar } from './DefaultSidebar';
 import { DOMEventHandler } from './DOMEventHandler';
 import { Drawable } from './Drawable';
-import { EventClickEvent, EventMouseEvent, HeaderClickEvent, TimelineEvent, TimelineEventHandlers, ViewportChangeEvent, ViewportMouseMoveEvent, ViewportMouseOutEvent, ViewportSelectionEvent } from './events';
+import { EventClickEvent, EventMouseEvent, HeaderClickEvent, LineClickEvent, LineHoverEvent, TimelineEvent, TimelineEventHandlers, ViewportChangeEvent, ViewportMouseMoveEvent, ViewportMouseOutEvent, ViewportSelectionEvent } from './events';
 import { Graphics, Path } from './Graphics';
 import { Sidebar } from './Sidebar';
 import { TimeRange } from './TimeRange';
@@ -49,6 +49,8 @@ export class Timeline {
         eventclick: [],
         eventmousemove: [],
         eventmouseout: [],
+        lineclick: [],
+        linehover: [],
         viewportchange: [],
         viewportmousemove: [],
         viewportmouseout: [],
@@ -317,6 +319,40 @@ export class Timeline {
             this.requestRepaint();
         }
         return drawable;
+    }
+
+    /**
+     * Register a listener that receives an update when a point on
+     * a Line is clicked.
+     */
+    addLineClickListener(listener: (ev: LineClickEvent) => void) {
+        this.eventListeners.lineclick.push(listener);
+    }
+
+    /**
+     * Unregister a previously registered listener to stop receiving
+     * event click events.
+     */
+    removeLineClickListener(listener: (ev: LineClickEvent) => void) {
+        this.eventListeners.lineclick = this.eventListeners.lineclick
+            .filter(el => (el !== listener));
+    }
+
+    /**
+     * Register a listener that receives an update when a point on a
+     * Line is hovered.
+     */
+    addLineHoverListener(listener: (ev: LineHoverEvent) => void) {
+        this.eventListeners.linehover.push(listener);
+    }
+
+    /**
+     * Unregister a previously registered listener to stop receiving
+     * event click events.
+     */
+    removeLineHoverListener(listener: (ev: LineHoverEvent) => void) {
+        this.eventListeners.linehover = this.eventListeners.linehover
+            .filter(el => (el !== listener));
     }
 
     /**

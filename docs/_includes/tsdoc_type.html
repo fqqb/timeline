@@ -77,6 +77,10 @@
     "{{- include.type.value -}}"
 
 
+{%- elsif include.type.type == 'literal' and include.type.value == nil -%}
+    null
+
+
 {%- elsif include.type.type == 'literal' -%}
     "{{- include.type.value -}}"
 

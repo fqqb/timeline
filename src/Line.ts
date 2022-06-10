@@ -27,6 +27,11 @@ export interface Line {
     pointRadius?: number;
 
     /**
+     * Radius of the point symbol when hovered.
+     */
+    pointHoverRadius?: number;
+
+    /**
      * Color of the point symbol.
      */
     pointColor?: string;

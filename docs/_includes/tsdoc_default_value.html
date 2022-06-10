@@ -38,6 +38,6 @@
     {%- endif -%}
 {%- endfor -%}
 
-{%- if default_value != nil -%}
+{%- if default_value != nil and default_value != "..." -%}
     {{ default_value }}
 {%- endif -%}

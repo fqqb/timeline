@@ -1,7 +1,28 @@
 import { Band } from './Band';
 import { Graphics, Path } from './Graphics';
+import { HitRegionSpecification } from './HitCanvas';
 import { Line } from './Line';
 import { Timeline } from './Timeline';
+
+interface AnnotatedLine {
+    id: string;
+    points: AnnotatedPoint[];
+}
+
+interface DrawInfo {
+    renderX: number;
+    renderY?: number;
+}
+
+interface AnnotatedPoint {
+    x: number;
+    y: number | null;
+    region: HitRegionSpecification;
+    hovered: boolean;
+    drawInfo?: DrawInfo;
+}
+
+let lineSequence = 1;
 
 /**
  * Band type that plots a line along the timeline.
@@ -17,6 +38,7 @@ export class LinePlot extends Band {
     private _minimum?: number;
     private _maximum?: number;
     private _pointRadius = 1.5;
+    private _pointHoverRadius = 4;
     private _pointColor = '#4f9146';
     private _lines: Line[] = [];
     private _contentHeight = 30;
@@ -24,36 +46,56 @@ export class LinePlot extends Band {
         return value.toFixed(2);
     };
 
-    private processedLines: Array<{ x: number, y: number | null; }>[] = [];
-    private processedMinimum?: number;
-    private processedMaximum?: number;
+    private annotatedLines: AnnotatedLine[] = [];
+    private viewMinimum?: number;
+    private viewMaximum?: number;
 
     constructor(timeline: Timeline) {
         super(timeline);
     }
 
     private processData() {
-        this.processedLines.length = 0;
-        this.processedMinimum = this.minimum;
-        this.processedMaximum = this.maximum;
+        this.annotatedLines.length = 0;
+        this.viewMinimum = this.minimum;
+        this.viewMaximum = this.maximum;
         if (this.lines.length) {
             for (const line of this.lines) {
-                const processedLine = [];
+                const lineId = 'line_plot_' + lineSequence++;
+                const annotatedPoints = [];
                 for (const [x, y] of line.points) {
-                    processedLine.push({ x, y });
+                    const annotatedPoint: AnnotatedPoint = {
+                        x, y,
+                        hovered: false,
+                        region: {
+                            id: lineId + '_' + x,
+                            cursor: 'pointer',
+                            mouseEnter: () => {
+                                annotatedPoint.hovered = true;
+                                this.reportMutation();
+                            },
+                            mouseOut: evt => {
+                                annotatedPoint.hovered = false;
+                                this.reportMutation();
+                            }
+                        },
+                    };
+                    annotatedPoints.push(annotatedPoint);
                     if (this.minimum === undefined && y !== null) {
-                        if (this.processedMinimum === undefined || y < this.processedMinimum) {
-                            this.processedMinimum = y;
+                        if (this.viewMinimum === undefined || y < this.viewMinimum) {
+                            this.viewMinimum = y;
                         }
                     }
                     if (this.maximum === undefined && y !== null) {
-                        if (this.processedMaximum === undefined || y > this.processedMaximum) {
-                            this.processedMaximum = y;
+                        if (this.viewMaximum === undefined || y > this.viewMaximum) {
+                            this.viewMaximum = y;
                         }
                     }
                 }
-                processedLine.sort((a, b) => a.x - b.x);
-                this.processedLines.push(processedLine);
+                annotatedPoints.sort((a, b) => a.x - b.x);
+                this.annotatedLines.push({
+                    id: lineId,
+                    points: annotatedPoints,
+                });
             }
         }
     }
@@ -66,13 +108,13 @@ export class LinePlot extends Band {
     /** @hidden */
     drawBandContent(g: Graphics) {
         const { contentHeight } = this;
-        const { processedMinimum: min, processedMaximum: max } = this;
+        const { viewMinimum: min, viewMaximum: max } = this;
 
         if (min !== undefined && max !== undefined) {
             for (let i = 0; i < this.lines.length; i++) {
                 if (this.lines[i].points.size) {
-                    const processedLine = this.processedLines[i];
-                    this.drawLine(g, this.lines[i], processedLine, min, max);
+                    const annotatedLine = this.annotatedLines[i];
+                    this.drawLine(g, this.lines[i], annotatedLine, min, max);
                 }
             }
 
@@ -97,7 +139,7 @@ export class LinePlot extends Band {
         }
     }
 
-    private drawLine(g: Graphics, line: Line, processedLine: Array<{ x: number, y: number | null; }>, min: number, max: number) {
+    private drawLine(g: Graphics, line: Line, annotatedLine: AnnotatedLine, min: number, max: number) {
         const { contentHeight } = this;
 
         // Plot max should align with mid of top label, and plot min with mid of bottom label.
@@ -109,42 +151,41 @@ export class LinePlot extends Band {
             return contentHeight - margin - ((value - min) / (max - min) * (plotHeight - 0));
         };
 
-        const points: Array<{ x: number, y: number | null; }> = [];
-
         const fillColor = line.fillColor ?? this.fillColor;
         const lineColor = line.lineColor ?? this.lineColor;
         const lineWidth = line.lineWidth ?? this.lineWidth;
         const pointColor = line.pointColor ?? this.pointColor;
         const pointRadius = line.pointRadius ?? this.pointRadius;
+        const pointHoverRadius = line.pointHoverRadius ?? this.pointHoverRadius;
 
-        for (const sample of processedLine) {
-            const x = Math.round(this.timeline.positionTime(sample.x));
-            if (sample.y === null) {
-                points.push({ x, y: null });
-            } else {
-                points.push({ x, y: positionValue(sample.y) });
-            }
+        const { points } = annotatedLine;
+
+        for (const point of points) {
+            point.drawInfo = {
+                renderX: Math.round(this.timeline.positionTime(point.x)),
+                renderY: point.y !== null ? positionValue(point.y) : undefined,
+            };
         }
 
         // Draw trace
-        const path = new Path(points[0].x, points[0].y ?? 0);
+        const path = new Path(points[0].drawInfo!.renderX, points[0].drawInfo!.renderY ?? 0);
         const originY = positionValue(0);
         for (let i = 1; i < points.length; i++) {
-            const prev = points[i - 1];
-            const point = points[i];
-            if (prev.y !== null && point.y !== null) {
-                path.lineTo(point.x, point.y);
+            const prev = points[i - 1].drawInfo!;
+            const point = points[i].drawInfo!;
+            if (prev.renderY !== undefined && point.renderY !== undefined) {
+                path.lineTo(point.renderX, point.renderY);
 
                 // Area fill
                 g.fillPath({
-                    path: new Path(prev.x, prev.y)
-                        .lineTo(prev.x, originY)
-                        .lineTo(point.x, originY)
-                        .lineTo(point.x, point.y),
+                    path: new Path(prev.renderX, prev.renderY)
+                        .lineTo(prev.renderX, originY)
+                        .lineTo(point.renderX, originY)
+                        .lineTo(point.renderX, point.renderY),
                     color: fillColor,
                 });
-            } else if (point.y !== null) {
-                path.moveTo(point.x, point.y);
+            } else if (point.renderY !== undefined) {
+                path.moveTo(point.renderX, point.renderY);
             }
         }
 
@@ -156,14 +197,21 @@ export class LinePlot extends Band {
 
         // Draw point symbols
         for (const point of points) {
-            if (point.y !== null) {
+            const { renderX, renderY } = point.drawInfo!;
+            if (renderY !== undefined) {
                 g.fillEllipse({
-                    cx: point.x,
-                    cy: point.y,
-                    rx: pointRadius,
-                    ry: pointRadius,
+                    cx: renderX,
+                    cy: renderY,
+                    rx: point.hovered ? pointHoverRadius : pointRadius,
+                    ry: point.hovered ? pointHoverRadius : pointRadius,
                     color: pointColor,
                 });
+
+                const hitRegion = g.addHitRegion(point.region);
+                hitRegion.addRect(renderX - pointHoverRadius,
+                    renderY - pointHoverRadius,
+                    2 * pointHoverRadius,
+                    2 * pointHoverRadius);
             }
         }
     }
@@ -219,6 +267,15 @@ export class LinePlot extends Band {
     get pointRadius() { return this._pointRadius; }
     set pointRadius(pointRadius: number) {
         this._pointRadius = pointRadius;
+        this.reportMutation();
+    }
+
+    /**
+     * Radius of the point symbol when hovered.
+     */
+    get pointHoverRadius() { return this._pointHoverRadius; }
+    set pointHoverRadius(pointHoverRadius: number) {
+        this._pointHoverRadius = pointHoverRadius;
         this.reportMutation();
     }
 

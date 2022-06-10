@@ -117,11 +117,55 @@ export interface ViewportSelectionEvent extends TimelineEvent {
     selection?: TimeRange;
 }
 
+/**
+ * Event generated when a point on a LinePlot was clicked.
+ */
+export interface LineClickEvent extends TimelineEvent {
+    /**
+     * Time value of the clicked point.
+     */
+    time: number;
+
+    /**
+     * Value of the clicked point.
+     */
+    value: number | null;
+}
+
+/**
+ * Event generated when a point on a LinePlot was hovered.
+ */
+export interface LineHoverEvent extends TimelineEvent {
+    /**
+     * Horizontal coordinate of the mouse pointer, relative to
+     * the browser page.
+     */
+    clientX: number;
+
+    /**
+     * Vertical coordinate of the mouse pointer, relative to the
+     * browser page.
+     */
+    clientY: number;
+
+    /**
+     * Time value of the hovered point.
+     */
+    time: number;
+
+    /**
+     * Value of the hovered point.
+     */
+    value: number | null;
+}
+
 export type TimelineEventHandlers = {
     'eventclick': Array<(ev: EventClickEvent) => void>;
     'eventmousemove': Array<(ev: EventMouseEvent) => void>;
     'eventmouseout': Array<(ev: EventMouseEvent) => void>;
     'headerclick': Array<(ev: HeaderClickEvent) => void>;
+    'lineclick': Array<(ev: LineClickEvent) => void>;
+    'linehover': Array<(ev: LineHoverEvent) => void>;
     'viewportchange': Array<(ev: ViewportChangeEvent) => void>;
     'viewportmousemove': Array<(ev: ViewportMouseMoveEvent) => void>;
     'viewportmouseout': Array<(ev: ViewportMouseOutEvent) => void>;
