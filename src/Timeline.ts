@@ -72,10 +72,8 @@ export class Timeline {
     private _fontFamily = 'Verdana, Geneva, sans-serif';
     private _textSize = 10;
 
-    private _unselectedBackgroundColor = '#aaaaaa';
-    private _unselectedOpacity = 0.3;
+    private _unselectedBackgroundColor = 'rgba(170, 170, 170, 0.3)';
     private _selectedBackgroundColor = 'transparent';
-    private _selectedOpacity = 0.2;
     private _selectedLineDash = [4, 3];
     private _selectedLineColor = 'transparent';
 
@@ -753,7 +751,6 @@ export class Timeline {
             width: x1,
             height: g.canvas.height,
             color: this._unselectedBackgroundColor,
-            opacity: this._unselectedOpacity,
         });
         g.fillRect({
             x: x2,
@@ -761,7 +758,6 @@ export class Timeline {
             width: g.canvas.width - x2,
             height: g.canvas.height,
             color: this._unselectedBackgroundColor,
-            opacity: this._unselectedOpacity,
         });
 
         g.fillRect({
@@ -770,7 +766,6 @@ export class Timeline {
             width: g.canvas.width,
             height: g.canvas.height,
             color: this._selectedBackgroundColor,
-            opacity: this._selectedOpacity,
         });
 
         g.strokePath({

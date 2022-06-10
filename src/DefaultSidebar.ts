@@ -9,10 +9,8 @@ export class DefaultSidebar extends Sidebar {
     private _foregroundColor = '#333333';
     private _fontFamily = 'Verdana, Geneva, sans-serif';
     private _textSize = 10;
-    private _overlayColor = '#eeeeee';
-    private _overlayOpacity = 0.2;
-    private _hoverOverlayColor = '#aaaaaa';
-    private _hoverOverlayOpacity = 0.3;
+    private _overlayColor = 'rgba(238, 238, 238, 0.2)';
+    private _hoverOverlayColor = 'rgba(170, 170, 170, 0.3)';
 
     private hoveredIndex?: number;
 
@@ -51,7 +49,6 @@ export class DefaultSidebar extends Sidebar {
             width: this.clippedWidth,
             height: g.canvas.height,
             color: this.overlayColor,
-            opacity: this.overlayOpacity,
         });
 
         for (const band of bands) {
@@ -93,7 +90,6 @@ export class DefaultSidebar extends Sidebar {
                 width: this.width,
                 height: band.height,
                 color: this.hoverOverlayColor,
-                opacity: this.hoverOverlayOpacity,
             });
         }
 
@@ -157,10 +153,6 @@ export class DefaultSidebar extends Sidebar {
 
     /**
      * Color used to cover the background.
-     *
-     * This is intended to be used in combination with
-     * <code>overlayOpacity</code> so that the overlay
-     * does not hide any labels.
      */
     get overlayColor() { return this._overlayColor; }
     set overlayColor(overlayColor: string) {
@@ -169,37 +161,11 @@ export class DefaultSidebar extends Sidebar {
     }
 
     /**
-     * Opacity of the overlay.
-     *
-     * Set to 0 to effectively disable the overlay.
-     */
-    get overlayOpacity() { return this._overlayOpacity; }
-    set overlayOpacity(overlayOpacity: number) {
-        this._overlayOpacity = overlayOpacity;
-        this.reportMutation();
-    }
-
-    /**
      * Color overlayed on top of the hovered label.
-     *
-     * This is intended to be used in combination with
-     * <code>hoverOverlayOpacity</code> so that the
-     * overlay does not hide any labels.
      */
     get hoverOverlayColor() { return this._hoverOverlayColor; }
     set hoverOverlayColor(hoverOverlayColor: string) {
         this._hoverOverlayColor = hoverOverlayColor;
-        this.reportMutation();
-    }
-
-    /**
-     * Opacity of the overlay when a label is hovered.
-     *
-     * Set to 0 to effectively disable hover overlay.
-     */
-    get hoverOverlayOpacity() { return this._hoverOverlayOpacity; }
-    set hoverOverlayOpacity(hoverOverlayOpacity: number) {
-        this._hoverOverlayOpacity = hoverOverlayOpacity;
         this.reportMutation();
     }
 }

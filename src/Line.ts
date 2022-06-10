@@ -23,11 +23,6 @@ export interface Line {
     fillColor?: string;
 
     /**
-     * Opacity of the color fill for this line.
-     */
-    fillOpacity?: number;
-
-    /**
      * Radius of the point symbol.
      */
     pointRadius?: number;

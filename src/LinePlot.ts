@@ -11,7 +11,6 @@ export class LinePlot extends Band {
     private _lineColor = '#4f9146';
     private _fill = false;
     private _fillColor = '#9ee619';
-    private _fillOpacity = 1;
     private _minimum?: number;
     private _maximum?: number;
     private _pointRadius = 1.5;
@@ -67,7 +66,6 @@ export class LinePlot extends Band {
 
         const fill = line.fill ?? this.fill;
         const fillColor = line.fillColor ?? this.fillColor;
-        const fillOpacity = line.fillOpacity ?? this.fillOpacity;
         const lineColor = line.lineColor ?? this.lineColor;
         const pointRadius = line.pointRadius ?? this.pointRadius;
 
@@ -96,7 +94,6 @@ export class LinePlot extends Band {
                             .lineTo(point.x, originY)
                             .lineTo(point.x, point.y),
                         color: fillColor,
-                        opacity: fillOpacity,
                     });
                 }
             }
@@ -164,15 +161,6 @@ export class LinePlot extends Band {
     get fillColor() { return this._fillColor; }
     set fillColor(fillColor: string) {
         this._fillColor = fillColor;
-        this.reportMutation();
-    }
-
-    /**
-     * Opacity of the area fill between the plot line and the value 0.
-     */
-    get fillOpacity() { return this._fillOpacity; }
-    set fillOpacity(fillOpacity: number) {
-        this._fillOpacity = fillOpacity;
         this.reportMutation();
     }
 
