@@ -40,7 +40,7 @@ export class EventBand extends Band {
     private _eventCursor = 'pointer';
     private _eventFontFamily = 'Verdana, Geneva, sans-serif';
     private _eventHeight = 20;
-    private _eventHoverOpacity = 0.7;
+    private _eventHoverBackground: FillStyle = 'rgba(255, 255, 255, 0.2)';
     private _eventMarginLeft = 5;
     private _eventTextColor = '#333333';
     private _eventTextOverflow: TextOverflow = 'show';
@@ -154,32 +154,19 @@ export class EventBand extends Band {
             width: this.eventHeight,
             height: this.eventHeight,
         };
-        const opacity = event.hovered ? this.eventHoverOpacity : 1;
 
         const shapeStyle: ShapeStyle = {
             fill: event.background ?? this.eventBackground,
-            opacity,
             borderWidth: event.borderWidth ?? this.eventBorderWidth,
             borderColor: event.borderColor ?? this.eventBorderColor,
             borderDash: event.borderDash ?? this.eventBorderDash,
         };
 
-        switch (this.milestoneShape) {
-            case 'circle':
-                drawCircle(g, bounds, shapeStyle);
-                break;
-            case 'diamond':
-                drawDiamond(g, bounds, shapeStyle);
-                break;
-            case 'dot':
-                drawDot(g, bounds, shapeStyle);
-                break;
-            case 'reverse_triangle':
-                drawReverseTriangle(g, bounds, shapeStyle);
-                break;
-            case 'triangle':
-                drawTriangle(g, bounds, shapeStyle);
-                break;
+        this.drawMilestoneShape(g, bounds, shapeStyle);
+        if (event.hovered) {
+            const hoverBackground = event.hoverBackground ?? this.eventHoverBackground;
+            const hoverStyle = { ...shapeStyle, fill: hoverBackground };
+            this.drawMilestoneShape(g, bounds, hoverStyle);
         }
 
         // Hit region covers both the shape, and potential outside text
@@ -195,8 +182,27 @@ export class EventBand extends Band {
                 baseline: 'middle',
                 align: 'left',
                 color: event.textColor ?? this.eventTextColor,
-                opacity,
             });
+        }
+    }
+
+    private drawMilestoneShape(g: Graphics, bounds: Bounds, style: ShapeStyle) {
+        switch (this.milestoneShape) {
+            case 'circle':
+                drawCircle(g, bounds, style);
+                break;
+            case 'diamond':
+                drawDiamond(g, bounds, style);
+                break;
+            case 'dot':
+                drawDot(g, bounds, style);
+                break;
+            case 'reverse_triangle':
+                drawReverseTriangle(g, bounds, style);
+                break;
+            case 'triangle':
+                drawTriangle(g, bounds, style);
+                break;
         }
     }
 
@@ -205,7 +211,7 @@ export class EventBand extends Band {
             startX, stopX, label, renderStartX, renderStopX,
             marginLeft, offscreenStart, labelFitsBox, font,
         } = event.drawInfo!;
-        const opacity = event.hovered ? this.eventHoverOpacity : 1;
+
         const box: Bounds = {
             x: Math.round(startX),
             y,
@@ -218,8 +224,16 @@ export class EventBand extends Band {
             rx: r,
             ry: r,
             fill: event.background ?? this.eventBackground,
-            opacity,
         });
+
+        if (event.hovered) {
+            g.fillRect({
+                ...box,
+                rx: r,
+                ry: r,
+                fill: event.hoverBackground ?? this.eventHoverBackground,
+            });
+        }
 
         // Hit region covers both the box, and potential outside text
         const hitRegion = g.addHitRegion(event.region);
@@ -234,7 +248,6 @@ export class EventBand extends Band {
             lineWidth: borderWidth,
             dash: event.borderDash ?? this.eventBorderDash,
             crispen: true,
-            opacity,
         });
 
         if (label) {
@@ -252,7 +265,6 @@ export class EventBand extends Band {
                     baseline: 'middle',
                     align: 'left',
                     color: event.textColor ?? this.eventTextColor,
-                    opacity,
                 });
             } else if (this.eventTextOverflow === 'clip') {
                 const tmpCanvas = document.createElement('canvas');
@@ -263,9 +275,6 @@ export class EventBand extends Band {
                 offscreenCtx.font = font;
                 offscreenCtx.textBaseline = 'middle';
                 offscreenCtx.textAlign = 'left';
-                if (event.hovered) {
-                    offscreenCtx.globalAlpha = this.eventHoverOpacity;
-                }
                 offscreenCtx.fillText(label, marginLeft, box.height / 2);
                 g.ctx.drawImage(tmpCanvas, box.x, box.y);
             }
@@ -545,11 +554,13 @@ export class EventBand extends Band {
     }
 
     /**
-     * Event opacity when hovering
+     * Event background when hovering.
+     *
+     * This is drawn on top of the actual event background.
      */
-    get eventHoverOpacity() { return this._eventHoverOpacity; }
-    set eventHoverOpacity(eventHoverOpacity: number) {
-        this._eventHoverOpacity = eventHoverOpacity;
+    get eventHoverBackground() { return this._eventHoverBackground; }
+    set eventHoverBackground(eventHoverBackground: FillStyle) {
+        this._eventHoverBackground = eventHoverBackground;
         this.reportMutation();
     }
 

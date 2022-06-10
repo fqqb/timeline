@@ -31,6 +31,11 @@ export interface Event {
     background?: FillStyle;
 
     /**
+     * Background style of this event when it is hovered.
+     */
+    hoverBackground?: FillStyle;
+
+    /**
      * Text color of this event
      */
     textColor?: string;

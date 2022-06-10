@@ -3,7 +3,6 @@ import { Bounds, Point, shrink } from './positioning';
 import * as utils from './utils';
 
 export type FillStyle = string | CanvasGradient | CanvasPattern;
-export type StrokeStyle = string | CanvasGradient | CanvasPattern;
 
 export interface RectFill {
     x: number;
