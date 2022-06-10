@@ -12,10 +12,9 @@ export interface Line {
     lineColor?: string;
 
     /**
-     * Whether to fill the area between this plot line
-     * and the value 0.
+     * Thickness of this plot line.
      */
-    fill?: boolean;
+    lineWidth?: number;
 
     /**
      * Color of the fill for this line.

@@ -36,7 +36,7 @@ band.label = 'Plot';
 band.fill = true;
 
 const points = new Map();
-for (let i = 0; i < 100; i += 0.1) {
+for (let i = 0; i < 100; i += 0.01) {
     points.set(i, Math.sin(i));
 }
 
