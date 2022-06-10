@@ -1,5 +1,6 @@
 export { AnimatableProperty } from './AnimatableProperty';
 export { Band } from './Band';
+export { Banner, TextAlignment } from './Banner';
 export { DefaultSidebar } from './DefaultSidebar';
 export { Drawable } from './Drawable';
 export { Event } from './Event';
