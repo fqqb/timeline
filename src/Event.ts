@@ -2,7 +2,7 @@
  * Event-specific properties.
  *
  * Style attributes are optional. Values that are defined
- * here are priotized over band attributes.
+ * here are prioritized over band attributes.
  */
 export interface Event {
 

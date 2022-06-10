@@ -1,0 +1,28 @@
+---
+---
+<!doctype html>
+<html>
+<body style="padding: 0; margin: 0">
+    <div id="timeline" style="height: 100px"></div>
+    <script type="module">
+        import { Timeline, LinePlot } from '{{- site.dist -}}';
+        window.addEventListener('load', () => {
+            const targetEl = document.getElementById('timeline');
+            const timeline = new Timeline(targetEl);
+            const band = new LinePlot(timeline);
+            band.label = 'Plot';
+            band.fill = true;
+
+            const points = new Map();
+            for (let i = 0; i < 100; i += 0.1) {
+                points.set(i, Math.sin(i));
+            }
+
+            band.lines = [{
+                points,
+                pointRadius: 0,
+            }];
+        });
+    </script>
+</body>
+</html>

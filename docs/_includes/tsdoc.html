@@ -22,18 +22,22 @@
                 {%- endif -%}
                 {%- if child.extendedTypes -%}
                     <small>
-                        <code>extends</code>
-                        {%- for type in child.extendedTypes -%}
-                            &nbsp;{%- include tsdoc_type.html type=type -%}
-                        {%- endfor -%}
+                        <code>
+                            extends
+                            {%- for type in child.extendedTypes -%}
+                                &nbsp;{%- include tsdoc_type.html type=type -%}
+                            {%- endfor -%}
+                        </code>
                     </small>
                 {%- endif -%}
                 {%- if child.implementedTypes -%}
                     <small>
-                        <code>implements</code>
-                        {%- for type in child.implementedTypes -%}
-                            &nbsp;{%- include tsdoc_type.html type=type -%}
-                        {%- endfor -%}
+                        <code>
+                            implements
+                            {%- for type in child.implementedTypes -%}
+                                &nbsp;{%- include tsdoc_type.html type=type -%}
+                            {%- endfor -%}
+                        </code>
                     </small>
                 {%- endif -%}
             </h1>

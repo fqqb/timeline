@@ -127,8 +127,10 @@ export abstract class Band extends Drawable {
         }
     }
 
-    /** @hidden */
-    getContentHeight() {
+    /**
+     * The height of the band content (excluding margins).
+     */
+    get contentHeight() {
         return this.offscreen?.canvas.height || 0;
     }
 

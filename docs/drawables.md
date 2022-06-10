@@ -15,7 +15,7 @@ A band showing events.
 
 ```javascript
 const band = new EventBand(timeline);
-band.label = 'Band';
+band.label = 'Events';
 band.events = [
     { start: 20, stop: 40, label: 'Event' },
     { start: 60, label: 'Milestone' },
@@ -25,6 +25,29 @@ band.events = [
 {% include demo.html src="/timeline/examples/drawables-EventBand.html"
                      height="34px"
                      caption="EventBand" %}
+
+## LinePlot
+
+A band showing a line plot.
+
+```javascript
+const band = new LinePlot(timeline);
+band.label = 'Plot';
+band.fill = true;
+
+const points = new Map();
+for (let i = 0; i < 100; i += 0.1) {
+    points.set(i, Math.sin(i));
+}
+
+band.lines = [{
+    points,
+    pointRadius: 0,
+}];
+```
+{% include demo.html src="/timeline/examples/drawables-LinePlot.html"
+                     height="30px"
+                     caption="LinePlot" %}
 
 ## TimeRuler
 
