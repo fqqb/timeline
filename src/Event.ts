@@ -1,3 +1,5 @@
+import { FillStyle } from './Graphics';
+
 /**
  * Event-specific properties.
  *
@@ -24,9 +26,9 @@ export interface Event {
     label?: string;
 
     /**
-     * Background color of this event
+     * Background style of this event
      */
-    color?: string;
+    background?: FillStyle;
 
     /**
      * Text color of this event

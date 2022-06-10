@@ -4,7 +4,7 @@ import { DefaultSidebar } from './DefaultSidebar';
 import { DOMEventHandler } from './DOMEventHandler';
 import { Drawable } from './Drawable';
 import { EventClickEvent, EventMouseEvent, HeaderClickEvent, LineClickEvent, LineHoverEvent, TimelineEvent, TimelineEventHandlers, ViewportChangeEvent, ViewportMouseMoveEvent, ViewportMouseOutEvent, ViewportSelectionEvent } from './events';
-import { Graphics, Path } from './Graphics';
+import { FillStyle, Graphics, Path } from './Graphics';
 import { Sidebar } from './Sidebar';
 import { TimeRange } from './TimeRange';
 
@@ -74,8 +74,8 @@ export class Timeline {
     private _fontFamily = 'Verdana, Geneva, sans-serif';
     private _textSize = 10;
 
-    private _unselectedBackgroundColor = 'rgba(170, 170, 170, 0.3)';
-    private _selectedBackgroundColor = 'transparent';
+    private _unselectedBackground: FillStyle = 'rgba(170, 170, 170, 0.3)';
+    private _selectedBackground: FillStyle = 'transparent';
     private _selectedLineDash = [4, 3];
     private _selectedLineColor = 'transparent';
 
@@ -725,20 +725,20 @@ export class Timeline {
                     y: drawable.y,
                     width: g.canvas.width,
                     height: drawable.height,
-                    color: stripedColor,
+                    fill: stripedColor,
                 });
                 stripedColor = (stripedColor === this.backgroundOddColor)
                     ? this.backgroundEvenColor
                     : this.backgroundOddColor;
 
                 // Override odd/even striped pattern
-                if (drawable.backgroundColor) {
+                if (drawable.background) {
                     g.fillRect({
                         x: drawable.x,
                         y: drawable.y,
                         width: g.canvas.width,
                         height: drawable.height,
-                        color: drawable.backgroundColor,
+                        fill: drawable.background,
                     });
                 }
             }
@@ -786,14 +786,14 @@ export class Timeline {
             y: 0,
             width: x1,
             height: g.canvas.height,
-            color: this._unselectedBackgroundColor,
+            fill: this._unselectedBackground,
         });
         g.fillRect({
             x: x2,
             y: 0,
             width: g.canvas.width - x2,
             height: g.canvas.height,
-            color: this._unselectedBackgroundColor,
+            fill: this._unselectedBackground,
         });
 
         g.fillRect({
@@ -801,7 +801,7 @@ export class Timeline {
             y: 0,
             width: g.canvas.width,
             height: g.canvas.height,
-            color: this._selectedBackgroundColor,
+            fill: this._selectedBackground,
         });
 
         g.strokePath({

@@ -1,9 +1,10 @@
 import { Drawable } from './Drawable';
+import { FillStyle } from './Graphics';
 
 export abstract class Sidebar extends Drawable {
 
     private _width = 200;
-    private _backgroundColor = 'white';
+    private _background: FillStyle = 'white';
     private _clippedWidth = this.createAnimatableProperty(this._width);
     private _opened = true;
 
@@ -19,11 +20,11 @@ export abstract class Sidebar extends Drawable {
     }
 
     /**
-     * Background color of the entire sidebar.
+     * Background style of the entire sidebar.
      */
-    get backgroundColor() { return this._backgroundColor; }
-    set backgroundColor(backgroundColor: string) {
-        this._backgroundColor = backgroundColor;
+    get background() { return this._background; }
+    set background(background: FillStyle) {
+        this._background = background;
         this.reportMutation();
     }
 

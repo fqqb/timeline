@@ -1,8 +1,8 @@
-import { Graphics, Path } from './Graphics';
+import { FillStyle, Graphics, Path } from './Graphics';
 import { Bounds } from './positioning';
 
 export interface ShapeStyle {
-    color: string;
+    fill: FillStyle;
     opacity: number;
     borderWidth: number;
     borderColor: string;
@@ -22,7 +22,7 @@ export const drawDiamond: ShapeRenderer = (g: Graphics, bounds: Bounds, style: S
         .closePath();
     g.fillPath({
         path,
-        color: style.color,
+        fill: style.fill,
         opacity: style.opacity,
     });
 
@@ -41,7 +41,7 @@ export const drawDot: ShapeRenderer = (g: Graphics, bounds: Bounds, style: Shape
         cy: bounds.y + bounds.height / 2,
         rx: 4,
         ry: 4,
-        color: style.color,
+        fill: style.fill,
         opacity: style.opacity,
     });
     style.borderWidth && g.strokeEllipse({
@@ -62,7 +62,7 @@ export const drawCircle: ShapeRenderer = (g: Graphics, bounds: Bounds, style: Sh
         cy: bounds.y + bounds.height / 2,
         rx: bounds.width / 2,
         ry: bounds.height / 2,
-        color: style.color,
+        fill: style.fill,
         opacity: style.opacity,
     });
     style.borderWidth && g.strokeEllipse({
@@ -83,7 +83,7 @@ export const drawTriangle: ShapeRenderer = (g: Graphics, bounds: Bounds, style: 
         .lineTo(bounds.x, bounds.y + bounds.height)
         .closePath();
     g.fillPath({
-        color: style.color,
+        fill: style.fill,
         path,
         opacity: style.opacity,
     });
@@ -103,7 +103,7 @@ export const drawReverseTriangle: ShapeRenderer = (g: Graphics, bounds: Bounds, 
         .lineTo(bounds.x + (bounds.width / 2), bounds.y + bounds.height)
         .closePath();
     g.fillPath({
-        color: style.color,
+        fill: style.fill,
         path,
         opacity: style.opacity,
     });

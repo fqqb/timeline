@@ -194,7 +194,7 @@ export class LinePlot extends Band {
                         .lineTo(prev.renderX, originY)
                         .lineTo(point.renderX, originY)
                         .lineTo(point.renderX, point.renderY),
-                    color: fillColor,
+                    fill: fillColor,
                 });
             } else if (point.renderY !== undefined) {
                 path.moveTo(point.renderX, point.renderY);
@@ -216,7 +216,7 @@ export class LinePlot extends Band {
                     cy: renderY,
                     rx: point.hovered ? pointHoverRadius : pointRadius,
                     ry: point.hovered ? pointHoverRadius : pointRadius,
-                    color: pointColor,
+                    fill: pointColor,
                 });
 
                 const hitRegion = g.addHitRegion(point.region);

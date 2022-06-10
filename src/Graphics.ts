@@ -2,57 +2,33 @@ import { HitCanvas, HitRegionSpecification } from './HitCanvas';
 import { Bounds, Point, shrink } from './positioning';
 import * as utils from './utils';
 
-export interface RectColorFill {
+export type FillStyle = string | CanvasGradient | CanvasPattern;
+export type StrokeStyle = string | CanvasGradient | CanvasPattern;
+
+export interface RectFill {
     x: number;
     y: number;
     width: number;
     height: number;
-    color: string;
+    fill: FillStyle;
     rx?: number;
     ry?: number;
     opacity?: number;
 }
 
-export interface RectGradientFill {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-    gradient: CanvasGradient;
-    rx?: number;
-    ry?: number;
-    opacity?: number;
-}
-
-export type RectFill = RectColorFill | RectGradientFill;
-
-export interface EllipseColorFill {
+export interface EllipseFill {
     cx: number;
     cy: number;
     rx: number;
     ry: number;
-    color: string;
+    fill: FillStyle;
     startAngle?: number;
     endAngle?: number;
     anticlockwise?: boolean;
     opacity?: number;
 }
 
-export interface EllipseGradientFill {
-    cx: number;
-    cy: number;
-    rx: number;
-    ry: number;
-    gradient: CanvasGradient;
-    startAngle?: number;
-    endAngle?: number;
-    anticlockwise?: boolean;
-    opacity?: number;
-}
-
-export type EllipseFill = EllipseColorFill | EllipseGradientFill;
-
-export interface EllipseColorStroke {
+export interface EllipseStroke {
     cx: number;
     cy: number;
     rx: number;
@@ -65,22 +41,6 @@ export interface EllipseColorStroke {
     opacity?: number;
     dash?: number[];
 }
-
-export interface EllipseGradientStroke {
-    cx: number;
-    cy: number;
-    rx: number;
-    ry: number;
-    lineWidth: number;
-    gradient: CanvasGradient;
-    startAngle?: number;
-    endAngle?: number;
-    anticlockwise?: boolean;
-    opacity?: number;
-    dash?: number[];
-}
-
-export type EllipseStroke = EllipseColorStroke | EllipseGradientStroke;
 
 export interface TextFill {
     x: number;
@@ -115,19 +75,11 @@ export interface PathStroke {
     opacity?: number;
 }
 
-export interface PathColorFill {
+export interface PathFill {
     path: Path;
-    color: string;
+    fill: FillStyle;
     opacity?: number;
 }
-
-export interface PathGradientFill {
-    path: Path;
-    gradient: CanvasGradient;
-    opacity?: number;
-}
-
-export type PathFill = PathColorFill | PathGradientFill;
 
 export interface TextMetrics {
     width: number;
@@ -179,11 +131,7 @@ export class Graphics {
     }
 
     fillRect(fill: RectFill) {
-        if ('color' in fill) {
-            this.ctx.fillStyle = fill.color;
-        } else {
-            this.ctx.fillStyle = fill.gradient;
-        }
+        this.ctx.fillStyle = fill.fill;
 
         if (fill.opacity !== undefined) {
             this.ctx.globalAlpha = fill.opacity;
@@ -202,11 +150,7 @@ export class Graphics {
     }
 
     fillEllipse(fill: EllipseFill) {
-        if ('color' in fill) {
-            this.ctx.fillStyle = fill.color;
-        } else {
-            this.ctx.fillStyle = fill.gradient;
-        }
+        this.ctx.fillStyle = fill.fill;
 
         if (fill.opacity !== undefined) {
             this.ctx.globalAlpha = fill.opacity;
@@ -293,11 +237,8 @@ export class Graphics {
         const endAngle = stroke.endAngle ?? (2 * Math.PI);
         this.ctx.ellipse(stroke.cx, stroke.cy, stroke.rx, stroke.ry,
             0, startAngle, endAngle, stroke.anticlockwise);
-        if ('color' in stroke) {
-            this.ctx.strokeStyle = stroke.color;
-        } else {
-            this.ctx.strokeStyle = stroke.gradient;
-        }
+
+        this.ctx.strokeStyle = stroke.color;
         this.ctx.stroke();
         if (stroke.opacity !== undefined) {
             this.ctx.globalAlpha = 1;
@@ -345,11 +286,7 @@ export class Graphics {
                 this.ctx.moveTo(segment.x, segment.y);
             }
         }
-        if ('color' in fill) {
-            this.ctx.fillStyle = fill.color;
-        } else {
-            this.ctx.fillStyle = fill.gradient;
-        }
+        this.ctx.fillStyle = fill.fill;
 
         if (fill.opacity !== undefined) {
             this.ctx.globalAlpha = fill.opacity;

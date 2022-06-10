@@ -1,6 +1,6 @@
 import { Band } from './Band';
 import { Event } from './Event';
-import { Graphics } from './Graphics';
+import { FillStyle, Graphics } from './Graphics';
 import { HitRegionSpecification } from './HitCanvas';
 import { Bounds } from './positioning';
 import { drawCircle, drawDiamond, drawDot, drawReverseTriangle, drawTriangle, ShapeStyle } from './shapes';
@@ -32,10 +32,10 @@ export type MilestoneShape = 'circle' | 'diamond' | 'dot' | 'triangle' | 'revers
 
 export class EventBand extends Band {
 
+    private _eventBackground: FillStyle = '#77b1e1';
     private _eventBorderColor = '#000000';
     private _eventBorderDash: number[] = [];
     private _eventBorderWidth = 0;
-    private _eventColor = '#77b1e1';
     private _eventCornerRadius = 1;
     private _eventCursor = 'pointer';
     private _eventFontFamily = 'Verdana, Geneva, sans-serif';
@@ -157,7 +157,7 @@ export class EventBand extends Band {
         const opacity = event.hovered ? this.eventHoverOpacity : 1;
 
         const shapeStyle: ShapeStyle = {
-            color: event.color ?? this.eventColor,
+            fill: event.background ?? this.eventBackground,
             opacity,
             borderWidth: event.borderWidth ?? this.eventBorderWidth,
             borderColor: event.borderColor ?? this.eventBorderColor,
@@ -217,7 +217,7 @@ export class EventBand extends Band {
             ...box,
             rx: r,
             ry: r,
-            color: event.color ?? this.eventColor,
+            fill: event.background ?? this.eventBackground,
             opacity,
         });
 
@@ -411,9 +411,9 @@ export class EventBand extends Band {
      * Default background color of events belonging to this
      * band.
      */
-    get eventColor() { return this._eventColor; }
-    set eventColor(eventColor: string) {
-        this._eventColor = eventColor;
+    get eventBackground() { return this._eventBackground; }
+    set eventBackground(eventBackground: FillStyle) {
+        this._eventBackground = eventBackground;
         this.reportMutation();
     }
 

@@ -1,5 +1,5 @@
 import { Drawable } from './Drawable';
-import { Graphics } from './Graphics';
+import { FillStyle, Graphics } from './Graphics';
 
 export interface DrawCoordinates {
     x: number;
@@ -12,7 +12,7 @@ export abstract class Band extends Drawable {
 
     private _label?: string;
     private _frozen = false;
-    private _backgroundColor?: string;
+    private _background?: FillStyle;
     private _borderWidth?: number;
     private _borderColor?: string;
     private _marginBottom = 0;
@@ -38,12 +38,12 @@ export abstract class Band extends Drawable {
     }
 
     /**
-     * Background color of this band. If undefined, the background
-     * color defaults to an odd/even pattern.
+     * Background of this band. If undefined, the background
+     * defaults to an odd/even color pattern.
      */
-    get backgroundColor() { return this._backgroundColor; }
-    set backgroundColor(backgroundColor: string | undefined) {
-        this._backgroundColor = backgroundColor;
+    get background() { return this._background; }
+    set background(background: FillStyle | undefined) {
+        this._background = background;
         this.reportMutation();
     }
 

@@ -1,5 +1,5 @@
 import { Band } from './Band';
-import { Graphics, Path } from './Graphics';
+import { FillStyle, Graphics, Path } from './Graphics';
 import { HitRegionSpecification } from './HitCanvas';
 import { Sidebar } from './Sidebar';
 
@@ -27,7 +27,7 @@ export class DefaultSidebar extends Sidebar {
             y: 0,
             width: this.clippedWidth,
             height: g.canvas.height,
-            color: this.timeline.backgroundOddColor,
+            fill: this.timeline.backgroundOddColor,
         });
 
         const bands = this.timeline.getBands().filter(l => l.frozen)
@@ -36,8 +36,8 @@ export class DefaultSidebar extends Sidebar {
         let stripedColor = this.timeline.backgroundOddColor;
         for (let i = 0; i < bands.length; i++) {
             const band = bands[i];
-            const backgroundColor = band.backgroundColor || stripedColor;
-            this.drawBand(g, band, backgroundColor, i);
+            const background = band.background || stripedColor;
+            this.drawBand(g, band, background, i);
             stripedColor = (stripedColor === this.timeline.backgroundOddColor)
                 ? this.timeline.backgroundEvenColor
                 : this.timeline.backgroundOddColor;
@@ -48,7 +48,7 @@ export class DefaultSidebar extends Sidebar {
             y: 0,
             width: this.clippedWidth,
             height: g.canvas.height,
-            color: this.overlayColor,
+            fill: this.overlayColor,
         });
 
         for (const band of bands) {
@@ -74,13 +74,13 @@ export class DefaultSidebar extends Sidebar {
         });
     }
 
-    private drawBand(g: Graphics, band: Band, backgroundColor: string, idx: number) {
+    private drawBand(g: Graphics, band: Band, background: FillStyle, idx: number) {
         g.fillRect({
             x: 0,
             y: band.y,
             width: this.width,
             height: band.height,
-            color: backgroundColor,
+            fill: background,
         });
 
         if (this.hoveredIndex === idx) {
@@ -89,7 +89,7 @@ export class DefaultSidebar extends Sidebar {
                 y: band.y,
                 width: this.width,
                 height: band.height,
-                color: this.hoverOverlayColor,
+                fill: this.hoverOverlayColor,
             });
         }
 
