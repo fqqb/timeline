@@ -12,7 +12,6 @@ export interface RectFill {
     fill: FillStyle;
     rx?: number;
     ry?: number;
-    opacity?: number;
 }
 
 export interface EllipseFill {
@@ -24,7 +23,6 @@ export interface EllipseFill {
     startAngle?: number;
     endAngle?: number;
     anticlockwise?: boolean;
-    opacity?: number;
 }
 
 export interface EllipseStroke {
@@ -37,7 +35,6 @@ export interface EllipseStroke {
     startAngle?: number;
     endAngle?: number;
     anticlockwise?: boolean;
-    opacity?: number;
     dash?: number[];
 }
 
@@ -49,7 +46,6 @@ export interface TextFill {
     font: string;
     color: string;
     text: string;
-    opacity?: number;
 }
 
 export interface RectStroke {
@@ -63,7 +59,6 @@ export interface RectStroke {
     lineWidth?: number;
     dash?: number[];
     crispen?: boolean;
-    opacity?: number;
 }
 
 export interface PathStroke {
@@ -71,13 +66,11 @@ export interface PathStroke {
     color: string;
     lineWidth?: number;
     dash?: number[];
-    opacity?: number;
 }
 
 export interface PathFill {
     path: Path;
     fill: FillStyle;
-    opacity?: number;
 }
 
 export interface TextMetrics {
@@ -132,28 +125,16 @@ export class Graphics {
     fillRect(fill: RectFill) {
         this.ctx.fillStyle = fill.fill;
 
-        if (fill.opacity !== undefined) {
-            this.ctx.globalAlpha = fill.opacity;
-        }
-
         if (fill.rx || fill.ry) {
             utils.roundRect(this.ctx, fill.x, fill.y, fill.width, fill.height, fill.rx || 0, fill.ry || 0);
             this.ctx.fill();
         } else {
             this.ctx.fillRect(fill.x, fill.y, fill.width, fill.height);
         }
-
-        if (fill.opacity !== undefined) {
-            this.ctx.globalAlpha = 1;
-        }
     }
 
     fillEllipse(fill: EllipseFill) {
         this.ctx.fillStyle = fill.fill;
-
-        if (fill.opacity !== undefined) {
-            this.ctx.globalAlpha = fill.opacity;
-        }
 
         this.ctx.beginPath();
         const startAngle = fill.startAngle ?? 0;
@@ -161,10 +142,6 @@ export class Graphics {
         this.ctx.ellipse(fill.cx, fill.cy, fill.rx, fill.ry, 0, startAngle,
             endAngle, fill.anticlockwise);
         this.ctx.fill();
-
-        if (fill.opacity !== undefined) {
-            this.ctx.globalAlpha = 1;
-        }
     }
 
     fillText(fill: TextFill) {
@@ -173,15 +150,7 @@ export class Graphics {
         this.ctx.font = fill.font;
         this.ctx.fillStyle = fill.color;
 
-        if (fill.opacity !== undefined) {
-            this.ctx.globalAlpha = fill.opacity;
-        }
-
         this.ctx.fillText(fill.text, fill.x, fill.y);
-
-        if (fill.opacity !== undefined) {
-            this.ctx.globalAlpha = 1;
-        }
     }
 
     measureText(text: string, font: string): TextMetrics {
@@ -193,9 +162,6 @@ export class Graphics {
     strokeRect(stroke: RectStroke) {
         if (stroke.dash) {
             this.ctx.setLineDash(stroke.dash);
-        }
-        if (stroke.opacity !== undefined) {
-            this.ctx.globalAlpha = stroke.opacity;
         }
         this.ctx.lineWidth = stroke.lineWidth ?? 1;
         this.ctx.strokeStyle = stroke.color;
@@ -215,9 +181,6 @@ export class Graphics {
                 this.ctx.strokeRect(stroke.x, stroke.y, stroke.width, stroke.height);
             }
         }
-        if (stroke.opacity !== undefined) {
-            this.ctx.globalAlpha = 1;
-        }
         if (stroke.dash) {
             this.ctx.setLineDash([]);
         }
@@ -226,9 +189,6 @@ export class Graphics {
     strokeEllipse(stroke: EllipseStroke) {
         if (stroke.dash) {
             this.ctx.setLineDash(stroke.dash);
-        }
-        if (stroke.opacity !== undefined) {
-            this.ctx.globalAlpha = stroke.opacity;
         }
         this.ctx.lineWidth = stroke.lineWidth ?? 1;
         this.ctx.beginPath();
@@ -239,9 +199,6 @@ export class Graphics {
 
         this.ctx.strokeStyle = stroke.color;
         this.ctx.stroke();
-        if (stroke.opacity !== undefined) {
-            this.ctx.globalAlpha = 1;
-        }
         if (stroke.dash) {
             this.ctx.setLineDash([]);
         }
@@ -261,16 +218,8 @@ export class Graphics {
         }
         this.ctx.lineWidth = stroke.lineWidth ?? 1;
         this.ctx.strokeStyle = stroke.color;
-
-        if (stroke.opacity !== undefined) {
-            this.ctx.globalAlpha = stroke.opacity;
-        }
-
         this.ctx.stroke();
 
-        if (stroke.opacity !== undefined) {
-            this.ctx.globalAlpha = 1;
-        }
         if (stroke.dash) {
             this.ctx.setLineDash([]);
         }
@@ -286,16 +235,7 @@ export class Graphics {
             }
         }
         this.ctx.fillStyle = fill.fill;
-
-        if (fill.opacity !== undefined) {
-            this.ctx.globalAlpha = fill.opacity;
-        }
-
         this.ctx.fill();
-
-        if (fill.opacity !== undefined) {
-            this.ctx.globalAlpha = 1;
-        }
     }
 
     addHitRegion(region: HitRegionSpecification) {

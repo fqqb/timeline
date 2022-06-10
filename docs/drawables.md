@@ -33,7 +33,7 @@ A band showing a line plot.
 ```javascript
 const band = new LinePlot(timeline);
 band.label = 'Plot';
-band.fill = true;
+band.fill = 'lime';
 
 const points = new Map();
 for (let i = 0; i < 100; i += 0.01) {

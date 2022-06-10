@@ -1,5 +1,5 @@
 import { Band } from './Band';
-import { Graphics, Path } from './Graphics';
+import { FillStyle, Graphics, Path } from './Graphics';
 import { HitRegionSpecification } from './HitCanvas';
 import { Line } from './Line';
 import { Timeline } from './Timeline';
@@ -29,9 +29,9 @@ let lineSequence = 1;
  */
 export class LinePlot extends Band {
 
+    private _fill: FillStyle = 'transparent';
     private _lineColor = '#4f9146';
     private _lineWidth = 1;
-    private _fillColor = 'transparent';
     private _labelFontFamily = 'Verdana, Geneva, sans-serif';
     private _labelTextColor = '#333333';
     private _labelTextSize = 8;
@@ -163,7 +163,7 @@ export class LinePlot extends Band {
             return contentHeight - margin - ((value - min) / (max - min) * (plotHeight - 0));
         };
 
-        const fillColor = line.fillColor ?? this.fillColor;
+        const fill = line.fill ?? this.fill;
         const lineColor = line.lineColor ?? this.lineColor;
         const lineWidth = line.lineWidth ?? this.lineWidth;
         const pointColor = line.pointColor ?? this.pointColor;
@@ -194,7 +194,7 @@ export class LinePlot extends Band {
                         .lineTo(prev.renderX, originY)
                         .lineTo(point.renderX, originY)
                         .lineTo(point.renderX, point.renderY),
-                    fill: fillColor,
+                    fill,
                 });
             } else if (point.renderY !== undefined) {
                 path.moveTo(point.renderX, point.renderY);
@@ -256,11 +256,11 @@ export class LinePlot extends Band {
     }
 
     /**
-     * Color of the area between the plot line and the value 0.
+     * Area fill between the plot line and the value 0.
      */
-    get fillColor() { return this._fillColor; }
-    set fillColor(fillColor: string) {
-        this._fillColor = fillColor;
+    get fill() { return this._fill; }
+    set fill(fill: FillStyle) {
+        this._fill = fill;
         this.reportMutation();
     }
 

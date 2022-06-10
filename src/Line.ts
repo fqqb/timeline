@@ -1,3 +1,5 @@
+import { FillStyle } from './Graphics';
+
 /**
  * Line-specific properties.
  *
@@ -17,9 +19,9 @@ export interface Line {
     lineWidth?: number;
 
     /**
-     * Color of the fill for this line.
+     * Area fill for this line.
      */
-    fillColor?: string;
+    fill?: FillStyle;
 
     /**
      * Radius of the point symbol.
