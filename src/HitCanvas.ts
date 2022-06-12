@@ -5,7 +5,7 @@ const WHITE = 'rgb(255,255,255)';
 export interface HitRegionSpecification {
     id: string;
     click?: () => void;
-    mouseEnter?: () => void;
+    mouseEnter?: (mouseEvent: TimelineMouseEvent) => void;
     mouseMove?: (mouseEvent: TimelineMouseEvent) => void;
     mouseOut?: (mouseEvent: TimelineMouseEvent) => void;
     mouseDown?: () => void;

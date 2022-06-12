@@ -3,7 +3,7 @@ import { Band } from './Band';
 import { DefaultSidebar } from './DefaultSidebar';
 import { DOMEventHandler } from './DOMEventHandler';
 import { Drawable } from './Drawable';
-import { EventClickEvent, EventMouseEvent, HeaderClickEvent, LineClickEvent, LineHoverEvent, StateClickEvent, StateMouseEvent, TimelineEvent, TimelineEventHandlers, ViewportChangeEvent, ViewportMouseMoveEvent, ViewportMouseOutEvent, ViewportSelectionEvent } from './events';
+import { TimelineEvent, TimelineEventHandlers, ViewportChangeEvent, ViewportMouseMoveEvent, ViewportMouseOutEvent, ViewportSelectionEvent } from './events';
 import { FillStyle, Graphics, Path } from './Graphics';
 import { Sidebar } from './Sidebar';
 import { TimeRange } from './TimeRange';
@@ -45,15 +45,6 @@ export class Timeline {
     private frozenGraphics: Graphics;
 
     private eventListeners: TimelineEventHandlers = {
-        headerclick: [],
-        eventclick: [],
-        eventmousemove: [],
-        eventmouseout: [],
-        lineclick: [],
-        linehover: [],
-        stateclick: [],
-        statemousemove: [],
-        statemouseout: [],
         viewportchange: [],
         viewportmousemove: [],
         viewportmouseout: [],
@@ -238,7 +229,6 @@ export class Timeline {
      */
     get min() { return this._min; }
     set min(min: number | undefined) {
-        console.log('min becomes', min);
         this._min = min;
         // Enforce new min
         this.setViewRange(this.start, this.stop, false);
@@ -322,156 +312,6 @@ export class Timeline {
             this.requestRepaint();
         }
         return drawable;
-    }
-
-    /**
-     * Register a listener that receives an update when a point on
-     * a Line is clicked.
-     */
-    addLineClickListener(listener: (ev: LineClickEvent) => void) {
-        this.eventListeners.lineclick.push(listener);
-    }
-
-    /**
-     * Unregister a previously registered listener to stop receiving
-     * event click events.
-     */
-    removeLineClickListener(listener: (ev: LineClickEvent) => void) {
-        this.eventListeners.lineclick = this.eventListeners.lineclick
-            .filter(el => (el !== listener));
-    }
-
-    /**
-     * Register a listener that receives an update when a point on a
-     * Line is hovered.
-     */
-    addLineHoverListener(listener: (ev: LineHoverEvent) => void) {
-        this.eventListeners.linehover.push(listener);
-    }
-
-    /**
-     * Unregister a previously registered listener to stop receiving
-     * event click events.
-     */
-    removeLineHoverListener(listener: (ev: LineHoverEvent) => void) {
-        this.eventListeners.linehover = this.eventListeners.linehover
-            .filter(el => (el !== listener));
-    }
-
-    /**
-     * Register a listener that receives an update when an Event is clicked.
-     */
-    addEventClickListener(listener: (ev: EventClickEvent) => void) {
-        this.eventListeners.eventclick.push(listener);
-    }
-
-    /**
-     * Unregister a previously registered listener to stop receiving
-     * event click events.
-     */
-    removeEventClickListener(listener: (ev: EventClickEvent) => void) {
-        this.eventListeners.eventclick = this.eventListeners.eventclick
-            .filter(el => (el !== listener));
-    }
-
-    /**
-     * Register a listener that receives updates whenever the mouse is moving
-     * over an event.
-     */
-    addEventMouseMoveListener(listener: (ev: EventMouseEvent) => void) {
-        this.eventListeners.eventmousemove.push(listener);
-    }
-
-    /**
-     * Unregister a previously registered listener to stop receiving
-     * event mouse-move events.
-     */
-    removeEventMouseMoveListener(listener: (ev: EventMouseEvent) => void) {
-        this.eventListeners.eventmousemove = this.eventListeners.eventmousemove
-            .filter(el => (el !== listener));
-    }
-
-    /**
-     * Register a listener that receives updates whenever the mouse is moving
-     * outside an event.
-     */
-    addEventMouseOutListener(listener: (ev: EventMouseEvent) => void) {
-        this.eventListeners.eventmouseout.push(listener);
-    }
-
-    /**
-     * Unregister a previously registered listener to stop receiving
-     * event mouse-out events.
-     */
-    removeEventMouseOutListener(listener: (ev: EventMouseEvent) => void) {
-        this.eventListeners.eventmouseout = this.eventListeners.eventmouseout
-            .filter(el => (el !== listener));
-    }
-
-    /**
-     * Register a listener that receives an update when a state is clicked.
-     */
-    addStateClickListener(listener: (ev: StateClickEvent) => void) {
-        this.eventListeners.stateclick.push(listener);
-    }
-
-    /**
-     * Unregister a previously registered listener to stop receiving
-     * state click events.
-     */
-    removeStateClickListener(listener: (ev: StateClickEvent) => void) {
-        this.eventListeners.stateclick = this.eventListeners.stateclick
-            .filter(el => (el !== listener));
-    }
-
-    /**
-     * Register a listener that receives updates whenever the mouse is moving
-     * over a state.
-     */
-    addStateMouseMoveListener(listener: (ev: StateMouseEvent) => void) {
-        this.eventListeners.statemousemove.push(listener);
-    }
-
-    /**
-     * Unregister a previously registered listener to stop receiving
-     * state mouse-move events.
-     */
-    removeStateMouseMoveListener(listener: (ev: StateMouseEvent) => void) {
-        this.eventListeners.statemousemove = this.eventListeners.statemousemove
-            .filter(el => (el !== listener));
-    }
-
-    /**
-     * Register a listener that receives updates whenever the mouse is moving
-     * outside a state.
-     */
-    addStateMouseOutListener(listener: (ev: StateMouseEvent) => void) {
-        this.eventListeners.statemouseout.push(listener);
-    }
-
-    /**
-     * Unregister a previously registered listener to stop receiving
-     * state mouse-out events.
-     */
-    removeStateMouseOutListener(listener: (ev: StateMouseEvent) => void) {
-        this.eventListeners.statemouseout = this.eventListeners.statemouseout
-            .filter(el => (el !== listener));
-    }
-
-    /**
-     * Register a listener that receives updates when a line header is clicked.
-     */
-    addHeaderClickListener(listener: (ev: HeaderClickEvent) => void) {
-        this.eventListeners.headerclick.push(listener);
-    }
-
-    /**
-     * Unregister a previously registered listener to stop receiving
-     * header click events.
-     */
-    removeHeaderClickListener(listener: (ev: HeaderClickEvent) => void) {
-        this.eventListeners.headerclick = this.eventListeners.headerclick
-            .filter(el => (el !== listener));
     }
 
     /**

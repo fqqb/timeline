@@ -1,8 +1,51 @@
 import { Band } from './Band';
+import { TimelineEvent } from './events';
 import { FillStyle, Graphics, Path } from './Graphics';
 import { HitRegionSpecification } from './HitCanvas';
 import { Line } from './Line';
 import { Timeline } from './Timeline';
+
+/**
+ * Event generated when a point on a LinePlot was clicked.
+ */
+export interface PointClickEvent extends TimelineEvent {
+    /**
+     * Time value of the clicked point.
+     */
+    time: number;
+
+    /**
+     * Value of the clicked point.
+     */
+    value: number | null;
+}
+
+/**
+ * Event generated when a point on a LinePlot was hovered.
+ */
+export interface PointHoverEvent extends TimelineEvent {
+    /**
+     * Horizontal coordinate of the mouse pointer, relative to
+     * the browser page.
+     */
+    clientX: number;
+
+    /**
+     * Vertical coordinate of the mouse pointer, relative to the
+     * browser page.
+     */
+    clientY: number;
+
+    /**
+     * Time value of the hovered point.
+     */
+    time: number;
+
+    /**
+     * Value of the hovered point.
+     */
+    value: number | null;
+}
 
 interface AnnotatedLine {
     id: string;
@@ -50,8 +93,43 @@ export class LinePlot extends Band {
     private viewMinimum?: number;
     private viewMaximum?: number;
 
+    private pointClickListeners: Array<(ev: PointClickEvent) => void> = [];
+    private pointHoverListeners: Array<(ev: PointHoverEvent) => void> = [];
+
     constructor(timeline: Timeline) {
         super(timeline);
+    }
+
+    /**
+     * Register a listener that receives an update when a point on
+     * a Line is clicked.
+     */
+    addPointClickListener(listener: (ev: PointClickEvent) => void) {
+        this.pointClickListeners.push(listener);
+    }
+
+    /**
+     * Unregister a previously registered listener to stop receiving
+     * click events.
+     */
+    removePointClickListener(listener: (ev: PointClickEvent) => void) {
+        this.pointClickListeners = this.pointClickListeners.filter(el => (el !== listener));
+    }
+
+    /**
+     * Register a listener that receives an update when a point on a
+     * Line is hovered.
+     */
+    addPointHoverListener(listener: (ev: PointHoverEvent) => void) {
+        this.pointHoverListeners.push(listener);
+    }
+
+    /**
+     * Unregister a previously registered listener to stop receiving
+     * hover events.
+     */
+    removePointHoverListener(listener: (ev: PointHoverEvent) => void) {
+        this.pointHoverListeners = this.pointHoverListeners.filter(el => (el !== listener));
     }
 
     private processData() {
@@ -69,11 +147,23 @@ export class LinePlot extends Band {
                         region: {
                             id: lineId + '_' + x,
                             cursor: 'pointer',
-                            mouseEnter: () => {
+                            click: () => {
+                                this.pointClickListeners.forEach(listener => listener({
+                                    time: annotatedPoint.x,
+                                    value: annotatedPoint.y,
+                                }));
+                            },
+                            mouseEnter: mouseEvent => {
                                 annotatedPoint.hovered = true;
+                                this.pointHoverListeners.forEach(listener => listener({
+                                    clientX: mouseEvent.clientX,
+                                    clientY: mouseEvent.clientY,
+                                    time: annotatedPoint.x,
+                                    value: annotatedPoint.y,
+                                }));
                                 this.reportMutation();
                             },
-                            mouseOut: evt => {
+                            mouseOut: () => {
                                 annotatedPoint.hovered = false;
                                 this.reportMutation();
                             }

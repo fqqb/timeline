@@ -1,5 +1,17 @@
 import { Drawable } from './Drawable';
+import { TimelineEvent } from './events';
 import { FillStyle, Graphics } from './Graphics';
+
+/**
+ * Event generated when the header of a Timeline Band was
+ * clicked.
+ */
+export interface HeaderClickEvent extends TimelineEvent {
+    /**
+     * The band who's header was clicked.
+     */
+    band: Band;
+}
 
 export interface DrawCoordinates {
     x: number;
@@ -27,6 +39,24 @@ export abstract class Band extends Drawable {
         width: 0,
         height: 0,
     };
+
+    /** @hidden */
+    headerClickListeners: Array<(ev: HeaderClickEvent) => void> = [];
+
+    /**
+     * Register a listener that receives updates when a line header is clicked.
+     */
+    addHeaderClickListener(listener: (ev: HeaderClickEvent) => void) {
+        this.headerClickListeners.push(listener);
+    }
+
+    /**
+     * Unregister a previously registered listener to stop receiving
+     * header click events.
+     */
+    removeHeaderClickListener(listener: (ev: HeaderClickEvent) => void) {
+        this.headerClickListeners = this.headerClickListeners.filter(el => (el !== listener));
+    }
 
     /**
      * Human-friendly label for this band. Used in sidebar.

@@ -190,7 +190,7 @@ export class DOMEventHandler {
 
         if (region && region.mouseEnter) {
             if (!regionMatches(this.prevEnteredRegion, region)) {
-                region.mouseEnter();
+                region.mouseEnter(mouseEvent);
             }
         }
 

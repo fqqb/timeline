@@ -1,9 +1,43 @@
 import { Band } from './Band';
+import { TimelineEvent } from './events';
 import { FillStyle, Graphics, Path } from './Graphics';
 import { HitRegionSpecification } from './HitCanvas';
 import { Bounds } from './positioning';
 import { StateChange } from './StateChange';
 import { Timeline } from './Timeline';
+
+/**
+ * Event generated when a Timeline state was clicked.
+ */
+export interface StateClickEvent extends TimelineEvent {
+    /**
+     * The state that was clicked.
+     */
+    state: string;
+}
+
+/**
+ * Event generated in relation to mouse interactions on Timeline
+ * states.
+ */
+export interface StateMouseEvent extends TimelineEvent {
+    /**
+     * Horizontal coordinate of the mouse pointer, relative to
+     * the browser page.
+     */
+    clientX: number;
+
+    /**
+     * Vertical coordinate of the mouse pointer, relative to the
+     * browser page.
+     */
+    clientY: number;
+
+    /**
+     * The applicable state.
+     */
+    state: string;
+}
 
 interface DrawInfo {
     text: string; // Actual text to be shown (may include extra decoration: ◀)
@@ -40,8 +74,59 @@ export class StateChangeBand extends Band {
 
     private ranges: Range[] = [];
 
+    private stateClickListeners: Array<(ev: StateClickEvent) => void> = [];
+    private stateMouseMoveListeners: Array<(ev: StateMouseEvent) => void> = [];
+    private stateMouseOutListeners: Array<(ev: StateMouseEvent) => void> = [];
+
     constructor(timeline: Timeline) {
         super(timeline);
+    }
+
+    /**
+     * Register a listener that receives an update when a state is clicked.
+     */
+    addStateClickListener(listener: (ev: StateClickEvent) => void) {
+        this.stateClickListeners.push(listener);
+    }
+
+    /**
+     * Unregister a previously registered listener to stop receiving
+     * state click events.
+     */
+    removeStateClickListener(listener: (ev: StateClickEvent) => void) {
+        this.stateClickListeners = this.stateClickListeners.filter(el => (el !== listener));
+    }
+
+    /**
+     * Register a listener that receives updates whenever the mouse is moving
+     * over a state.
+     */
+    addStateMouseMoveListener(listener: (ev: StateMouseEvent) => void) {
+        this.stateMouseMoveListeners.push(listener);
+    }
+
+    /**
+     * Unregister a previously registered listener to stop receiving
+     * state mouse-move events.
+     */
+    removeStateMouseMoveListener(listener: (ev: StateMouseEvent) => void) {
+        this.stateMouseMoveListeners = this.stateMouseMoveListeners.filter(el => (el !== listener));
+    }
+
+    /**
+     * Register a listener that receives updates whenever the mouse is moving
+     * outside a state.
+     */
+    addStateMouseOutListener(listener: (ev: StateMouseEvent) => void) {
+        this.stateMouseOutListeners.push(listener);
+    }
+
+    /**
+     * Unregister a previously registered listener to stop receiving
+     * state mouse-out events.
+     */
+    removeStateMouseOutListener(listener: (ev: StateMouseEvent) => void) {
+        this.stateMouseOutListeners = this.stateMouseOutListeners.filter(el => (el !== listener));
     }
 
     private processData() {
@@ -75,13 +160,30 @@ export class StateChangeBand extends Band {
                 region: {
                     id: 'state_change_' + stateChangeSequence++,
                     cursor: this.stateCursor,
+                    click: () => {
+                        this.stateClickListeners.forEach(listener => listener({
+                            state: startEvent.state!,
+                        }));
+                    },
                     mouseEnter: () => {
                         range.hovered = true;
                         this.reportMutation();
                     },
+                    mouseMove: mouseEvent => {
+                        this.stateMouseMoveListeners.forEach(listener => listener({
+                            clientX: mouseEvent.clientX,
+                            clientY: mouseEvent.clientY,
+                            state: startEvent.state!,
+                        }));
+                    },
                     mouseOut: mouseEvent => {
                         range.hovered = false;
                         this.reportMutation();
+                        this.stateMouseOutListeners.forEach(listener => listener({
+                            clientX: mouseEvent.clientX,
+                            clientY: mouseEvent.clientY,
+                            state: startEvent.state!,
+                        }));
                     }
                 },
             };

@@ -105,7 +105,7 @@ export class DefaultSidebar extends Sidebar {
                 this.reportMutation();
             },
             click: () => {
-                this.timeline.fireEvent('headerclick', { band });
+                band.headerClickListeners.forEach(listener => listener({ band }));
             },
         };
         const hitRegion = g.addHitRegion(hitRegionSpec);

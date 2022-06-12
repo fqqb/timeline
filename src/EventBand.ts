@@ -1,10 +1,44 @@
 import { Band } from './Band';
 import { Event } from './Event';
+import { TimelineEvent } from './events';
 import { FillStyle, Graphics } from './Graphics';
 import { HitRegionSpecification } from './HitCanvas';
 import { Bounds } from './positioning';
 import { drawCircle, drawDiamond, drawDot, drawReverseTriangle, drawTriangle, ShapeStyle } from './shapes';
 import { Timeline } from './Timeline';
+
+/**
+ * Event generated when a Timeline Event was clicked.
+ */
+export interface EventClickEvent extends TimelineEvent {
+    /**
+     * The event that was clicked.
+     */
+    event: Event;
+}
+
+/**
+ * Event generated in relation to mouse interactions on Timeline
+ * events.
+ */
+export interface EventMouseEvent extends TimelineEvent {
+    /**
+     * Horizontal coordinate of the mouse pointer, relative to
+     * the browser page.
+     */
+    clientX: number;
+
+    /**
+     * Vertical coordinate of the mouse pointer, relative to the
+     * browser page.
+     */
+    clientY: number;
+
+    /**
+     * The applicable event.
+     */
+    event: Event;
+}
 
 interface DrawInfo {
     label: string; // Actual text to be shown on event (may include extra decoration: ◀)
@@ -55,10 +89,61 @@ export class EventBand extends Band {
     private annotatedEvents: AnnotatedEvent[] = [];
     private lines: AnnotatedEvent[][] = [];
 
+    private eventClickListeners: Array<(ev: EventClickEvent) => void> = [];
+    private eventMouseMoveListeners: Array<(ev: EventMouseEvent) => void> = [];
+    private eventMouseOutListeners: Array<(ev: EventMouseEvent) => void> = [];
+
     constructor(timeline: Timeline) {
         super(timeline);
         this.marginBottom = 7;
         this.marginTop = 7;
+    }
+
+    /**
+     * Register a listener that receives an update when an Event is clicked.
+     */
+    addEventClickListener(listener: (ev: EventClickEvent) => void) {
+        this.eventClickListeners.push(listener);
+    }
+
+    /**
+     * Unregister a previously registered listener to stop receiving
+     * event click events.
+     */
+    removeEventClickListener(listener: (ev: EventClickEvent) => void) {
+        this.eventClickListeners = this.eventClickListeners.filter(el => (el !== listener));
+    }
+
+    /**
+     * Register a listener that receives updates whenever the mouse is moving
+     * over an event.
+     */
+    addEventMouseMoveListener(listener: (ev: EventMouseEvent) => void) {
+        this.eventMouseMoveListeners.push(listener);
+    }
+
+    /**
+     * Unregister a previously registered listener to stop receiving
+     * event mouse-move events.
+     */
+    removeEventMouseMoveListener(listener: (ev: EventMouseEvent) => void) {
+        this.eventMouseMoveListeners = this.eventMouseMoveListeners.filter(el => (el !== listener));
+    }
+
+    /**
+     * Register a listener that receives updates whenever the mouse is moving
+     * outside an event.
+     */
+    addEventMouseOutListener(listener: (ev: EventMouseEvent) => void) {
+        this.eventMouseOutListeners.push(listener);
+    }
+
+    /**
+     * Unregister a previously registered listener to stop receiving
+     * event mouse-out events.
+     */
+    removeEventMouseOutListener(listener: (ev: EventMouseEvent) => void) {
+        this.eventMouseOutListeners = this.eventMouseOutListeners.filter(el => (el !== listener));
     }
 
     // Link a long-term identifier with each event
@@ -78,27 +163,29 @@ export class EventBand extends Band {
                     id,
                     cursor: this.eventCursor,
                     click: () => {
-                        this.timeline.fireEvent('eventclick', { event });
+                        this.eventClickListeners.forEach(listener => listener({
+                            event,
+                        }));
                     },
                     mouseEnter: () => {
                         annotatedEvent.hovered = true;
                         this.reportMutation();
                     },
                     mouseMove: mouseEvent => {
-                        this.timeline.fireEvent('eventmousemove', {
+                        this.eventMouseMoveListeners.forEach(listener => listener({
                             clientX: mouseEvent.clientX,
                             clientY: mouseEvent.clientY,
                             event,
-                        });
+                        }));
                     },
                     mouseOut: mouseEvent => {
                         annotatedEvent.hovered = false;
                         this.reportMutation();
-                        this.timeline.fireEvent('eventmouseout', {
+                        this.eventMouseOutListeners.forEach(listener => listener({
                             clientX: mouseEvent.clientX,
                             clientY: mouseEvent.clientY,
                             event,
-                        });
+                        }));
                     }
                 },
             };
