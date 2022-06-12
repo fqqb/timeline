@@ -3,7 +3,7 @@ import { Band } from './Band';
 import { DefaultSidebar } from './DefaultSidebar';
 import { DOMEventHandler } from './DOMEventHandler';
 import { Drawable } from './Drawable';
-import { EventClickEvent, EventMouseEvent, HeaderClickEvent, LineClickEvent, LineHoverEvent, TimelineEvent, TimelineEventHandlers, ViewportChangeEvent, ViewportMouseMoveEvent, ViewportMouseOutEvent, ViewportSelectionEvent } from './events';
+import { EventClickEvent, EventMouseEvent, HeaderClickEvent, LineClickEvent, LineHoverEvent, StateClickEvent, StateMouseEvent, TimelineEvent, TimelineEventHandlers, ViewportChangeEvent, ViewportMouseMoveEvent, ViewportMouseOutEvent, ViewportSelectionEvent } from './events';
 import { FillStyle, Graphics, Path } from './Graphics';
 import { Sidebar } from './Sidebar';
 import { TimeRange } from './TimeRange';
@@ -51,6 +51,9 @@ export class Timeline {
         eventmouseout: [],
         lineclick: [],
         linehover: [],
+        stateclick: [],
+        statemousemove: [],
+        statemouseout: [],
         viewportchange: [],
         viewportmousemove: [],
         viewportmouseout: [],
@@ -402,6 +405,56 @@ export class Timeline {
      */
     removeEventMouseOutListener(listener: (ev: EventMouseEvent) => void) {
         this.eventListeners.eventmouseout = this.eventListeners.eventmouseout
+            .filter(el => (el !== listener));
+    }
+
+    /**
+     * Register a listener that receives an update when a state is clicked.
+     */
+    addStateClickListener(listener: (ev: StateClickEvent) => void) {
+        this.eventListeners.stateclick.push(listener);
+    }
+
+    /**
+     * Unregister a previously registered listener to stop receiving
+     * state click events.
+     */
+    removeStateClickListener(listener: (ev: StateClickEvent) => void) {
+        this.eventListeners.stateclick = this.eventListeners.stateclick
+            .filter(el => (el !== listener));
+    }
+
+    /**
+     * Register a listener that receives updates whenever the mouse is moving
+     * over a state.
+     */
+    addStateMouseMoveListener(listener: (ev: StateMouseEvent) => void) {
+        this.eventListeners.statemousemove.push(listener);
+    }
+
+    /**
+     * Unregister a previously registered listener to stop receiving
+     * state mouse-move events.
+     */
+    removeStateMouseMoveListener(listener: (ev: StateMouseEvent) => void) {
+        this.eventListeners.statemousemove = this.eventListeners.statemousemove
+            .filter(el => (el !== listener));
+    }
+
+    /**
+     * Register a listener that receives updates whenever the mouse is moving
+     * outside a state.
+     */
+    addStateMouseOutListener(listener: (ev: StateMouseEvent) => void) {
+        this.eventListeners.statemouseout.push(listener);
+    }
+
+    /**
+     * Unregister a previously registered listener to stop receiving
+     * state mouse-out events.
+     */
+    removeStateMouseOutListener(listener: (ev: StateMouseEvent) => void) {
+        this.eventListeners.statemouseout = this.eventListeners.statemouseout
             .filter(el => (el !== listener));
     }
 

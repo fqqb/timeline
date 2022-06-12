@@ -13,6 +13,8 @@ export { MouseTracker } from './MouseTracker';
 export * from './positioning';
 export { ShapeRenderer, ShapeStyle } from './shapes';
 export { Sidebar } from './Sidebar';
+export { StateChange } from './StateChange';
+export { StateChangeBand } from './StateChangeBand';
 export { Timeline, Tool } from './Timeline';
 export { TimeLocator } from './TimeLocator';
 export { TimeRange } from './TimeRange';

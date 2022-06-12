@@ -69,7 +69,7 @@ export class EventBand extends Band {
         for (const event of (this.events || [])) {
             let id = this.eventsById.get(event);
             if (id === undefined) {
-                id = 'id' + eventSequence++;
+                id = 'event_band_' + eventSequence++;
             }
             const annotatedEvent: AnnotatedEvent = {
                 ...event,

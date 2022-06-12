@@ -53,6 +53,39 @@ export interface HeaderClickEvent extends TimelineEvent {
 }
 
 /**
+ * Event generated when a Timeline Event was clicked.
+ */
+export interface StateClickEvent extends TimelineEvent {
+    /**
+     * The state that was clicked.
+     */
+    state: string;
+}
+
+/**
+ * Event generated in relation to mouse interactions on Timeline
+ * states.
+ */
+export interface StateMouseEvent extends TimelineEvent {
+    /**
+     * Horizontal coordinate of the mouse pointer, relative to
+     * the browser page.
+     */
+    clientX: number;
+
+    /**
+     * Vertical coordinate of the mouse pointer, relative to the
+     * browser page.
+     */
+    clientY: number;
+
+    /**
+     * The applicable state.
+     */
+    state: string;
+}
+
+/**
  * Event generated when the viewport has changed.
  */
 export interface ViewportChangeEvent extends TimelineEvent {
@@ -166,6 +199,9 @@ export type TimelineEventHandlers = {
     'headerclick': Array<(ev: HeaderClickEvent) => void>;
     'lineclick': Array<(ev: LineClickEvent) => void>;
     'linehover': Array<(ev: LineHoverEvent) => void>;
+    'stateclick': Array<(ev: StateClickEvent) => void>;
+    'statemousemove': Array<(ev: StateMouseEvent) => void>;
+    'statemouseout': Array<(ev: StateMouseEvent) => void>;
     'viewportchange': Array<(ev: ViewportChangeEvent) => void>;
     'viewportmousemove': Array<(ev: ViewportMouseMoveEvent) => void>;
     'viewportmouseout': Array<(ev: ViewportMouseOutEvent) => void>;
