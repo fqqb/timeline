@@ -10,6 +10,7 @@ export type ScaleKind = 'auto' | 'hour' | 'quarterDay' | 'weekDay' | 'week' | 'm
  */
 export class TimeRuler extends Band {
 
+    private _contentHeight = 30;
     private _textColor = 'grey';
     private _fullHeight = false;
     private _timezone?: string;
@@ -37,7 +38,7 @@ export class TimeRuler extends Band {
 
     /** @hidden */
     calculateContentHeight(g: Graphics) {
-        return 20;
+        return this.contentHeight;
     }
 
     /** @hidden */
@@ -49,6 +50,15 @@ export class TimeRuler extends Band {
     /** @hidden */
     drawUnderlay(g: Graphics) {
         this.scaleRenderer!.drawUnderlay(g, this);
+    }
+
+    /**
+     * The height of the band content (excluding margins).
+     */
+    get contentHeight() { return this._contentHeight; }
+    set contentHeight(contentHeight: number) {
+        this._contentHeight = contentHeight;
+        this.reportMutation();
     }
 
     get fullHeight() { return this._fullHeight; }

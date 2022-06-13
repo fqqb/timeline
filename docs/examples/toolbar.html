@@ -75,6 +75,7 @@
 
             const timeRuler = new TimeRuler(timeline);
             timeRuler.frozen = true;
+            timeRuler.contentHeight = 20;
 
             const locator = new TimeLocator(timeline, () => new Date().getTime());
             locator.knobColor = 'salmon';
@@ -89,6 +90,11 @@
 
             for (let i = 0; i < 10; i++) {
                 const band = new EventBand(timeline);
+                band.marginTop = 7;
+                band.marginBottom = 7;
+                band.lineSpacing = 2;
+                band.eventHeight = 20;
+                band.eventCornerRadius = 2;
 
                 const randomEvents = [];
                 const dataStart = start.minus({ days: 5 }).toMillis();

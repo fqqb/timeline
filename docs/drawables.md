@@ -23,7 +23,7 @@ band.events = [
 ```
 
 {% include demo.html src="/timeline/examples/drawables-EventBand.html"
-                     height="34px"
+                     height="30px"
                      caption="EventBand" %}
 
 ## LinePlot
@@ -103,7 +103,7 @@ band.scale = 'hour';
 ```
 
 {% include demo.html src="/timeline/examples/drawables-TimeRuler-hours.html"
-                     height="20px"
+                     height="30px"
                      caption="TimeRuler showing hours" %}
 
 ```javascript
@@ -120,7 +120,7 @@ band.scale = 'weekDay';
 ```
 
 {% include demo.html src="/timeline/examples/drawables-TimeRuler-weekdays.html"
-                     height="20px"
+                     height="30px"
                      caption="TimeRuler showing weekdays" %}
 
 ```javascript
@@ -137,7 +137,7 @@ band.scale = 'month';
 ```
 
 {% include demo.html src="/timeline/examples/drawables-TimeRuler-months.html"
-                     height="20px"
+                     height="30px"
                      caption="TimeRuler showing months" %}
 
 ## MouseTracker
