@@ -48,6 +48,7 @@ export abstract class Band extends Drawable {
      */
     addHeaderClickListener(listener: (ev: HeaderClickEvent) => void) {
         this.headerClickListeners.push(listener);
+        this.reportMutation();
     }
 
     /**
@@ -56,6 +57,7 @@ export abstract class Band extends Drawable {
      */
     removeHeaderClickListener(listener: (ev: HeaderClickEvent) => void) {
         this.headerClickListeners = this.headerClickListeners.filter(el => (el !== listener));
+        this.reportMutation();
     }
 
     /**

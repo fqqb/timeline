@@ -93,23 +93,26 @@ export class DefaultSidebar extends Sidebar {
             });
         }
 
-        const hitRegionSpec: HitRegionSpecification = {
-            id: `band-${idx}-header`,
-            cursor: 'pointer',
-            mouseEnter: () => {
-                this.hoveredIndex = idx;
-                this.reportMutation();
-            },
-            mouseOut: () => {
-                this.hoveredIndex = undefined;
-                this.reportMutation();
-            },
-            click: () => {
-                band.headerClickListeners.forEach(listener => listener({ band }));
-            },
-        };
-        const hitRegion = g.addHitRegion(hitRegionSpec);
-        hitRegion.addRect(0, band.y, this.width, band.height);
+        if (band.headerClickListeners.length) {
+            const hitRegionSpec: HitRegionSpecification = {
+                id: `band-${idx}-header`,
+                cursor: 'pointer',
+                mouseEnter: () => {
+                    this.hoveredIndex = idx;
+                    this.reportMutation();
+                },
+                mouseOut: () => {
+                    this.hoveredIndex = undefined;
+                    this.reportMutation();
+                },
+                click: () => {
+                    band.headerClickListeners.forEach(listener => listener({ band }));
+                },
+            };
+
+            const hitRegion = g.addHitRegion(hitRegionSpec);
+            hitRegion.addRect(0, band.y, this.width, band.height);
+        }
 
         // Bottom horizontal divider
         const borderWidth = band.borderWidth ?? this.timeline.bandBorderWidth;
