@@ -49,6 +49,42 @@ band.lines = [{
                      height="30px"
                      caption="LinePlot" %}
 
+
+## Banner
+
+```javascript
+const band = new Banner(timeline);
+band.label = 'Banner';
+band.text = 'My banner';
+```
+
+A band showing a banner text.
+
+{% include demo.html src="/timeline/examples/drawables-Banner.html"
+                     height="30px"
+                     caption="Banner" %}
+
+
+## StateBand
+
+```javascript
+const band = new StateBand(timeline);
+band.label = 'States';
+band.states = [
+    { time: -Infinity, label: 'A' },
+    { time: 30, label: 'B' },
+    { time: 40, label: 'C' },
+    { time: 60, label: null }, // Gap
+    { time: 80, label: 'D' },
+];
+```
+
+A band showing state changes.
+
+{% include demo.html src="/timeline/examples/drawables-StateBand.html"
+                     height="30px"
+                     caption="StateBand" %}
+
 ## TimeRuler
 
 A band showing time scale indications. The following examples force a specific scale. If no scale is specified, a scale is selected automatically based on the visible time range and available width.

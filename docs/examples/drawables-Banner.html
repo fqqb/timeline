@@ -1,0 +1,18 @@
+---
+---
+<!doctype html>
+<html>
+<body style="padding: 0; margin: 0">
+    <div id="timeline" style="height: 100px"></div>
+    <script type="module">
+        import { Timeline, Banner } from '{{- site.dist -}}';
+        window.addEventListener('load', () => {
+            const targetEl = document.getElementById('timeline');
+            const timeline = new Timeline(targetEl);
+            const band = new Banner(timeline);
+            band.label = 'Banner';
+            band.text = 'My banner';
+        });
+    </script>
+</body>
+</html>

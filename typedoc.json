@@ -7,6 +7,7 @@
     "intentionallyNotExported": [
         "AnnotatedEvent",
         "AnnotatedLine",
+        "AnnotatedState",
         "DecadeScale",
         "DOMEventHandler",
         "HitCanvas",

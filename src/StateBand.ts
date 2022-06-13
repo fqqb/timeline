@@ -3,7 +3,7 @@ import { TimelineEvent } from './events';
 import { FillStyle, Graphics, Path } from './Graphics';
 import { HitRegionSpecification } from './HitCanvas';
 import { Bounds } from './positioning';
-import { StateChange } from './StateChange';
+import { State } from './State';
 import { Timeline } from './Timeline';
 
 /**
@@ -13,7 +13,7 @@ export interface StateClickEvent extends TimelineEvent {
     /**
      * The state that was clicked.
      */
-    state: string;
+    state: State;
 }
 
 /**
@@ -36,7 +36,15 @@ export interface StateMouseEvent extends TimelineEvent {
     /**
      * The applicable state.
      */
-    state: string;
+    state: State;
+}
+
+interface AnnotatedState extends State {
+    start: number;
+    stop: number;
+    region: HitRegionSpecification;
+    hovered: boolean;
+    drawInfo?: DrawInfo;
 }
 
 interface DrawInfo {
@@ -46,21 +54,12 @@ interface DrawInfo {
     textX: number; // Left of label
 }
 
-interface Range {
-    start: number;
-    stop: number;
-    state: string | null;
-    region: HitRegionSpecification;
-    hovered: boolean;
-    drawInfo?: DrawInfo;
-}
+let stateSequence = 1;
 
-let stateChangeSequence = 1;
+export class StateBand extends Band {
 
-export class StateChangeBand extends Band {
-
-    private _contentHeight = 20;
-    private _stateBackground: FillStyle | ((state: string) => FillStyle) = '#77b1e1';
+    private _contentHeight = 30;
+    private _stateBackground: FillStyle = '#77b1e1';
     private _stateDividerColor = '#e8e8e8';
     private _stateDividerWidth = 1;
     private _stateDividerDash: number[] = [];
@@ -70,9 +69,10 @@ export class StateChangeBand extends Band {
     private _stateMarginLeft = 5;
     private _stateTextColor = '#333333';
     private _stateTextSize = 10;
-    private _stateChanges: StateChange[] = [];
+    private _states: State[] = [];
 
-    private ranges: Range[] = [];
+    private statesById = new Map<State, string>();
+    private annotatedStates: AnnotatedState[] = [];
 
     private stateClickListeners: Array<(ev: StateClickEvent) => void> = [];
     private stateMouseMoveListeners: Array<(ev: StateMouseEvent) => void> = [];
@@ -130,65 +130,64 @@ export class StateChangeBand extends Band {
     }
 
     private processData() {
-        this.ranges.length = 0;
+        this.annotatedStates.length = 0;
 
-        const uniqueStateChanges: StateChange[] = [];
-
-        let prev: StateChange | undefined;
-        for (const stateChange of this.stateChanges.sort((a, b) => a.time - b.time)) {
-            if (!prev || stateChange.state !== prev.state) {
-                uniqueStateChanges.push(stateChange);
-                prev = stateChange;
+        for (let i = 0; i < this.states.length; i++) {
+            const state = this.states[i];
+            let id = this.statesById.get(state);
+            if (id === undefined) {
+                id = 'state_band_' + stateSequence++;
             }
-        }
-
-        for (let i = 0; i < uniqueStateChanges.length; i++) {
-            const startEvent = uniqueStateChanges[i];
 
             let stop;
-            if (i + 1 < uniqueStateChanges.length) {
-                stop = uniqueStateChanges[i + 1].time;
+            if (i + 1 < this.states.length) {
+                stop = this.states[i + 1].time;
             } else {
                 stop = Infinity;
             }
 
-            const range: Range = {
-                start: startEvent.time,
+            const annotatedState: AnnotatedState = {
+                ...state,
+                start: state.time,
                 stop,
-                state: startEvent.state!,
                 hovered: false,
                 region: {
-                    id: 'state_change_' + stateChangeSequence++,
+                    id,
                     cursor: this.stateCursor,
                     click: () => {
                         this.stateClickListeners.forEach(listener => listener({
-                            state: startEvent.state!,
+                            state,
                         }));
                     },
                     mouseEnter: () => {
-                        range.hovered = true;
+                        annotatedState.hovered = true;
                         this.reportMutation();
                     },
                     mouseMove: mouseEvent => {
                         this.stateMouseMoveListeners.forEach(listener => listener({
                             clientX: mouseEvent.clientX,
                             clientY: mouseEvent.clientY,
-                            state: startEvent.state!,
+                            state,
                         }));
                     },
                     mouseOut: mouseEvent => {
-                        range.hovered = false;
+                        annotatedState.hovered = false;
                         this.reportMutation();
                         this.stateMouseOutListeners.forEach(listener => listener({
                             clientX: mouseEvent.clientX,
                             clientY: mouseEvent.clientY,
-                            state: startEvent.state!,
+                            state,
                         }));
                     }
                 },
             };
 
-            this.ranges.push(range);
+            this.annotatedStates.push(annotatedState);
+        }
+
+        this.statesById.clear();
+        for (const state of this.annotatedStates) {
+            this.statesById.set(state, state.region.id);
         }
     }
 
@@ -199,16 +198,16 @@ export class StateChangeBand extends Band {
 
     /** @hidden */
     drawBandContent(g: Graphics) {
-        for (const range of this.ranges) {
-            this.measureRange(g, range);
-            this.drawRange(g, range);
+        for (const state of this.annotatedStates) {
+            this.measureState(g, state);
+            this.drawState(g, state);
         }
 
         if (this.stateDividerWidth) {
             let prevX; // Ensure not to overlap identical stop and start
-            for (const range of this.ranges) {
-                if (range.drawInfo) {
-                    let { startX, stopX } = range.drawInfo;
+            for (const state of this.annotatedStates) {
+                if (state.drawInfo) {
+                    let { startX, stopX } = state.drawInfo;
                     startX = Math.round(startX);
                     stopX = Math.round(stopX);
 
@@ -239,21 +238,21 @@ export class StateChangeBand extends Band {
         }
     }
 
-    private measureRange(g: Graphics, range: Range) {
-        if (range.state === null) { // Gap
+    private measureState(g: Graphics, state: AnnotatedState) {
+        if (state.label === null) { // Gap
             return;
         }
-        if (range.start > this.timeline.stop || range.stop < this.timeline.start) {
-            range.drawInfo = undefined; // Forget draw info from previous step
+        if (state.start > this.timeline.stop || state.stop < this.timeline.start) {
+            state.drawInfo = undefined; // Forget draw info from previous step
             return;
         }
 
-        const startX = this.timeline.positionTime(range.start);
-        const stopX = this.timeline.positionTime(range.stop);
+        const startX = this.timeline.positionTime(state.start);
+        const stopX = this.timeline.positionTime(state.stop);
 
-        let text = range.state || '';
+        let text = state.label || '';
         let textX = startX + this.stateMarginLeft;
-        if (range.start < this.timeline.start && range.stop > this.timeline.start) {
+        if (state.start < this.timeline.start && state.stop > this.timeline.start) {
             text = '◀' + text;
             textX = this.timeline.positionTime(this.timeline.start);
         }
@@ -264,14 +263,19 @@ export class StateChangeBand extends Band {
             text = '';
         }
 
-        range.drawInfo = { startX, stopX, textX, text };
+        state.drawInfo = { startX, stopX, textX, text };
     }
 
-    private drawRange(g: Graphics, range: Range) {
-        if (!range.drawInfo) {
+    private drawState(g: Graphics, state: AnnotatedState) {
+        if (!state.drawInfo) {
             return;
         }
-        let { startX, stopX, textX, text } = range.drawInfo;
+        let { startX, stopX, textX, text } = state.drawInfo;
+        const background = state.background ?? this.stateBackground;
+        const hoverBackground = state.hoverBackground ?? this.stateHoverBackground;
+        const textColor = state.textColor ?? this.stateTextColor;
+        const textSize = state.textSize ?? this.stateTextSize;
+        const fontFamily = state.fontFamily ?? this.stateFontFamily;
 
         if (startX == -Infinity) {
             startX = this.timeline.positionTime(this.timeline.start);
@@ -287,21 +291,13 @@ export class StateChangeBand extends Band {
             height: this.contentHeight,
         };
 
-        if (typeof this.stateBackground === 'function') {
-            g.fillRect({
-                ...box,
-                fill: this.stateBackground(range.state!),
-            });
-        } else {
-            g.fillRect({ ...box, fill: this.stateBackground });
-        }
-
-        if (range.hovered) {
-            g.fillRect({ ...box, fill: this.stateHoverBackground });
+        g.fillRect({ ...box, fill: background });
+        if (state.hovered) {
+            g.fillRect({ ...box, fill: hoverBackground });
         }
 
         // Hit region covers both the shape, and potential outside text
-        const hitRegion = g.addHitRegion(range.region);
+        const hitRegion = g.addHitRegion(state.region);
         hitRegion.addRect(box.x, box.y, box.width, box.height);
 
         if (text) {
@@ -310,10 +306,10 @@ export class StateChangeBand extends Band {
                 x: textX,
                 y: textY,
                 text,
-                font: `${this.stateTextSize}px ${this.stateFontFamily}`,
+                font: `${textSize}px ${fontFamily}`,
                 baseline: 'middle',
                 align: 'left',
-                color: this.stateTextColor,
+                color: textColor,
             });
         }
     }
@@ -328,11 +324,11 @@ export class StateChangeBand extends Band {
     }
 
     /**
-     * List of state changes to be drawn on this band.
+     * List of states to be drawn on this band.
      */
-    get stateChanges() { return this._stateChanges; }
-    set stateChanges(stateChanges: StateChange[]) {
-        this._stateChanges = stateChanges;
+    get states() { return this._states; }
+    set states(states: State[]) {
+        this._states = states;
         this.processData();
         this.reportMutation();
     }
@@ -341,7 +337,7 @@ export class StateChangeBand extends Band {
      * Background color of states belonging to this band.
      */
     get stateBackground() { return this._stateBackground; }
-    set stateBackground(stateBackground: FillStyle | ((state: string) => FillStyle)) {
+    set stateBackground(stateBackground: FillStyle) {
         this._stateBackground = stateBackground;
         this.reportMutation();
     }
