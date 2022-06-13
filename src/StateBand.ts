@@ -4,7 +4,6 @@ import { FillStyle, Graphics, Path } from './Graphics';
 import { HitRegionSpecification } from './HitCanvas';
 import { Bounds } from './positioning';
 import { State } from './State';
-import { Timeline } from './Timeline';
 
 /**
  * Event generated when a Timeline state was clicked.
@@ -77,10 +76,6 @@ export class StateBand extends Band {
     private stateClickListeners: Array<(ev: StateClickEvent) => void> = [];
     private stateMouseMoveListeners: Array<(ev: StateMouseEvent) => void> = [];
     private stateMouseOutListeners: Array<(ev: StateMouseEvent) => void> = [];
-
-    constructor(timeline: Timeline) {
-        super(timeline);
-    }
 
     /**
      * Register a listener that receives an update when a state is clicked.

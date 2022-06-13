@@ -5,7 +5,6 @@ import { FillStyle, Graphics } from './Graphics';
 import { HitRegionSpecification } from './HitCanvas';
 import { Bounds } from './positioning';
 import { drawCircle, drawDiamond, drawDot, drawReverseTriangle, drawTriangle, ShapeStyle } from './shapes';
-import { Timeline } from './Timeline';
 
 /**
  * Event generated when a Timeline Event was clicked.
@@ -92,12 +91,6 @@ export class EventBand extends Band {
     private eventClickListeners: Array<(ev: EventClickEvent) => void> = [];
     private eventMouseMoveListeners: Array<(ev: EventMouseEvent) => void> = [];
     private eventMouseOutListeners: Array<(ev: EventMouseEvent) => void> = [];
-
-    constructor(timeline: Timeline) {
-        super(timeline);
-        this.marginBottom = 7;
-        this.marginTop = 7;
-    }
 
     /**
      * Register a listener that receives an update when an Event is clicked.

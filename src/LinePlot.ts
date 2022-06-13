@@ -3,7 +3,6 @@ import { TimelineEvent } from './events';
 import { FillStyle, Graphics, Path } from './Graphics';
 import { HitRegionSpecification } from './HitCanvas';
 import { Line } from './Line';
-import { Timeline } from './Timeline';
 
 /**
  * Event generated when a point on a LinePlot was clicked.
@@ -95,10 +94,6 @@ export class LinePlot extends Band {
 
     private pointClickListeners: Array<(ev: PointClickEvent) => void> = [];
     private pointHoverListeners: Array<(ev: PointHoverEvent) => void> = [];
-
-    constructor(timeline: Timeline) {
-        super(timeline);
-    }
 
     /**
      * Register a listener that receives an update when a point on

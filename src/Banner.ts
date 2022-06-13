@@ -1,6 +1,5 @@
 import { Band } from './Band';
 import { Graphics } from './Graphics';
-import { Timeline } from './Timeline';
 
 export type TextAlignment = 'left' | 'middle' | 'right';
 
@@ -15,10 +14,6 @@ export class Banner extends Band {
     private _textColor = '#333333';
     private _textSize = 16;
     private _fontFamily = 'Verdana, Geneva, sans-serif';
-
-    constructor(timeline: Timeline) {
-        super(timeline);
-    }
 
     /** @hidden */
     calculateContentHeight(g: Graphics) {
