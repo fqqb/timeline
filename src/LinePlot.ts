@@ -84,6 +84,9 @@ export class LinePlot extends Band {
     private _pointColor = '#4f9146';
     private _lines: Line[] = [];
     private _contentHeight = 30;
+    private _zeroLineColor = '#e8e8e8';
+    private _zeroLineWidth = 0;
+    private _zeroLineDash: number[] = [4, 3];
     private _labelFormatter: (value: number) => string = value => {
         return value.toFixed(2);
     };
@@ -196,10 +199,48 @@ export class LinePlot extends Band {
         const { viewMinimum: min, viewMaximum: max } = this;
 
         if (min !== undefined && max !== undefined) {
+
+            // Plot max should align with mid of top label, and plot min with mid of bottom label.
+            // So we add a little whitespace to the actually available plot area.
+            // (unrelated to any other band margins)
+            const margin = this.labelTextSize / 2;
+            const plotHeight = contentHeight - margin - margin;
+            const positionValueFn = (value: number) => {
+                return contentHeight - margin - ((value - min) / (max - min) * (plotHeight - 0));
+            };
+
+            // Draw order:
+            // 1/ area fill (per line)
+            // 2/ zero line (shared)
+            // 3/ trace (per line)
+
             for (let i = 0; i < this.lines.length; i++) {
                 if (this.lines[i].points.size) {
                     const annotatedLine = this.annotatedLines[i];
-                    this.drawLine(g, this.lines[i], annotatedLine, min, max);
+
+                    for (const point of annotatedLine.points) {
+                        point.drawInfo = {
+                            renderX: Math.round(this.timeline.positionTime(point.x)),
+                            renderY: point.y !== null ? positionValueFn(point.y) : undefined,
+                        };
+                    }
+
+                    this.drawArea(g, this.lines[i], annotatedLine, positionValueFn);
+                    this.drawLine(g, this.lines[i], annotatedLine);
+                }
+            }
+
+            const originY = Math.round(positionValueFn(0)) - 0.5;
+            g.strokePath({
+                path: new Path(0, originY).lineTo(this.timeline.mainWidth, originY),
+                color: this.zeroLineColor,
+                dash: this.zeroLineDash,
+                lineWidth: this.zeroLineWidth,
+            });
+
+            for (let i = 0; i < this.lines.length; i++) {
+                if (this.lines[i].points.size) {
+                    this.drawLine(g, this.lines[i], this.annotatedLines[i]);
                 }
             }
 
@@ -236,19 +277,28 @@ export class LinePlot extends Band {
         }
     }
 
-    private drawLine(g: Graphics, line: Line, annotatedLine: AnnotatedLine, min: number, max: number) {
-        const { contentHeight } = this;
-
-        // Plot max should align with mid of top label, and plot min with mid of bottom label.
-        // So we add a little whitespace to the actually available plot area.
-        // (unrelated to any other band margins)
-        const margin = this.labelTextSize / 2;
-        const plotHeight = contentHeight - margin - margin;
-        const positionValue = (value: number) => {
-            return contentHeight - margin - ((value - min) / (max - min) * (plotHeight - 0));
-        };
+    private drawArea(g: Graphics, line: Line, annotatedLine: AnnotatedLine,
+        positionValueFn: (value: number) => number) {
 
         const fill = line.fill ?? this.fill;
+
+        const originY = Math.round(positionValueFn(0)) + 0.5;
+        for (let i = 1; i < annotatedLine.points.length; i++) {
+            const prev = annotatedLine.points[i - 1].drawInfo!;
+            const point = annotatedLine.points[i].drawInfo!;
+            if (prev.renderY !== undefined && point.renderY !== undefined) {
+                g.fillPath({
+                    path: new Path(prev.renderX, prev.renderY)
+                        .lineTo(prev.renderX, originY)
+                        .lineTo(point.renderX, originY)
+                        .lineTo(point.renderX, point.renderY),
+                    fill,
+                });
+            }
+        }
+    }
+
+    private drawLine(g: Graphics, line: Line, annotatedLine: AnnotatedLine) {
         const lineColor = line.lineColor ?? this.lineColor;
         const lineWidth = line.lineWidth ?? this.lineWidth;
         const pointColor = line.pointColor ?? this.pointColor;
@@ -257,30 +307,13 @@ export class LinePlot extends Band {
 
         const { points } = annotatedLine;
 
-        for (const point of points) {
-            point.drawInfo = {
-                renderX: Math.round(this.timeline.positionTime(point.x)),
-                renderY: point.y !== null ? positionValue(point.y) : undefined,
-            };
-        }
-
         // Draw trace
         const path = new Path(points[0].drawInfo!.renderX, points[0].drawInfo!.renderY ?? 0);
-        const originY = positionValue(0);
         for (let i = 1; i < points.length; i++) {
             const prev = points[i - 1].drawInfo!;
             const point = points[i].drawInfo!;
             if (prev.renderY !== undefined && point.renderY !== undefined) {
                 path.lineTo(point.renderX, point.renderY);
-
-                // Area fill
-                g.fillPath({
-                    path: new Path(prev.renderX, prev.renderY)
-                        .lineTo(prev.renderX, originY)
-                        .lineTo(point.renderX, originY)
-                        .lineTo(point.renderX, point.renderY),
-                    fill,
-                });
             } else if (point.renderY !== undefined) {
                 path.moveTo(point.renderX, point.renderY);
             }
@@ -412,6 +445,33 @@ export class LinePlot extends Band {
     get labelFormatter() { return this._labelFormatter; }
     set labelFormatter(labelFormatter: (value: number) => string) {
         this._labelFormatter = labelFormatter;
+        this.reportMutation();
+    }
+
+    /**
+     * Color of the line at value zero.
+     */
+    get zeroLineColor() { return this._zeroLineColor; }
+    set zeroLineColor(zeroLineColor: string) {
+        this._zeroLineColor = zeroLineColor;
+        this.reportMutation();
+    }
+
+    /**
+     * Width of the line at value zero.
+     */
+    get zeroLineWidth() { return this._zeroLineWidth; }
+    set zeroLineWidth(zeroLineWidth: number) {
+        this._zeroLineWidth = zeroLineWidth;
+        this.reportMutation();
+    }
+
+    /**
+     * Dash pattern of the line at value zero.
+     */
+    get zeroLineDash() { return this._zeroLineDash; }
+    set zeroLineDash(zeroLineDash: number[]) {
+        this._zeroLineDash = zeroLineDash;
         this.reportMutation();
     }
 
