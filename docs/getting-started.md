@@ -61,7 +61,7 @@ band2.events = [
 ```
 
 {% include demo.html src="/timeline/examples/getting-started2.html"
-                     height="100px"
+                     height="90px"
                      caption="First data" %}
 
 Event 4 is not fully visible, but you can pan the Timeline canvas.
@@ -105,7 +105,7 @@ band2.events = [{
 ```
 
 {% include demo.html src="/timeline/examples/getting-started3.html"
-                     height="100px"
+                     height="90px"
                      caption="Absolute time" %}
 
 This example adds an [TimeRuler](/timeline/api/TimeRuler/), a special type of [Band](/timeline/api/Band/) that renders an autoranged timescale.

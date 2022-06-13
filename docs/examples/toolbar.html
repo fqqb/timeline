@@ -77,9 +77,10 @@
             timeRuler.frozen = true;
             timeRuler.contentHeight = 20;
 
-            const locator = new TimeLocator(timeline, () => new Date().getTime());
+            const locator = new TimeLocator(timeline);
             locator.knobColor = 'salmon';
             locator.lineColor = 'salmon';
+            locator.time = () => new Date().getTime();
 
             const tracker = new MouseTracker(timeline);
 

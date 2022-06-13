@@ -162,15 +162,18 @@ Vertical guideline indicating a specific time (here at 25%, 50%, and 75%). The f
 timeline.sidebar = null;
 timeline.setViewRange(0, 100);
 
-const locator1 = new TimeLocator(timeline, () => 25);
+const locator1 = new TimeLocator(timeline);
 locator1.lineColor = 'purple';
 locator1.knobColor = 'purple';
-const locator2 = new TimeLocator(timeline, () => 50);
+locator1.time = 25;
+const locator2 = new TimeLocator(timeline);
 locator2.lineColor = 'pink';
 locator2.knobColor = 'pink';
-const locator3 = new TimeLocator(timeline, () => 75);
+locator2.time = 50;
+const locator3 = new TimeLocator(timeline);
 locator3.lineColor = 'red';
 locator3.knobColor = 'red';
+locator3.time = 75;
 ```
 
 {% include demo.html src="/timeline/examples/drawables-TimeLocator.html"

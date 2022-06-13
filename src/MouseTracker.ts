@@ -8,8 +8,6 @@ import { TimeLocator } from './TimeLocator';
  */
 export class MouseTracker extends TimeLocator {
 
-    private time?: number;
-
     private mouseMoveListener = (evt: ViewportMouseMoveEvent) => {
         if (evt.time !== this.time) {
             this.time = evt.time;
@@ -25,7 +23,7 @@ export class MouseTracker extends TimeLocator {
      * @param timeline Timeline instance that this drawable is bound to.
      */
     constructor(timeline: Timeline) {
-        super(timeline, () => this.time);
+        super(timeline);
         this.lineColor = '#cccccc';
         this.knobColor = '#cccccc';
         this.lineDash = [4, 3];

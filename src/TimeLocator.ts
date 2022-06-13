@@ -1,6 +1,5 @@
 import { Drawable } from './Drawable';
 import { Graphics, Path } from './Graphics';
-import { Timeline } from './Timeline';
 
 export class TimeLocator extends Drawable {
 
@@ -9,18 +8,17 @@ export class TimeLocator extends Drawable {
     private _lineColor = 'red';
     private _lineWidth = 1;
     private _lineDash: number[] = [];
-
-    /**
-     * @param timeline Timeline instance that this drawable is bound to.
-     * @param timeProvider Function that returns time for this locator (called upon each redraw).
-     */
-    constructor(timeline: Timeline, private timeProvider: () => number | undefined) {
-        super(timeline);
-    }
+    private _time?: number | (() => number | undefined);
 
     /** @hidden */
     drawOverlay(g: Graphics) {
-        const t = this.timeProvider();
+        let t;
+        if (typeof this.time === 'function') {
+            t = this.time();
+        } else {
+            t = this.time;
+        }
+
         if (t === undefined) {
             return;
         }
@@ -38,6 +36,16 @@ export class TimeLocator extends Drawable {
         g.ctx.arc(x + 0.5, 0, this.knobRadius, 0, 2 * Math.PI);
         g.ctx.fillStyle = this.knobColor;
         g.ctx.fill();
+    }
+
+    /**
+     * Time for this locator. This may also be provided as a function which will
+     * be called upon each redraw.
+     */
+    get time() { return this._time; }
+    set time(time: undefined | number | (() => number | undefined)) {
+        this._time = time;
+        this.reportMutation();
     }
 
     /**
