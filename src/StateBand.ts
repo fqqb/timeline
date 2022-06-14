@@ -242,6 +242,9 @@ export class StateBand extends Band {
             return;
         }
 
+        const textSize = state.textSize ?? this.stateTextSize;
+        const fontFamily = state.fontFamily ?? this.stateFontFamily;
+
         const startX = this.timeline.positionTime(state.start);
         const stopX = this.timeline.positionTime(state.stop);
 
@@ -252,7 +255,7 @@ export class StateBand extends Band {
             textX = this.timeline.positionTime(this.timeline.start);
         }
 
-        const fm = g.measureText(text, `${this.stateTextSize}px ${this.stateFontFamily}`);
+        const fm = g.measureText(text, `${textSize}px ${fontFamily}`);
         const labelFitsBox = stopX - textX >= fm.width;
         if (!labelFitsBox) {
             text = '';
