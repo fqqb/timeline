@@ -33,6 +33,8 @@ export class Timeline {
     private _stop: AnimatableProperty;
     private _min?: number;
     private _max?: number;
+    private _minRange?: number;
+    private _maxRange?: number;
     private selection?: TimeRange;
 
     /** @hidden */
@@ -167,7 +169,23 @@ export class Timeline {
      * Sets the visible range.
      */
     setViewRange(start: number, stop: number, animate = true) {
-        const millisBetween = stop - start;
+        let millisBetween = stop - start;
+        if (this.minRange !== undefined && this.minRange !== null) {
+            if (millisBetween < this.minRange) {
+                const delta = this.minRange - millisBetween;
+                millisBetween -= delta;
+                start -= Math.floor(delta / 2);
+                stop += Math.ceil(delta / 2);
+            }
+        }
+        if (this.maxRange !== undefined && this.maxRange !== null) {
+            if (millisBetween > this.maxRange) {
+                const delta = millisBetween - this.maxRange;
+                millisBetween += delta;
+                start += Math.floor(delta / 2);
+                stop -= Math.ceil(delta / 2);
+            }
+        }
         if (this.min !== undefined && this.min !== null) {
             start = Math.max(this.min, start);
             stop = start + millisBetween;
@@ -241,6 +259,26 @@ export class Timeline {
     set max(max: number | undefined) {
         this._max = max;
         // Enforce new max
+        this.setViewRange(this.start, this.stop, false);
+    }
+
+    /**
+     * The minimum possible visible time range.
+     */
+    get minRange() { return this._minRange; }
+    set minRange(minRange: number | undefined) {
+        this._minRange = minRange;
+        // Enforce new minRange
+        this.setViewRange(this.start, this.stop, false);
+    }
+
+    /**
+     * The maximum possible visible time range.
+     */
+    get maxRange() { return this._maxRange; }
+    set maxRange(maxRange: number | undefined) {
+        this._maxRange = maxRange;
+        // Enforce new maxRange
         this.setViewRange(this.start, this.stop, false);
     }
 
