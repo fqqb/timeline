@@ -107,8 +107,8 @@ export class Graphics {
         this.hitCanvas.clear();
     }
 
-    fillCanvas(color: string) {
-        this.ctx.fillStyle = color;
+    fillCanvas(fill: FillStyle) {
+        this.ctx.fillStyle = fill;
         this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
     }
 

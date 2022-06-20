@@ -206,6 +206,13 @@ export class Timeline {
     }
 
     /**
+     * Returns the currently active selection (if any).
+     */
+    getSelection() {
+        return this.selection;
+    }
+
+    /**
      * Highlight a time range as being selected.
      *
      * @param start Left bound of the selection window.
