@@ -169,29 +169,37 @@ export class Timeline {
      * Sets the visible range.
      */
     setViewRange(start: number, stop: number, animate = true) {
+        const { min, max, minRange, maxRange } = this;
         let millisBetween = stop - start;
-        if (this.minRange !== undefined && this.minRange !== null) {
-            if (millisBetween < this.minRange) {
-                const delta = this.minRange - millisBetween;
+
+        if (minRange !== undefined) {
+            if (millisBetween < minRange) {
+                const delta = minRange - millisBetween;
                 millisBetween -= delta;
                 start -= Math.floor(delta / 2);
                 stop += Math.ceil(delta / 2);
             }
         }
-        if (this.maxRange !== undefined && this.maxRange !== null) {
-            if (millisBetween > this.maxRange) {
-                const delta = millisBetween - this.maxRange;
+        if (maxRange !== undefined) {
+            if (millisBetween > maxRange) {
+                const delta = millisBetween - maxRange;
                 millisBetween += delta;
                 start += Math.floor(delta / 2);
                 stop -= Math.ceil(delta / 2);
             }
         }
-        if (this.min !== undefined && this.min !== null) {
-            start = Math.max(this.min, start);
+        if (min !== undefined) {
+            start = Math.max(min, start);
+            if (max !== undefined) {
+                millisBetween = Math.min(max - min, millisBetween);
+            }
             stop = start + millisBetween;
         }
-        if (this.max !== undefined && this.max !== null) {
-            stop = Math.min(this.max, stop);
+        if (max !== undefined) {
+            stop = Math.min(max, stop);
+            if (min !== undefined) {
+                millisBetween = Math.min(max - min, millisBetween);
+            }
             start = stop - millisBetween;
         }
         if (this.animated && animate) {
@@ -254,7 +262,7 @@ export class Timeline {
      */
     get min() { return this._min; }
     set min(min: number | undefined) {
-        this._min = min;
+        this._min = min ?? undefined;
         // Enforce new min
         this.setViewRange(this.start, this.stop, false);
     }
@@ -264,7 +272,7 @@ export class Timeline {
      */
     get max() { return this._max; }
     set max(max: number | undefined) {
-        this._max = max;
+        this._max = max ?? undefined;
         // Enforce new max
         this.setViewRange(this.start, this.stop, false);
     }
@@ -274,7 +282,7 @@ export class Timeline {
      */
     get minRange() { return this._minRange; }
     set minRange(minRange: number | undefined) {
-        this._minRange = minRange;
+        this._minRange = minRange ?? undefined;
         // Enforce new minRange
         this.setViewRange(this.start, this.stop, false);
     }
@@ -284,7 +292,7 @@ export class Timeline {
      */
     get maxRange() { return this._maxRange; }
     set maxRange(maxRange: number | undefined) {
-        this._maxRange = maxRange;
+        this._maxRange = maxRange ?? undefined;
         // Enforce new maxRange
         this.setViewRange(this.start, this.stop, false);
     }
