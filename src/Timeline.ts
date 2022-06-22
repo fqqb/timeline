@@ -158,9 +158,12 @@ export class Timeline {
 
         // Limit CPU usage to when we need it
         if (this.repaintRequested) {
-            this.g.clearHitCanvas();
-            this.drawScreen();
-            this.repaintRequested = false;
+            try {
+                this.g.clearHitCanvas();
+                this.drawScreen();
+            } finally {
+                this.repaintRequested = false;
+            }
         }
     }
 
