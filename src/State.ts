@@ -34,17 +34,17 @@ export interface State {
     textColor?: string;
 
     /**
-     * Text size in points of this event
+     * Text size in points of this state
      */
     textSize?: number;
 
     /**
-     * Font family of this event
+     * Font family of this state
      */
     fontFamily?: string;
 
     /**
-     * Arbitrary data associated with this event. For example
+     * Arbitrary data associated with this state. For example
      * an identifier of a backend system.
      */
     data?: any;

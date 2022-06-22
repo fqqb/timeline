@@ -1,26 +1,26 @@
 import { Band } from './Band';
-import { Event } from './Event';
 import { TimelineEvent } from './events';
 import { FillStyle, Graphics } from './Graphics';
 import { HitRegionSpecification } from './HitCanvas';
+import { Item } from './Item';
 import { Bounds } from './positioning';
 import { drawCircle, drawDiamond, drawDot, drawReverseTriangle, drawTriangle, ShapeStyle } from './shapes';
 
 /**
- * Event generated when a Timeline Event was clicked.
+ * Event generated when a Timeline item was clicked.
  */
-export interface EventClickEvent extends TimelineEvent {
+export interface ItemClickEvent extends TimelineEvent {
     /**
-     * The event that was clicked.
+     * The item that was clicked.
      */
-    event: Event;
+    item: Item;
 }
 
 /**
  * Event generated in relation to mouse interactions on Timeline
- * events.
+ * items.
  */
-export interface EventMouseEvent extends TimelineEvent {
+export interface ItemMouseEvent extends TimelineEvent {
     /**
      * Horizontal coordinate of the mouse pointer, relative to
      * the browser page.
@@ -34,177 +34,177 @@ export interface EventMouseEvent extends TimelineEvent {
     clientY: number;
 
     /**
-     * The applicable event.
+     * The applicable item.
      */
-    event: Event;
+    item: Item;
 }
 
 interface DrawInfo {
-    label: string; // Actual text to be shown on event (may include extra decoration: ◀)
-    startX: number; // Left of bbox (event only, not label)
-    stopX: number; // Right of bbox (event only, not label)
-    renderStartX: number; // Left of bbox containing event and maybe outside label
-    renderStopX: number; // Right of bbox containing event and maybe outside label
-    offscreenStart: boolean; // True if the event starts before the visible range
-    marginLeft: number; // Margin specific to the event, or else inherited from its band
-    labelFitsBox: boolean; // True if the label fits in the actual event box
-    font: string; // Font specific to the event, or else inherited from its band
-    milestone: boolean; // True if this event must be rendered as a milestone
+    label: string; // Actual text to be shown on an item (may include extra decoration: ◀)
+    startX: number; // Left of bbox (item only, not label)
+    stopX: number; // Right of bbox (item only, not label)
+    renderStartX: number; // Left of bbox containing item and maybe outside label
+    renderStopX: number; // Right of bbox containing item and maybe outside label
+    offscreenStart: boolean; // True if the item starts before the visible range
+    marginLeft: number; // Margin specific to the item, or else inherited from its band
+    labelFitsBox: boolean; // True if the label fits in the actual item box
+    font: string; // Font specific to the item, or else inherited from its band
+    milestone: boolean; // True if this item must be rendered as a milestone
 }
 
-interface AnnotatedEvent extends Event {
+interface AnnotatedItem extends Item {
     region: HitRegionSpecification;
     hovered: boolean;
     drawInfo?: DrawInfo;
 }
 
-let eventSequence = 1;
+let itemSequence = 1;
 
 export type TextOverflow = 'clip' | 'show' | 'hide';
 export type MilestoneShape = 'circle' | 'diamond' | 'dot' | 'triangle' | 'reverse_triangle';
 
-export class EventBand extends Band {
+export class ItemBand extends Band {
 
-    private _eventBackground: FillStyle = '#77b1e1';
-    private _eventBorderColor = '#000000';
-    private _eventBorderDash: number[] = [];
-    private _eventBorderWidth = 0;
-    private _eventCornerRadius = 0;
-    private _eventCursor = 'pointer';
-    private _eventFontFamily = 'Verdana, Geneva, sans-serif';
-    private _eventHeight = 30;
-    private _eventHoverBackground: FillStyle = 'rgba(255, 255, 255, 0.2)';
-    private _eventMarginLeft = 5;
-    private _eventTextColor = '#333333';
-    private _eventTextOverflow: TextOverflow = 'show';
-    private _eventTextSize = 10;
-    private _events: Event[] = [];
+    private _itemBackground: FillStyle = '#77b1e1';
+    private _itemBorderColor = '#000000';
+    private _itemBorderDash: number[] = [];
+    private _itemBorderWidth = 0;
+    private _itemCornerRadius = 0;
+    private _itemCursor = 'pointer';
+    private _itemFontFamily = 'Verdana, Geneva, sans-serif';
+    private _itemHeight = 30;
+    private _itemHoverBackground: FillStyle = 'rgba(255, 255, 255, 0.2)';
+    private _itemMarginLeft = 5;
+    private _itemTextColor = '#333333';
+    private _itemTextOverflow: TextOverflow = 'show';
+    private _itemTextSize = 10;
+    private _items: Item[] = [];
     private _lineSpacing = 0;
     private _spaceBetween = 0;
     private _multiline = true;
     private _milestoneShape: MilestoneShape = 'diamond';
 
-    private eventsById = new Map<Event, string>();
-    private annotatedEvents: AnnotatedEvent[] = [];
-    private lines: AnnotatedEvent[][] = [];
+    private itemsById = new Map<Item, string>();
+    private annotatedItems: AnnotatedItem[] = [];
+    private lines: AnnotatedItem[][] = [];
 
-    private eventClickListeners: Array<(ev: EventClickEvent) => void> = [];
-    private eventMouseMoveListeners: Array<(ev: EventMouseEvent) => void> = [];
-    private eventMouseOutListeners: Array<(ev: EventMouseEvent) => void> = [];
+    private itemClickListeners: Array<(ev: ItemClickEvent) => void> = [];
+    private itemMouseMoveListeners: Array<(ev: ItemMouseEvent) => void> = [];
+    private itemMouseOutListeners: Array<(ev: ItemMouseEvent) => void> = [];
 
     /**
-     * Register a listener that receives an update when an Event is clicked.
+     * Register a listener that receives an update when an item is clicked.
      */
-    addEventClickListener(listener: (ev: EventClickEvent) => void) {
-        this.eventClickListeners.push(listener);
+    addItemClickListener(listener: (ev: ItemClickEvent) => void) {
+        this.itemClickListeners.push(listener);
     }
 
     /**
      * Unregister a previously registered listener to stop receiving
-     * event click events.
+     * item click events.
      */
-    removeEventClickListener(listener: (ev: EventClickEvent) => void) {
-        this.eventClickListeners = this.eventClickListeners.filter(el => (el !== listener));
+    removeItemClickListener(listener: (ev: ItemClickEvent) => void) {
+        this.itemClickListeners = this.itemClickListeners.filter(el => (el !== listener));
     }
 
     /**
      * Register a listener that receives updates whenever the mouse is moving
-     * over an event.
+     * over an item.
      */
-    addEventMouseMoveListener(listener: (ev: EventMouseEvent) => void) {
-        this.eventMouseMoveListeners.push(listener);
+    addItemMouseMoveListener(listener: (ev: ItemMouseEvent) => void) {
+        this.itemMouseMoveListeners.push(listener);
     }
 
     /**
      * Unregister a previously registered listener to stop receiving
-     * event mouse-move events.
+     * item mouse-move events.
      */
-    removeEventMouseMoveListener(listener: (ev: EventMouseEvent) => void) {
-        this.eventMouseMoveListeners = this.eventMouseMoveListeners.filter(el => (el !== listener));
+    removeItemMouseMoveListener(listener: (ev: ItemMouseEvent) => void) {
+        this.itemMouseMoveListeners = this.itemMouseMoveListeners.filter(el => (el !== listener));
     }
 
     /**
      * Register a listener that receives updates whenever the mouse is moving
-     * outside an event.
+     * outside an item.
      */
-    addEventMouseOutListener(listener: (ev: EventMouseEvent) => void) {
-        this.eventMouseOutListeners.push(listener);
+    addItemMouseOutListener(listener: (ev: ItemMouseEvent) => void) {
+        this.itemMouseOutListeners.push(listener);
     }
 
     /**
      * Unregister a previously registered listener to stop receiving
-     * event mouse-out events.
+     * item mouse-out events.
      */
-    removeEventMouseOutListener(listener: (ev: EventMouseEvent) => void) {
-        this.eventMouseOutListeners = this.eventMouseOutListeners.filter(el => (el !== listener));
+    removeItemMouseOutListener(listener: (ev: ItemMouseEvent) => void) {
+        this.itemMouseOutListeners = this.itemMouseOutListeners.filter(el => (el !== listener));
     }
 
-    // Link a long-term identifier with each event
+    // Link a long-term identifier with each item
     // TODO should make it customizable to have custom
     // equality check, instead of only by-reference.
     private processData() {
-        this.annotatedEvents.length = 0;
-        for (const event of (this.events || [])) {
-            let id = this.eventsById.get(event);
+        this.annotatedItems.length = 0;
+        for (const item of (this.items || [])) {
+            let id = this.itemsById.get(item);
             if (id === undefined) {
-                id = 'event_band_' + eventSequence++;
+                id = 'item_band_' + itemSequence++;
             }
-            const annotatedEvent: AnnotatedEvent = {
-                ...event,
+            const annotatedItem: AnnotatedItem = {
+                ...item,
                 hovered: false,
                 region: {
                     id,
-                    cursor: this.eventCursor,
+                    cursor: this.itemCursor,
                     click: () => {
-                        this.eventClickListeners.forEach(listener => listener({
-                            event,
+                        this.itemClickListeners.forEach(listener => listener({
+                            item,
                         }));
                     },
                     mouseEnter: () => {
-                        annotatedEvent.hovered = true;
+                        annotatedItem.hovered = true;
                         this.reportMutation();
                     },
                     mouseMove: mouseEvent => {
-                        this.eventMouseMoveListeners.forEach(listener => listener({
+                        this.itemMouseMoveListeners.forEach(listener => listener({
                             clientX: mouseEvent.clientX,
                             clientY: mouseEvent.clientY,
-                            event,
+                            item,
                         }));
                     },
                     mouseOut: mouseEvent => {
-                        annotatedEvent.hovered = false;
+                        annotatedItem.hovered = false;
                         this.reportMutation();
-                        this.eventMouseOutListeners.forEach(listener => listener({
+                        this.itemMouseOutListeners.forEach(listener => listener({
                             clientX: mouseEvent.clientX,
                             clientY: mouseEvent.clientY,
-                            event,
+                            item,
                         }));
                     }
                 },
             };
 
-            this.annotatedEvents.push(annotatedEvent);
+            this.annotatedItems.push(annotatedItem);
         }
 
-        this.eventsById.clear();
-        for (const event of this.annotatedEvents) {
-            this.eventsById.set(event, event.region.id);
+        this.itemsById.clear();
+        for (const item of this.annotatedItems) {
+            this.itemsById.set(item, item.region.id);
         }
     }
 
     /** @hidden */
     calculateContentHeight(g: Graphics) {
-        this.measureEvents(g);
-        const visibleEvents = this.annotatedEvents.filter(event => !!event.drawInfo);
-        this.lines = this.multiline ? this.wrapEvents(visibleEvents) : [visibleEvents];
+        this.measureItems(g);
+        const visibleItems = this.annotatedItems.filter(item => !!item.drawInfo);
+        this.lines = this.multiline ? this.wrapItems(visibleItems) : [visibleItems];
 
         let newHeight;
         if (this.lines.length) {
-            newHeight = this.eventHeight * this.lines.length;
+            newHeight = this.itemHeight * this.lines.length;
             newHeight += this.lineSpacing * (this.lines.length - 1);
             return newHeight;
         } else {
-            return this.eventHeight;
+            return this.itemHeight;
         }
     }
 
@@ -212,46 +212,46 @@ export class EventBand extends Band {
     drawBandContent(g: Graphics) {
         for (let i = 0; i < this.lines.length; i++) {
             const line = this.lines[i];
-            const offsetY = i * (this.lineSpacing + this.eventHeight);
-            for (const event of line) {
-                if (event.drawInfo!.milestone) {
-                    this.drawMilestone(g, event, offsetY);
+            const offsetY = i * (this.lineSpacing + this.itemHeight);
+            for (const item of line) {
+                if (item.drawInfo!.milestone) {
+                    this.drawMilestone(g, item, offsetY);
                 } else {
-                    this.drawEvent(g, event, offsetY);
+                    this.drawItem(g, item, offsetY);
                 }
             }
         }
     }
 
-    private drawMilestone(g: Graphics, event: AnnotatedEvent, y: number) {
+    private drawMilestone(g: Graphics, item: AnnotatedItem, y: number) {
         const {
             startX, renderStartX, renderStopX, label, font, marginLeft
-        } = event.drawInfo!;
+        } = item.drawInfo!;
 
         const bounds: Bounds = {
             x: startX,
             y,
-            width: this.eventHeight,
-            height: this.eventHeight,
+            width: this.itemHeight,
+            height: this.itemHeight,
         };
 
         const shapeStyle: ShapeStyle = {
-            fill: event.background ?? this.eventBackground,
-            borderWidth: event.borderWidth ?? this.eventBorderWidth,
-            borderColor: event.borderColor ?? this.eventBorderColor,
-            borderDash: event.borderDash ?? this.eventBorderDash,
+            fill: item.background ?? this.itemBackground,
+            borderWidth: item.borderWidth ?? this.itemBorderWidth,
+            borderColor: item.borderColor ?? this.itemBorderColor,
+            borderDash: item.borderDash ?? this.itemBorderDash,
         };
 
         this.drawMilestoneShape(g, bounds, shapeStyle);
-        if (event.hovered) {
-            const hoverBackground = event.hoverBackground ?? this.eventHoverBackground;
+        if (item.hovered) {
+            const hoverBackground = item.hoverBackground ?? this.itemHoverBackground;
             const hoverStyle = { ...shapeStyle, fill: hoverBackground };
             this.drawMilestoneShape(g, bounds, hoverStyle);
         }
 
         // Hit region covers both the shape, and potential outside text
-        const hitRegion = g.addHitRegion(event.region);
-        hitRegion.addRect(renderStartX, y, renderStopX - renderStartX, this.eventHeight);
+        const hitRegion = g.addHitRegion(item.region);
+        hitRegion.addRect(renderStartX, y, renderStopX - renderStartX, this.itemHeight);
 
         if (label) {
             g.fillText({
@@ -261,7 +261,7 @@ export class EventBand extends Band {
                 font,
                 baseline: 'middle',
                 align: 'left',
-                color: event.textColor ?? this.eventTextColor,
+                color: item.textColor ?? this.itemTextColor,
             });
         }
     }
@@ -286,47 +286,47 @@ export class EventBand extends Band {
         }
     }
 
-    private drawEvent(g: Graphics, event: AnnotatedEvent, y: number) {
+    private drawItem(g: Graphics, item: AnnotatedItem, y: number) {
         const {
             startX, stopX, label, renderStartX, renderStopX,
             marginLeft, offscreenStart, labelFitsBox, font,
-        } = event.drawInfo!;
+        } = item.drawInfo!;
 
         const box: Bounds = {
             x: Math.round(startX),
             y,
             width: Math.round(stopX - Math.round(startX)),
-            height: this.eventHeight,
+            height: this.itemHeight,
         };
-        const r = event.cornerRadius ?? this.eventCornerRadius;
+        const r = item.cornerRadius ?? this.itemCornerRadius;
         g.fillRect({
             ...box,
             rx: r,
             ry: r,
-            fill: event.background ?? this.eventBackground,
+            fill: item.background ?? this.itemBackground,
         });
 
-        if (event.hovered) {
+        if (item.hovered) {
             g.fillRect({
                 ...box,
                 rx: r,
                 ry: r,
-                fill: event.hoverBackground ?? this.eventHoverBackground,
+                fill: item.hoverBackground ?? this.itemHoverBackground,
             });
         }
 
         // Hit region covers both the box, and potential outside text
-        const hitRegion = g.addHitRegion(event.region);
-        hitRegion.addRect(renderStartX, y, renderStopX - renderStartX, this.eventHeight);
+        const hitRegion = g.addHitRegion(item.region);
+        hitRegion.addRect(renderStartX, y, renderStopX - renderStartX, this.itemHeight);
 
-        const borderWidth = event.borderWidth ?? this.eventBorderWidth;
+        const borderWidth = item.borderWidth ?? this.itemBorderWidth;
         borderWidth && g.strokeRect({
             ...box,
             rx: r,
             ry: r,
-            color: event.borderColor ?? this.eventBorderColor,
+            color: item.borderColor ?? this.itemBorderColor,
             lineWidth: borderWidth,
-            dash: event.borderDash ?? this.eventBorderDash,
+            dash: item.borderDash ?? this.itemBorderDash,
             crispen: true,
         });
 
@@ -336,7 +336,7 @@ export class EventBand extends Band {
             if (offscreenStart) {
                 textX = this.timeline.positionTime(this.timeline.start);
             }
-            if (labelFitsBox || this.eventTextOverflow === 'show') {
+            if (labelFitsBox || this.itemTextOverflow === 'show') {
                 g.fillText({
                     x: textX,
                     y: textY,
@@ -344,14 +344,14 @@ export class EventBand extends Band {
                     font,
                     baseline: 'middle',
                     align: 'left',
-                    color: event.textColor ?? this.eventTextColor,
+                    color: item.textColor ?? this.itemTextColor,
                 });
-            } else if (this.eventTextOverflow === 'clip') {
+            } else if (this.itemTextOverflow === 'clip') {
                 const tmpCanvas = document.createElement('canvas');
                 tmpCanvas.width = box.width;
                 tmpCanvas.height = box.height;
                 const offscreenCtx = tmpCanvas.getContext('2d')!;
-                offscreenCtx.fillStyle = event.textColor ?? this.eventTextColor;
+                offscreenCtx.fillStyle = item.textColor ?? this.itemTextColor;
                 offscreenCtx.font = font;
                 offscreenCtx.textBaseline = 'middle';
                 offscreenCtx.textAlign = 'left';
@@ -361,21 +361,21 @@ export class EventBand extends Band {
         }
     }
 
-    private measureEvents(g: Graphics) {
-        for (const event of this.annotatedEvents) {
-            const milestone = !event.stop;
-            const start = event.start;
-            const stop = event.stop || event.start;
+    private measureItems(g: Graphics) {
+        for (const item of this.annotatedItems) {
+            const milestone = !item.stop;
+            const start = item.start;
+            const stop = item.stop || item.start;
             if (start > this.timeline.stop || stop < this.timeline.start) {
-                event.drawInfo = undefined; // Forget draw info from previous step
+                item.drawInfo = undefined; // Forget draw info from previous step
                 continue;
             }
 
-            let label = event.label || '';
-            const textSize = event.textSize ?? this.eventTextSize;
-            const fontFamily = event.fontFamily ?? this.eventFontFamily;
+            let label = item.label || '';
+            const textSize = item.textSize ?? this.itemTextSize;
+            const fontFamily = item.fontFamily ?? this.itemFontFamily;
             const font = `${textSize}px ${fontFamily}`;
-            const marginLeft = event.marginLeft ?? this.eventMarginLeft;
+            const marginLeft = item.marginLeft ?? this.itemMarginLeft;
             const offscreenStart = start < this.timeline.start && stop > this.timeline.start;
             let labelFitsBox;
 
@@ -386,14 +386,14 @@ export class EventBand extends Band {
             let renderStopX;
 
             if (milestone) {
-                const shapeRadius = this.eventHeight / 2;
+                const shapeRadius = this.itemHeight / 2;
                 startX -= shapeRadius;
                 stopX += shapeRadius;
 
                 renderStartX = startX;
                 renderStopX = stopX;
                 labelFitsBox = false;
-                if (label && this.eventTextOverflow === 'show') {
+                if (label && this.itemTextOverflow === 'show') {
                     const fm = g.measureText(label, font);
                     renderStopX += marginLeft + fm.width;
                 } else {
@@ -415,16 +415,16 @@ export class EventBand extends Band {
                     const availableLabelWidth = renderStopX - renderStartX - marginLeft;
                     labelFitsBox = availableLabelWidth >= fm.width;
                     if (!labelFitsBox) {
-                        if (this.eventTextOverflow === 'show') {
+                        if (this.itemTextOverflow === 'show') {
                             renderStopX = renderStartX + marginLeft + fm.width;
-                        } else if (this.eventTextOverflow === 'hide') {
+                        } else if (this.itemTextOverflow === 'hide') {
                             label = '';
                         }
                     }
                 }
             }
 
-            event.drawInfo = {
+            item.drawInfo = {
                 font,
                 marginLeft,
                 offscreenStart,
@@ -439,10 +439,10 @@ export class EventBand extends Band {
         }
     }
 
-    private wrapEvents(events: AnnotatedEvent[]) {
-        const lines: AnnotatedEvent[][] = [];
-        for (const event of events) {
-            const { renderStartX, renderStopX } = event.drawInfo!;
+    private wrapItems(items: AnnotatedItem[]) {
+        const lines: AnnotatedItem[][] = [];
+        for (const item of items) {
+            const { renderStartX, renderStopX } = item.drawInfo!;
             let inserted = false;
             for (const line of lines) {
                 let min = 0;
@@ -460,131 +460,131 @@ export class EventBand extends Band {
                     }
                 }
                 if (min > max) {
-                    line.splice(min, 0, event);
+                    line.splice(min, 0, item);
                     inserted = true;
                     break;
                 }
             }
             if (!inserted) {
-                lines.push([event]); // A new line
+                lines.push([item]); // A new line
             }
         }
         return lines;
     }
 
     /**
-     * List of events to be drawn on this band.
+     * List of items to be drawn on this band.
      *
-     * An event is allowed to fall outside of the visible
+     * An item is allowed to fall outside of the visible
      * time range, and in fact this can be used
      * to preload data prior to an anticipated pan
      * operation.
      */
-    get events() { return this._events; }
-    set events(events: Event[]) {
-        this._events = events;
+    get items() { return this._items; }
+    set items(items: Item[]) {
+        this._items = items;
         this.processData();
         this.reportMutation();
     }
 
     /**
-     * Height in points of events belonging to this band.
+     * Height in points of items belonging to this band.
      */
-    get eventHeight() { return this._eventHeight; }
-    set eventHeight(eventHeight: number) {
-        this._eventHeight = eventHeight;
+    get itemHeight() { return this._itemHeight; }
+    set itemHeight(itemHeight: number) {
+        this._itemHeight = itemHeight;
         this.reportMutation();
     }
 
     /**
-     * Default background color of events belonging to this
+     * Default background color of items belonging to this
      * band.
      */
-    get eventBackground() { return this._eventBackground; }
-    set eventBackground(eventBackground: FillStyle) {
-        this._eventBackground = eventBackground;
+    get itemBackground() { return this._itemBackground; }
+    set itemBackground(itemBackground: FillStyle) {
+        this._itemBackground = itemBackground;
         this.reportMutation();
     }
 
     /**
-     * Default text color of events belonging to this band.
+     * Default text color of items belonging to this band.
      */
-    get eventTextColor() { return this._eventTextColor; }
-    set eventTextColor(eventTextColor: string) {
-        this._eventTextColor = eventTextColor;
+    get itemTextColor() { return this._itemTextColor; }
+    set itemTextColor(itemTextColor: string) {
+        this._itemTextColor = itemTextColor;
         this.reportMutation();
     }
 
     /**
-     * Default text size of events belonging to this band.
+     * Default text size of items belonging to this band.
      */
-    get eventTextSize() { return this._eventTextSize; }
-    set eventTextSize(eventTextSize: number) {
-        this._eventTextSize = eventTextSize;
+    get itemTextSize() { return this._itemTextSize; }
+    set itemTextSize(itemTextSize: number) {
+        this._itemTextSize = itemTextSize;
         this.reportMutation();
     }
 
     /**
-     * Default font family of events belonging to this band.
+     * Default font family of items belonging to this band.
      */
-    get eventFontFamily() { return this._eventFontFamily; }
-    set eventFontFamily(eventFontFamily: string) {
-        this._eventFontFamily = eventFontFamily;
+    get itemFontFamily() { return this._itemFontFamily; }
+    set itemFontFamily(itemFontFamily: string) {
+        this._itemFontFamily = itemFontFamily;
         this.reportMutation();
     }
 
     /**
-     * Default border thickness of events belonging to this
+     * Default border thickness of items belonging to this
      * band.
      */
-    get eventBorderWidth() { return this._eventBorderWidth; }
-    set eventBorderWidth(eventBorderWidth: number) {
-        this._eventBorderWidth = eventBorderWidth;
+    get itemBorderWidth() { return this._itemBorderWidth; }
+    set itemBorderWidth(itemBorderWidth: number) {
+        this._itemBorderWidth = itemBorderWidth;
         this.reportMutation();
     }
 
     /**
-     * Default border color of events belonging to this band.
+     * Default border color of items belonging to this band.
      */
-    get eventBorderColor() { return this._eventBorderColor; }
-    set eventBorderColor(eventBorderColor: string) {
-        this._eventBorderColor = eventBorderColor;
+    get itemBorderColor() { return this._itemBorderColor; }
+    set itemBorderColor(itemBorderColor: string) {
+        this._itemBorderColor = itemBorderColor;
         this.reportMutation();
     }
 
     /**
-     * Default border dash of events belong to this band.
+     * Default border dash of items belong to this band.
      *
      * Provide an array of values that specify alternating lengths
      * of lines and gaps.
      */
-    get eventBorderDash() { return this._eventBorderDash; }
-    set eventBorderDash(eventBorderDash: number[]) {
-        this._eventBorderDash = eventBorderDash;
+    get itemBorderDash() { return this._itemBorderDash; }
+    set itemBorderDash(itemBorderDash: number[]) {
+        this._itemBorderDash = itemBorderDash;
         this.reportMutation();
     }
 
     /**
-     * Whitespace between the left border of an event, and
+     * Whitespace between the left border of an item, and
      * its label.
      */
-    get eventMarginLeft() { return this._eventMarginLeft; }
-    set eventMarginLeft(eventMarginLeft: number) {
-        this._eventMarginLeft = eventMarginLeft;
+    get itemMarginLeft() { return this._itemMarginLeft; }
+    set itemMarginLeft(itemMarginLeft: number) {
+        this._itemMarginLeft = itemMarginLeft;
         this.reportMutation();
     }
 
     /**
-     * Default corner radius of events belonging to this band.
+     * Default corner radius of items belonging to this band.
      */
-    get eventCornerRadius() { return this._eventCornerRadius; }
-    set eventCornerRadius(eventCornerRadius: number) {
-        this._eventCornerRadius = eventCornerRadius;
+    get itemCornerRadius() { return this._itemCornerRadius; }
+    set itemCornerRadius(itemCornerRadius: number) {
+        this._itemCornerRadius = itemCornerRadius;
         this.reportMutation();
     }
 
     /**
-     * True if events belonging to this band should wrap over
+     * True if items belonging to this band should wrap over
      * multiple lines when otherwise they would overlap.
      */
     get multiline() { return this._multiline; }
@@ -596,7 +596,7 @@ export class EventBand extends Band {
     /**
      * In case of ``multiline=true``, this allows reserving
      * some extra whitespace that has to be present, or else
-     * an event is considered to overlap.
+     * an item is considered to overlap.
      */
     get spaceBetween() { return this._spaceBetween; }
     set spaceBetween(spaceBetween: number) {
@@ -615,37 +615,37 @@ export class EventBand extends Band {
     }
 
     /**
-     * Indicates what must happen with an event label in case
-     * its width would exceed that of the event box.
+     * Indicates what must happen with an item label in case
+     * its width would exceed that of the item box.
      */
-    get eventTextOverflow() { return this._eventTextOverflow; }
-    set eventTextOverflow(eventTextOverflow: TextOverflow) {
-        this._eventTextOverflow = eventTextOverflow;
+    get itemTextOverflow() { return this._itemTextOverflow; }
+    set itemTextOverflow(itemTextOverflow: TextOverflow) {
+        this._itemTextOverflow = itemTextOverflow;
         this.reportMutation();
     }
 
     /**
-     * Cursor when mouse hovers an event.
+     * Cursor when mouse hovers an item.
      */
-    get eventCursor() { return this._eventCursor; }
-    set eventCursor(eventCursor: string) {
-        this._eventCursor = eventCursor;
+    get itemCursor() { return this._itemCursor; }
+    set itemCursor(itemCursor: string) {
+        this._itemCursor = itemCursor;
         this.reportMutation();
     }
 
     /**
-     * Event background when hovering.
+     * Item background when hovering.
      *
-     * This is drawn on top of the actual event background.
+     * This is drawn on top of the actual item background.
      */
-    get eventHoverBackground() { return this._eventHoverBackground; }
-    set eventHoverBackground(eventHoverBackground: FillStyle) {
-        this._eventHoverBackground = eventHoverBackground;
+    get itemHoverBackground() { return this._itemHoverBackground; }
+    set itemHoverBackground(itemHoverBackground: FillStyle) {
+        this._itemHoverBackground = itemHoverBackground;
         this.reportMutation();
     }
 
     /**
-     * In case the event is a milestone (when it has no stop time),
+     * In case the item is a milestone (when it has no stop time),
      * this is the shape drawn for it.
      */
     get milestoneShape() { return this._milestoneShape; }

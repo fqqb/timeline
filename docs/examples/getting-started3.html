@@ -5,7 +5,7 @@
 <body style="padding: 0; margin: 0">
     <div id="timeline" style="height: 100px"></div>
     <script type="module">
-        import { TimeRuler, EventBand, Timeline } from '{{- site.dist -}}';
+        import { TimeRuler, ItemBand, Timeline } from '{{- site.dist -}}';
         window.addEventListener('load', () => {
             const targetEl = document.getElementById('timeline');
             const timeline = new Timeline(targetEl);
@@ -21,20 +21,20 @@
             const ruler = new TimeRuler(timeline);
             ruler.label = 'Time';
 
-            const band1 = new EventBand(timeline);
+            const band1 = new ItemBand(timeline);
             band1.label = 'Band 1';
-            band1.events = [{
+            band1.items = [{
                 start: start.getTime() + 3000000,
                 stop: start.getTime() + 50000000,
-                label: 'Event 1'
+                label: 'Item 1'
             }];
 
-            const band2 = new EventBand(timeline);
+            const band2 = new ItemBand(timeline);
             band2.label = 'Band 2';
-            band2.events = [{
+            band2.items = [{
                 start: start.getTime() + 6000000,
                 stop: start.getTime() + 12500000,
-                label: 'Event 2'
+                label: 'Item 2'
             }];
         });
     </script>

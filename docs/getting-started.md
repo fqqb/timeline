@@ -40,23 +40,23 @@ This empty Timeline shows the main structure: a left **sidebar** and the **main 
 
 ## Adding Bands
 
-The main area defaults to showing a numeric range between 0 and 100. With this knowledge, let's display a few events.
+The main area defaults to showing a numeric range between 0 and 100. With this knowledge, let's display a few items.
 
 ```javascript
-const band1 = new EventBand(timeline);
+const band1 = new ItemBand(timeline);
 band1.label = 'Band 1';
-band1.events = [
-    { start: 20, stop: 40, label: 'Event 1' },
+band1.items = [
+    { start: 20, stop: 40, label: 'Item 1' },
 ];
 
-const band2 = new EventBand(timeline);
+const band2 = new ItemBand(timeline);
 band2.label = 'Band 2';
-band2.eventBorderWidth = 1;
-band2.eventBackground = '#ffe4b5';
-band2.events = [
-    { start: 10, stop: 50, label: 'Event 2' },
-    { start: 40, stop: 70, label: 'Event 3', background: 'orange', cornerRadius: 5 },
-    { start: 60, stop: 120, label: 'Event 4' },
+band2.itemBorderWidth = 1;
+band2.itemBackground = '#ffe4b5';
+band2.items = [
+    { start: 10, stop: 50, label: 'Item 2' },
+    { start: 40, stop: 70, label: 'Item 3', background: 'orange', cornerRadius: 5 },
+    { start: 60, stop: 120, label: 'Item 4' },
 ];
 ```
 
@@ -64,16 +64,16 @@ band2.events = [
                      height="90px"
                      caption="First data" %}
 
-Event 4 is not fully visible, but you can pan the Timeline canvas.
+Item 4 is not fully visible, but you can pan the Timeline canvas.
 
 
 ## Absolute Time
 
-A common use case is to render real life events. That is &ndash; using absolute time.
+A common use case is to render real life items. That is &ndash; using absolute time.
 
 If we consider time to be milliseconds since 1 January 1970 UTC, we can use JavaScript Dates to show a specific calendar time range.
 
-Let's do that, and replace our event data with absolute timestamps too.
+Let's do that, and replace our item data with absolute timestamps too.
 
 ```javascript
 // Show 'today' (using local time)
@@ -87,20 +87,20 @@ timeline.setViewRange(start.getTime(), stop.getTime());
 const ruler = new TimeRuler(timeline);
 ruler.label = 'Time';
 
-const band1 = new EventBand(timeline);
+const band1 = new ItemBand(timeline);
 band1.label = 'Band 1';
-band1.events = [{
+band1.items = [{
     start: start.getTime() + 3000000,
     stop: start.getTime() + 50000000,
-    label: 'Event 1'
+    label: 'Item 1'
 }];
 
-const band2 = new EventBand(timeline);
+const band2 = new ItemBand(timeline);
 band2.label = 'Band 2';
-band2.events = [{
+band2.items = [{
     start: start.getTime() + 6000000,
     stop: start.getTime() + 12500000,
-    label: 'Event 2'
+    label: 'Item 2'
 }];
 ```
 

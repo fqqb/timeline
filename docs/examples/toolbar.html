@@ -61,7 +61,7 @@
     <div id="timeline" style="height: 500px"></div>
 
     <script type="module">
-        import { TimeRuler, EventBand, MouseTracker, Timeline, TimeLocator } from '{{- site.dist -}}';
+        import { TimeRuler, ItemBand, MouseTracker, Timeline, TimeLocator } from '{{- site.dist -}}';
 
         function getRandomInt(min, max) {
             min = Math.ceil(min);
@@ -91,30 +91,30 @@
             timeline.sidebar.overlayColor = 'rgba(238, 238, 238, 0.2)';
 
             for (let i = 0; i < 10; i++) {
-                const band = new EventBand(timeline);
+                const band = new ItemBand(timeline);
                 band.marginTop = 7;
                 band.marginBottom = 7;
                 band.lineSpacing = 2;
-                band.eventHeight = 20;
-                band.eventCornerRadius = 2;
+                band.itemHeight = 20;
+                band.itemCornerRadius = 2;
 
                 if (i % 2 === 0) {
                     band.background = '#f5f5f5';
                 }
 
-                const randomEvents = [];
+                const randomItems = [];
                 const dataStart = start.minus({ days: 5 }).toMillis();
                 const dataStop = start.plus({ days: 5 }).toMillis();
                 for (let j = 0; j < 50; j++) {
-                    const eventStart = getRandomInt(dataStart, dataStop);
-                    const eventDuration = getRandomInt(2000000, 8000000);
-                    randomEvents.push({
-                        start: eventStart,
-                        stop: j % 10 ? eventStart + eventDuration : undefined,
+                    const itemStart = getRandomInt(dataStart, dataStop);
+                    const itemDuration = getRandomInt(2000000, 8000000);
+                    randomItems.push({
+                        start: itemStart,
+                        stop: j % 10 ? itemStart + itemDuration : undefined,
                         label: `${i + 1}.${j + 1}`,
                     });
                 }
-                band.events = randomEvents;
+                band.items = randomItems;
                 band.label = 'Band ' + (i + 1);
             }
 

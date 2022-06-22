@@ -9,22 +9,22 @@ order: 30
 
 Drawables are bands or decorations that can be drawn on a Timeline instance.
 
-## EventBand
+## ItemBand
 
-A band showing events.
+A band showing items.
 
 ```javascript
-const band = new EventBand(timeline);
-band.label = 'Events';
-band.events = [
-    { start: 20, stop: 40, label: 'Event' },
+const band = new ItemBand(timeline);
+band.label = 'Items';
+band.items = [
+    { start: 20, stop: 40, label: 'Item' },
     { start: 60, label: 'Milestone' },
 ];
 ```
 
-{% include demo.html src="/timeline/examples/drawables-EventBand.html"
+{% include demo.html src="/timeline/examples/drawables-ItemBand.html"
                      height="30px"
-                     caption="EventBand" %}
+                     caption="ItemBand" %}
 
 ## LinePlot
 

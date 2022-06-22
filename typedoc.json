@@ -5,7 +5,7 @@
     ],
     "json": "docs/_data/tsdoc.json",
     "intentionallyNotExported": [
-        "AnnotatedEvent",
+        "AnnotatedItem",
         "AnnotatedLine",
         "AnnotatedState",
         "DecadeScale",

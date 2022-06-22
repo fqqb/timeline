@@ -1,12 +1,12 @@
 import { FillStyle } from './Graphics';
 
 /**
- * Event-specific properties.
+ * Item-specific properties.
  *
  * Style attributes are optional. Values that are defined
  * here are prioritized over band attributes.
  */
-export interface Event {
+export interface Item {
 
     /**
      * Start time
@@ -16,53 +16,53 @@ export interface Event {
     /**
      * Stop time
      *
-     * If unspecified the event is considered to be a milestone.
+     * If unspecified the item is considered to be a milestone.
      */
     stop?: number;
 
     /**
-     * Label of this event
+     * Label of this item
      */
     label?: string;
 
     /**
-     * Background style of this event
+     * Background style of this item
      */
     background?: FillStyle;
 
     /**
-     * Background style of this event when it is hovered.
+     * Background style of this item when it is hovered.
      */
     hoverBackground?: FillStyle;
 
     /**
-     * Text color of this event
+     * Text color of this item
      */
     textColor?: string;
 
     /**
-     * Text size in points of this event
+     * Text size in points of this item
      */
     textSize?: number;
 
     /**
-     * Font family of this event
+     * Font family of this item
      */
     fontFamily?: string;
 
     /**
-     * Border color for this event
+     * Border color for this item
      */
     borderColor?: string;
 
     /**
-     * Border dash for this event. Provide an array of values that
+     * Border dash for this item. Provide an array of values that
      * specify alternating lengths of lines and gaps.
      */
     borderDash?: number[];
 
     /**
-     * Thickness of the border for this event
+     * Thickness of the border for this item
      */
     borderWidth?: number;
 
@@ -72,12 +72,12 @@ export interface Event {
     marginLeft?: number;
 
     /**
-     * Corner radius for this event.
+     * Corner radius for this item.
      */
     cornerRadius?: number;
 
     /**
-     * Arbitrary data associated with this event. For example
+     * Arbitrary data associated with this item. For example
      * an identifier of a backend system.
      */
     data?: any;
