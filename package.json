@@ -1,6 +1,6 @@
 {
   "name": "@fqqb/timeline",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "Render items on an interactive timeline chart",
   "author": "fqqb",
   "license": "MIT",
