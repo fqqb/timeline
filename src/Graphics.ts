@@ -57,6 +57,7 @@ export interface RectStroke {
     rx?: number;
     ry?: number;
     lineWidth?: number;
+    lineJoin?: CanvasLineJoin;
     dash?: number[];
     crispen?: boolean;
 }
@@ -65,6 +66,8 @@ export interface PathStroke {
     path: Path;
     color: string;
     lineWidth?: number;
+    lineCap?: CanvasLineCap;
+    lineJoin?: CanvasLineJoin;
     dash?: number[];
 }
 
@@ -165,6 +168,7 @@ export class Graphics {
         }
         this.ctx.lineWidth = stroke.lineWidth ?? 1;
         this.ctx.strokeStyle = stroke.color;
+        this.ctx.lineJoin = stroke.lineJoin || 'miter';
         if (stroke.crispen && stroke.lineWidth) {
             const box = shrink(stroke, stroke.lineWidth / 2, stroke.lineWidth / 2);
             if (stroke.rx || stroke.ry) {
@@ -217,6 +221,8 @@ export class Graphics {
             }
         }
         this.ctx.lineWidth = stroke.lineWidth ?? 1;
+        this.ctx.lineCap = stroke.lineCap || 'butt';
+        this.ctx.lineJoin = stroke.lineJoin || 'miter';
         this.ctx.strokeStyle = stroke.color;
         this.ctx.stroke();
 

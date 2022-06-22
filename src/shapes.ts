@@ -1,5 +1,5 @@
 import { FillStyle, Graphics, Path } from './Graphics';
-import { Bounds } from './positioning';
+import { Bounds, shrink } from './positioning';
 
 export interface ShapeStyle {
     fill: FillStyle;
@@ -12,9 +12,9 @@ export type ShapeRenderer = (g: Graphics, bounds: Bounds, style: ShapeStyle) => 
 
 
 export const drawDiamond: ShapeRenderer = (g: Graphics, bounds: Bounds, style: ShapeStyle) => {
-    const rx = bounds.width / 2;
-    const ry = bounds.height / 2;
-    const path = new Path(bounds.x + rx, bounds.y)
+    let rx = bounds.width / 2;
+    let ry = bounds.height / 2;
+    let path = new Path(bounds.x + rx, bounds.y)
         .lineTo(bounds.x + bounds.width, bounds.y + ry)
         .lineTo(bounds.x + rx, bounds.y + bounds.height)
         .lineTo(bounds.x, bounds.y + ry)
@@ -24,12 +24,25 @@ export const drawDiamond: ShapeRenderer = (g: Graphics, bounds: Bounds, style: S
         fill: style.fill,
     });
 
-    style.borderWidth && g.strokePath({
-        path,
-        color: style.borderColor,
-        dash: style.borderDash,
-        lineWidth: style.borderWidth,
-    });
+    if (style.borderWidth) {
+        // Draw borders within box
+        bounds = shrink(bounds, style.borderWidth / 2);
+        rx = bounds.width / 2;
+        ry = bounds.height / 2;
+        path = new Path(bounds.x + rx, bounds.y)
+            .lineTo(bounds.x + bounds.width, bounds.y + ry)
+            .lineTo(bounds.x + rx, bounds.y + bounds.height)
+            .lineTo(bounds.x, bounds.y + ry)
+            .closePath();
+        g.strokePath({
+            path,
+            color: style.borderColor,
+            dash: style.borderDash,
+            lineWidth: style.borderWidth,
+            lineCap: 'round',
+            lineJoin: 'round',
+        });
+    }
 };
 
 export const drawDot: ShapeRenderer = (g: Graphics, bounds: Bounds, style: ShapeStyle) => {
