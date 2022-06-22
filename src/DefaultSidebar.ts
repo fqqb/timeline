@@ -5,7 +5,7 @@ import { Sidebar } from './Sidebar';
 
 export class DefaultSidebar extends Sidebar {
 
-    private _dividerColor = '#b3b3b3';
+    private _dividerColor = '#e3e3e3';
     private _foregroundColor = '#333333';
     private _fontFamily = 'Verdana, Geneva, sans-serif';
     private _textSize = 10;
