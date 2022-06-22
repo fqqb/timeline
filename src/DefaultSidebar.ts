@@ -70,12 +70,20 @@ export class DefaultSidebar extends Sidebar {
     }
 
     private drawBand(g: Graphics, band: Band, idx: number) {
+        // Default to following main band background, but allow overrides
         g.fillRect({
             x: 0,
             y: band.y,
             width: this.width,
             height: band.height,
             fill: band.background,
+        });
+        g.fillRect({
+            x: 0,
+            y: band.y,
+            width: this.width,
+            height: band.height,
+            fill: band.headerBackground,
         });
 
         if (this.hoveredIndex === idx) {
@@ -150,7 +158,8 @@ export class DefaultSidebar extends Sidebar {
     }
 
     /**
-     * Color used to cover the background.
+     * Color used to cover the background. This covers also the borders so
+     * generally you want to add some level of transparency.
      */
     get overlayColor() { return this._overlayColor; }
     set overlayColor(overlayColor: string) {
