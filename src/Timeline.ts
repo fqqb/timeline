@@ -74,6 +74,8 @@ export class Timeline {
     private _selectedLineDash = [4, 3];
     private _selectedLineColor = 'transparent';
 
+    private animationFrameRequest?: number;
+
     constructor(private readonly targetElement: HTMLElement) {
 
         // Wrapper to not modify the user element much more
@@ -116,7 +118,7 @@ export class Timeline {
 
         this.sidebar = new DefaultSidebar(this);
 
-        window.requestAnimationFrame(t => this.step(t));
+        this.animationFrameRequest = window.requestAnimationFrame(t => this.step(t));
 
         // Periodically redraw everything (used by continuously changing elements)
         this.repaintIntervalHandle = window.setInterval(() => this.requestRepaint(), this.autoRepaintDelay);
@@ -126,9 +128,8 @@ export class Timeline {
      * Free resources used by this Timeline instance (like intervals).
      */
     disconnect() {
-        if (this.repaintIntervalHandle) {
-            window.clearInterval(this.repaintIntervalHandle);
-        }
+        this.animationFrameRequest && window.cancelAnimationFrame(this.animationFrameRequest);
+        this.repaintIntervalHandle && window.clearInterval(this.repaintIntervalHandle);
         for (const drawable of this._drawables) {
             drawable.disconnectedCallback();
         }
@@ -143,7 +144,7 @@ export class Timeline {
     }
 
     private step(t: number) {
-        window.requestAnimationFrame(t => this.step(t));
+        this.animationFrameRequest = window.requestAnimationFrame(t => this.step(t));
         this.frameTime = t;
 
         for (const property of this.animatableProperties) {
