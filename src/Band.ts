@@ -24,7 +24,7 @@ export abstract class Band extends Drawable {
 
     private _label?: string;
     private _frozen = false;
-    private _background?: FillStyle;
+    private _background: FillStyle = 'transparent';
     private _borderWidth?: number;
     private _borderColor?: string;
     private _marginBottom = 0;
@@ -70,11 +70,10 @@ export abstract class Band extends Drawable {
     }
 
     /**
-     * Background of this band. If undefined, the background
-     * defaults to an odd/even color pattern.
+     * Background of this band.
      */
     get background() { return this._background; }
-    set background(background: FillStyle | undefined) {
+    set background(background: FillStyle) {
         this._background = background;
         this.reportMutation();
     }

@@ -62,8 +62,7 @@ export class Timeline {
     animated = true;
     private animatableProperties: AnimatableProperty[] = [];
 
-    private _backgroundOddColor = '#ffffff';
-    private _backgroundEvenColor = '#f5f5f5';
+    private _background: FillStyle = '#ffffff';
     private _foregroundColor = 'grey';
     private _bandBorderColor = '#e8e8e8';
     private _bandBorderWidth = 1;
@@ -578,15 +577,9 @@ export class Timeline {
         this.setViewRange(start, stop, animate);
     }
 
-    get backgroundOddColor() { return this._backgroundOddColor; };
-    set backgroundOddColor(backgroundOddColor: string) {
-        this._backgroundOddColor = backgroundOddColor;
-        this.requestRepaint();
-    }
-
-    get backgroundEvenColor() { return this._backgroundEvenColor; };
-    set backgroundEvenColor(backgroundEvenColor: string) {
-        this._backgroundEvenColor = backgroundEvenColor;
+    get background() { return this._background; };
+    set background(background: FillStyle) {
+        this._background = background;
         this.requestRepaint();
     }
 
@@ -650,7 +643,7 @@ export class Timeline {
         const height = Math.max(y, this.scrollPanel.clientHeight);
         this.g.resize(width, height);
 
-        this.g.fillCanvas(this.backgroundOddColor);
+        this.g.fillCanvas(this.background);
         this.sidebar?.drawContent(this.g);
 
         const offscreen = this.g.createChild(this.mainWidth, height);
@@ -662,31 +655,15 @@ export class Timeline {
     }
 
     private drawOffscreen(g: Graphics) {
-        let stripedColor = this.backgroundOddColor;
         for (const drawable of this._drawables) {
-            // Default (striped) background
             if (drawable instanceof Band) {
                 g.fillRect({
                     x: drawable.x,
                     y: drawable.y,
                     width: g.canvas.width,
                     height: drawable.height,
-                    fill: stripedColor,
+                    fill: drawable.background,
                 });
-                stripedColor = (stripedColor === this.backgroundOddColor)
-                    ? this.backgroundEvenColor
-                    : this.backgroundOddColor;
-
-                // Override odd/even striped pattern
-                if (drawable.background) {
-                    g.fillRect({
-                        x: drawable.x,
-                        y: drawable.y,
-                        width: g.canvas.width,
-                        height: drawable.height,
-                        fill: drawable.background,
-                    });
-                }
             }
         }
 

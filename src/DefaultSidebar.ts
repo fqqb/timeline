@@ -1,5 +1,5 @@
 import { Band } from './Band';
-import { FillStyle, Graphics, Path } from './Graphics';
+import { Graphics, Path } from './Graphics';
 import { HitRegionSpecification } from './HitCanvas';
 import { Sidebar } from './Sidebar';
 
@@ -27,20 +27,15 @@ export class DefaultSidebar extends Sidebar {
             y: 0,
             width: this.clippedWidth,
             height: g.canvas.height,
-            fill: this.timeline.backgroundOddColor,
+            fill: this.timeline.background,
         });
 
         const bands = this.timeline.getBands().filter(l => l.frozen)
             .concat(this.timeline.getBands().filter(l => !l.frozen));
 
-        let stripedColor = this.timeline.backgroundOddColor;
         for (let i = 0; i < bands.length; i++) {
             const band = bands[i];
-            const background = band.background || stripedColor;
-            this.drawBand(g, band, background, i);
-            stripedColor = (stripedColor === this.timeline.backgroundOddColor)
-                ? this.timeline.backgroundEvenColor
-                : this.timeline.backgroundOddColor;
+            this.drawBand(g, band, i);
         }
 
         g.fillRect({
@@ -74,13 +69,13 @@ export class DefaultSidebar extends Sidebar {
         });
     }
 
-    private drawBand(g: Graphics, band: Band, background: FillStyle, idx: number) {
+    private drawBand(g: Graphics, band: Band, idx: number) {
         g.fillRect({
             x: 0,
             y: band.y,
             width: this.width,
             height: band.height,
-            fill: background,
+            fill: band.background,
         });
 
         if (this.hoveredIndex === idx) {
