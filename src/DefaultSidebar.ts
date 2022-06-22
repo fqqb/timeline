@@ -9,7 +9,7 @@ export class DefaultSidebar extends Sidebar {
     private _foregroundColor = '#333333';
     private _fontFamily = 'Verdana, Geneva, sans-serif';
     private _textSize = 10;
-    private _overlayColor = 'rgba(238, 238, 238, 0.2)';
+    private _overlayColor = 'transparent';
     private _hoverOverlayColor = 'rgba(170, 170, 170, 0.3)';
 
     private hoveredIndex?: number;

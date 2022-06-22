@@ -88,6 +88,8 @@
             const stop = luxon.DateTime.local().endOf('day');
             timeline.setViewRange(start.toMillis(), stop.toMillis());
 
+            timeline.sidebar.overlayColor = 'rgba(238, 238, 238, 0.2)';
+
             for (let i = 0; i < 10; i++) {
                 const band = new EventBand(timeline);
                 band.marginTop = 7;
