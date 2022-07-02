@@ -56,7 +56,7 @@ export interface TimelineGrabEvent extends TimelineMouseEvent {
 export class DOMEventHandler {
 
     private grabbing = false;
-    private grabTarget?: 'DIVIDER' | HitRegionSpecification;
+    private grabTarget?: HitRegionSpecification;
     grabPoint?: { x: number, y: number; }; // Relative to canvas
 
     private isDividerHover = false;
@@ -124,7 +124,6 @@ export class DOMEventHandler {
         document.removeEventListener('click', clickBlocker, true /* Must be same as when created */);
 
         if (isLeftPressed(event)) {
-            const sidebarWidth = this.timeline.sidebar?.clippedWidth || 0;
             const point = this.toPoint(event);
 
             const region = this.hitCanvas.getActiveRegion(point.x, point.y);
@@ -133,11 +132,7 @@ export class DOMEventHandler {
                 region.mouseDown(mouseEvent);
             }
 
-            if (this.timeline.sidebar && sidebarWidth - 5 < point.x && point.x <= sidebarWidth + 5) {
-                this.grabTarget = 'DIVIDER';
-                this.grabPoint = { ...point };
-                this.initiateGrab(); // No snap detection for this
-            } else if (region && region.grab) {
+            if (region && region.grab) {
                 this.grabPoint = { ...point };
                 this.grabTarget = region;
                 // Actual grab initialisation is subject to snap (see mousemove)
@@ -174,6 +169,7 @@ export class DOMEventHandler {
 
     private onCanvasMouseMove(domEvent: MouseEvent) {
         const mouseEvent = this.toTimelineMouseEvent(domEvent);
+        const { point } = mouseEvent;
 
         if (!mouseEvent.overViewport) {
             this.maybeFireViewportMouseOut(domEvent);
@@ -186,13 +182,12 @@ export class DOMEventHandler {
             const vpEvent: ViewportMouseMoveEvent = {
                 clientX: domEvent.clientX,
                 clientY: domEvent.clientY,
-                time: this.mouse2time(mouseEvent.point.x),
+                time: this.mouse2time(point.x),
             };
             this.timeline.fireEvent('viewportmousemove', vpEvent);
         }
 
-        const region = this.hitCanvas.getActiveRegion(
-            mouseEvent.point.x, mouseEvent.point.y);
+        const region = this.hitCanvas.getActiveRegion(point.x, point.y);
 
         if (this.prevEnteredRegion && this.prevEnteredRegion.mouseOut) {
             if (!regionMatches(this.prevEnteredRegion, region)) {
@@ -211,10 +206,13 @@ export class DOMEventHandler {
         }
 
         this.prevEnteredRegion = region;
-        defaultCursor = region?.cursor || 'default';
+
+        const cursor = region?.cursor || 'auto';
+        if (cursor !== this.canvas.style.cursor) {
+            this.canvas.style.cursor = cursor;
+        }
 
         if (this.grabPoint && !this.grabbing && isLeftPressed(domEvent)) {
-            const { point } = mouseEvent;
             const distance = measureDistance(this.grabPoint.x, this.grabPoint.y, point.x, point.y);
             if (Math.abs(distance) > snap) {
                 this.initiateGrab();
@@ -225,25 +223,15 @@ export class DOMEventHandler {
             }
         }
 
-
-        this.updateCursor(defaultCursor);
         if (this.grabbing && this.grabTarget && isLeftPressed(domEvent)) {
             domEvent.preventDefault();
             domEvent.stopPropagation();
-            const { point } = mouseEvent;
-            switch (this.grabTarget) {
-                case 'DIVIDER':
-                    if (this.timeline.sidebar) {
-                        this.timeline.sidebar.width = point.x;
-                    }
-                    break;
-                default:
-                    this.grabTarget.grab!({
-                        ...this.toTimelineMouseEvent(domEvent),
-                        dx: point.x - this.grabPoint!.x,
-                        dy: point.y - this.grabPoint!.y,
-                    });
-            }
+
+            this.grabTarget.grab!({
+                ...this.toTimelineMouseEvent(domEvent),
+                dx: point.x - this.grabPoint!.x,
+                dy: point.y - this.grabPoint!.y,
+            });
         }
     }
 
@@ -287,8 +275,7 @@ export class DOMEventHandler {
             this.grabbing = false;
             this.grabPoint = undefined;
             this.grabTarget = undefined;
-            this.updateCursor();
-            if (typeof grabTarget !== 'string' && grabTarget?.grabEnd) {
+            if (grabTarget?.grabEnd) {
                 grabTarget.grabEnd();
             }
         }
@@ -314,17 +301,6 @@ export class DOMEventHandler {
                 clientY: event.clientY,
             };
             this.timeline.fireEvent('viewportmouseout', vpEvent);
-        }
-    }
-
-    private updateCursor(defaultCursor = 'default') {
-        let newCursor = defaultCursor;
-        if (this.grabTarget === 'DIVIDER' || this.isDividerHover) {
-            newCursor = 'col-resize';
-        }
-
-        if (newCursor != this.canvas.style.cursor) {
-            this.canvas.style.cursor = newCursor;
         }
     }
 }

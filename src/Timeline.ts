@@ -107,6 +107,24 @@ export class Timeline {
         },
     };
 
+    private dividerRegion: HitRegionSpecification = {
+        id: 'divider',
+        cursor: 'col-resize',
+        mouseDown: mouseEvent => {
+            this.grabStartPoint = mouseEvent.point;
+            this.grabStartCursor = this.cursor;
+        },
+        grab: grabEvent => {
+            if (this.sidebar) {
+                this.cursor = 'col-resize';
+                this.sidebar.width = grabEvent.point.x;
+            }
+        },
+        grabEnd: () => {
+            this.cursor = this.grabStartCursor || this.cursor;
+        },
+    };
+
     constructor(private readonly targetElement: HTMLElement) {
 
         // Wrapper to not modify the user element much more
@@ -687,18 +705,23 @@ export class Timeline {
         g.fillCanvas(this.background);
         this.sidebar?.drawContent(g);
 
-        const x = this.sidebar?.clippedWidth || 0;
+        const sidebarWidth = this.sidebar?.clippedWidth || 0;
 
         if (this.tool) {
             const hitRegion = g.addHitRegion(this.viewportRegion);
-            hitRegion.addRect(x, 0, this.mainWidth, height);
+            hitRegion.addRect(sidebarWidth, 0, this.mainWidth, height);
         }
 
         const offscreen = g.createChild(this.mainWidth, height);
         this.drawOffscreen(offscreen);
-        g.copy(offscreen, x, 0);
+        g.copy(offscreen, sidebarWidth, 0);
 
         this.drawFrozenTop();
+
+        if (this.sidebar) {
+            const hitRegion = g.addHitRegion(this.dividerRegion);
+            hitRegion.addRect(sidebarWidth - 5, 0, 10, height);
+        }
     }
 
     private drawOffscreen(g: Graphics) {
