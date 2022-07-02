@@ -5,6 +5,7 @@ export { DefaultSidebar } from './DefaultSidebar';
 export { Drawable } from './Drawable';
 export * from './events';
 export * from './Graphics';
+export { HitRegionSpecification } from './HitRegionSpecification';
 export { Item } from './Item';
 export { ItemBand, ItemClickEvent, ItemMouseEvent, MilestoneShape, TextOverflow } from './ItemBand';
 export { Line } from './Line';

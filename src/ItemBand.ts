@@ -1,7 +1,7 @@
 import { Band } from './Band';
 import { TimelineEvent } from './events';
 import { FillStyle, Graphics } from './Graphics';
-import { HitRegionSpecification } from './HitCanvas';
+import { HitRegionSpecification } from './HitRegionSpecification';
 import { Item } from './Item';
 import { Bounds } from './positioning';
 import { drawCircle, drawDiamond, drawDot, drawReverseTriangle, drawTriangle, ShapeStyle } from './shapes';

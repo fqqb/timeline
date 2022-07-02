@@ -1,4 +1,5 @@
-import { HitCanvas, HitRegionSpecification } from './HitCanvas';
+import { HitCanvas } from './HitCanvas';
+import { HitRegionSpecification } from './HitRegionSpecification';
 import { Bounds, Point, shrink } from './positioning';
 import * as utils from './utils';
 
