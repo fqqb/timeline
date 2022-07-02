@@ -16,9 +16,11 @@ export class DefaultSidebar extends Sidebar {
 
     /** @hidden */
     drawContent(g: Graphics) {
-        const offscreen = g.createChild(this.width, g.canvas.height);
-        this.drawOffscreen(offscreen);
-        g.copy(offscreen, 0, 0);
+        if (this.width) {
+            const offscreen = g.createChild(this.width, g.canvas.height);
+            this.drawOffscreen(offscreen);
+            g.copy(offscreen, 0, 0);
+        }
     }
 
     private drawOffscreen(g: Graphics) {
