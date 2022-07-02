@@ -4,6 +4,7 @@ import { FillStyle, Graphics, Path } from './Graphics';
 import { HitRegionSpecification } from './HitRegionSpecification';
 import { Bounds } from './positioning';
 import { State } from './State';
+import { REGION_ID_VIEWPORT } from './Timeline';
 
 /**
  * Event generated when a Timeline state was clicked.
@@ -148,6 +149,7 @@ export class StateBand extends Band {
                 hovered: false,
                 region: {
                     id,
+                    parentId: REGION_ID_VIEWPORT,
                     cursor: this.stateCursor,
                     click: () => {
                         this.stateClickListeners.forEach(listener => listener({

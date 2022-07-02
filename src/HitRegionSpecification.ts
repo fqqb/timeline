@@ -2,6 +2,7 @@ import { TimelineGrabEvent, TimelineMouseEvent } from './DOMEventHandler';
 
 export interface HitRegionSpecification {
     id: string;
+    parentId?: string;
     click?: () => void;
     mouseEnter?: (mouseEvent: TimelineMouseEvent) => void;
     mouseMove?: (mouseEvent: TimelineMouseEvent) => void;

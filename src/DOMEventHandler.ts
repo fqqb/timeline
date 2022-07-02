@@ -57,7 +57,7 @@ export class DOMEventHandler {
 
     private grabbing = false;
     private grabTarget?: HitRegionSpecification;
-    private grabPoint?: { x: number, y: number; }; // Relative to canvas
+    grabPoint?: { x: number, y: number; }; // Relative to canvas
 
     private isViewportHover = false;
 
@@ -113,27 +113,27 @@ export class DOMEventHandler {
     private onCanvasClick(domEvent: MouseEvent) {
         this.timeline.clearSelection();
 
-        const mouseEvent = this.toTimelineMouseEvent(domEvent);
-        const region = this.hitCanvas.getActiveRegion(
-            mouseEvent.point.x, mouseEvent.point.y);
-        region?.click && region.click();
+        const { x, y } = this.toPoint(domEvent);
+        const region = this.hitCanvas.getActiveRegion(x, y, 'click');
+        region?.click!();
     }
 
     private onCanvasMouseDown(event: MouseEvent) {
         document.removeEventListener('click', clickBlocker, true /* Must be same as when created */);
 
         if (isLeftPressed(event)) {
-            const point = this.toPoint(event);
+            const { x, y } = this.toPoint(event);
 
-            const region = this.hitCanvas.getActiveRegion(point.x, point.y);
-            if (region && region.mouseDown) {
+            const mouseDownRegion = this.hitCanvas.getActiveRegion(x, y, 'mouseDown');
+            if (mouseDownRegion) {
                 const mouseEvent = this.toTimelineMouseEvent(event);
-                region.mouseDown(mouseEvent);
+                mouseDownRegion.mouseDown!(mouseEvent);
             }
 
-            if (region && region.grab) {
-                this.grabPoint = { ...point };
-                this.grabTarget = region;
+            const grabRegion = this.hitCanvas.getActiveRegion(x, y, 'grab');
+            if (grabRegion) {
+                this.grabPoint = { x, y };
+                this.grabTarget = grabRegion;
                 // Actual grab initialisation is subject to snap (see mousemove)
             }
 
@@ -144,15 +144,13 @@ export class DOMEventHandler {
     }
 
     private onCanvasMouseUp(event: MouseEvent) {
-        const point = this.toPoint(event);
-        const region = this.hitCanvas.getActiveRegion(point.x, point.y);
-        if (region && region.mouseUp) {
-            region.mouseUp();
-        }
+        const { x, y } = this.toPoint(event);
+        const region = this.hitCanvas.getActiveRegion(x, y, 'mouseUp');
+        region?.mouseUp!();
     }
 
     private onCanvasMouseOut(event: MouseEvent) {
-        if (this.prevEnteredRegion && this.prevEnteredRegion.mouseOut) {
+        if (this.prevEnteredRegion?.mouseOut) {
             const mouseEvent = this.toTimelineMouseEvent(event);
             this.prevEnteredRegion.mouseOut(mouseEvent);
         }
@@ -191,19 +189,20 @@ export class DOMEventHandler {
             }
         }
 
-        if (region && region.mouseEnter) {
+        if (region?.mouseEnter) {
             if (!regionMatches(this.prevEnteredRegion, region)) {
                 region.mouseEnter(mouseEvent);
             }
         }
 
-        if (region && region.mouseMove) {
+        if (region?.mouseMove) {
             region.mouseMove(mouseEvent);
         }
 
         this.prevEnteredRegion = region;
 
-        const cursor = region?.cursor || 'auto';
+        const cursorRegion = this.hitCanvas.getActiveRegion(point.x, point.y, 'cursor');
+        const cursor = cursorRegion?.cursor || 'auto';
         if (cursor !== this.canvas.style.cursor) {
             this.canvas.style.cursor = cursor;
         }

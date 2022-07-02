@@ -5,7 +5,8 @@ const WHITE = 'rgb(255,255,255)';
 export class HitCanvas {
 
     readonly ctx: CanvasRenderingContext2D;
-    private regions: { [key: string]: HitRegionSpecification; } = {};
+    private regionsById = new Map<string, HitRegionSpecification>();
+    private regionsByColor = new Map<string, HitRegionSpecification>();
 
     // If present, use the root instead of the local regions map.
     // This avoids color collisions.
@@ -26,24 +27,46 @@ export class HitCanvas {
     }
 
     clear() {
-        this.regions = {};
+        this.regionsById.clear();
+        this.regionsByColor.clear();
         this.ctx.fillStyle = WHITE;
         this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
     }
 
     beginHitRegion(hitRegion: HitRegionSpecification) {
+        (this.root || this).regionsById.set(hitRegion.id, hitRegion);
+
         const color = (this.root || this).generateUniqueColor();
-        (this.root || this).regions[color] = hitRegion;
+        (this.root || this).regionsByColor.set(color, hitRegion);
 
         this.ctx.beginPath();
         this.ctx.fillStyle = color;
         return color;
     }
 
-    getActiveRegion(x: number, y: number): HitRegionSpecification | undefined {
+    getActiveRegion<K extends keyof HitRegionSpecification>(x: number, y: number, property?: K) {
         const pixel = this.ctx.getImageData(x, y, 1, 1).data;
         const color = `rgb(${pixel[0]},${pixel[1]},${pixel[2]})`;
-        return this.regions[color] || undefined;
+        let target = this.regionsByColor.get(color) || undefined;
+        if (target && property) {
+            return this.findAncestorForProperty(target, property);
+        } else {
+            return target;
+        }
+    }
+
+    private findAncestorForProperty(hitRegion: HitRegionSpecification, property: keyof HitRegionSpecification) {
+        if (hitRegion[property] !== undefined) {
+            return hitRegion;
+        }
+
+        let candidate: HitRegionSpecification | undefined = hitRegion;
+        while (candidate?.parentId) {
+            candidate = this.regionsById.get(candidate.parentId);
+            if (candidate && (candidate[property] !== undefined)) {
+                return candidate;
+            }
+        }
     }
 
     drawRegions(ctx: CanvasRenderingContext2D, dx: number, dy: number) {
@@ -66,7 +89,7 @@ export class HitCanvas {
             const b = Math.round(Math.random() * 255);
             const color = `rgb(${r},${g},${b})`;
 
-            if (!this.regions[color] && color !== WHITE) {
+            if (!this.regionsByColor.has(color) && color !== WHITE) {
                 return color;
             }
         }

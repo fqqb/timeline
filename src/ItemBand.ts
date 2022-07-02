@@ -5,6 +5,7 @@ import { HitRegionSpecification } from './HitRegionSpecification';
 import { Item } from './Item';
 import { Bounds } from './positioning';
 import { drawCircle, drawDiamond, drawDot, drawReverseTriangle, drawTriangle, ShapeStyle } from './shapes';
+import { REGION_ID_VIEWPORT } from './Timeline';
 
 /**
  * Event generated when a Timeline item was clicked.
@@ -154,6 +155,7 @@ export class ItemBand extends Band {
                 hovered: false,
                 region: {
                     id,
+                    parentId: REGION_ID_VIEWPORT,
                     cursor: this.itemCursor,
                     click: () => {
                         this.itemClickListeners.forEach(listener => listener({

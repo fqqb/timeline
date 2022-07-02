@@ -22,6 +22,9 @@ function resizeCanvas(canvas: HTMLCanvasElement, width: number, height: number) 
 
 export type Tool = 'hand' | 'range-select';
 
+export const REGION_ID_VIEWPORT = 'viewport';
+export const REGION_ID_DIVIDER = 'divider';
+
 export class Timeline {
 
     private _sidebar?: Sidebar;
@@ -82,7 +85,7 @@ export class Timeline {
     private grabStartCursor?: string;
 
     private viewportRegion: HitRegionSpecification = {
-        id: 'viewport',
+        id: REGION_ID_VIEWPORT,
         mouseDown: mouseEvent => {
             this.grabStartPoint = mouseEvent.point;
             this.grabStartCursor = this.cursor;
@@ -108,7 +111,7 @@ export class Timeline {
     };
 
     private dividerRegion: HitRegionSpecification = {
-        id: 'divider',
+        id: REGION_ID_DIVIDER,
         cursor: 'col-resize',
         mouseDown: mouseEvent => {
             this.grabStartPoint = mouseEvent.point;
