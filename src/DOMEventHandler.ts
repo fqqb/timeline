@@ -2,7 +2,7 @@ import { ViewportMouseMoveEvent, ViewportMouseOutEvent } from './events';
 import { HitCanvas } from './HitCanvas';
 import { HitRegionSpecification } from './HitRegionSpecification';
 import { Point } from './positioning';
-import { Timeline, Tool } from './Timeline';
+import { Timeline } from './Timeline';
 
 /**
  * Swallows any click event wherever they may originate.
@@ -55,11 +55,9 @@ export interface TimelineGrabEvent extends TimelineMouseEvent {
 
 export class DOMEventHandler {
 
-    tool?: Tool = 'hand';
-
     private grabbing = false;
-    private grabTarget?: 'DIVIDER' | 'VIEWPORT' | HitRegionSpecification;
-    private grabPoint?: { x: number, y: number; }; // Relative to canvas
+    private grabTarget?: 'DIVIDER' | HitRegionSpecification;
+    grabPoint?: { x: number, y: number; }; // Relative to canvas
 
     private isDividerHover = false;
     private isViewportHover = false;
@@ -135,27 +133,19 @@ export class DOMEventHandler {
                 region.mouseDown(mouseEvent);
             }
 
-            if (region && region.grab) {
-                this.grabPoint = { ...point };
-                this.grabTarget = region;
-                // Actual grab initialisation is subject to snap (see mousemove)
-            } else if (this.timeline.sidebar && sidebarWidth - 5 < point.x && point.x <= sidebarWidth + 5) {
+            if (this.timeline.sidebar && sidebarWidth - 5 < point.x && point.x <= sidebarWidth + 5) {
                 this.grabTarget = 'DIVIDER';
                 this.grabPoint = { ...point };
                 this.initiateGrab(); // No snap detection for this
-
-                event.preventDefault();
-                event.stopPropagation();
-                return false;
-            } else if (this.tool) {
-                this.grabTarget = 'VIEWPORT';
+            } else if (region && region.grab) {
                 this.grabPoint = { ...point };
+                this.grabTarget = region;
                 // Actual grab initialisation is subject to snap (see mousemove)
-
-                event.preventDefault();
-                event.stopPropagation();
-                return false;
             }
+
+            event.preventDefault();
+            event.stopPropagation();
+            return false;
         }
     }
 
@@ -229,7 +219,7 @@ export class DOMEventHandler {
             if (Math.abs(distance) > snap) {
                 this.initiateGrab();
                 // Prevent stutter on first move
-                if (snap > 0 && this.grabPoint && this.tool !== 'range-select') {
+                if (snap > 0 && this.grabPoint) {
                     this.grabPoint = point;
                 }
             }
@@ -245,20 +235,6 @@ export class DOMEventHandler {
                 case 'DIVIDER':
                     if (this.timeline.sidebar) {
                         this.timeline.sidebar.width = point.x;
-                    }
-                    break;
-                case 'VIEWPORT':
-                    switch (this.tool) {
-                        case 'hand':
-                            const dx = point.x - this.grabPoint!.x;
-                            this.timeline.panBy(-dx, false);
-                            this.grabPoint = point;
-                            break;
-                        case 'range-select':
-                            const start = this.mouse2time(this.grabPoint!.x);
-                            const stop = this.mouse2time(point.x);
-                            this.timeline.setSelection(start, stop);
-                            break;
                     }
                     break;
                 default:
@@ -322,7 +298,7 @@ export class DOMEventHandler {
         this.onCanvasMouseMove(event);
     }
 
-    private mouse2time(mouseX: number) {
+    mouse2time(mouseX: number) {
         const sidebarWidth = this.timeline.sidebar?.clippedWidth || 0;
         const viewportX = mouseX - sidebarWidth;
         const totalMillis = this.timeline.stop - this.timeline.start;
@@ -345,10 +321,6 @@ export class DOMEventHandler {
         let newCursor = defaultCursor;
         if (this.grabTarget === 'DIVIDER' || this.isDividerHover) {
             newCursor = 'col-resize';
-        } else if (this.grabbing && this.tool === 'range-select') {
-            newCursor = 'col-resize';
-        } else if (this.grabbing && this.tool === 'hand') {
-            newCursor = 'grabbing';
         }
 
         if (newCursor != this.canvas.style.cursor) {

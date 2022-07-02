@@ -5,6 +5,8 @@ import { DOMEventHandler } from './DOMEventHandler';
 import { Drawable } from './Drawable';
 import { TimelineEvent, TimelineEventHandlers, ViewportChangeEvent, ViewportMouseMoveEvent, ViewportMouseOutEvent, ViewportSelectionEvent } from './events';
 import { FillStyle, Graphics, Path } from './Graphics';
+import { HitRegionSpecification } from './HitRegionSpecification';
+import { Point } from './positioning';
 import { Sidebar } from './Sidebar';
 import { TimeRange } from './TimeRange';
 
@@ -35,6 +37,7 @@ export class Timeline {
     private _max?: number;
     private _minRange?: number;
     private _maxRange?: number;
+    private _tool?: Tool = 'hand';
     private selection?: TimeRange;
 
     /** @hidden */
@@ -75,6 +78,34 @@ export class Timeline {
     private _selectedLineColor = 'transparent';
 
     private animationFrameRequest?: number;
+    private grabStartPoint?: Point;
+    private grabStartCursor?: string;
+
+    private viewportRegion: HitRegionSpecification = {
+        id: 'viewport',
+        mouseDown: mouseEvent => {
+            this.grabStartPoint = mouseEvent.point;
+            this.grabStartCursor = this.cursor;
+        },
+        grab: grabEvent => {
+            switch (this.tool) {
+                case 'hand':
+                    this.cursor = 'grabbing';
+                    this.panBy(-grabEvent.dx, false);
+                    this.eventHandler.grabPoint = grabEvent.point;
+                    break;
+                case 'range-select':
+                    this.cursor = 'col-resize';
+                    const start = this.eventHandler.mouse2time(this.grabStartPoint!.x);
+                    const stop = this.eventHandler.mouse2time(grabEvent.point.x);
+                    this.setSelection(start, stop);
+                    break;
+            }
+        },
+        grabEnd: () => {
+            this.cursor = this.grabStartCursor || this.cursor;
+        },
+    };
 
     constructor(private readonly targetElement: HTMLElement) {
 
@@ -539,8 +570,13 @@ export class Timeline {
         return this.mainWidth * (millis / totalMillis);
     }
 
-    setActiveTool(tool?: Tool) {
-        this.eventHandler.tool = tool;
+    /**
+     * Activate a built-in tool.
+     */
+    get tool() { return this._tool; }
+    set tool(tool: Tool | undefined) {
+        this._tool = tool;
+        this.requestRepaint();
     }
 
     /**
@@ -618,8 +654,9 @@ export class Timeline {
     }
 
     private drawScreen() {
+        const { g } = this;
         for (const drawable of this._drawables) {
-            drawable.beforeDraw(this.g);
+            drawable.beforeDraw(g);
         }
 
         const bands = this.getBands().filter(l => l.frozen)
@@ -645,15 +682,21 @@ export class Timeline {
 
         let width = this.scrollPanel.clientWidth;
         const height = Math.max(y, this.scrollPanel.clientHeight);
-        this.g.resize(width, height);
+        g.resize(width, height);
 
-        this.g.fillCanvas(this.background);
-        this.sidebar?.drawContent(this.g);
+        g.fillCanvas(this.background);
+        this.sidebar?.drawContent(g);
 
-        const offscreen = this.g.createChild(this.mainWidth, height);
         const x = this.sidebar?.clippedWidth || 0;
+
+        if (this.tool) {
+            const hitRegion = g.addHitRegion(this.viewportRegion);
+            hitRegion.addRect(x, 0, this.mainWidth, height);
+        }
+
+        const offscreen = g.createChild(this.mainWidth, height);
         this.drawOffscreen(offscreen);
-        this.g.copy(offscreen, x, 0);
+        g.copy(offscreen, x, 0);
 
         this.drawFrozenTop();
     }

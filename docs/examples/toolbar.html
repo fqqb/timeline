@@ -160,7 +160,7 @@
             window.toggleSidebar = () => timeline.sidebar.toggle();
 
             window.changeTool = tool => {
-                timeline.setActiveTool(tool);
+                timeline.tool = tool;
                 for (const id of ['hand', 'range-select']) {
                     document.getElementById(id).className = (tool === id ? 'active' : '');
                 }
