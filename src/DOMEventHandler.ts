@@ -57,9 +57,8 @@ export class DOMEventHandler {
 
     private grabbing = false;
     private grabTarget?: HitRegionSpecification;
-    grabPoint?: { x: number, y: number; }; // Relative to canvas
+    private grabPoint?: { x: number, y: number; }; // Relative to canvas
 
-    private isDividerHover = false;
     private isViewportHover = false;
 
     // Global handlers attached only during a grab action.
@@ -160,7 +159,6 @@ export class DOMEventHandler {
         this.prevEnteredRegion = undefined;
 
         this.maybeFireViewportMouseOut(event);
-        this.isDividerHover = false;
         this.isViewportHover = false;
 
         event.preventDefault();
@@ -175,9 +173,7 @@ export class DOMEventHandler {
             this.maybeFireViewportMouseOut(domEvent);
         }
         this.isViewportHover = mouseEvent.overViewport;
-        this.isDividerHover = mouseEvent.overDivider;
 
-        let defaultCursor = 'default';
         if (mouseEvent.overViewport) {
             const vpEvent: ViewportMouseMoveEvent = {
                 clientX: domEvent.clientX,
