@@ -1,6 +1,6 @@
 import { Band } from './Band';
 import { Graphics, Path } from './Graphics';
-import { HitRegionSpecification } from './HitCanvas';
+import { HitRegionSpecification } from './HitRegionSpecification';
 import { Sidebar } from './Sidebar';
 
 export class DefaultSidebar extends Sidebar {

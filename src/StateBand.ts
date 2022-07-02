@@ -1,7 +1,7 @@
 import { Band } from './Band';
 import { TimelineEvent } from './events';
 import { FillStyle, Graphics, Path } from './Graphics';
-import { HitRegionSpecification } from './HitCanvas';
+import { HitRegionSpecification } from './HitRegionSpecification';
 import { Bounds } from './positioning';
 import { State } from './State';
 

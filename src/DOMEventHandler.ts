@@ -1,5 +1,6 @@
 import { ViewportMouseMoveEvent, ViewportMouseOutEvent } from './events';
-import { HitCanvas, HitRegionSpecification } from './HitCanvas';
+import { HitCanvas } from './HitCanvas';
+import { HitRegionSpecification } from './HitRegionSpecification';
 import { Point } from './positioning';
 import { Timeline, Tool } from './Timeline';
 
@@ -47,12 +48,17 @@ export interface TimelineMouseEvent {
     overViewport: boolean;
 }
 
+export interface TimelineGrabEvent extends TimelineMouseEvent {
+    dx: number;
+    dy: number;
+}
+
 export class DOMEventHandler {
 
     tool?: Tool = 'hand';
 
     private grabbing = false;
-    private grabTarget?: 'DIVIDER' | 'VIEWPORT';
+    private grabTarget?: 'DIVIDER' | 'VIEWPORT' | HitRegionSpecification;
     private grabPoint?: { x: number, y: number; }; // Relative to canvas
 
     private isDividerHover = false;
@@ -62,13 +68,13 @@ export class DOMEventHandler {
     // Purpose is to support the user doing grab actions while leaving the canvas.
     private documentMouseMoveListener = (e: MouseEvent) => this.onDocumentMouseMove(e);
     private documentMouseUpListener = (e: MouseEvent) => this.onDocumentMouseUp(e);
-    // private documentMouseLeaveListener = (e: any) => this.onDocumentMouseLeave(e);
 
     private prevEnteredRegion?: HitRegionSpecification;
 
     constructor(private timeline: Timeline, private canvas: HTMLCanvasElement, private hitCanvas: HitCanvas) {
         canvas.addEventListener('click', e => this.onCanvasClick(e), false);
         canvas.addEventListener('mousedown', e => this.onCanvasMouseDown(e), false);
+        canvas.addEventListener('mouseup', e => this.onCanvasMouseUp(e), false);
         canvas.addEventListener('mouseout', e => this.onCanvasMouseOut(e), false);
         canvas.addEventListener('mousemove', e => this.onCanvasMouseMove(e), false);
         canvas.addEventListener('wheel', e => this.onWheel(e), false);
@@ -121,13 +127,21 @@ export class DOMEventHandler {
 
         if (isLeftPressed(event)) {
             const sidebarWidth = this.timeline.sidebar?.clippedWidth || 0;
-            const bbox = this.canvas.getBoundingClientRect();
-            const mouseX = event.clientX - bbox.left;
-            const mouseY = event.clientY - bbox.top;
+            const point = this.toPoint(event);
 
-            if (this.timeline.sidebar && sidebarWidth - 5 < mouseX && mouseX <= sidebarWidth + 5) {
+            const region = this.hitCanvas.getActiveRegion(point.x, point.y);
+            if (region && region.mouseDown) {
+                const mouseEvent = this.toTimelineMouseEvent(event);
+                region.mouseDown(mouseEvent);
+            }
+
+            if (region && region.grab) {
+                this.grabPoint = { ...point };
+                this.grabTarget = region;
+                // Actual grab initialisation is subject to snap (see mousemove)
+            } else if (this.timeline.sidebar && sidebarWidth - 5 < point.x && point.x <= sidebarWidth + 5) {
                 this.grabTarget = 'DIVIDER';
-                this.grabPoint = { x: mouseX, y: mouseY };
+                this.grabPoint = { ...point };
                 this.initiateGrab(); // No snap detection for this
 
                 event.preventDefault();
@@ -135,7 +149,7 @@ export class DOMEventHandler {
                 return false;
             } else if (this.tool) {
                 this.grabTarget = 'VIEWPORT';
-                this.grabPoint = { x: mouseX, y: mouseY };
+                this.grabPoint = { ...point };
                 // Actual grab initialisation is subject to snap (see mousemove)
 
                 event.preventDefault();
@@ -145,19 +159,27 @@ export class DOMEventHandler {
         }
     }
 
-    private onCanvasMouseOut(domEvent: MouseEvent) {
+    private onCanvasMouseUp(event: MouseEvent) {
+        const point = this.toPoint(event);
+        const region = this.hitCanvas.getActiveRegion(point.x, point.y);
+        if (region && region.mouseUp) {
+            region.mouseUp();
+        }
+    }
+
+    private onCanvasMouseOut(event: MouseEvent) {
         if (this.prevEnteredRegion && this.prevEnteredRegion.mouseOut) {
-            const mouseEvent = this.toTimelineMouseEvent(domEvent);
+            const mouseEvent = this.toTimelineMouseEvent(event);
             this.prevEnteredRegion.mouseOut(mouseEvent);
         }
         this.prevEnteredRegion = undefined;
 
-        this.maybeFireViewportMouseOut(domEvent);
+        this.maybeFireViewportMouseOut(event);
         this.isDividerHover = false;
         this.isViewportHover = false;
 
-        domEvent.preventDefault();
-        domEvent.stopPropagation();
+        event.preventDefault();
+        event.stopPropagation();
     }
 
     private onCanvasMouseMove(domEvent: MouseEvent) {
@@ -239,6 +261,12 @@ export class DOMEventHandler {
                             break;
                     }
                     break;
+                default:
+                    this.grabTarget.grab!({
+                        ...this.toTimelineMouseEvent(domEvent),
+                        dx: point.x - this.grabPoint!.x,
+                        dy: point.y - this.grabPoint!.y,
+                    });
             }
         }
     }
@@ -279,10 +307,14 @@ export class DOMEventHandler {
         if (this.grabbing) {
             document.removeEventListener('mouseup', this.documentMouseUpListener);
             document.removeEventListener('mousemove', this.documentMouseMoveListener);
+            const grabTarget = this.grabTarget;
             this.grabbing = false;
             this.grabPoint = undefined;
             this.grabTarget = undefined;
             this.updateCursor();
+            if (typeof grabTarget !== 'string' && grabTarget?.grabEnd) {
+                grabTarget.grabEnd();
+            }
         }
     }
 

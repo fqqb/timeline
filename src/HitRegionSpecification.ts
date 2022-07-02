@@ -1,4 +1,4 @@
-import { TimelineMouseEvent } from './DOMEventHandler';
+import { TimelineGrabEvent, TimelineMouseEvent } from './DOMEventHandler';
 
 export interface HitRegionSpecification {
     id: string;
@@ -6,7 +6,9 @@ export interface HitRegionSpecification {
     mouseEnter?: (mouseEvent: TimelineMouseEvent) => void;
     mouseMove?: (mouseEvent: TimelineMouseEvent) => void;
     mouseOut?: (mouseEvent: TimelineMouseEvent) => void;
-    mouseDown?: () => void;
+    mouseDown?: (mouseEvent: TimelineMouseEvent) => void;
     mouseUp?: () => void;
+    grab?: (gravEnent: TimelineGrabEvent) => void;
+    grabEnd?: () => void;
     cursor?: string;
 }
