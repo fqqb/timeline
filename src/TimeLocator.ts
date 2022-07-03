@@ -85,7 +85,7 @@ export class TimeLocator extends Drawable {
     }
 
     /**
-     * An array of numbers discribing a dash array. For
+     * An array of numbers describing a dash array. For
      * example: [4, 3] alternates between a line of 4 points
      * and a gap of 3. Set to [] to show a solid line.
      */

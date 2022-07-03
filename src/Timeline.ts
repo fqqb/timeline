@@ -99,8 +99,8 @@ export class Timeline {
                     break;
                 case 'range-select':
                     this.cursor = 'col-resize';
-                    const start = this.eventHandler.mouse2time(this.grabStartPoint!.x);
-                    const stop = this.eventHandler.mouse2time(grabEvent.point.x);
+                    const start = this.timeForCanvasPosition(this.grabStartPoint!.x);
+                    const stop = this.timeForCanvasPosition(grabEvent.point.x);
                     this.setSelection(start, stop);
                     break;
             }
@@ -576,9 +576,23 @@ export class Timeline {
 
     /**
      * Returns the x position in points for the given time
+     * (relative to viewport)
      */
     positionTime(time: number) {
         return this.distanceBetween(this.start, time);
+    }
+
+    /**
+     * Returns the time matching canvas x coordinate
+     * (relative to full canvas)
+     */
+    timeForCanvasPosition(canvasX: number) {
+        const sidebarWidth = this.sidebar?.clippedWidth || 0;
+        const viewportX = canvasX - sidebarWidth;
+        const totalMillis = this.stop - this.start;
+        const totalPixels = this.mainWidth;
+        const offsetMillis = (viewportX / totalPixels) * totalMillis;
+        return this.start + offsetMillis;
     }
 
     /**

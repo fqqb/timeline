@@ -176,14 +176,14 @@ export class DOMEventHandler {
             const vpEvent: ViewportMouseMoveEvent = {
                 clientX: domEvent.clientX,
                 clientY: domEvent.clientY,
-                time: this.mouse2time(point.x),
+                time: this.timeline.timeForCanvasPosition(point.x),
             };
             this.timeline.fireEvent('viewportmousemove', vpEvent);
         }
 
         const region = this.hitCanvas.getActiveRegion(point.x, point.y);
 
-        if (this.prevEnteredRegion && this.prevEnteredRegion.mouseOut) {
+        if (this.prevEnteredRegion?.mouseOut) {
             if (!regionMatches(this.prevEnteredRegion, region)) {
                 this.prevEnteredRegion.mouseOut(mouseEvent);
             }
@@ -249,7 +249,7 @@ export class DOMEventHandler {
                 this.timeline.panBy(-50);
             }
 
-            const relto = this.mouse2time(mouseX);
+            const relto = this.timeline.timeForCanvasPosition(mouseX);
             if (event.deltaY > 0) {
                 this.timeline.zoom(2, true, relto);
             } else if (event.deltaY < 0) {
@@ -278,15 +278,6 @@ export class DOMEventHandler {
 
     private onDocumentMouseMove(event: MouseEvent) {
         this.onCanvasMouseMove(event);
-    }
-
-    mouse2time(mouseX: number) {
-        const sidebarWidth = this.timeline.sidebar?.clippedWidth || 0;
-        const viewportX = mouseX - sidebarWidth;
-        const totalMillis = this.timeline.stop - this.timeline.start;
-        const totalPixels = this.timeline.mainWidth;
-        const offsetMillis = (viewportX / totalPixels) * totalMillis;
-        return this.timeline.start + offsetMillis;
     }
 
     private maybeFireViewportMouseOut(event: MouseEvent) {
