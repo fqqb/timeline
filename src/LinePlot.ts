@@ -75,6 +75,7 @@ export class LinePlot extends Band {
     private _lineColor = '#4f9146';
     private _lineWidth = 1;
     private _labelFontFamily = 'Verdana, Geneva, sans-serif';
+    private _labelBackground: FillStyle = 'transparent';
     private _labelTextColor = '#333333';
     private _labelTextSize = 8;
     private _minimum?: number;
@@ -256,21 +257,41 @@ export class LinePlot extends Band {
                 color: this.labelTextColor,
             });
 
+            const font = `${this.labelTextSize}px ${this.labelFontFamily}`;
+            const minText = this.labelFormatter(min);
+            let fm = g.measureText(minText, font);
+            g.fillRect({
+                x: this.timeline.mainWidth - tickLength - tickMargin - fm.width,
+                y: contentHeight - this.labelTextSize,
+                width: fm.width,
+                height: this.labelTextSize,
+                fill: this.labelBackground,
+            });
+            const maxText = this.labelFormatter(max);
+            fm = g.measureText(maxText, font);
+            g.fillRect({
+                x: this.timeline.mainWidth - tickLength - tickMargin - fm.width,
+                y: 0,
+                width: fm.width,
+                height: this.labelTextSize,
+                fill: this.labelBackground,
+            });
+
             g.fillText({
-                text: this.labelFormatter(min),
+                text: minText,
                 align: 'right',
                 baseline: 'bottom',
                 color: this.labelTextColor,
-                font: `${this.labelTextSize}px ${this.labelFontFamily}`,
+                font,
                 x: this.timeline.mainWidth - tickLength - tickMargin,
                 y: contentHeight,
             });
             g.fillText({
-                text: this.labelFormatter(max),
+                text: maxText,
                 align: 'right',
                 baseline: 'top',
                 color: this.labelTextColor,
-                font: `${this.labelTextSize}px ${this.labelFontFamily}`,
+                font,
                 x: this.timeline.mainWidth - tickLength - tickMargin,
                 y: 0,
             });
@@ -417,6 +438,15 @@ export class LinePlot extends Band {
     get labelFontFamily() { return this._labelFontFamily; }
     set labelFontFamily(labelFontFamily: string) {
         this._labelFontFamily = labelFontFamily;
+        this.reportMutation();
+    }
+
+    /**
+     * Background color of any value labels.
+     */
+    get labelBackground() { return this._labelBackground; }
+    set labelBackground(labelBackground: FillStyle) {
+        this._labelBackground = labelBackground;
         this.reportMutation();
     }
 
