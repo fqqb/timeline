@@ -90,6 +90,7 @@ export class ItemBand extends Band {
     private lines: AnnotatedItem[][] = [];
 
     private itemClickListeners: Array<(ev: ItemClickEvent) => void> = [];
+    private itemMouseEnterListeners: Array<(ev: ItemMouseEvent) => void> = [];
     private itemMouseMoveListeners: Array<(ev: ItemMouseEvent) => void> = [];
     private itemMouseOutListeners: Array<(ev: ItemMouseEvent) => void> = [];
 
@@ -106,6 +107,22 @@ export class ItemBand extends Band {
      */
     removeItemClickListener(listener: (ev: ItemClickEvent) => void) {
         this.itemClickListeners = this.itemClickListeners.filter(el => (el !== listener));
+    }
+
+    /**
+     * Register a listener that receives updates whenever the mouse enters
+     * an item.
+     */
+    addItemMouseEnterListener(listener: (ev: ItemMouseEvent) => void) {
+        this.itemMouseEnterListeners.push(listener);
+    }
+
+    /**
+     * Unregister a previously registered listener to stop receiving
+     * item mouse-enter events.
+     */
+    removeItemMouseEnterListener(listener: (ev: ItemMouseEvent) => void) {
+        this.itemMouseEnterListeners = this.itemMouseEnterListeners.filter(el => (el !== listener));
     }
 
     /**
@@ -162,9 +179,14 @@ export class ItemBand extends Band {
                             item,
                         }));
                     },
-                    mouseEnter: () => {
+                    mouseEnter: mouseEvent => {
                         annotatedItem.hovered = true;
                         this.reportMutation();
+                        this.itemMouseEnterListeners.forEach(listener => listener({
+                            clientX: mouseEvent.clientX,
+                            clientY: mouseEvent.clientY,
+                            item,
+                        }));
                     },
                     mouseMove: mouseEvent => {
                         this.itemMouseMoveListeners.forEach(listener => listener({

@@ -75,6 +75,7 @@ export class StateBand extends Band {
     private annotatedStates: AnnotatedState[] = [];
 
     private stateClickListeners: Array<(ev: StateClickEvent) => void> = [];
+    private stateMouseEnterListeners: Array<(ev: StateMouseEvent) => void> = [];
     private stateMouseMoveListeners: Array<(ev: StateMouseEvent) => void> = [];
     private stateMouseOutListeners: Array<(ev: StateMouseEvent) => void> = [];
 
@@ -91,6 +92,22 @@ export class StateBand extends Band {
      */
     removeStateClickListener(listener: (ev: StateClickEvent) => void) {
         this.stateClickListeners = this.stateClickListeners.filter(el => (el !== listener));
+    }
+
+    /**
+     * Register a listener that receives updates whenever the mouse enters
+     * a state.
+     */
+    addStateMouseEnterListener(listener: (ev: StateMouseEvent) => void) {
+        this.stateMouseEnterListeners.push(listener);
+    }
+
+    /**
+     * Unregister a previously registered listener to stop receiving
+     * state mouse-enter events.
+     */
+    removeStateMouseEnterListener(listener: (ev: StateMouseEvent) => void) {
+        this.stateMouseEnterListeners = this.stateMouseEnterListeners.filter(el => (el !== listener));
     }
 
     /**
@@ -156,9 +173,14 @@ export class StateBand extends Band {
                             state,
                         }));
                     },
-                    mouseEnter: () => {
+                    mouseEnter: mouseEvent => {
                         annotatedState.hovered = true;
                         this.reportMutation();
+                        this.stateMouseMoveListeners.forEach(listener => listener({
+                            clientX: mouseEvent.clientX,
+                            clientY: mouseEvent.clientY,
+                            state,
+                        }));
                     },
                     mouseMove: mouseEvent => {
                         this.stateMouseMoveListeners.forEach(listener => listener({
