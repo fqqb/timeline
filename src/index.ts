@@ -2,6 +2,7 @@ export { AnimatableProperty } from './AnimatableProperty';
 export { Band, HeaderClickEvent } from './Band';
 export { Banner, TextAlignment } from './Banner';
 export { DefaultSidebar } from './DefaultSidebar';
+export { TimelineGrabEvent, TimelineMouseEvent } from './DOMEventHandler';
 export { Drawable } from './Drawable';
 export * from './events';
 export * from './Graphics';
