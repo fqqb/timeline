@@ -42,9 +42,10 @@
                 {%- endif -%}
             </h1>
             {% if child.comment %}
-                {{ child.comment.shortText | markdownify }}
-                {%- if child.comment.text -%}
-                    {{ child.comment.text | markdownify }}
+                {% if child.comment.summary %}
+                    {% for item in child.comment.summary %}
+                        {{ item.text | markdownify }}
+                    {% endfor %}
                 {%- endif -%}
             {% endif %}
 

@@ -12,10 +12,11 @@
             </dt>
             <dd>
                 {% if child.comment %}
-                    {{ child.comment.shortText | markdownify }}
-                    {%- if child.comment.text -%}
-                        {{ child.comment.text | markdownify }}
-                    {%- endif -%}
+                    {% if child.comment.summary %}
+                        {% for item in child.comment.summary %}
+                            {{ item.text | markdownify }}
+                        {% endfor %}
+                    {% endif %}
                 {% endif %}
                 {%- if signature.parameters -%}
                     <dl class="field-list">
@@ -26,12 +27,14 @@
                                     <li>
                                         <code>{%- include tsdoc_type.html type=parameter.type -%}</code>
                                         {{ parameter.name }}
+
                                         {% if parameter.comment %}
                                             &ndash;
-                                            {{- parameter.comment.shortText | markdownify -}}
-                                            {%- if signature.comment.text -%}
-                                                {{ parameter.comment.text | markdownify }}
-                                            {%- endif -%}
+                                            {% if parameter.comment.summary %}
+                                                {% for item in parameter.comment.summary %}
+                                                    {{ item.text | markdownify }}
+                                                {% endfor %}
+                                            {% endif %}
                                         {% endif %}
                                     </li>
                                 {%- endfor -%}
@@ -52,10 +55,11 @@
                 </dt>
                 <dd>
                     {%- if signature.comment -%}
-                        {{- signature.comment.shortText | markdownify -}}
-                        {%- if signature.comment.text -%}
-                            {{ signature.comment.text | markdownify }}
-                        {%- endif -%}
+                        {% if signature.comment.summary %}
+                            {% for item in signature.comment.summary %}
+                                {{ item.text | markdownify }}
+                            {% endfor %}
+                        {% endif %}
                     {%- endif -%}
                     <dl class="field-list">
                         {%- if signature.parameters -%}
