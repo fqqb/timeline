@@ -1,4 +1,4 @@
-import { Timeline, ViewportMouseLeaveEvent } from '../Timeline';
+import { Timeline } from '../Timeline';
 import { HitCanvas } from './HitCanvas';
 import { HitRegionSpecification } from './HitRegionSpecification';
 import { MouseHitEvent } from './MouseHitEvent';
@@ -79,8 +79,6 @@ export class EventHandler {
     }
 
     private onCanvasClick(domEvent: MouseEvent) {
-        this.timeline.clearSelection();
-
         const { x, y } = this.toPoint(domEvent);
         const region = this.hitCanvas.getActiveRegion(x, y, 'click');
         region?.click!();
@@ -249,11 +247,10 @@ export class EventHandler {
 
     private maybeFireViewportMouseLeave(event: MouseEvent) {
         if (this.isViewportHover) {
-            const vpEvent: ViewportMouseLeaveEvent = {
+            this.timeline.fireViewportMouseLeaveEvent({
                 clientX: event.clientX,
                 clientY: event.clientY,
-            };
-            this.timeline.fireViewportMouseLeaveEvent(vpEvent);
+            });
         }
     }
 }

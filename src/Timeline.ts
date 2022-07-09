@@ -1,14 +1,14 @@
 import { AnimatableProperty } from './AnimatableProperty';
+import { DividerRegion } from './DividerRegion';
 import { Band } from './drawables/Band';
 import { DefaultSidebar } from './drawables/DefaultSidebar';
 import { Drawable } from './drawables/Drawable';
 import { Sidebar } from './drawables/Sidebar';
 import { EventHandler } from './graphics/EventHandler';
 import { FillStyle, Graphics, Path } from './graphics/Graphics';
-import { HitRegionSpecification } from './graphics/HitRegionSpecification';
-import { Point } from './graphics/positioning';
 import { TimelineEvent } from './TimelineEvent';
 import { TimeRange } from './TimeRange';
+import { ViewportRegion } from './ViewportRegion';
 
 /**
  * Resizes a canvas, but only if the new bounds are different.
@@ -122,7 +122,8 @@ export class Timeline {
     private viewportMouseLeaveListeners: Array<(ev: ViewportMouseLeaveEvent) => void> = [];
     private viewportSelectionListeners: Array<(ev: ViewportSelectionEvent) => void> = [];
 
-    private eventHandler: EventHandler;
+    /** @hidden */
+    eventHandler: EventHandler;
     private repaintIntervalHandle?: number;
 
     /**
@@ -144,69 +145,9 @@ export class Timeline {
     private _selectedLineColor = 'transparent';
 
     private animationFrameRequest?: number;
-    private grabStartPoint?: Point;
-    private grabStartCursor?: string;
 
-    private viewportRegion: HitRegionSpecification = {
-        id: REGION_ID_VIEWPORT,
-        mouseDown: mouseEvent => {
-            this.grabStartPoint = mouseEvent.point;
-            this.grabStartCursor = this.cursor;
-        },
-        grab: grabEvent => {
-            switch (this.tool) {
-                case 'hand':
-                    this.cursor = 'grabbing';
-                    this.panBy(-grabEvent.dx, false);
-                    this.eventHandler.grabPoint = grabEvent.point;
-                    break;
-                case 'range-select':
-                    this.cursor = 'col-resize';
-                    const start = this.timeForCanvasPosition(this.grabStartPoint!.x);
-                    const stop = this.timeForCanvasPosition(grabEvent.point.x);
-                    this.setSelection(start, stop);
-                    break;
-            }
-        },
-        grabEnd: () => {
-            this.cursor = this.grabStartCursor || this.cursor;
-        },
-        wheel: wheelEvent => {
-            if (wheelEvent.dx > 0) {
-                this.panBy(50);
-            } else if (wheelEvent.dx < 0) {
-                this.panBy(-50);
-            }
-
-            const relto = this.timeForCanvasPosition(wheelEvent.point.x);
-            if (wheelEvent.dy > 0) {
-                this.zoom(2, true, relto);
-            } else if (wheelEvent.dy < 0) {
-                this.zoom(0.5, true, relto);
-            }
-        },
-        mouseLeave: mouseEvent => {
-            console.log('mouseleave', mouseEvent);
-        },
-    };
-
-    private dividerRegion: HitRegionSpecification = {
-        id: REGION_ID_DIVIDER,
-        cursor: 'col-resize',
-        mouseDown: mouseEvent => {
-            this.grabStartPoint = mouseEvent.point;
-            this.grabStartCursor = this.cursor;
-        },
-        grab: grabEvent => {
-            if (this.sidebar) {
-                this.cursor = 'col-resize';
-                this.sidebar.width = grabEvent.point.x;
-            }
-        },
-        grabEnd: () => {
-            this.cursor = this.grabStartCursor || this.cursor;
-        },
-    };
+    private viewportRegion = new ViewportRegion(REGION_ID_VIEWPORT, this);
+    private dividerRegion = new DividerRegion(REGION_ID_DIVIDER, this);
 
     constructor(private readonly targetElement: HTMLElement) {
 
