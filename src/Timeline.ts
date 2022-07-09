@@ -66,7 +66,7 @@ export interface ViewportMouseMoveEvent extends TimelineEvent {
 /**
  * Event generated when the mouse is moving outside the viewport.
  */
-export interface ViewportMouseOutEvent extends TimelineEvent {
+export interface ViewportMouseLeaveEvent extends TimelineEvent {
     /**
      * Horizontal coordinate of the mouse pointer, relative to
      * the browser page.
@@ -119,7 +119,7 @@ export class Timeline {
 
     private viewportChangeListeners: Array<(ev: ViewportChangeEvent) => void> = [];
     private viewportMouseMoveListeners: Array<(ev: ViewportMouseMoveEvent) => void> = [];
-    private viewportMouseOutListeners: Array<(ev: ViewportMouseOutEvent) => void> = [];
+    private viewportMouseLeaveListeners: Array<(ev: ViewportMouseLeaveEvent) => void> = [];
     private viewportSelectionListeners: Array<(ev: ViewportSelectionEvent) => void> = [];
 
     private eventHandler: EventHandler;
@@ -184,6 +184,9 @@ export class Timeline {
             } else if (wheelEvent.dy < 0) {
                 this.zoom(0.5, true, relto);
             }
+        },
+        mouseLeave: mouseEvent => {
+            console.log('mouseleave', mouseEvent);
         },
     };
 
@@ -545,16 +548,16 @@ export class Timeline {
      * Register a listener that receives updates whenever the mouse is moving
      * outside the viewport.
      */
-    addViewportMouseOutListener(listener: (ev: ViewportMouseOutEvent) => void) {
-        this.viewportMouseOutListeners.push(listener);
+    addViewportMouseLeaveListener(listener: (ev: ViewportMouseLeaveEvent) => void) {
+        this.viewportMouseLeaveListeners.push(listener);
     }
 
     /**
      * Unregister a previously registered listener to stop receiving
-     * viewport mouse-out events.
+     * viewport mouse-leave events.
      */
-    removeViewportMouseOutListener(listener: (ev: ViewportMouseOutEvent) => void) {
-        this.viewportMouseOutListeners = this.viewportMouseOutListeners
+    removeViewportMouseLeaveListener(listener: (ev: ViewportMouseLeaveEvent) => void) {
+        this.viewportMouseLeaveListeners = this.viewportMouseLeaveListeners
             .filter(el => (el !== listener));
     }
 
@@ -581,8 +584,8 @@ export class Timeline {
     }
 
     /** @hidden */
-    fireViewportMouseOutEvent(event: ViewportMouseOutEvent) {
-        this.viewportMouseOutListeners.forEach(l => l(event));
+    fireViewportMouseLeaveEvent(event: ViewportMouseLeaveEvent) {
+        this.viewportMouseLeaveListeners.forEach(l => l(event));
     }
 
     /**

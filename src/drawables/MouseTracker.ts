@@ -13,7 +13,7 @@ export class MouseTracker extends TimeLocator {
             this.reportMutation();
         }
     };
-    private mouseOutListener = () => {
+    private mouseLeaveListener = () => {
         this.time = undefined;
         this.reportMutation();
     };
@@ -28,11 +28,11 @@ export class MouseTracker extends TimeLocator {
         this.lineDash = [4, 3];
 
         timeline.addViewportMouseMoveListener(this.mouseMoveListener);
-        timeline.addViewportMouseOutListener(this.mouseOutListener);
+        timeline.addViewportMouseLeaveListener(this.mouseLeaveListener);
     }
 
     disconnectedCallback() {
         this.timeline.removeViewportMouseMoveListener(this.mouseMoveListener);
-        this.timeline.removeViewportMouseOutListener(this.mouseOutListener);
+        this.timeline.removeViewportMouseLeaveListener(this.mouseLeaveListener);
     }
 }

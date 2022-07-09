@@ -1,4 +1,7 @@
-import { GrabHitEvent, MouseHitEvent, WheelHitEvent } from './EventHandler';
+import { GrabHitEvent } from './GrabHitEvent';
+import { MouseHitEvent } from './MouseHitEvent';
+import { WheelHitEvent } from './WheelHitEvent';
+
 
 export interface HitRegionSpecification {
     id: string;
@@ -7,7 +10,7 @@ export interface HitRegionSpecification {
     click?: () => void;
     mouseEnter?: (mouseEvent: MouseHitEvent) => void;
     mouseMove?: (mouseEvent: MouseHitEvent) => void;
-    mouseOut?: (mouseEvent: MouseHitEvent) => void;
+    mouseLeave?: (mouseEvent: MouseHitEvent) => void;
     mouseDown?: (mouseEvent: MouseHitEvent) => void;
     mouseUp?: () => void;
     grab?: (grabEvent: GrabHitEvent) => void;

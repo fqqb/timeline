@@ -95,7 +95,7 @@ export class ItemBand extends Band {
     private itemClickListeners: Array<(ev: ItemClickEvent) => void> = [];
     private itemMouseEnterListeners: Array<(ev: ItemMouseEvent) => void> = [];
     private itemMouseMoveListeners: Array<(ev: ItemMouseEvent) => void> = [];
-    private itemMouseOutListeners: Array<(ev: ItemMouseEvent) => void> = [];
+    private itemMouseLeaveListeners: Array<(ev: ItemMouseEvent) => void> = [];
 
     /**
      * Register a listener that receives an update when an item is clicked.
@@ -141,23 +141,25 @@ export class ItemBand extends Band {
      * item mouse-move events.
      */
     removeItemMouseMoveListener(listener: (ev: ItemMouseEvent) => void) {
-        this.itemMouseMoveListeners = this.itemMouseMoveListeners.filter(el => (el !== listener));
+        this.itemMouseMoveListeners = this.itemMouseMoveListeners
+            .filter(el => (el !== listener));
     }
 
     /**
      * Register a listener that receives updates whenever the mouse is moving
      * outside an item.
      */
-    addItemMouseOutListener(listener: (ev: ItemMouseEvent) => void) {
-        this.itemMouseOutListeners.push(listener);
+    addItemMouseLeaveListener(listener: (ev: ItemMouseEvent) => void) {
+        this.itemMouseLeaveListeners.push(listener);
     }
 
     /**
      * Unregister a previously registered listener to stop receiving
-     * item mouse-out events.
+     * item mouse-leave events.
      */
-    removeItemMouseOutListener(listener: (ev: ItemMouseEvent) => void) {
-        this.itemMouseOutListeners = this.itemMouseOutListeners.filter(el => (el !== listener));
+    removeItemMouseLeaveListener(listener: (ev: ItemMouseEvent) => void) {
+        this.itemMouseLeaveListeners = this.itemMouseLeaveListeners
+            .filter(el => (el !== listener));
     }
 
     // Link a long-term identifier with each item
@@ -198,10 +200,10 @@ export class ItemBand extends Band {
                             item,
                         }));
                     },
-                    mouseOut: mouseEvent => {
+                    mouseLeave: mouseEvent => {
                         annotatedItem.hovered = false;
                         this.reportMutation();
-                        this.itemMouseOutListeners.forEach(listener => listener({
+                        this.itemMouseLeaveListeners.forEach(listener => listener({
                             clientX: mouseEvent.clientX,
                             clientY: mouseEvent.clientY,
                             item,

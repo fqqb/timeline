@@ -1,6 +1,7 @@
-import { Timeline, ViewportMouseOutEvent } from '../Timeline';
+import { Timeline, ViewportMouseLeaveEvent } from '../Timeline';
 import { HitCanvas } from './HitCanvas';
 import { HitRegionSpecification } from './HitRegionSpecification';
+import { MouseHitEvent } from './MouseHitEvent';
 import { Point } from './positioning';
 
 /**
@@ -38,46 +39,6 @@ function regionMatches(region1?: HitRegionSpecification, region2?: HitRegionSpec
 }
 
 /**
- * Event generated whiling using a mouse over a hit region.
- */
-export interface MouseHitEvent {
-    /**
-     * X-axis coordinate of the mouse pointer (relative to the client area).
-     */
-    clientX: number;
-    /**
-     * Y-axis coordinate of the mouse pointer (relative to the client area).
-     */
-    clientY: number;
-    /**
-     * Coordinates relative to the Canvas.
-     */
-    point: Point;
-}
-
-/**
- * Event generated while grabbing a hit region.
- */
-export interface GrabHitEvent extends MouseHitEvent {
-    /**
-     * Delta movement on the X-axis, relative to the grab start point.
-     */
-    dx: number;
-    /**
-     * Delta movement on the Y-axis, relative to the grab start point.
-     */
-    dy: number;
-}
-
-/**
- * Event generated when moving a mouse wheel.
- */
-export interface WheelHitEvent extends MouseHitEvent {
-    dx: number;
-    dy: number;
-}
-
-/**
  * Translates Canvas DOM events into non-DOM hit events.
  */
 export class EventHandler {
@@ -99,7 +60,7 @@ export class EventHandler {
         canvas.addEventListener('click', e => this.onCanvasClick(e), false);
         canvas.addEventListener('mousedown', e => this.onCanvasMouseDown(e), false);
         canvas.addEventListener('mouseup', e => this.onCanvasMouseUp(e), false);
-        canvas.addEventListener('mouseout', e => this.onCanvasMouseOut(e), false);
+        canvas.addEventListener('mouseleave', e => this.onCanvasMouseLeave(e), false);
         canvas.addEventListener('mousemove', e => this.onCanvasMouseMove(e), false);
         canvas.addEventListener('wheel', e => this.onCanvasWheel(e), false);
     }
@@ -109,7 +70,7 @@ export class EventHandler {
         return { x: event.clientX - bbox.left, y: event.clientY - bbox.top };
     }
 
-    private toCanvasMouseEvent(domEvent: MouseEvent): MouseHitEvent {
+    private toCanvasMouseEvent(domEvent: MouseEvent): Omit<MouseHitEvent, 'bubbles'> {
         return {
             clientX: domEvent.clientX,
             clientY: domEvent.clientY,
@@ -156,14 +117,14 @@ export class EventHandler {
         region?.mouseUp!();
     }
 
-    private onCanvasMouseOut(event: MouseEvent) {
-        if (this.prevEnteredRegion?.mouseOut) {
+    private onCanvasMouseLeave(event: MouseEvent) {
+        if (this.prevEnteredRegion?.mouseLeave) {
             const mouseEvent = this.toCanvasMouseEvent(event);
-            this.prevEnteredRegion.mouseOut(mouseEvent);
+            this.prevEnteredRegion.mouseLeave(mouseEvent);
         }
         this.prevEnteredRegion = undefined;
 
-        this.maybeFireViewportMouseOut(event);
+        this.maybeFireViewportMouseLeave(event);
         this.isViewportHover = false;
 
         event.preventDefault();
@@ -183,7 +144,7 @@ export class EventHandler {
         }
 
         if (!overViewport) {
-            this.maybeFireViewportMouseOut(domEvent);
+            this.maybeFireViewportMouseLeave(domEvent);
         }
         this.isViewportHover = overViewport;
 
@@ -197,9 +158,9 @@ export class EventHandler {
 
         const region = this.hitCanvas.getActiveRegion(point.x, point.y);
 
-        if (this.prevEnteredRegion?.mouseOut) {
+        if (this.prevEnteredRegion?.mouseLeave) {
             if (!regionMatches(this.prevEnteredRegion, region)) {
-                this.prevEnteredRegion.mouseOut(mouseEvent);
+                this.prevEnteredRegion.mouseLeave(mouseEvent);
             }
         }
 
@@ -286,13 +247,13 @@ export class EventHandler {
         this.onCanvasMouseMove(event);
     }
 
-    private maybeFireViewportMouseOut(event: MouseEvent) {
+    private maybeFireViewportMouseLeave(event: MouseEvent) {
         if (this.isViewportHover) {
-            const vpEvent: ViewportMouseOutEvent = {
+            const vpEvent: ViewportMouseLeaveEvent = {
                 clientX: event.clientX,
                 clientY: event.clientY,
             };
-            this.timeline.fireViewportMouseOutEvent(vpEvent);
+            this.timeline.fireViewportMouseLeaveEvent(vpEvent);
         }
     }
 }

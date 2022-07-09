@@ -13,13 +13,15 @@ export { State } from './drawables/State';
 export { StateBand, StateClickEvent, StateMouseEvent } from './drawables/StateBand';
 export { TimeLocator } from './drawables/TimeLocator';
 export { ScaleKind, TimeRuler } from './drawables/TimeRuler';
-export { GrabHitEvent, MouseHitEvent, WheelHitEvent } from './graphics/EventHandler';
+export { GrabHitEvent } from './graphics/GrabHitEvent';
 export * from './graphics/Graphics';
 export { HitCanvas } from './graphics/HitCanvas';
 export { HitRegionSpecification } from './graphics/HitRegionSpecification';
+export { MouseHitEvent } from './graphics/MouseHitEvent';
 export * from './graphics/positioning';
 export { ShapeRenderer, ShapeStyle } from './graphics/shapes';
-export { Timeline, Tool, ViewportChangeEvent, ViewportMouseMoveEvent, ViewportMouseOutEvent, ViewportSelectionEvent } from './Timeline';
+export { WheelHitEvent } from './graphics/WheelHitEvent';
+export { Timeline, Tool, ViewportChangeEvent, ViewportMouseLeaveEvent, ViewportMouseMoveEvent, ViewportSelectionEvent } from './Timeline';
 export { TimelineEvent } from './TimelineEvent';
 export { TimeRange } from './TimeRange';
 

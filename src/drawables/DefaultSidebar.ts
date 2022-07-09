@@ -108,7 +108,7 @@ export class DefaultSidebar extends Sidebar {
                     this.hoveredIndex = idx;
                     this.reportMutation();
                 },
-                mouseOut: () => {
+                mouseLeave: () => {
                     this.hoveredIndex = undefined;
                     this.reportMutation();
                 },

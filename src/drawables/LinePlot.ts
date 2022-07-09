@@ -162,7 +162,7 @@ export class LinePlot extends Band {
                                 }));
                                 this.reportMutation();
                             },
-                            mouseOut: () => {
+                            mouseLeave: () => {
                                 annotatedPoint.hovered = false;
                                 this.reportMutation();
                             }

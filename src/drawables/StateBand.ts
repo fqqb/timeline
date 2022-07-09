@@ -80,7 +80,7 @@ export class StateBand extends Band {
     private stateClickListeners: Array<(ev: StateClickEvent) => void> = [];
     private stateMouseEnterListeners: Array<(ev: StateMouseEvent) => void> = [];
     private stateMouseMoveListeners: Array<(ev: StateMouseEvent) => void> = [];
-    private stateMouseOutListeners: Array<(ev: StateMouseEvent) => void> = [];
+    private stateMouseLeaveListeners: Array<(ev: StateMouseEvent) => void> = [];
 
     /**
      * Register a listener that receives an update when a state is clicked.
@@ -110,7 +110,8 @@ export class StateBand extends Band {
      * state mouse-enter events.
      */
     removeStateMouseEnterListener(listener: (ev: StateMouseEvent) => void) {
-        this.stateMouseEnterListeners = this.stateMouseEnterListeners.filter(el => (el !== listener));
+        this.stateMouseEnterListeners = this.stateMouseEnterListeners
+            .filter(el => (el !== listener));
     }
 
     /**
@@ -126,23 +127,25 @@ export class StateBand extends Band {
      * state mouse-move events.
      */
     removeStateMouseMoveListener(listener: (ev: StateMouseEvent) => void) {
-        this.stateMouseMoveListeners = this.stateMouseMoveListeners.filter(el => (el !== listener));
+        this.stateMouseMoveListeners = this.stateMouseMoveListeners
+            .filter(el => (el !== listener));
     }
 
     /**
      * Register a listener that receives updates whenever the mouse is moving
      * outside a state.
      */
-    addStateMouseOutListener(listener: (ev: StateMouseEvent) => void) {
-        this.stateMouseOutListeners.push(listener);
+    addStateMouseLeaveListener(listener: (ev: StateMouseEvent) => void) {
+        this.stateMouseLeaveListeners.push(listener);
     }
 
     /**
      * Unregister a previously registered listener to stop receiving
-     * state mouse-out events.
+     * state mouse-leave events.
      */
-    removeStateMouseOutListener(listener: (ev: StateMouseEvent) => void) {
-        this.stateMouseOutListeners = this.stateMouseOutListeners.filter(el => (el !== listener));
+    removeStateMouseLeaveListener(listener: (ev: StateMouseEvent) => void) {
+        this.stateMouseLeaveListeners = this.stateMouseLeaveListeners
+            .filter(el => (el !== listener));
     }
 
     private processData() {
@@ -192,10 +195,10 @@ export class StateBand extends Band {
                             state,
                         }));
                     },
-                    mouseOut: mouseEvent => {
+                    mouseLeave: mouseEvent => {
                         annotatedState.hovered = false;
                         this.reportMutation();
-                        this.stateMouseOutListeners.forEach(listener => listener({
+                        this.stateMouseLeaveListeners.forEach(listener => listener({
                             clientX: mouseEvent.clientX,
                             clientY: mouseEvent.clientY,
                             state,
