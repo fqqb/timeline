@@ -1,4 +1,4 @@
-import { Timeline, ViewportMouseMoveEvent, ViewportMouseOutEvent } from '../Timeline';
+import { Timeline, ViewportMouseOutEvent } from '../Timeline';
 import { HitCanvas } from './HitCanvas';
 import { HitRegionSpecification } from './HitRegionSpecification';
 import { Point } from './positioning';
@@ -53,15 +53,6 @@ export interface MouseHitEvent {
      * Coordinates relative to the Canvas.
      */
     point: Point;
-
-    /** @Deprecated */
-    viewportPoint: Point;
-    /** @Deprecated */
-    overSidebar: boolean;
-    /** @Deprecated */
-    overDivider: boolean;
-    /** @Deprecated */
-    overViewport: boolean;
 }
 
 /**
@@ -119,30 +110,10 @@ export class EventHandler {
     }
 
     private toCanvasMouseEvent(domEvent: MouseEvent): MouseHitEvent {
-        const point = this.toPoint(domEvent);
-        const sidebarWidth = this.timeline.sidebar?.clippedWidth || 0;
-
-        let overSidebar;
-        let overDivider;
-        let overViewport;
-        if (this.timeline.sidebar) {
-            overSidebar = point.x <= sidebarWidth - 5;
-            overDivider = !overSidebar && point.x <= sidebarWidth + 5;
-            overViewport = !overSidebar && !overDivider;
-        } else {
-            overSidebar = false;
-            overDivider = false;
-            overViewport = true;
-        }
-
         return {
             clientX: domEvent.clientX,
             clientY: domEvent.clientY,
-            point,
-            viewportPoint: { x: point.x - sidebarWidth, y: point.y },
-            overSidebar,
-            overDivider,
-            overViewport,
+            point: this.toPoint(domEvent),
         };
     }
 
@@ -203,18 +174,25 @@ export class EventHandler {
         const mouseEvent = this.toCanvasMouseEvent(domEvent);
         const { point } = mouseEvent;
 
-        if (!mouseEvent.overViewport) {
+        let overViewport = true;
+        const sidebarWidth = this.timeline.sidebar?.clippedWidth || 0;
+        if (this.timeline.sidebar) {
+            const overSidebar = point.x <= sidebarWidth - 5;
+            const overDivider = !overSidebar && point.x <= sidebarWidth + 5;
+            overViewport = !overSidebar && !overDivider;
+        }
+
+        if (!overViewport) {
             this.maybeFireViewportMouseOut(domEvent);
         }
-        this.isViewportHover = mouseEvent.overViewport;
+        this.isViewportHover = overViewport;
 
-        if (mouseEvent.overViewport) {
-            const vpEvent: ViewportMouseMoveEvent = {
+        if (overViewport) {
+            this.timeline.fireViewportMouseMoveEvent({
                 clientX: domEvent.clientX,
                 clientY: domEvent.clientY,
                 time: this.timeline.timeForCanvasPosition(point.x),
-            };
-            this.timeline.fireViewportMouseMoveEvent(vpEvent);
+            });
         }
 
         const region = this.hitCanvas.getActiveRegion(point.x, point.y);
