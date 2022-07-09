@@ -6,8 +6,8 @@
     {%- if include.type.id -%}
 
         {%- assign match = nil -%}
-        {%- for page in site.api -%}
-            {%- if page.title == include.type.name -%}
+        {%- for page in site.pages -%}
+            {%- if page.url contains '/api/' and page.title == include.type.name -%}
                 {%- assign match = page -%}
                 {%- break -%}
             {%- endif -%}

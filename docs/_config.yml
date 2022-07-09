@@ -5,9 +5,6 @@ dist: '/timeline/assets/timeline.js'
 baseurl: /timeline
 
 collections:
-  api:
-    output: true
-    permalink: /:collection/:path/
   drawables:
     output: true
     permalink: /:collection/:path/

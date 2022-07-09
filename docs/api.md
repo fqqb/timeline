@@ -2,7 +2,6 @@
 layout: base
 title: API Reference
 permalink: /api/
-order: 40
 ---
 
 # API Reference
@@ -17,8 +16,8 @@ order: 40
     {%- assign sorted_children = site.data.tsdoc.children | sort_natural:"name" -%}
     {%- for child in sorted_children -%}
         {%- assign page = nil -%}
-        {%- for p in site.api -%}
-            {%- if p.title == child.name -%}
+        {%- for p in site.pages -%}
+            {%- if p.url contains '/api/' and p.title == child.name -%}
                 {%- assign page = p -%}
                 {%- break -%}
             {%- endif -%}

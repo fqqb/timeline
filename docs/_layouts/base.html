@@ -60,11 +60,12 @@
 
     <div class="sidebar">
         <ul>
-            {% for p in sorted_pages %}
-                <li class="{% if page.url == p.url %}active{% endif %}">
-                    <a href="/timeline{{- p.url -}}">{{- p.title -}}</a>
-                </li>
-            {% endfor %}
+            <li class="{% if page.url == '/' %}active{% endif %}">
+                <a href="/timeline/">About @fqqb/timeline</a>
+            </li>
+            <li class="{% if page.url contains '/api/' %}active{% endif %}">
+                <a href="/timeline/api/">API Reference</a>
+            </li>
         </ul>
 
         <h3>Drawables</h3>
