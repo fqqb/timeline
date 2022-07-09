@@ -8,3 +8,6 @@ collections:
   api:
     output: true
     permalink: /:collection/:path/
+  drawables:
+    output: true
+    permalink: /:collection/:path/

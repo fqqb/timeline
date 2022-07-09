@@ -14,7 +14,7 @@ order: 40
         <th>Description</th>
     </tr>
 
-    {%- assign sorted_children = site.data.tsdoc.children | sort:"name" -%}
+    {%- assign sorted_children = site.data.tsdoc.children | sort_natural:"name" -%}
     {%- for child in sorted_children -%}
         {%- assign page = nil -%}
         {%- for p in site.api -%}

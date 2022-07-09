@@ -19,13 +19,6 @@
 </head>
 
 {%- assign sorted_pages = site.pages | sort:"order" -%}
-{%- assign next_page = nil -%}
-{%- for p in sorted_pages -%}
-    {%- if p.order > page.order -%}
-        {%- assign next_page = p -%}
-        {%- break -%}
-    {%- endif -%}
-{%- endfor -%}
 
 <body>
     <header class="site-header">
@@ -62,15 +55,6 @@
     <div class="wrapper">
         <div class="page-content">
             {{ content }}
-
-            {%- if next_page -%}
-                <div style="text-align: right; margin-top: 5em;">
-                    <a href="/timeline{{ next_page.url }}">
-                        {{ next_page.title }}
-                        <i class="fas fa-chevron-circle-right"></i>
-                    </a>
-                </div>
-            {%- endif -%}
         </div>
     </div>
 
@@ -81,6 +65,15 @@
                     <a href="/timeline{{- p.url -}}">{{- p.title -}}</a>
                 </li>
             {% endfor %}
+        </ul>
+
+        <h3>Drawables</h3>
+        <ul>
+            {%- for p in site.drawables -%}
+                <li class="{% if page.url == p.url %}active{% endif %}">
+                    <a href="/timeline{{- p.url -}}">{{- p.title -}}</a>
+                </li>
+            {%- endfor -%}
         </ul>
     </div>
 
