@@ -1,5 +1,5 @@
 import { AnimatableProperty } from './AnimatableProperty';
-import { DOMEventHandler } from './DOMEventHandler';
+import { EventHandler } from './graphics/EventHandler';
 import { Band } from './drawables/Band';
 import { DefaultSidebar } from './drawables/DefaultSidebar';
 import { Drawable } from './drawables/Drawable';
@@ -122,7 +122,7 @@ export class Timeline {
     private viewportMouseOutListeners: Array<(ev: ViewportMouseOutEvent) => void> = [];
     private viewportSelectionListeners: Array<(ev: ViewportSelectionEvent) => void> = [];
 
-    private eventHandler: DOMEventHandler;
+    private eventHandler: EventHandler;
     private repaintIntervalHandle?: number;
 
     /**
@@ -220,7 +220,7 @@ export class Timeline {
             this.requestRepaint();
         });
 
-        this.eventHandler = new DOMEventHandler(this, canvas, this.g.hitCanvas);
+        this.eventHandler = new EventHandler(this, canvas, this.g.hitCanvas);
 
         const frozenCanvas = document.createElement('canvas');
         frozenCanvas.className = 'timeline-frozen';

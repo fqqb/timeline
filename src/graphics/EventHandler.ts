@@ -1,10 +1,10 @@
-import { HitCanvas } from './graphics/HitCanvas';
-import { HitRegionSpecification } from './graphics/HitRegionSpecification';
-import { Point } from './graphics/positioning';
-import { Timeline, ViewportMouseMoveEvent, ViewportMouseOutEvent } from './Timeline';
+import { Timeline, ViewportMouseMoveEvent, ViewportMouseOutEvent } from '../Timeline';
+import { HitCanvas } from './HitCanvas';
+import { HitRegionSpecification } from './HitRegionSpecification';
+import { Point } from './positioning';
 
 /**
- * Swallows any click event wherever they may originate.
+ * Consumes any click event wherever they may originate.
  * Usually there's 0 or 1 when the user ends the grab,
  * depending on where the mouse is released.
  */
@@ -37,7 +37,7 @@ function regionMatches(region1?: HitRegionSpecification, region2?: HitRegionSpec
     return region1 && region2 && region1.id === region2.id;
 }
 
-export interface TimelineMouseEvent {
+export interface CanvasMouseEvent {
     clientX: number;
     clientY: number;
     point: Point;
@@ -47,12 +47,12 @@ export interface TimelineMouseEvent {
     overViewport: boolean;
 }
 
-export interface TimelineGrabEvent extends TimelineMouseEvent {
+export interface CanvasGrabEvent extends CanvasMouseEvent {
     dx: number;
     dy: number;
 }
 
-export class DOMEventHandler {
+export class EventHandler {
 
     private grabbing = false;
     private grabTarget?: HitRegionSpecification;
@@ -81,7 +81,7 @@ export class DOMEventHandler {
         return { x: event.clientX - bbox.left, y: event.clientY - bbox.top };
     }
 
-    private toTimelineMouseEvent(domEvent: MouseEvent): TimelineMouseEvent {
+    private toCanvasMouseEvent(domEvent: MouseEvent): CanvasMouseEvent {
         const point = this.toPoint(domEvent);
         const sidebarWidth = this.timeline.sidebar?.clippedWidth || 0;
 
@@ -125,7 +125,7 @@ export class DOMEventHandler {
 
             const mouseDownRegion = this.hitCanvas.getActiveRegion(x, y, 'mouseDown');
             if (mouseDownRegion) {
-                const mouseEvent = this.toTimelineMouseEvent(event);
+                const mouseEvent = this.toCanvasMouseEvent(event);
                 mouseDownRegion.mouseDown!(mouseEvent);
             }
 
@@ -150,7 +150,7 @@ export class DOMEventHandler {
 
     private onCanvasMouseOut(event: MouseEvent) {
         if (this.prevEnteredRegion?.mouseOut) {
-            const mouseEvent = this.toTimelineMouseEvent(event);
+            const mouseEvent = this.toCanvasMouseEvent(event);
             this.prevEnteredRegion.mouseOut(mouseEvent);
         }
         this.prevEnteredRegion = undefined;
@@ -163,7 +163,7 @@ export class DOMEventHandler {
     }
 
     private onCanvasMouseMove(domEvent: MouseEvent) {
-        const mouseEvent = this.toTimelineMouseEvent(domEvent);
+        const mouseEvent = this.toCanvasMouseEvent(domEvent);
         const { point } = mouseEvent;
 
         if (!mouseEvent.overViewport) {
@@ -222,7 +222,7 @@ export class DOMEventHandler {
             domEvent.stopPropagation();
 
             this.grabTarget.grab!({
-                ...this.toTimelineMouseEvent(domEvent),
+                ...this.toCanvasMouseEvent(domEvent),
                 dx: point.x - this.grabPoint!.x,
                 dy: point.y - this.grabPoint!.y,
             });

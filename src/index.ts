@@ -1,5 +1,4 @@
 export { AnimatableProperty } from './AnimatableProperty';
-export { TimelineGrabEvent, TimelineMouseEvent } from './DOMEventHandler';
 export { Band, HeaderClickEvent } from './drawables/Band';
 export { Banner, TextAlignment } from './drawables/Banner';
 export { DefaultSidebar } from './drawables/DefaultSidebar';
@@ -14,6 +13,7 @@ export { State } from './drawables/State';
 export { StateBand, StateClickEvent, StateMouseEvent } from './drawables/StateBand';
 export { TimeLocator } from './drawables/TimeLocator';
 export { ScaleKind, TimeRuler } from './drawables/TimeRuler';
+export { CanvasGrabEvent, CanvasMouseEvent } from './graphics/EventHandler';
 export * from './graphics/Graphics';
 export { HitCanvas } from './graphics/HitCanvas';
 export { HitRegionSpecification } from './graphics/HitRegionSpecification';
