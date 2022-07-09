@@ -37,21 +37,58 @@ function regionMatches(region1?: HitRegionSpecification, region2?: HitRegionSpec
     return region1 && region2 && region1.id === region2.id;
 }
 
-export interface CanvasMouseEvent {
+/**
+ * Event generated whiling using a mouse over a hit region.
+ */
+export interface MouseHitEvent {
+    /**
+     * X-axis coordinate of the mouse pointer (relative to the client area).
+     */
     clientX: number;
+    /**
+     * Y-axis coordinate of the mouse pointer (relative to the client area).
+     */
     clientY: number;
+    /**
+     * Coordinates relative to the Canvas.
+     */
     point: Point;
+
+    /** @Deprecated */
     viewportPoint: Point;
+    /** @Deprecated */
     overSidebar: boolean;
+    /** @Deprecated */
     overDivider: boolean;
+    /** @Deprecated */
     overViewport: boolean;
 }
 
-export interface CanvasGrabEvent extends CanvasMouseEvent {
+/**
+ * Event generated while grabbing a hit region.
+ */
+export interface GrabHitEvent extends MouseHitEvent {
+    /**
+     * Delta movement on the X-axis, relative to the grab start point.
+     */
+    dx: number;
+    /**
+     * Delta movement on the Y-axis, relative to the grab start point.
+     */
+    dy: number;
+}
+
+/**
+ * Event generated when moving a mouse wheel.
+ */
+export interface WheelHitEvent extends MouseHitEvent {
     dx: number;
     dy: number;
 }
 
+/**
+ * Translates Canvas DOM events into non-DOM hit events.
+ */
 export class EventHandler {
 
     private grabbing = false;
@@ -73,7 +110,7 @@ export class EventHandler {
         canvas.addEventListener('mouseup', e => this.onCanvasMouseUp(e), false);
         canvas.addEventListener('mouseout', e => this.onCanvasMouseOut(e), false);
         canvas.addEventListener('mousemove', e => this.onCanvasMouseMove(e), false);
-        canvas.addEventListener('wheel', e => this.onWheel(e), false);
+        canvas.addEventListener('wheel', e => this.onCanvasWheel(e), false);
     }
 
     private toPoint(event: MouseEvent): Point {
@@ -81,7 +118,7 @@ export class EventHandler {
         return { x: event.clientX - bbox.left, y: event.clientY - bbox.top };
     }
 
-    private toCanvasMouseEvent(domEvent: MouseEvent): CanvasMouseEvent {
+    private toCanvasMouseEvent(domEvent: MouseEvent): MouseHitEvent {
         const point = this.toPoint(domEvent);
         const sidebarWidth = this.timeline.sidebar?.clippedWidth || 0;
 
@@ -236,24 +273,16 @@ export class EventHandler {
         this.grabbing = true;
     }
 
-    private onWheel(event: WheelEvent) {
-        const bbox = this.canvas.getBoundingClientRect();
-        const mouseX = event.clientX - bbox.left;
-        const sidebarWidth = this.timeline.sidebar?.clippedWidth || 0;
-
-        if (mouseX > sidebarWidth) {
-            if (event.deltaX > 0) {
-                this.timeline.panBy(50);
-            } else if (event.deltaX < 0) {
-                this.timeline.panBy(-50);
-            }
-
-            const relto = this.timeline.timeForCanvasPosition(mouseX);
-            if (event.deltaY > 0) {
-                this.timeline.zoom(2, true, relto);
-            } else if (event.deltaY < 0) {
-                this.timeline.zoom(0.5, true, relto);
-            }
+    private onCanvasWheel(event: WheelEvent) {
+        const mouseEvent = this.toCanvasMouseEvent(event);
+        const { x, y } = mouseEvent.point;
+        const region = this.hitCanvas.getActiveRegion(x, y, 'wheel');
+        if (region) {
+            region.wheel!({
+                ...mouseEvent,
+                dx: event.deltaX,
+                dy: event.deltaY,
+            });
 
             event.preventDefault();
             event.stopPropagation();

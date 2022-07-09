@@ -1,9 +1,9 @@
 import { AnimatableProperty } from './AnimatableProperty';
-import { EventHandler } from './graphics/EventHandler';
 import { Band } from './drawables/Band';
 import { DefaultSidebar } from './drawables/DefaultSidebar';
 import { Drawable } from './drawables/Drawable';
 import { Sidebar } from './drawables/Sidebar';
+import { EventHandler } from './graphics/EventHandler';
 import { FillStyle, Graphics, Path } from './graphics/Graphics';
 import { HitRegionSpecification } from './graphics/HitRegionSpecification';
 import { Point } from './graphics/positioning';
@@ -170,6 +170,20 @@ export class Timeline {
         },
         grabEnd: () => {
             this.cursor = this.grabStartCursor || this.cursor;
+        },
+        wheel: wheelEvent => {
+            if (wheelEvent.dx > 0) {
+                this.panBy(50);
+            } else if (wheelEvent.dx < 0) {
+                this.panBy(-50);
+            }
+
+            const relto = this.timeForCanvasPosition(wheelEvent.point.x);
+            if (wheelEvent.dy > 0) {
+                this.zoom(2, true, relto);
+            } else if (wheelEvent.dy < 0) {
+                this.zoom(0.5, true, relto);
+            }
         },
     };
 

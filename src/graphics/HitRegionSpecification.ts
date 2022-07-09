@@ -1,15 +1,16 @@
-import { CanvasGrabEvent, CanvasMouseEvent } from './EventHandler';
+import { GrabHitEvent, MouseHitEvent, WheelHitEvent } from './EventHandler';
 
 export interface HitRegionSpecification {
     id: string;
     parentId?: string;
-    click?: () => void;
-    mouseEnter?: (mouseEvent: CanvasMouseEvent) => void;
-    mouseMove?: (mouseEvent: CanvasMouseEvent) => void;
-    mouseOut?: (mouseEvent: CanvasMouseEvent) => void;
-    mouseDown?: (mouseEvent: CanvasMouseEvent) => void;
-    mouseUp?: () => void;
-    grab?: (grabEvent: CanvasGrabEvent) => void;
-    grabEnd?: () => void;
     cursor?: string;
+    click?: () => void;
+    mouseEnter?: (mouseEvent: MouseHitEvent) => void;
+    mouseMove?: (mouseEvent: MouseHitEvent) => void;
+    mouseOut?: (mouseEvent: MouseHitEvent) => void;
+    mouseDown?: (mouseEvent: MouseHitEvent) => void;
+    mouseUp?: () => void;
+    grab?: (grabEvent: GrabHitEvent) => void;
+    grabEnd?: () => void;
+    wheel?: (wheelEvent: WheelHitEvent) => void;
 }

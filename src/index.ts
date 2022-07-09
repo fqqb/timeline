@@ -13,7 +13,7 @@ export { State } from './drawables/State';
 export { StateBand, StateClickEvent, StateMouseEvent } from './drawables/StateBand';
 export { TimeLocator } from './drawables/TimeLocator';
 export { ScaleKind, TimeRuler } from './drawables/TimeRuler';
-export { CanvasGrabEvent, CanvasMouseEvent } from './graphics/EventHandler';
+export { GrabHitEvent, MouseHitEvent, WheelHitEvent } from './graphics/EventHandler';
 export * from './graphics/Graphics';
 export { HitCanvas } from './graphics/HitCanvas';
 export { HitRegionSpecification } from './graphics/HitRegionSpecification';
