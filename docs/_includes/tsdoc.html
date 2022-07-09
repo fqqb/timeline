@@ -126,6 +126,15 @@
                             {%- endfor -%}
                         </dd>
                     {%- endif -%}
+                    {%- if child.extendedBy -%}
+                        <dt>Extended by</dt>
+                        <dd>
+                            {%- for type in child.extendedBy -%}
+                                {%- include tsdoc_type.html type=type -%}
+                                {%- unless forloop.last -%}, {% endunless -%}
+                            {%- endfor -%}
+                        </dd>
+                    {%- endif -%}
                 </dl>
 
                 {%- assign size = non_private_properties | size -%}

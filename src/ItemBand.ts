@@ -64,6 +64,9 @@ let itemSequence = 1;
 export type TextOverflow = 'clip' | 'show' | 'hide';
 export type MilestoneShape = 'circle' | 'diamond' | 'dot' | 'triangle' | 'reverse_triangle';
 
+/**
+ * Band that draws events.
+ */
 export class ItemBand extends Band {
 
     private _itemBackground: FillStyle = '#77b1e1';

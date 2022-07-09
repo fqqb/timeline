@@ -20,6 +20,9 @@ export interface DrawCoordinates {
     height: number;
 }
 
+/**
+ * Base type for bands.
+ */
 export abstract class Band extends Drawable {
 
     private _label?: string;

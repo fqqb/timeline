@@ -1,6 +1,9 @@
 import { Drawable } from './Drawable';
 import { FillStyle } from './Graphics';
 
+/**
+ * Sidebar where band headers are displayed.
+ */
 export abstract class Sidebar extends Drawable {
 
     private _width = 200;

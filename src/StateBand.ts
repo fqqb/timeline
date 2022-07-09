@@ -56,6 +56,9 @@ interface DrawInfo {
 
 let stateSequence = 1;
 
+/**
+ * Draw discrete state changes.
+ */
 export class StateBand extends Band {
 
     private _contentHeight = 30;
