@@ -3,6 +3,9 @@ import { Graphics, Path } from './Graphics';
 import { HitRegionSpecification } from './HitRegionSpecification';
 import { Sidebar } from './Sidebar';
 
+/**
+ * Default sidebar implementation.
+ */
 export class DefaultSidebar extends Sidebar {
 
     private _dividerColor = '#e3e3e3';

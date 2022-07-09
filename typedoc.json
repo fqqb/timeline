@@ -10,7 +10,6 @@
         "AnnotatedState",
         "DecadeScale",
         "DOMEventHandler",
-        "HitCanvas",
         "HourScale",
         "MonthScale",
         "QuarterDayScale",

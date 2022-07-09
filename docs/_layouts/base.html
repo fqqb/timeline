@@ -82,17 +82,6 @@
                 </li>
             {% endfor %}
         </ul>
-
-        <h3>
-            API Reference
-        </h3>
-        <ul>
-            {%- for p in site.api -%}
-                <li class="{% if p.url == page.url %}active{% endif %}">
-                    <a href="/timeline{{- p.url -}}">{{- p.title -}}</a>
-                </li>
-            {%- endfor -%}
-        </ul>
     </div>
 
 </body>

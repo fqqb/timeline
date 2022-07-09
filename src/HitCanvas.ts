@@ -2,7 +2,24 @@ import { HitRegionSpecification } from './HitRegionSpecification';
 
 const WHITE = 'rgb(255,255,255)';
 
+/**
+ * Keeps track of regions of interest (hit regions).
+ *
+ * Hit regions are registered during the draw loop of the main visible canvas. A sticky
+ * identifier should be used to mark regions as meaning the same between different
+ * draws.
+ */
 export class HitCanvas {
+    /*
+     * Implementation note: hit regions are achieved by using a separate hidden canvas of
+     * same dimension as the real visible canvas. Regions are colored using a unique color
+     * and regular Canvas shapes (rect, ellipse, path).
+     *
+     * DOM interactions can be matched to a pixel on the hit canvas, which gives us
+     * the unique color, and therefore the matching hit region (if any).
+     *
+     * For bubbling support, we also allow hit regions to indicate a parent ID.
+     */
 
     readonly ctx: CanvasRenderingContext2D;
     private regionsById = new Map<string, HitRegionSpecification>();

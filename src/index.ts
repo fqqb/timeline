@@ -6,6 +6,7 @@ export { TimelineGrabEvent, TimelineMouseEvent } from './DOMEventHandler';
 export { Drawable } from './Drawable';
 export * from './events';
 export * from './Graphics';
+export { HitCanvas } from './HitCanvas';
 export { HitRegionSpecification } from './HitRegionSpecification';
 export { Item } from './Item';
 export { ItemBand, ItemClickEvent, ItemMouseEvent, MilestoneShape, TextOverflow } from './ItemBand';

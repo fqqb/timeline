@@ -1,0 +1,24 @@
+{%- if include.comment.summary -%}
+    {%- assign combined = '' -%}
+    {%- for part in include.comment.summary -%}
+        {%- if part.kind == 'text' -%}
+            {%- assign combined = combined | append:part.text -%}
+        {%- elsif part.kind == 'inline-tag' -%}
+            {%- assign combined = combined | append:part.text -%}
+        {%- endif -%}
+    {%- endfor -%}
+
+    {%- if combined -%}
+        {{ combined | markdownify }}
+    {%- endif -%}
+{%- endif -%}
+{%- if child.comment.tags -%}
+    {%- for tag in child.comment.tags -%}
+        {%- if tag.tag == "deprecated" -%}
+            <p>
+                <strong>Deprecated: </strong>
+                {{- tag.text -}}
+            </p>
+        {%- endif -%}
+    {%- endfor -%}
+{%- endif -%}

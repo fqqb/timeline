@@ -3,66 +3,222 @@ import { HitRegionSpecification } from './HitRegionSpecification';
 import { Bounds, Point, shrink } from './positioning';
 import * as utils from './utils';
 
-export type FillStyle = string | CanvasGradient | CanvasPattern;
+/**
+ * Style to use when filling shapes.
+ */
+export type FillStyle =
+    /**
+     * CSS color string.
+     */
+    string |
+    /**
+     * Linear or radial gradient.
+     */
+    CanvasGradient |
+    /**
+     * Repeating image.
+     */
+    CanvasPattern;
 
+/**
+ * Properties to be provided with {@link Graphics.fillRect}.
+ */
 export interface RectFill {
+    /**
+     * X-axis coordinate of the rectangle's starting point.
+     */
     x: number;
+    /**
+     * Y-axis coordinate of the rectangle's starting point.
+     */
     y: number;
+    /**
+     * The rectangle's width.
+     */
     width: number;
+    /**
+     * The rectangle's height.
+     */
     height: number;
+    /**
+     * Fill the rectangle with a color, gradient or pattern.
+     */
     fill: FillStyle;
+    /**
+     * Corner radius on the x-axis.
+     */
     rx?: number;
+    /**
+     * Corner radius on the y-axis.
+     */
     ry?: number;
 }
 
+/**
+ * Properties to be provided with {@link Graphics.fillEllipse}.
+ */
 export interface EllipseFill {
+    /**
+     * X-axis coordinate of the ellipse's center
+     */
     cx: number;
+    /**
+     * Y-axis coordinate of the ellipse's center
+     */
     cy: number;
+    /**
+     * The ellipse's X-radius.
+     */
     rx: number;
+    /**
+     * The ellipse's Y-radius.
+     */
     ry: number;
+    /**
+     * Fill the ellipse with a color, gradient or pattern.
+     */
     fill: FillStyle;
+    /**
+     * Angle in radians at which the ellipse starts (measured clockwise from the positive x-axis).
+     */
     startAngle?: number;
+    /**
+     * Angle in radians at which the ellipse ends (measured clockwise from the positive x-axis).
+     */
     endAngle?: number;
+    /**
+     * If true, draw the ellipse anticlockwise.
+     */
     anticlockwise?: boolean;
 }
 
+/**
+ * Properties to be provided with {@link Graphics.strokeEllipse}.
+ */
 export interface EllipseStroke {
+    /**
+     * X-axis coordinate of the ellipse's center
+     */
     cx: number;
+    /**
+     * Y-axis coordinate of the ellipse's center
+     */
     cy: number;
+    /**
+     * The ellipse's X-radius.
+     */
     rx: number;
+    /**
+     * The ellipse's Y-radius.
+     */
     ry: number;
+    /**
+     * Stroke thickness.
+     */
     lineWidth: number;
+    /**
+     * Stroke color.
+     */
     color: string;
+    /**
+     * Angle in radians at which the ellipse starts (measured clockwise from the positive x-axis).
+     */
     startAngle?: number;
+    /**
+     * Angle in radians at which the ellipse ends (measured clockwise from the positive x-axis).
+     */
     endAngle?: number;
+    /**
+     * If true, draw the ellipse anticlockwise.
+     */
     anticlockwise?: boolean;
+    /**
+     * Dash pattern of the stroke.
+     */
     dash?: number[];
 }
 
+/**
+ * Properties to be provided with {@link Graphics.fillText}.
+ */
 export interface TextFill {
+    /**
+     * X-axis coordinate at which to begin drawing text.
+     */
     x: number;
+    /**
+     * Y-axis coordinate at which to begin drawing text.
+     */
     y: number;
+    /**
+     * Text baseline when drawing text.
+     */
     baseline: 'top' | 'middle' | 'bottom';
+    /**
+     * Text alignment when drawing text.
+     */
     align: 'left' | 'right' | 'center';
+    /**
+     * CSS font string.
+     */
     font: string;
+    /**
+     * Text color.
+     */
     color: string;
+    /**
+     * Text to draw.
+     */
     text: string;
 }
 
+/**
+ * Properties to be provided with {@link Graphics.strokeRect}.
+ */
 export interface RectStroke {
+    /**
+     * X-axis coordinate of the rectangle's starting point.
+     */
     x: number;
+    /**
+     * Y-axis coordinate of the rectangle's starting point.
+     */
     y: number;
+    /**
+     * The rectangle's width.
+     */
     width: number;
+    /**
+     * The rectangle's height.
+     */
     height: number;
+    /**
+     * Stroke color.
+     */
     color: string;
+    /**
+     * Corner radius on the x-axis.
+     */
     rx?: number;
+    /**
+     * Corner radius on the y-axis.
+     */
     ry?: number;
+    /**
+     * Stroke thickness.
+     */
     lineWidth?: number;
     lineJoin?: CanvasLineJoin;
+    /**
+     * Dash pattern of the stroke.
+     */
     dash?: number[];
     crispen?: boolean;
 }
 
+/**
+ * Properties to be provided with {@link Graphics.strokePath}.
+ */
 export interface PathStroke {
     path: Path;
     color: string;
@@ -72,6 +228,9 @@ export interface PathStroke {
     dash?: number[];
 }
 
+/**
+ * Properties to be provided with {@link Graphics.fillPath}.
+ */
 export interface PathFill {
     path: Path;
     fill: FillStyle;
@@ -81,11 +240,30 @@ export interface TextMetrics {
     width: number;
 }
 
+/**
+ * Draw on an HTML5 canvas.
+ *
+ * This class wraps an HTML5 Canvas and 2D rendering context in a
+ * slightly higher-level API, while also allowing to register hit
+ * regions.
+ */
 export class Graphics {
 
+    /**
+     * Native draw context for the HTML5 Canvas.
+     *
+     * Can be used to draw directly without using any convenience API.
+     */
     readonly ctx: CanvasRenderingContext2D;
 
+    /**
+     * Manages hit regions which connects DOM interactions to the Canvas.
+     */
     readonly hitCanvas: HitCanvas;
+
+    /**
+     * Draw context matching the hit canvas.
+     */
     readonly hitCtx: CanvasRenderingContext2D;
 
     constructor(readonly canvas: HTMLCanvasElement, hitCanvas?: HitCanvas) {

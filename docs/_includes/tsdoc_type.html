@@ -31,9 +31,7 @@
             {%- if match -%}
                 {%- include tsdoc_type.html type=match.type -%}
             {%- else -%}
-                <span style="color: green; font-weight: bold; font-size: 2em;">
-                    {{- include.type.name -}}
-                </span>
+                {{- include.type.name -}}
             {%- endif -%}
         {%- endif -%}
 

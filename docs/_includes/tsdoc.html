@@ -41,13 +41,7 @@
                     </small>
                 {%- endif -%}
             </h1>
-            {% if child.comment %}
-                {% if child.comment.summary %}
-                    {% for item in child.comment.summary %}
-                        {{ item.text | markdownify }}
-                    {% endfor %}
-                {%- endif -%}
-            {% endif %}
+            {%- include tsdoc_comment.html comment=child.comment -%}
 
             {% assign constructors = child.children | where: "kindString", "Constructor" %}
             {% assign properties = child.children | where: "kindString", "Property" %}
@@ -67,6 +61,9 @@
             {%- endif -%}
 
             {%- if child.kindString == "Function" -%}
+                {%- for signature in child.signatures -%}
+                    {%- include tsdoc_comment.html comment=signature.comment -%}
+                {%- endfor -%}
                 <dl class="field-list">
                     {%- for signature in child.signatures -%}
                         <dt>

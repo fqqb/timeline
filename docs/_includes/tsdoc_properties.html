@@ -22,37 +22,10 @@
         </dt>
         <dd>
             {%- if child.comment -%}
-                {% if child.comment.summary %}
-                    {% for item in child.comment.summary %}
-                        {{ item.text | markdownify }}
-                    {% endfor %}
-                {% endif %}
-                {%- if child.comment.tags -%}
-                    {%- for tag in child.comment.tags -%}
-                        {%- if tag.tag == "deprecated" -%}
-                            <p>
-                                <strong>Deprecated: </strong>
-                                {{- tag.text -}}
-                            </p>
-                        {%- endif -%}
-                    {%- endfor -%}
-                {%- endif -%}
+                {%- include tsdoc_comment.html comment=child.comment -%}
             {%- elsif child.getSignature.comment -%}
-                {% if child.getSignature.comment.summary %}
-                    {% for item in child.getSignature.comment.summary %}
-                        {{ item.text | markdownify }}
-                    {% endfor %}
-                {% endif %}
+                {%- include tsdoc_comment.html comment=child.getSignature.comment -%}
             {%- endif -%}
-
-            {%- for tag in child.getSignature.comment.tags -%}
-                {%- if tag.tag == "deprecated" -%}
-                    <p>
-                        <strong>Deprecated: </strong>
-                        {{- tag.text -}}
-                    </p>
-                {%- endif -%}
-            {%- endfor -%}
 
             <dl class="field-list">
                 <dt>Type:</dt>
