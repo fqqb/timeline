@@ -1,5 +1,5 @@
+import { Graphics, Path } from '../graphics/Graphics';
 import { Drawable } from './Drawable';
-import { Graphics, Path } from './Graphics';
 
 /**
  * Draws a vertical bar at a specific time.

@@ -1,13 +1,13 @@
 import { AnimatableProperty } from './AnimatableProperty';
-import { Band } from './Band';
-import { DefaultSidebar } from './DefaultSidebar';
 import { DOMEventHandler } from './DOMEventHandler';
-import { Drawable } from './Drawable';
-import { TimelineEvent, TimelineEventHandlers, ViewportChangeEvent, ViewportMouseMoveEvent, ViewportMouseOutEvent, ViewportSelectionEvent } from './events';
-import { FillStyle, Graphics, Path } from './Graphics';
-import { HitRegionSpecification } from './HitRegionSpecification';
-import { Point } from './positioning';
-import { Sidebar } from './Sidebar';
+import { Band } from './drawables/Band';
+import { DefaultSidebar } from './drawables/DefaultSidebar';
+import { Drawable } from './drawables/Drawable';
+import { Sidebar } from './drawables/Sidebar';
+import { FillStyle, Graphics, Path } from './graphics/Graphics';
+import { HitRegionSpecification } from './graphics/HitRegionSpecification';
+import { Point } from './graphics/positioning';
+import { TimelineEvent } from './TimelineEvent';
 import { TimeRange } from './TimeRange';
 
 /**
@@ -24,6 +24,71 @@ export type Tool = 'hand' | 'range-select';
 
 export const REGION_ID_VIEWPORT = 'viewport';
 export const REGION_ID_DIVIDER = 'divider';
+
+/**
+ * Event generated when the viewport has changed.
+ */
+export interface ViewportChangeEvent extends TimelineEvent {
+    /**
+     * Left bound of the visible time range
+     */
+    start: number;
+
+    /**
+     * Right bound of the visible time range
+     */
+    stop: number;
+}
+
+/**
+ * Event generated when the mouse is moving over
+ * the viewport.
+ */
+export interface ViewportMouseMoveEvent extends TimelineEvent {
+    /**
+     * Horizontal coordinate of the mouse pointer, relative to
+     * the browser page.
+     */
+    clientX: number;
+
+    /**
+     * Vertical coordinate of the mouse pointer, relative to the
+     * browser page.
+     */
+    clientY: number;
+
+    /**
+     * Time matching with the coordinates of the mouse pointer.
+     */
+    time: number;
+}
+
+/**
+ * Event generated when the mouse is moving outside the viewport.
+ */
+export interface ViewportMouseOutEvent extends TimelineEvent {
+    /**
+     * Horizontal coordinate of the mouse pointer, relative to
+     * the browser page.
+     */
+    clientX: number;
+
+    /**
+     * Vertical coordinate of the mouse pointer, relative to the
+     * browser page.
+     */
+    clientY: number;
+}
+
+/**
+ * Event generated when the selected range has changed.
+ */
+export interface ViewportSelectionEvent extends TimelineEvent {
+    /**
+     * Selected time range (if any).
+     */
+    selection?: TimeRange;
+}
 
 export class Timeline {
 
@@ -52,12 +117,10 @@ export class Timeline {
     // Frozen header outside of the scrollpane
     private frozenGraphics: Graphics;
 
-    private eventListeners: TimelineEventHandlers = {
-        viewportchange: [],
-        viewportmousemove: [],
-        viewportmouseout: [],
-        viewportselection: [],
-    };
+    private viewportChangeListeners: Array<(ev: ViewportChangeEvent) => void> = [];
+    private viewportMouseMoveListeners: Array<(ev: ViewportMouseMoveEvent) => void> = [];
+    private viewportMouseOutListeners: Array<(ev: ViewportMouseOutEvent) => void> = [];
+    private viewportSelectionListeners: Array<(ev: ViewportSelectionEvent) => void> = [];
 
     private eventHandler: DOMEventHandler;
     private repaintIntervalHandle?: number;
@@ -264,7 +327,7 @@ export class Timeline {
             this._start.value = start;
             this._stop.value = stop;
         }
-        this.fireEvent('viewportchange', { start, stop });
+        this.viewportChangeListeners.forEach(l => l({ start, stop }));
         this.requestRepaint();
     }
 
@@ -289,7 +352,9 @@ export class Timeline {
         } else {
             this.selection = { start: stop, stop: start };
         }
-        this.fireEvent('viewportselection', { selection: this.selection });
+        this.viewportSelectionListeners.forEach(l => l({
+            selection: this.selection,
+        }));
         this.requestRepaint();
     }
 
@@ -298,7 +363,9 @@ export class Timeline {
      */
     clearSelection() {
         this.selection = undefined;
-        this.fireEvent('viewportselection', { selection: this.selection });
+        this.viewportSelectionListeners.forEach(l => l({
+            selection: this.selection,
+        }));
         this.requestRepaint();
     }
 
@@ -432,7 +499,7 @@ export class Timeline {
      * ~400 ms have passed without another update).
      */
     addViewportChangeListener(listener: (ev: ViewportChangeEvent) => void) {
-        this.eventListeners.viewportchange.push(listener);
+        this.viewportChangeListeners.push(listener);
     }
 
     /**
@@ -440,7 +507,7 @@ export class Timeline {
      * viewport change events.
      */
     removeViewportChangeListener(listener: (ev: ViewportChangeEvent) => void) {
-        this.eventListeners.viewportchange = this.eventListeners.viewportchange
+        this.viewportChangeListeners = this.viewportChangeListeners
             .filter(el => (el !== listener));
     }
 
@@ -449,7 +516,7 @@ export class Timeline {
      * over the viewport.
      */
     addViewportMouseMoveListener(listener: (ev: ViewportMouseMoveEvent) => void) {
-        this.eventListeners.viewportmousemove.push(listener);
+        this.viewportMouseMoveListeners.push(listener);
     }
 
     /**
@@ -457,7 +524,7 @@ export class Timeline {
      * viewport mouse-move events.
      */
     removeViewportMouseMoveListener(listener: (ev: ViewportMouseMoveEvent) => void) {
-        this.eventListeners.viewportmousemove = this.eventListeners.viewportmousemove
+        this.viewportMouseMoveListeners = this.viewportMouseMoveListeners
             .filter(el => (el !== listener));
     }
 
@@ -466,7 +533,7 @@ export class Timeline {
      * outside the viewport.
      */
     addViewportMouseOutListener(listener: (ev: ViewportMouseOutEvent) => void) {
-        this.eventListeners.viewportmouseout.push(listener);
+        this.viewportMouseOutListeners.push(listener);
     }
 
     /**
@@ -474,7 +541,7 @@ export class Timeline {
      * viewport mouse-out events.
      */
     removeViewportMouseOutListener(listener: (ev: ViewportMouseOutEvent) => void) {
-        this.eventListeners.viewportmouseout = this.eventListeners.viewportmouseout
+        this.viewportMouseOutListeners = this.viewportMouseOutListeners
             .filter(el => (el !== listener));
     }
 
@@ -483,7 +550,7 @@ export class Timeline {
      * has changed.
      */
     addViewportSelectionListener(listener: (ev: ViewportSelectionEvent) => void) {
-        this.eventListeners.viewportselection.push(listener);
+        this.viewportSelectionListeners.push(listener);
     }
 
     /**
@@ -491,14 +558,18 @@ export class Timeline {
      * selection events.
      */
     removeViewportSelectionListener(listener: (ev: ViewportSelectionEvent) => void) {
-        this.eventListeners.viewportselection = this.eventListeners.viewportselection
+        this.viewportSelectionListeners = this.viewportSelectionListeners
             .filter(el => (el !== listener));
     }
 
     /** @hidden */
-    fireEvent<K extends keyof TimelineEventHandlers>(type: K, event: TimelineEvent) {
-        const listeners = this.eventListeners[type];
-        listeners.forEach((listener: any) => listener(event));
+    fireViewportMouseMoveEvent(event: ViewportMouseMoveEvent) {
+        this.viewportMouseMoveListeners.forEach(l => l(event));
+    }
+
+    /** @hidden */
+    fireViewportMouseOutEvent(event: ViewportMouseOutEvent) {
+        this.viewportMouseOutListeners.forEach(l => l(event));
     }
 
     /**

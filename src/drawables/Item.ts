@@ -1,4 +1,4 @@
-import { FillStyle } from './Graphics';
+import { FillStyle } from '../graphics/Graphics';
 
 /**
  * Item-specific properties.

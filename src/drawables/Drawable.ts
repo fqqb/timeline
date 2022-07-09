@@ -1,5 +1,5 @@
-import { Graphics } from './Graphics';
-import { Timeline } from './Timeline';
+import { Graphics } from '../graphics/Graphics';
+import { Timeline } from '../Timeline';
 
 /**
  * Base class for any visual component that can be added to a

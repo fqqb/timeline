@@ -1,4 +1,4 @@
-import { TimelineGrabEvent, TimelineMouseEvent } from './DOMEventHandler';
+import { TimelineGrabEvent, TimelineMouseEvent } from '../DOMEventHandler';
 
 export interface HitRegionSpecification {
     id: string;

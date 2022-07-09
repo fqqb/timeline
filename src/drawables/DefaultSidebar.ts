@@ -1,6 +1,6 @@
+import { Graphics, Path } from '../graphics/Graphics';
+import { HitRegionSpecification } from '../graphics/HitRegionSpecification';
 import { Band } from './Band';
-import { Graphics, Path } from './Graphics';
-import { HitRegionSpecification } from './HitRegionSpecification';
 import { Sidebar } from './Sidebar';
 
 /**

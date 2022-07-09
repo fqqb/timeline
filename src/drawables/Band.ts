@@ -1,6 +1,6 @@
+import { FillStyle, Graphics } from '../graphics/Graphics';
+import { TimelineEvent } from '../TimelineEvent';
 import { Drawable } from './Drawable';
-import { TimelineEvent } from './events';
-import { FillStyle, Graphics } from './Graphics';
 
 /**
  * Event generated when the header of a Timeline Band was

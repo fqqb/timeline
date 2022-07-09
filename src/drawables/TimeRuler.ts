@@ -1,6 +1,6 @@
 import { DateTime } from 'luxon';
+import { Graphics, Path } from '../graphics/Graphics';
 import { Band } from './Band';
-import { Graphics, Path } from './Graphics';
 
 export type ScaleKind = 'auto' | 'hour' | 'quarterDay' | 'weekDay' | 'week' | 'month' | 'year' | 'decade';
 

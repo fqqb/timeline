@@ -1,8 +1,7 @@
-import { ViewportMouseMoveEvent, ViewportMouseOutEvent } from './events';
-import { HitCanvas } from './HitCanvas';
-import { HitRegionSpecification } from './HitRegionSpecification';
-import { Point } from './positioning';
-import { Timeline } from './Timeline';
+import { HitCanvas } from './graphics/HitCanvas';
+import { HitRegionSpecification } from './graphics/HitRegionSpecification';
+import { Point } from './graphics/positioning';
+import { Timeline, ViewportMouseMoveEvent, ViewportMouseOutEvent } from './Timeline';
 
 /**
  * Swallows any click event wherever they may originate.
@@ -178,7 +177,7 @@ export class DOMEventHandler {
                 clientY: domEvent.clientY,
                 time: this.timeline.timeForCanvasPosition(point.x),
             };
-            this.timeline.fireEvent('viewportmousemove', vpEvent);
+            this.timeline.fireViewportMouseMoveEvent(vpEvent);
         }
 
         const region = this.hitCanvas.getActiveRegion(point.x, point.y);
@@ -286,7 +285,7 @@ export class DOMEventHandler {
                 clientX: event.clientX,
                 clientY: event.clientY,
             };
-            this.timeline.fireEvent('viewportmouseout', vpEvent);
+            this.timeline.fireViewportMouseOutEvent(vpEvent);
         }
     }
 }

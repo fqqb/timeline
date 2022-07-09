@@ -1,5 +1,4 @@
-import { ViewportMouseMoveEvent } from './events';
-import { Timeline } from './Timeline';
+import { Timeline, ViewportMouseMoveEvent } from '../Timeline';
 import { TimeLocator } from './TimeLocator';
 
 

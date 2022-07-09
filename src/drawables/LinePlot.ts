@@ -1,7 +1,7 @@
+import { FillStyle, Graphics, Path } from '../graphics/Graphics';
+import { HitRegionSpecification } from '../graphics/HitRegionSpecification';
+import { TimelineEvent } from '../TimelineEvent';
 import { Band } from './Band';
-import { TimelineEvent } from './events';
-import { FillStyle, Graphics, Path } from './Graphics';
-import { HitRegionSpecification } from './HitRegionSpecification';
 import { Line } from './Line';
 
 /**

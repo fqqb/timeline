@@ -1,5 +1,5 @@
+import { Graphics } from '../graphics/Graphics';
 import { Band } from './Band';
-import { Graphics } from './Graphics';
 
 export type TextAlignment = 'left' | 'middle' | 'right';
 

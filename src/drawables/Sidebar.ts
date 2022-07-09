@@ -1,5 +1,5 @@
+import { FillStyle } from '../graphics/Graphics';
 import { Drawable } from './Drawable';
-import { FillStyle } from './Graphics';
 
 /**
  * Sidebar where band headers are displayed.

@@ -1,10 +1,10 @@
+import { FillStyle, Graphics, Path } from '../graphics/Graphics';
+import { HitRegionSpecification } from '../graphics/HitRegionSpecification';
+import { Bounds } from '../graphics/positioning';
+import { REGION_ID_VIEWPORT } from '../Timeline';
+import { TimelineEvent } from '../TimelineEvent';
 import { Band } from './Band';
-import { TimelineEvent } from './events';
-import { FillStyle, Graphics, Path } from './Graphics';
-import { HitRegionSpecification } from './HitRegionSpecification';
-import { Bounds } from './positioning';
 import { State } from './State';
-import { REGION_ID_VIEWPORT } from './Timeline';
 
 /**
  * Event generated when a Timeline state was clicked.
