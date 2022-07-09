@@ -38,8 +38,6 @@ export abstract class Drawable {
      *
      * This method is used by the Timeline instance to detect when
      * to redraw the Canvas.
-     *
-     * @hidden
      */
     addMutationListener(mutationListener: () => void) {
         if (this.mutationListeners.indexOf(mutationListener) === -1) {
@@ -49,8 +47,6 @@ export abstract class Drawable {
 
     /**
      * Remove a previously added mutation listener.
-     *
-     * @hidden
      */
     removeMutationListener(mutationListener: () => void) {
         const idx = this.mutationListeners.indexOf(mutationListener);
@@ -62,8 +58,6 @@ export abstract class Drawable {
     /**
      * Mark this Drawable as dirty. This method is intended for use in subclasses
      * and should be called in the implementation of set accessors.
-     *
-     * @hidden
      */
     reportMutation() {
         this.mutationListeners.forEach(listener => listener());
@@ -77,7 +71,6 @@ export abstract class Drawable {
      * value changes.
      *
      * @param value Initial value (not animated)
-     * @hidden
      */
     protected createAnimatableProperty(value: number) {
         return this.timeline.createAnimatableProperty(value);
@@ -85,8 +78,6 @@ export abstract class Drawable {
 
     /**
      * Gets called before any of the draw methods.
-     *
-     * @hidden
      */
     beforeDraw(g: Graphics) {
     }
@@ -94,16 +85,12 @@ export abstract class Drawable {
     /**
      * Gets called before regular content is drawn.
      * Override this if you need a bottom layer.
-     *
-     * @hidden
      */
     drawUnderlay(g: Graphics) {
     }
 
     /**
      * Draw regular content.
-     *
-     * @hidden
      */
     drawContent(g: Graphics) {
     }
@@ -111,16 +98,12 @@ export abstract class Drawable {
     /**
      * Gets called after regular content is drawn.
      * Override this if you need a top layer.
-     *
-     * @hidden
      */
     drawOverlay(g: Graphics) {
     }
 
     /**
      * Called when this drawable is removed from its Timeline
-     *
-     * @hidden
      */
     disconnectedCallback() {
     }

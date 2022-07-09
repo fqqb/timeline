@@ -219,7 +219,6 @@ export class ItemBand extends Band {
         }
     }
 
-    /** @hidden */
     calculateContentHeight(g: Graphics) {
         this.measureItems(g);
         const visibleItems = this.annotatedItems.filter(item => !!item.drawInfo);
@@ -235,7 +234,6 @@ export class ItemBand extends Band {
         }
     }
 
-    /** @hidden */
     drawBandContent(g: Graphics) {
         for (let i = 0; i < this.lines.length; i++) {
             const line = this.lines[i];

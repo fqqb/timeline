@@ -146,7 +146,6 @@ export abstract class Band extends Drawable {
         this.reportMutation();
     }
 
-    /** @hidden */
     beforeDraw(g: Graphics) {
         const contentHeight = this.calculateContentHeight(g);
         this.offscreen = g.createChild(this.timeline.mainWidth, contentHeight);
@@ -156,15 +155,11 @@ export abstract class Band extends Drawable {
     /**
      * Implementations should return required content height
      * (excluding margins) during the current draw operation.
-     *
-     * @hidden
      */
     abstract calculateContentHeight(g: Graphics): number;
 
-    /** @hidden */
     abstract drawBandContent(g: Graphics): void;
 
-    /** @hidden */
     drawContent(g: Graphics) {
         if (this.offscreen) {
             g.copy(this.offscreen, this.x, this.y + this.marginTop);

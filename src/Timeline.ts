@@ -251,7 +251,6 @@ export class Timeline {
         this.sidebar?.disconnectedCallback();
     }
 
-    /** @hidden */
     createAnimatableProperty(value: number) {
         const property = new AnimatableProperty(value);
         this.animatableProperties.push(property);

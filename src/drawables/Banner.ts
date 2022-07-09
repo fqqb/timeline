@@ -15,12 +15,10 @@ export class Banner extends Band {
     private _textSize = 16;
     private _fontFamily = 'Verdana, Geneva, sans-serif';
 
-    /** @hidden */
     calculateContentHeight(g: Graphics) {
         return this._contentHeight;
     }
 
-    /** @hidden */
     drawBandContent(g: Graphics) {
         if (!this.text) {
             return;

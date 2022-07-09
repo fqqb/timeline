@@ -31,7 +31,6 @@ export class MouseTracker extends TimeLocator {
         timeline.addViewportMouseOutListener(this.mouseOutListener);
     }
 
-    /** @hidden */
     disconnectedCallback() {
         this.timeline.removeViewportMouseMoveListener(this.mouseMoveListener);
         this.timeline.removeViewportMouseOutListener(this.mouseOutListener);

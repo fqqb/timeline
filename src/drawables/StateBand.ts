@@ -213,12 +213,10 @@ export class StateBand extends Band {
         }
     }
 
-    /** @hidden */
     calculateContentHeight(g: Graphics) {
         return this._contentHeight;
     }
 
-    /** @hidden */
     drawBandContent(g: Graphics) {
         for (const state of this.annotatedStates) {
             this.measureState(g, state);

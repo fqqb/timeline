@@ -36,18 +36,15 @@ export class TimeRuler extends Band {
 
     private scaleRenderer?: Scale;
 
-    /** @hidden */
     calculateContentHeight(g: Graphics) {
         return this.contentHeight;
     }
 
-    /** @hidden */
     drawBandContent(g: Graphics) {
         this.scaleRenderer = this.determineScale();
         this.scaleRenderer!.drawBandContent(g, this);
     }
 
-    /** @hidden */
     drawUnderlay(g: Graphics) {
         this.scaleRenderer!.drawUnderlay(g, this);
     }

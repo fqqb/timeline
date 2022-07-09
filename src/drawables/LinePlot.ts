@@ -189,12 +189,10 @@ export class LinePlot extends Band {
         }
     }
 
-    /** @hidden */
     calculateContentHeight(g: Graphics) {
         return this._contentHeight;
     }
 
-    /** @hidden */
     drawBandContent(g: Graphics) {
         const { contentHeight } = this;
         const { viewMinimum: min, viewMaximum: max } = this;

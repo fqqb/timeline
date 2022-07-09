@@ -13,7 +13,6 @@ export class TimeLocator extends Drawable {
     private _lineDash: number[] = [];
     private _time?: number | (() => number | undefined);
 
-    /** @hidden */
     drawOverlay(g: Graphics) {
         let t;
         if (typeof this.time === 'function') {

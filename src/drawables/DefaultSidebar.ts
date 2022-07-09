@@ -17,7 +17,6 @@ export class DefaultSidebar extends Sidebar {
 
     private hoveredIndex?: number;
 
-    /** @hidden */
     drawContent(g: Graphics) {
         if (this.clippedWidth) {
             const offscreen = g.createChild(this.clippedWidth, g.canvas.height);
