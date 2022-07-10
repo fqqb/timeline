@@ -61,18 +61,25 @@ export class EventHandler {
         return { x: event.clientX - bbox.left, y: event.clientY - bbox.top };
     }
 
-    private toCanvasMouseEvent(domEvent: MouseEvent): Omit<MouseHitEvent, 'bubbles'> {
+    private toCanvasMouseEvent(domEvent: MouseEvent): MouseHitEvent {
         return {
             clientX: domEvent.clientX,
             clientY: domEvent.clientY,
-            point: this.toPoint(domEvent),
+            ...this.toPoint(domEvent),
         };
     }
 
     private onCanvasClick(domEvent: MouseEvent) {
         const { x, y } = this.toPoint(domEvent);
         const region = this.hitCanvas.getActiveRegion(x, y, 'click');
-        region?.click!();
+        region?.click!({
+            ...this.toCanvasMouseEvent(domEvent),
+            altKey: domEvent.altKey,
+            ctrlKey: domEvent.ctrlKey,
+            metaKey: domEvent.metaKey,
+            shiftKey: domEvent.shiftKey,
+            button: domEvent.button,
+        });
     }
 
     private onCanvasMouseDown(event: MouseEvent) {
@@ -128,7 +135,7 @@ export class EventHandler {
 
     private onCanvasMouseMove(domEvent: MouseEvent) {
         const mouseEvent = this.toCanvasMouseEvent(domEvent);
-        const { x, y } = mouseEvent.point;
+        const { x, y } = mouseEvent;
 
         const activeRegions = this.hitCanvas.getActiveRegions(x, y);
         const activeRegionIds = activeRegions.map(r => r.id);
@@ -165,7 +172,7 @@ export class EventHandler {
                 this.initiateGrab();
                 // Prevent stutter on first move
                 if (snap > 0 && this.grabPoint) {
-                    this.grabPoint = mouseEvent.point;
+                    this.grabPoint = { x: mouseEvent.x, y: mouseEvent.y };
                 }
             }
         }
@@ -191,7 +198,7 @@ export class EventHandler {
 
     private onCanvasWheel(event: WheelEvent) {
         const mouseEvent = this.toCanvasMouseEvent(event);
-        const { x, y } = mouseEvent.point;
+        const { x, y } = mouseEvent;
         const region = this.hitCanvas.getActiveRegion(x, y, 'wheel');
         if (region) {
             region.wheel!({

@@ -59,7 +59,7 @@ export class ViewportRegion implements HitRegionSpecification {
     }
 
     mouseDown(mouseEvent: MouseHitEvent) {
-        this.grabStartPoint = mouseEvent.point;
+        this.grabStartPoint = { x: mouseEvent.x, y: mouseEvent.y };
         this.grabStartCursor = this.timeline.cursor;
     }
 
@@ -68,12 +68,12 @@ export class ViewportRegion implements HitRegionSpecification {
             case 'hand':
                 this.timeline.cursor = 'grabbing';
                 this.timeline.panBy(-grabEvent.deltaX, false);
-                this.timeline.eventHandler.grabPoint = grabEvent.point;
+                this.timeline.eventHandler.grabPoint = { x: grabEvent.x, y: grabEvent.y };
                 break;
             case 'range-select':
                 this.timeline.cursor = 'col-resize';
                 const start = this.timeline.timeForCanvasPosition(this.grabStartPoint!.x);
-                const stop = this.timeline.timeForCanvasPosition(grabEvent.point.x);
+                const stop = this.timeline.timeForCanvasPosition(grabEvent.x);
                 this.timeline.setSelection(start, stop);
                 break;
         }
@@ -90,7 +90,7 @@ export class ViewportRegion implements HitRegionSpecification {
             this.timeline.panBy(-50);
         }
 
-        const relto = this.timeline.timeForCanvasPosition(wheelEvent.point.x);
+        const relto = this.timeline.timeForCanvasPosition(wheelEvent.x);
         if (wheelEvent.deltaY > 0) {
             this.timeline.zoom(2, true, relto);
         } else if (wheelEvent.deltaY < 0) {
@@ -102,7 +102,7 @@ export class ViewportRegion implements HitRegionSpecification {
         const vpEvent: ViewportMouseMoveEvent = {
             clientX: mouseEvent.clientX,
             clientY: mouseEvent.clientY,
-            time: this.timeline.timeForCanvasPosition(mouseEvent.point.x),
+            time: this.timeline.timeForCanvasPosition(mouseEvent.x),
         };
         this.mouseMoveListeners.forEach(l => l(vpEvent));
     }

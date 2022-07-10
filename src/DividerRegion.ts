@@ -19,7 +19,7 @@ export class DividerRegion implements HitRegionSpecification {
     grab(grabEvent: GrabHitEvent) {
         if (this.timeline.sidebar) {
             this.timeline.cursor = 'col-resize';
-            this.timeline.sidebar.width = grabEvent.point.x;
+            this.timeline.sidebar.width = grabEvent.x;
         }
     }
 

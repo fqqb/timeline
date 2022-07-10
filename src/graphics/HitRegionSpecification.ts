@@ -1,3 +1,4 @@
+import { ClickHitEvent } from './ClickHitEvent';
 import { GrabHitEvent } from './GrabHitEvent';
 import { MouseHitEvent } from './MouseHitEvent';
 import { WheelHitEvent } from './WheelHitEvent';
@@ -34,7 +35,7 @@ export interface HitRegionSpecification {
     /**
      * Callback when this region is clicked.
      */
-    click?: () => void;
+    click?: (clickEvent: ClickHitEvent) => void;
 
     /**
      * Callback when the mouse enters this region.

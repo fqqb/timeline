@@ -27,6 +27,7 @@ export { ScaleKind } from './drawables/time-ruler/ScaleKind';
 export { TimeRuler } from './drawables/time-ruler/TimeRuler';
 export { TimeLocator } from './drawables/TimeLocator';
 export { Bounds } from './graphics/Bounds';
+export { ClickHitEvent } from './graphics/ClickHitEvent';
 export { EllipseFill } from './graphics/EllipseFill';
 export { EllipseStroke } from './graphics/EllipseStroke';
 export { FillStyle } from './graphics/FillStyle';
