@@ -8,9 +8,9 @@ import { Point } from './Point';
  * Usually there's 0 or 1 when the user ends the grab,
  * depending on where the mouse is released.
  */
-const clickBlocker = (e: MouseEvent) => {
+const consumeNextClick = (e: MouseEvent) => {
     // Remove ourself. This to prevent capturing unrelated events.
-    document.removeEventListener('click', clickBlocker, true /* Must be same as when created */);
+    document.removeEventListener('click', consumeNextClick, true /* Must be same as when created */);
 
     e.preventDefault();
     e.stopPropagation();
@@ -38,7 +38,8 @@ export class EventHandler {
 
     private grabbing = false;
     private grabTarget?: HitRegionSpecification;
-    grabPoint?: { x: number, y: number; }; // Relative to canvas
+    private grabPoint?: { x: number, y: number; }; // Relative to canvas
+    private grabbingPoint?: { x: number, y: number; };
 
     // Global handlers attached only during a grab action.
     // Purpose is to support the user doing grab actions while leaving the canvas.
@@ -83,7 +84,8 @@ export class EventHandler {
     }
 
     private onCanvasMouseDown(event: MouseEvent) {
-        document.removeEventListener('click', clickBlocker, true /* Must be same as when created */);
+        document.removeEventListener('click', consumeNextClick,
+            true /* Must be same as when created */);
 
         if (isLeftPressed(event)) {
             const { x, y } = this.toPoint(event);
@@ -96,7 +98,7 @@ export class EventHandler {
 
             const grabRegion = this.hitCanvas.getActiveRegion(x, y, 'grab');
             if (grabRegion) {
-                this.grabPoint = { x, y };
+                this.grabPoint = this.grabbingPoint = { x, y };
                 this.grabTarget = grabRegion;
                 // Actual grab initialisation is subject to snap (see mousemove)
             }
@@ -172,7 +174,7 @@ export class EventHandler {
                 this.initiateGrab();
                 // Prevent stutter on first move
                 if (snap > 0 && this.grabPoint) {
-                    this.grabPoint = { x: mouseEvent.x, y: mouseEvent.y };
+                    this.grabPoint = this.grabbingPoint = { x, y };
                 }
             }
         }
@@ -185,12 +187,15 @@ export class EventHandler {
                 ...this.toCanvasMouseEvent(domEvent),
                 deltaX: x - this.grabPoint!.x,
                 deltaY: y - this.grabPoint!.y,
+                movementX: x - this.grabbingPoint!.x,
+                movementY: y - this.grabbingPoint!.y,
             });
+            this.grabbingPoint = { x, y };
         }
     }
 
     private initiateGrab() {
-        document.addEventListener('click', clickBlocker, true /* capture ! */);
+        document.addEventListener('click', consumeNextClick, true /* capture ! */);
         document.addEventListener('mouseup', this.documentMouseUpListener);
         document.addEventListener('mousemove', this.documentMouseMoveListener);
         this.grabbing = true;

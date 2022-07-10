@@ -59,8 +59,6 @@ export class Timeline {
     private viewportChangeListeners: Array<(ev: ViewportChangeEvent) => void> = [];
     private viewportSelectionListeners: Array<(ev: ViewportSelectionEvent) => void> = [];
 
-    /** @hidden */
-    eventHandler: EventHandler;
     private repaintIntervalHandle?: number;
 
     /**
@@ -115,7 +113,7 @@ export class Timeline {
             this.requestRepaint();
         });
 
-        this.eventHandler = new EventHandler(canvas, this.g.hitCanvas);
+        new EventHandler(canvas, this.g.hitCanvas);
 
         const frozenCanvas = document.createElement('canvas');
         frozenCanvas.className = 'timeline-frozen';

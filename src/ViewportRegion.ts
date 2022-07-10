@@ -67,8 +67,7 @@ export class ViewportRegion implements HitRegionSpecification {
         switch (this.timeline.tool) {
             case 'hand':
                 this.timeline.cursor = 'grabbing';
-                this.timeline.panBy(-grabEvent.deltaX, false);
-                this.timeline.eventHandler.grabPoint = { x: grabEvent.x, y: grabEvent.y };
+                this.timeline.panBy(-grabEvent.movementX, false);
                 break;
             case 'range-select':
                 this.timeline.cursor = 'col-resize';
