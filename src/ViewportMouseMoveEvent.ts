@@ -5,6 +5,7 @@ import { TimelineEvent } from './TimelineEvent';
  * the viewport.
  */
 export interface ViewportMouseMoveEvent extends TimelineEvent {
+
     /**
      * Horizontal coordinate of the mouse pointer, relative to
      * the browser page.

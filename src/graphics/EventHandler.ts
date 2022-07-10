@@ -1,3 +1,4 @@
+import { GrabHitEvent } from './GrabHitEvent';
 import { HitCanvas } from './HitCanvas';
 import { HitRegionSpecification } from './HitRegionSpecification';
 import { MouseHitEvent } from './MouseHitEvent';
@@ -59,36 +60,11 @@ export class EventHandler {
         canvas.addEventListener('wheel', e => this.onCanvasWheel(e), false);
     }
 
-    private toPoint(domEvent: MouseEvent): Point {
-        const bbox = this.canvas.getBoundingClientRect();
-        return { x: domEvent.clientX - bbox.left, y: domEvent.clientY - bbox.top };
-    }
-
-    private toCanvasMouseEvent(domEvent: MouseEvent): MouseHitEvent {
-        return {
-            clientX: domEvent.clientX,
-            clientY: domEvent.clientY,
-            ...this.toPoint(domEvent),
-            altKey: domEvent.altKey,
-            ctrlKey: domEvent.ctrlKey,
-            metaKey: domEvent.metaKey,
-            shiftKey: domEvent.shiftKey,
-            button: domEvent.button,
-        };
-    }
-
     private onCanvasClick(domEvent: MouseEvent) {
         const { x, y } = this.toPoint(domEvent);
         const region = this.hitCanvas.getActiveRegion(x, y, 'click');
         if (region) {
-            region.click!({
-                ...this.toCanvasMouseEvent(domEvent),
-                altKey: domEvent.altKey,
-                ctrlKey: domEvent.ctrlKey,
-                metaKey: domEvent.metaKey,
-                shiftKey: domEvent.shiftKey,
-                button: domEvent.button,
-            });
+            region.click!(this.toMouseHitEvent(domEvent));
 
             domEvent.preventDefault();
             domEvent.stopPropagation();
@@ -100,7 +76,7 @@ export class EventHandler {
         const { x, y } = this.toPoint(domEvent);
         const region = this.hitCanvas.getActiveRegion(x, y, 'doubleClick');
         if (region) {
-            region.doubleClick!(this.toCanvasMouseEvent(domEvent));
+            region.doubleClick!(this.toMouseHitEvent(domEvent));
 
             domEvent.preventDefault();
             domEvent.stopPropagation();
@@ -112,7 +88,7 @@ export class EventHandler {
         const { x, y } = this.toPoint(domEvent);
         const region = this.hitCanvas.getActiveRegion(x, y, 'contextMenu');
         if (region) {
-            region.contextMenu!(this.toCanvasMouseEvent(domEvent));
+            region.contextMenu!(this.toMouseHitEvent(domEvent));
 
             domEvent.preventDefault();
             domEvent.stopPropagation();
@@ -129,8 +105,7 @@ export class EventHandler {
 
             const mouseDownRegion = this.hitCanvas.getActiveRegion(x, y, 'mouseDown');
             if (mouseDownRegion) {
-                const mouseEvent = this.toCanvasMouseEvent(domEvent);
-                mouseDownRegion.mouseDown!(mouseEvent);
+                mouseDownRegion.mouseDown!(this.toMouseHitEvent(domEvent));
             }
 
             const grabRegion = this.hitCanvas.getActiveRegion(x, y, 'grab');
@@ -150,7 +125,7 @@ export class EventHandler {
         const { x, y } = this.toPoint(domEvent);
         const region = this.hitCanvas.getActiveRegion(x, y, 'mouseUp');
         if (region) {
-            region.mouseUp!(this.toCanvasMouseEvent(domEvent));
+            region.mouseUp!(this.toMouseHitEvent(domEvent));
 
             domEvent.preventDefault();
             domEvent.stopPropagation();
@@ -159,7 +134,7 @@ export class EventHandler {
     }
 
     private onCanvasMouseLeave(domEvent: MouseEvent) {
-        const mouseEvent = this.toCanvasMouseEvent(domEvent);
+        const mouseEvent = this.toMouseHitEvent(domEvent);
         for (const region of this.prevActiveRegions) {
             region.mouseLeave && region.mouseLeave(mouseEvent);
         }
@@ -179,7 +154,7 @@ export class EventHandler {
     }
 
     private onCanvasMouseMove(domEvent: MouseEvent) {
-        const mouseEvent = this.toCanvasMouseEvent(domEvent);
+        const mouseEvent = this.toMouseHitEvent(domEvent);
         const { x, y } = mouseEvent;
 
         const activeRegions = this.hitCanvas.getActiveRegions(x, y);
@@ -226,13 +201,7 @@ export class EventHandler {
             domEvent.preventDefault();
             domEvent.stopPropagation();
 
-            this.grabTarget.grab!({
-                ...this.toCanvasMouseEvent(domEvent),
-                deltaX: x - this.grabPoint!.x,
-                deltaY: y - this.grabPoint!.y,
-                movementX: x - this.grabbingPoint!.x,
-                movementY: y - this.grabbingPoint!.y,
-            });
+            this.grabTarget.grab!(this.toGrabHitEvent(domEvent));
             this.grabbingPoint = { x, y };
         }
     }
@@ -244,24 +213,24 @@ export class EventHandler {
         this.grabbing = true;
     }
 
-    private onCanvasWheel(event: WheelEvent) {
-        const mouseEvent = this.toCanvasMouseEvent(event);
+    private onCanvasWheel(domEvent: WheelEvent) {
+        const mouseEvent = this.toMouseHitEvent(domEvent);
         const { x, y } = mouseEvent;
         const region = this.hitCanvas.getActiveRegion(x, y, 'wheel');
         if (region) {
             region.wheel!({
                 ...mouseEvent,
-                deltaX: event.deltaX,
-                deltaY: event.deltaY,
+                deltaX: domEvent.deltaX,
+                deltaY: domEvent.deltaY,
             });
 
-            event.preventDefault();
-            event.stopPropagation();
+            domEvent.preventDefault();
+            domEvent.stopPropagation();
             return false;
         }
     }
 
-    private onDocumentMouseUp(event: MouseEvent) {
+    private onDocumentMouseUp(domEvent: MouseEvent) {
         if (this.grabbing) {
             document.removeEventListener('mouseup', this.documentMouseUpListener);
             document.removeEventListener('mousemove', this.documentMouseMoveListener);
@@ -277,5 +246,34 @@ export class EventHandler {
 
     private onDocumentMouseMove(event: MouseEvent) {
         this.onCanvasMouseMove(event);
+    }
+
+    private toPoint(domEvent: MouseEvent): Point {
+        const bbox = this.canvas.getBoundingClientRect();
+        return { x: domEvent.clientX - bbox.left, y: domEvent.clientY - bbox.top };
+    }
+
+    private toMouseHitEvent(domEvent: MouseEvent): MouseHitEvent {
+        return {
+            clientX: domEvent.clientX,
+            clientY: domEvent.clientY,
+            ...this.toPoint(domEvent),
+            altKey: domEvent.altKey,
+            ctrlKey: domEvent.ctrlKey,
+            metaKey: domEvent.metaKey,
+            shiftKey: domEvent.shiftKey,
+            button: domEvent.button,
+        };
+    }
+
+    private toGrabHitEvent(domEvent: MouseEvent): GrabHitEvent {
+        const mouseHitEvent = this.toMouseHitEvent(domEvent);
+        return {
+            ...mouseHitEvent,
+            deltaX: mouseHitEvent.x - this.grabPoint!.x,
+            deltaY: mouseHitEvent.y - this.grabPoint!.y,
+            movementX: mouseHitEvent.x - this.grabbingPoint!.x,
+            movementY: mouseHitEvent.y - this.grabbingPoint!.y,
+        };
     }
 }

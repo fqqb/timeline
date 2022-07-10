@@ -15,12 +15,12 @@ export interface MouseHitEvent {
     clientY: number;
 
     /**
-     * X-axis coordinage relative to the Canvas.
+     * X-axis coordinate relative to the Canvas.
      */
     x: number;
 
     /**
-     * Y-axis coordinage relative to the Canvas.
+     * Y-axis coordinate relative to the Canvas.
      */
     y: number;
 
