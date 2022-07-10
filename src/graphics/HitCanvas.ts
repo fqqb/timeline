@@ -61,15 +61,50 @@ export class HitCanvas {
         return color;
     }
 
+    /**
+     * Returns the active region for a given coordinate. Regions are tried
+     * in bottom-up order.
+     *
+     *
+     * @param x X-axis coordinate.
+     * @param y Y-axis coordinate.
+     * @param property If provided, require the region to have this property defined.
+     * @returns matching regions in bottom-up order.
+     */
     getActiveRegion<K extends keyof HitRegionSpecification>(x: number, y: number, property?: K) {
         const pixel = this.ctx.getImageData(x, y, 1, 1).data;
         const color = `rgb(${pixel[0]},${pixel[1]},${pixel[2]})`;
-        let target = this.regionsByColor.get(color) || undefined;
+        const target = this.regionsByColor.get(color) || undefined;
         if (target && property) {
             return this.findAncestorForProperty(target, property);
         } else {
             return target;
         }
+    }
+
+    /**
+     * Returns all active regions for a given coordinate.
+     *
+     * @param x X-axis coordinate.
+     * @param y Y-axis coordinate.
+     * @param property If provided, include only regions that have this property defined.
+     * @returns matching regions in bottom-up order.
+     */
+    getActiveRegions<K extends keyof HitRegionSpecification>(x: number, y: number, property?: K) {
+        let target = this.getActiveRegion(x, y, property);
+        const regions: HitRegionSpecification[] = [];
+        if (target) {
+            regions.push(target);
+            while (target?.parentId) {
+                target = this.regionsById.get(target?.parentId);
+                if (target) {
+                    if (property === undefined || target[property] !== undefined) {
+                        regions.push(target);
+                    }
+                }
+            }
+        }
+        return regions;
     }
 
     private findAncestorForProperty(hitRegion: HitRegionSpecification, property: keyof HitRegionSpecification) {

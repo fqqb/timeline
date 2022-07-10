@@ -1,4 +1,3 @@
-import { Timeline } from '../Timeline';
 import { HitCanvas } from './HitCanvas';
 import { HitRegionSpecification } from './HitRegionSpecification';
 import { MouseHitEvent } from './MouseHitEvent';
@@ -32,12 +31,6 @@ function measureDistance(x1: number, y1: number, x2: number, y2: number) {
     return Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
 }
 
-// Compare by id instead of references. HitRegions are allowed to be generated
-// on each draw, whereas the "id" could be something more long-term.
-function regionMatches(region1?: HitRegionSpecification, region2?: HitRegionSpecification) {
-    return region1 && region2 && region1.id === region2.id;
-}
-
 /**
  * Translates Canvas DOM events into non-DOM hit events.
  */
@@ -47,16 +40,14 @@ export class EventHandler {
     private grabTarget?: HitRegionSpecification;
     grabPoint?: { x: number, y: number; }; // Relative to canvas
 
-    private isViewportHover = false;
-
     // Global handlers attached only during a grab action.
     // Purpose is to support the user doing grab actions while leaving the canvas.
     private documentMouseMoveListener = (e: MouseEvent) => this.onDocumentMouseMove(e);
     private documentMouseUpListener = (e: MouseEvent) => this.onDocumentMouseUp(e);
 
-    private prevEnteredRegion?: HitRegionSpecification;
+    private prevActiveRegions: HitRegionSpecification[] = [];
 
-    constructor(private timeline: Timeline, private canvas: HTMLCanvasElement, private hitCanvas: HitCanvas) {
+    constructor(private canvas: HTMLCanvasElement, private hitCanvas: HitCanvas) {
         canvas.addEventListener('click', e => this.onCanvasClick(e), false);
         canvas.addEventListener('mousedown', e => this.onCanvasMouseDown(e), false);
         canvas.addEventListener('mouseup', e => this.onCanvasMouseUp(e), false);
@@ -116,77 +107,65 @@ export class EventHandler {
     }
 
     private onCanvasMouseLeave(event: MouseEvent) {
-        if (this.prevEnteredRegion?.mouseLeave) {
-            const mouseEvent = this.toCanvasMouseEvent(event);
-            this.prevEnteredRegion.mouseLeave(mouseEvent);
+        const mouseEvent = this.toCanvasMouseEvent(event);
+        for (const region of this.prevActiveRegions) {
+            region.mouseLeave && region.mouseLeave(mouseEvent);
         }
-        this.prevEnteredRegion = undefined;
-
-        this.maybeFireViewportMouseLeave(event);
-        this.isViewportHover = false;
+        this.prevActiveRegions = [];
 
         event.preventDefault();
         event.stopPropagation();
     }
 
+    private wasActive(region: HitRegionSpecification) {
+        for (const candidate of this.prevActiveRegions) {
+            if (candidate.id === region.id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private onCanvasMouseMove(domEvent: MouseEvent) {
         const mouseEvent = this.toCanvasMouseEvent(domEvent);
-        const { point } = mouseEvent;
+        const { x, y } = mouseEvent.point;
 
-        let overViewport = true;
-        const sidebarWidth = this.timeline.sidebar?.clippedWidth || 0;
-        if (this.timeline.sidebar) {
-            const overSidebar = point.x <= sidebarWidth - 5;
-            const overDivider = !overSidebar && point.x <= sidebarWidth + 5;
-            overViewport = !overSidebar && !overDivider;
-        }
+        const activeRegions = this.hitCanvas.getActiveRegions(x, y);
+        const activeRegionIds = activeRegions.map(r => r.id);
 
-        if (!overViewport) {
-            this.maybeFireViewportMouseLeave(domEvent);
-        }
-        this.isViewportHover = overViewport;
-
-        if (overViewport) {
-            this.timeline.fireViewportMouseMoveEvent({
-                clientX: domEvent.clientX,
-                clientY: domEvent.clientY,
-                time: this.timeline.timeForCanvasPosition(point.x),
-            });
-        }
-
-        const region = this.hitCanvas.getActiveRegion(point.x, point.y);
-
-        if (this.prevEnteredRegion?.mouseLeave) {
-            if (!regionMatches(this.prevEnteredRegion, region)) {
-                this.prevEnteredRegion.mouseLeave(mouseEvent);
+        for (const region of this.prevActiveRegions) {
+            if (activeRegionIds.indexOf(region.id) === -1) {
+                region.mouseLeave && region.mouseLeave(mouseEvent);
             }
         }
 
-        if (region?.mouseEnter) {
-            if (!regionMatches(this.prevEnteredRegion, region)) {
-                region.mouseEnter(mouseEvent);
+        const mouseEnterRegions = this.hitCanvas.getActiveRegions(x, y, 'mouseEnter');
+        for (let i = mouseEnterRegions.length - 1; i >= 0; i--) { // Top-down
+            const mouseEnterRegion = mouseEnterRegions[i];
+            if (!this.wasActive(mouseEnterRegion)) {
+                mouseEnterRegion.mouseEnter!(mouseEvent);
             }
         }
 
-        if (region?.mouseMove) {
-            region.mouseMove(mouseEvent);
+        for (const region of this.hitCanvas.getActiveRegions(x, y, 'mouseMove')) {
+            region.mouseMove!(mouseEvent);
         }
 
-        this.prevEnteredRegion = region;
+        this.prevActiveRegions = activeRegions;
 
-        const cursorRegion = this.hitCanvas.getActiveRegion(point.x, point.y, 'cursor');
+        const cursorRegion = this.hitCanvas.getActiveRegion(x, y, 'cursor');
         const cursor = cursorRegion?.cursor || 'auto';
         if (cursor !== this.canvas.style.cursor) {
             this.canvas.style.cursor = cursor;
         }
 
         if (this.grabPoint && !this.grabbing && isLeftPressed(domEvent)) {
-            const distance = measureDistance(this.grabPoint.x, this.grabPoint.y, point.x, point.y);
+            const distance = measureDistance(this.grabPoint.x, this.grabPoint.y, x, y);
             if (Math.abs(distance) > snap) {
                 this.initiateGrab();
                 // Prevent stutter on first move
                 if (snap > 0 && this.grabPoint) {
-                    this.grabPoint = point;
+                    this.grabPoint = mouseEvent.point;
                 }
             }
         }
@@ -197,8 +176,8 @@ export class EventHandler {
 
             this.grabTarget.grab!({
                 ...this.toCanvasMouseEvent(domEvent),
-                dx: point.x - this.grabPoint!.x,
-                dy: point.y - this.grabPoint!.y,
+                dx: x - this.grabPoint!.x,
+                dy: y - this.grabPoint!.y,
             });
         }
     }
@@ -243,14 +222,5 @@ export class EventHandler {
 
     private onDocumentMouseMove(event: MouseEvent) {
         this.onCanvasMouseMove(event);
-    }
-
-    private maybeFireViewportMouseLeave(event: MouseEvent) {
-        if (this.isViewportHover) {
-            this.timeline.fireViewportMouseLeaveEvent({
-                clientX: event.clientX,
-                clientY: event.clientY,
-            });
-        }
     }
 }

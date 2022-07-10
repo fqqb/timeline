@@ -59,7 +59,18 @@ export class ViewportRegion implements HitRegionSpecification {
         }
     }
 
+    mouseMove(mouseEvent: MouseHitEvent) {
+        this.timeline.fireViewportMouseMoveEvent({
+            clientX: mouseEvent.clientX,
+            clientY: mouseEvent.clientY,
+            time: this.timeline.timeForCanvasPosition(mouseEvent.point.x),
+        });
+    }
+
     mouseLeave(mouseEvent: MouseHitEvent) {
-        console.log('mouseleave', mouseEvent);
+        this.timeline.fireViewportMouseLeaveEvent({
+            clientX: mouseEvent.clientX,
+            clientY: mouseEvent.clientY,
+        });
     }
 }
