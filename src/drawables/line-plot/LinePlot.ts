@@ -1,50 +1,12 @@
-import { FillStyle, Graphics, Path } from '../graphics/Graphics';
-import { HitRegionSpecification } from '../graphics/HitRegionSpecification';
-import { TimelineEvent } from '../TimelineEvent';
-import { Band } from './Band';
+import { FillStyle } from '../../graphics/FillStyle';
+import { Graphics } from '../../graphics/Graphics';
+import { HitRegionSpecification } from '../../graphics/HitRegionSpecification';
+import { Path } from '../../graphics/Path';
+import { Band } from '../Band';
 import { Line } from './Line';
+import { PointClickEvent } from './PointClickEvent';
+import { PointHoverEvent } from './PointHoverEvent';
 
-/**
- * Event generated when a point on a LinePlot was clicked.
- */
-export interface PointClickEvent extends TimelineEvent {
-    /**
-     * Time value of the clicked point.
-     */
-    time: number;
-
-    /**
-     * Value of the clicked point.
-     */
-    value: number | null;
-}
-
-/**
- * Event generated when a point on a LinePlot was hovered.
- */
-export interface PointHoverEvent extends TimelineEvent {
-    /**
-     * Horizontal coordinate of the mouse pointer, relative to
-     * the browser page.
-     */
-    clientX: number;
-
-    /**
-     * Vertical coordinate of the mouse pointer, relative to the
-     * browser page.
-     */
-    clientY: number;
-
-    /**
-     * Time value of the hovered point.
-     */
-    time: number;
-
-    /**
-     * Value of the hovered point.
-     */
-    value: number | null;
-}
 
 interface AnnotatedLine {
     id: string;

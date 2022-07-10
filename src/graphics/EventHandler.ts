@@ -1,7 +1,7 @@
 import { HitCanvas } from './HitCanvas';
 import { HitRegionSpecification } from './HitRegionSpecification';
 import { MouseHitEvent } from './MouseHitEvent';
-import { Point } from './positioning';
+import { Point } from './Point';
 
 /**
  * Consumes any click event wherever they may originate.

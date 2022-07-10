@@ -1,7 +1,6 @@
 import { Graphics } from '../graphics/Graphics';
 import { Band } from './Band';
-
-export type TextAlignment = 'left' | 'middle' | 'right';
+import { TextAlignment } from './TextAlignment';
 
 /**
  * Displays a fixed-position text banner.

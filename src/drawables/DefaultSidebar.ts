@@ -1,5 +1,6 @@
-import { Graphics, Path } from '../graphics/Graphics';
+import { Graphics } from '../graphics/Graphics';
 import { HitRegionSpecification } from '../graphics/HitRegionSpecification';
+import { Path } from '../graphics/Path';
 import { Band } from './Band';
 import { Sidebar } from './Sidebar';
 

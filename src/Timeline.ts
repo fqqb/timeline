@@ -5,10 +5,16 @@ import { DefaultSidebar } from './drawables/DefaultSidebar';
 import { Drawable } from './drawables/Drawable';
 import { Sidebar } from './drawables/Sidebar';
 import { EventHandler } from './graphics/EventHandler';
-import { FillStyle, Graphics, Path } from './graphics/Graphics';
-import { TimelineEvent } from './TimelineEvent';
+import { FillStyle } from './graphics/FillStyle';
+import { Graphics } from './graphics/Graphics';
+import { Path } from './graphics/Path';
 import { TimeRange } from './TimeRange';
+import { Tool } from './Tool';
+import { ViewportChangeEvent } from './ViewportChangeEvent';
+import { ViewportMouseLeaveEvent } from './ViewportMouseLeaveEvent';
+import { ViewportMouseMoveEvent } from './ViewportMouseMoveEvent';
 import { ViewportRegion } from './ViewportRegion';
+import { ViewportSelectionEvent } from './ViewportSelectionEvent';
 
 /**
  * Resizes a canvas, but only if the new bounds are different.
@@ -20,75 +26,8 @@ function resizeCanvas(canvas: HTMLCanvasElement, width: number, height: number) 
     }
 }
 
-export type Tool = 'hand' | 'range-select';
-
 export const REGION_ID_VIEWPORT = 'viewport';
 export const REGION_ID_DIVIDER = 'divider';
-
-/**
- * Event generated when the viewport has changed.
- */
-export interface ViewportChangeEvent extends TimelineEvent {
-    /**
-     * Left bound of the visible time range
-     */
-    start: number;
-
-    /**
-     * Right bound of the visible time range
-     */
-    stop: number;
-}
-
-/**
- * Event generated when the mouse is moving over
- * the viewport.
- */
-export interface ViewportMouseMoveEvent extends TimelineEvent {
-    /**
-     * Horizontal coordinate of the mouse pointer, relative to
-     * the browser page.
-     */
-    clientX: number;
-
-    /**
-     * Vertical coordinate of the mouse pointer, relative to the
-     * browser page.
-     */
-    clientY: number;
-
-    /**
-     * Time matching with the coordinates of the mouse pointer.
-     */
-    time: number;
-}
-
-/**
- * Event generated when the mouse is moving outside the viewport.
- */
-export interface ViewportMouseLeaveEvent extends TimelineEvent {
-    /**
-     * Horizontal coordinate of the mouse pointer, relative to
-     * the browser page.
-     */
-    clientX: number;
-
-    /**
-     * Vertical coordinate of the mouse pointer, relative to the
-     * browser page.
-     */
-    clientY: number;
-}
-
-/**
- * Event generated when the selected range has changed.
- */
-export interface ViewportSelectionEvent extends TimelineEvent {
-    /**
-     * Selected time range (if any).
-     */
-    selection?: TimeRange;
-}
 
 export class Timeline {
 

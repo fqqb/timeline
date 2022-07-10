@@ -1,44 +1,17 @@
-import { FillStyle, Graphics } from '../graphics/Graphics';
-import { HitRegionSpecification } from '../graphics/HitRegionSpecification';
-import { Bounds } from '../graphics/positioning';
-import { drawCircle, drawDiamond, drawDot, drawReverseTriangle, drawTriangle, ShapeStyle } from '../graphics/shapes';
-import { REGION_ID_VIEWPORT } from '../Timeline';
-import { TimelineEvent } from '../TimelineEvent';
-import { Band } from './Band';
+import { Bounds } from '../../graphics/Bounds';
+import { FillStyle } from '../../graphics/FillStyle';
+import { Graphics } from '../../graphics/Graphics';
+import { HitRegionSpecification } from '../../graphics/HitRegionSpecification';
+import { REGION_ID_VIEWPORT } from '../../Timeline';
+import { Band } from '../Band';
+import { TextOverflow } from '../TextOverflow';
 import { Item } from './Item';
+import { ItemClickEvent } from './ItemClickEvent';
+import { ItemMouseEvent } from './ItemMouseEvent';
+import { MilestoneShape } from './MilestoneShape';
+import { drawCircle, drawDiamond, drawDot, drawReverseTriangle, drawTriangle } from './shapes';
+import { ShapeStyle } from './ShapeStyle';
 
-/**
- * Event generated when a Timeline item was clicked.
- */
-export interface ItemClickEvent extends TimelineEvent {
-    /**
-     * The item that was clicked.
-     */
-    item: Item;
-}
-
-/**
- * Event generated in relation to mouse interactions on Timeline
- * items.
- */
-export interface ItemMouseEvent extends TimelineEvent {
-    /**
-     * Horizontal coordinate of the mouse pointer, relative to
-     * the browser page.
-     */
-    clientX: number;
-
-    /**
-     * Vertical coordinate of the mouse pointer, relative to the
-     * browser page.
-     */
-    clientY: number;
-
-    /**
-     * The applicable item.
-     */
-    item: Item;
-}
 
 interface DrawInfo {
     label: string; // Actual text to be shown on an item (may include extra decoration: ◀)
@@ -60,9 +33,6 @@ interface AnnotatedItem extends Item {
 }
 
 let itemSequence = 1;
-
-export type TextOverflow = 'clip' | 'show' | 'hide';
-export type MilestoneShape = 'circle' | 'diamond' | 'dot' | 'triangle' | 'reverse_triangle';
 
 /**
  * Band that draws events.

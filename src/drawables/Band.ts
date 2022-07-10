@@ -1,17 +1,7 @@
-import { FillStyle, Graphics } from '../graphics/Graphics';
-import { TimelineEvent } from '../TimelineEvent';
+import { FillStyle } from '../graphics/FillStyle';
+import { Graphics } from '../graphics/Graphics';
 import { Drawable } from './Drawable';
-
-/**
- * Event generated when the header of a Timeline Band was
- * clicked.
- */
-export interface HeaderClickEvent extends TimelineEvent {
-    /**
-     * The band who's header was clicked.
-     */
-    band: Band;
-}
+import { HeaderClickEvent } from './HeaderClickEvent';
 
 export interface DrawCoordinates {
     x: number;

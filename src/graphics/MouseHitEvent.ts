@@ -1,4 +1,4 @@
-import { Point } from './positioning';
+import { Point } from './Point';
 
 /**
  * Event generated whiling using a mouse over a hit region.

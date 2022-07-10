@@ -1,4 +1,5 @@
-import { Graphics, Path } from '../graphics/Graphics';
+import { Graphics } from '../graphics/Graphics';
+import { Path } from '../graphics/Path';
 import { Drawable } from './Drawable';
 
 /**

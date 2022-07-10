@@ -1,4 +1,4 @@
-import { FillStyle } from '../graphics/Graphics';
+import { FillStyle } from '../../graphics/FillStyle';
 
 /**
  * State-specific properties.

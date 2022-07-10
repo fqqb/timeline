@@ -1,8 +1,9 @@
 import { DateTime } from 'luxon';
-import { Graphics, Path } from '../graphics/Graphics';
-import { Band } from './Band';
+import { Graphics } from '../../graphics/Graphics';
+import { Path } from '../../graphics/Path';
+import { Band } from '../Band';
+import { ScaleKind } from './ScaleKind';
 
-export type ScaleKind = 'auto' | 'hour' | 'quarterDay' | 'weekDay' | 'week' | 'month' | 'year' | 'decade';
 
 /**
  * A ruler that interprets time as milliseconds since January 01, 1970, 00:00:00 UTC.

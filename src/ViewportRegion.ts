@@ -1,7 +1,7 @@
 import { GrabHitEvent } from './graphics/GrabHitEvent';
 import { HitRegionSpecification } from './graphics/HitRegionSpecification';
 import { MouseHitEvent } from './graphics/MouseHitEvent';
-import { Point } from './graphics/positioning';
+import { Point } from './graphics/Point';
 import { WheelHitEvent } from './graphics/WheelHitEvent';
 import { Timeline } from './Timeline';
 

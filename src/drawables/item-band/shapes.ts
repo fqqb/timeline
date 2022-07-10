@@ -1,14 +1,9 @@
-import { FillStyle, Graphics, Path } from './Graphics';
-import { Bounds, shrink } from './positioning';
-
-export interface ShapeStyle {
-    fill: FillStyle;
-    borderWidth: number;
-    borderColor: string;
-    borderDash?: number[];
-}
-
-export type ShapeRenderer = (g: Graphics, bounds: Bounds, style: ShapeStyle) => void;
+import { Bounds } from '../../graphics/Bounds';
+import { Graphics } from '../../graphics/Graphics';
+import { Path } from '../../graphics/Path';
+import { shrink } from '../../graphics/positioning';
+import { ShapeRenderer } from './ShapeRenderer';
+import { ShapeStyle } from './ShapeStyle';
 
 
 export const drawDiamond: ShapeRenderer = (g: Graphics, bounds: Bounds, style: ShapeStyle) => {

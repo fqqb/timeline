@@ -1,43 +1,14 @@
-import { FillStyle, Graphics, Path } from '../graphics/Graphics';
-import { HitRegionSpecification } from '../graphics/HitRegionSpecification';
-import { Bounds } from '../graphics/positioning';
-import { REGION_ID_VIEWPORT } from '../Timeline';
-import { TimelineEvent } from '../TimelineEvent';
-import { Band } from './Band';
+import { Bounds } from '../../graphics/Bounds';
+import { FillStyle } from '../../graphics/FillStyle';
+import { Graphics } from '../../graphics/Graphics';
+import { HitRegionSpecification } from '../../graphics/HitRegionSpecification';
+import { Path } from '../../graphics/Path';
+import { REGION_ID_VIEWPORT } from '../../Timeline';
+import { Band } from '../Band';
 import { State } from './State';
+import { StateClickEvent } from './StateClickEvent';
+import { StateMouseEvent } from './StateMouseEvent';
 
-/**
- * Event generated when a Timeline state was clicked.
- */
-export interface StateClickEvent extends TimelineEvent {
-    /**
-     * The state that was clicked.
-     */
-    state: State;
-}
-
-/**
- * Event generated in relation to mouse interactions on Timeline
- * states.
- */
-export interface StateMouseEvent extends TimelineEvent {
-    /**
-     * Horizontal coordinate of the mouse pointer, relative to
-     * the browser page.
-     */
-    clientX: number;
-
-    /**
-     * Vertical coordinate of the mouse pointer, relative to the
-     * browser page.
-     */
-    clientY: number;
-
-    /**
-     * The applicable state.
-     */
-    state: State;
-}
 
 interface AnnotatedState extends State {
     start: number;
