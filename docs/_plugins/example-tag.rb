@@ -1,26 +1,23 @@
 module Jekyll
     class ExampleTag < Liquid::Tag
 
-        def initialize(tag_name, markup, tokens)
-            @markup = markup
+        def initialize(tag_name, text, tokens)
             super
+            @text = text
         end
 
         def render(context)
-            parts = @markup.split
+            site = context.registers[:site]
+            filename = @text.strip
 
-            markdown = %{
-                <div class="timeline-demo">
-                    <iframe height="#{parts[1]}"
-                            src="/timeline/examples/#{parts[0]}"
-                            class="timeline-demo"
-                            scrolling="no">
-                    </iframe>
-                </div>
-            }
+            file_path = File.join(site.source, '_examples', filename)
+            html = File.open(file_path).read
 
-            markdown.strip!
-            markdown
+            html = html.gsub('https://unpkg.com/@fqqb/timeline', '/timeline/assets/timeline.js')
+            html = html.gsub('"timeline"', '"id_' + filename + '"')
+            html = html.gsub("'timeline'", "'id_" + filename + "'")
+
+            "<div class=\"example\">#{html}</div>"
         end
     end
 end

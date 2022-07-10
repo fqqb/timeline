@@ -7,10 +7,5 @@ title: Banner
 
 A band showing a banner text.
 
-```javascript
-const band = new Banner(timeline);
-band.label = 'Banner';
-band.text = 'My banner';
-```
-
-{% example drawables-Banner.html 30px %}
+{% excerpt banner.html excerpt-1 %}
+{% example banner.html %}

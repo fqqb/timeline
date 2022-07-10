@@ -1,0 +1,20 @@
+<div id="timeline" style="height: 31px"></div>
+<script type="module">
+    import { Timeline, StateBand } from 'https://unpkg.com/@fqqb/timeline';
+    window.addEventListener('load', () => {
+        const targetEl = document.getElementById('timeline');
+        const timeline = new Timeline(targetEl);
+
+        // BEGIN excerpt-1
+        const band = new StateBand(timeline);
+        band.label = 'States';
+        band.states = [
+            { time: -Infinity, label: 'A' },
+            { time: 30, label: 'B' },
+            { time: 40, label: 'C' },
+            { time: 60, label: null }, // Gap
+            { time: 80, label: 'D' },
+        ];
+        // END excerpt-1
+    });
+</script>

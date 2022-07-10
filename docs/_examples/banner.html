@@ -1,0 +1,25 @@
+<div id="timeline" style="height: 93px"></div>
+<script type="module">
+    import { Timeline, Banner } from 'https://unpkg.com/@fqqb/timeline';
+    window.addEventListener('load', () => {
+        const targetEl = document.getElementById('timeline');
+        const timeline = new Timeline(targetEl);
+
+        // BEGIN excerpt-1
+        const banner1 = new Banner(timeline);
+        banner1.label = 'Banner 1';
+        banner1.text = 'Left';
+        banner1.textAlignment = 'left';
+
+        const banner2 = new Banner(timeline);
+        banner2.label = 'Banner 2';
+        banner2.text = 'Middle'
+        banner2.textAlignment = 'middle';
+
+        const banner3 = new Banner(timeline);
+        banner3.label = 'Banner 3';
+        banner3.text = 'Right'
+        banner3.textAlignment = 'right';
+        // END excerpt-1
+    });
+</script>

@@ -1,0 +1,13 @@
+<div id="timeline" style="height: 51px"></div>
+<script type="module">
+    import { Timeline, MouseTracker } from 'https://unpkg.com/@fqqb/timeline';
+    window.addEventListener('load', () => {
+        const targetEl = document.getElementById('timeline');
+        const timeline = new Timeline(targetEl);
+
+        // BEGIN excerpt-1
+        timeline.sidebar = null;
+        new MouseTracker(timeline);
+        // END excerpt-1
+    });
+</script>

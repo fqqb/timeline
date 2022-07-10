@@ -1,0 +1,17 @@
+<div id="timeline" style="height: 31px"></div>
+<script type="module">
+    import { Timeline, ItemBand } from 'https://unpkg.com/@fqqb/timeline';
+    window.addEventListener('load', () => {
+        const targetEl = document.getElementById('timeline');
+        const timeline = new Timeline(targetEl);
+
+        // BEGIN excerpt-1
+        const band = new ItemBand(timeline);
+        band.label = 'Items';
+        band.items = [
+            { start: 20, stop: 40, label: 'Item' },
+            { start: 60, label: 'Milestone' },
+        ];
+        // END excerpt-1
+    });
+</script>

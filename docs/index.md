@@ -5,7 +5,7 @@ title: About @fqqb/timeline
 
 **@fqqb/timeline** is a framework-agnostic JavaScript library for rendering interactive timeline charts such as this:
 
-{% example toolbar.html 550px %}
+{% example mainpage.html %}
 
 
 ## Download

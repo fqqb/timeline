@@ -1,0 +1,24 @@
+<div id="timeline" style="height: 31px"></div>
+<script type="module">
+    import { Timeline, LinePlot } from 'https://unpkg.com/@fqqb/timeline';
+    window.addEventListener('load', () => {
+        const targetEl = document.getElementById('timeline');
+        const timeline = new Timeline(targetEl);
+
+        // BEGIN excerpt-1
+        const band = new LinePlot(timeline);
+        band.label = 'Plot';
+        band.fill = 'lime';
+
+        const points = new Map();
+        for (let i = 0; i < 100; i += 0.01) {
+            points.set(i, Math.sin(i));
+        }
+
+        band.lines = [{
+            points,
+            pointRadius: 0,
+        }];
+        // END excerpt-1
+    });
+</script>
