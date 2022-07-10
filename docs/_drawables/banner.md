@@ -13,6 +13,4 @@ band.label = 'Banner';
 band.text = 'My banner';
 ```
 
-{% include demo.html src="/timeline/examples/drawables-Banner.html"
-                     height="30px"
-                     caption="Banner" %}
+{% example drawables-Banner.html 30px %}

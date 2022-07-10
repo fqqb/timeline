@@ -19,6 +19,4 @@ band.states = [
 
 A band showing state changes.
 
-{% include demo.html src="/timeline/examples/drawables-StateBand.html"
-                     height="30px"
-                     caption="StateBand" %}
+{% example drawables-StateBand.html 30px %}

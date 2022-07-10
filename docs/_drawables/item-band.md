@@ -16,9 +16,7 @@ band.items = [
 ];
 ```
 
-{% include demo.html src="/timeline/examples/drawables-ItemBand.html"
-                     height="30px"
-                     caption="ItemBand" %}
+{% example drawables-ItemBand.html 30px %}
 
 ```javascript
 const band1 = new ItemBand(timeline);
@@ -38,6 +36,4 @@ band2.items = [
 ];
 ```
 
-{% include demo.html src="/timeline/examples/drawables-ItemBand2.html"
-                     height="90px"
-                     caption="ItemBand" %}
+{% example drawables-ItemBand2.html 90px %}

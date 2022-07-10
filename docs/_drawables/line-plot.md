@@ -22,6 +22,4 @@ band.lines = [{
     pointRadius: 0,
 }];
 ```
-{% include demo.html src="/timeline/examples/drawables-LinePlot.html"
-                     height="30px"
-                     caption="LinePlot" %}
+{% example drawables-LinePlot.html 30px %}

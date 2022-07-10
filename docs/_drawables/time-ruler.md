@@ -22,9 +22,7 @@ band.label = 'Time';
 band.scale = 'hour';
 ```
 
-{% include demo.html src="/timeline/examples/drawables-TimeRuler-hours.html"
-                     height="30px"
-                     caption="TimeRuler showing hours" %}
+{% example drawables-TimeRuler-hours.html 30px %}
 
 ```javascript
 const start = new Date();
@@ -39,9 +37,7 @@ band.label = 'Time';
 band.scale = 'weekDay';
 ```
 
-{% include demo.html src="/timeline/examples/drawables-TimeRuler-weekdays.html"
-                     height="30px"
-                     caption="TimeRuler showing weekdays" %}
+{% example drawables-TimeRuler-weekdays.html 30px %}
 
 ```javascript
 const start = new Date();
@@ -56,6 +52,4 @@ band.label = 'Time';
 band.scale = 'month';
 ```
 
-{% include demo.html src="/timeline/examples/drawables-TimeRuler-months.html"
-                     height="30px"
-                     caption="TimeRuler showing months" %}
+{% example drawables-TimeRuler-months.html 30px %}

@@ -9,11 +9,12 @@
         "AnnotatedLine",
         "AnnotatedState",
         "DecadeScale",
-        "DOMEventHandler",
+        "DividerRegion",
         "HourScale",
         "MonthScale",
         "QuarterDayScale",
         "Scale",
+        "ViewportRegion",
         "WeekDayScale",
         "WeekScale",
         "YearScale"

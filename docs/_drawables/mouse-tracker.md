@@ -12,6 +12,4 @@ timeline.sidebar = null;
 new MouseTracker(timeline);
 ```
 
-{% include demo.html src="/timeline/examples/drawables-MouseTracker.html"
-                     height="50px"
-                     caption="MouseTracker" %}
+{% example drawables-MouseTracker.html 50px %}

@@ -25,6 +25,4 @@ locator3.knobColor = 'red';
 locator3.time = 75;
 ```
 
-{% include demo.html src="/timeline/examples/drawables-TimeLocator.html"
-                     height="50px"
-                     caption="TimeLocator" %}
+{% example drawables-TimeLocator.html 50px %}
