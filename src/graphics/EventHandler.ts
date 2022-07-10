@@ -50,6 +50,8 @@ export class EventHandler {
 
     constructor(private canvas: HTMLCanvasElement, private hitCanvas: HitCanvas) {
         canvas.addEventListener('click', e => this.onCanvasClick(e), false);
+        canvas.addEventListener('dblclick', e => this.onCanvasDoubleClick(e), false);
+        canvas.addEventListener('contextmenu', e => this.onCanvasContextMenu(e), false);
         canvas.addEventListener('mousedown', e => this.onCanvasMouseDown(e), false);
         canvas.addEventListener('mouseup', e => this.onCanvasMouseUp(e), false);
         canvas.addEventListener('mouseleave', e => this.onCanvasMouseLeave(e), false);
@@ -73,14 +75,51 @@ export class EventHandler {
     private onCanvasClick(domEvent: MouseEvent) {
         const { x, y } = this.toPoint(domEvent);
         const region = this.hitCanvas.getActiveRegion(x, y, 'click');
-        region?.click!({
-            ...this.toCanvasMouseEvent(domEvent),
-            altKey: domEvent.altKey,
-            ctrlKey: domEvent.ctrlKey,
-            metaKey: domEvent.metaKey,
-            shiftKey: domEvent.shiftKey,
-            button: domEvent.button,
-        });
+        if (region) {
+            region.click!({
+                ...this.toCanvasMouseEvent(domEvent),
+                altKey: domEvent.altKey,
+                ctrlKey: domEvent.ctrlKey,
+                metaKey: domEvent.metaKey,
+                shiftKey: domEvent.shiftKey,
+                button: domEvent.button,
+            });
+
+            domEvent.preventDefault();
+            domEvent.stopPropagation();
+            return false;
+        }
+    }
+
+    private onCanvasDoubleClick(domEvent: MouseEvent) {
+        const { x, y } = this.toPoint(domEvent);
+        const region = this.hitCanvas.getActiveRegion(x, y, 'doubleClick');
+        if (region) {
+            region.doubleClick!({
+                ...this.toCanvasMouseEvent(domEvent),
+                altKey: domEvent.altKey,
+                ctrlKey: domEvent.ctrlKey,
+                metaKey: domEvent.metaKey,
+                shiftKey: domEvent.shiftKey,
+                button: domEvent.button,
+            });
+
+            domEvent.preventDefault();
+            domEvent.stopPropagation();
+            return false;
+        }
+    }
+
+    private onCanvasContextMenu(domEvent: MouseEvent) {
+        const { x, y } = this.toPoint(domEvent);
+        const region = this.hitCanvas.getActiveRegion(x, y, 'contextMenu');
+        if (region) {
+            region.contextMenu!(this.toCanvasMouseEvent(domEvent));
+
+            domEvent.preventDefault();
+            domEvent.stopPropagation();
+            return false;
+        }
     }
 
     private onCanvasMouseDown(event: MouseEvent) {

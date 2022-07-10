@@ -38,6 +38,17 @@ export interface HitRegionSpecification {
     click?: (clickEvent: ClickHitEvent) => void;
 
     /**
+     * Callback when this region is double-clicked.
+     */
+    doubleClick?: (clickEvent: ClickHitEvent) => void;
+
+    /**
+     * Callback when the user attempts to open a context menu.
+     * (usually by right click).
+     */
+    contextMenu?: (mouseEvent: MouseHitEvent) => void;
+
+    /**
      * Callback when the mouse enters this region.
      */
     mouseEnter?: (mouseEvent: MouseHitEvent) => void;
