@@ -57,8 +57,6 @@ export class Timeline {
     private frozenGraphics: Graphics;
 
     private viewportChangeListeners: Array<(ev: ViewportChangeEvent) => void> = [];
-    private viewportMouseMoveListeners: Array<(ev: ViewportMouseMoveEvent) => void> = [];
-    private viewportMouseLeaveListeners: Array<(ev: ViewportMouseLeaveEvent) => void> = [];
     private viewportSelectionListeners: Array<(ev: ViewportSelectionEvent) => void> = [];
 
     /** @hidden */
@@ -388,11 +386,6 @@ export class Timeline {
     /**
      * Register a listener that receives updates when the viewport bounds
      * have changed.
-     *
-     * This generates a lot of events, especially while panning. You can
-     * use this method as a signal for backend data fetches, but be sure
-     * to debounce the events (for example by taking the last event after
-     * ~400 ms have passed without another update).
      */
     addViewportChangeListener(listener: (ev: ViewportChangeEvent) => void) {
         this.viewportChangeListeners.push(listener);
@@ -412,7 +405,7 @@ export class Timeline {
      * over the viewport.
      */
     addViewportMouseMoveListener(listener: (ev: ViewportMouseMoveEvent) => void) {
-        this.viewportMouseMoveListeners.push(listener);
+        this.viewportRegion.addMouseMoveListener(listener);
     }
 
     /**
@@ -420,8 +413,7 @@ export class Timeline {
      * viewport mouse-move events.
      */
     removeViewportMouseMoveListener(listener: (ev: ViewportMouseMoveEvent) => void) {
-        this.viewportMouseMoveListeners = this.viewportMouseMoveListeners
-            .filter(el => (el !== listener));
+        this.viewportRegion.removeMouseMoveListener(listener);
     }
 
     /**
@@ -429,7 +421,7 @@ export class Timeline {
      * outside the viewport.
      */
     addViewportMouseLeaveListener(listener: (ev: ViewportMouseLeaveEvent) => void) {
-        this.viewportMouseLeaveListeners.push(listener);
+        this.viewportRegion.addMouseLeaveListener(listener);
     }
 
     /**
@@ -437,8 +429,7 @@ export class Timeline {
      * viewport mouse-leave events.
      */
     removeViewportMouseLeaveListener(listener: (ev: ViewportMouseLeaveEvent) => void) {
-        this.viewportMouseLeaveListeners = this.viewportMouseLeaveListeners
-            .filter(el => (el !== listener));
+        this.viewportRegion.removeMouseLeaveListener(listener);
     }
 
     /**
@@ -456,16 +447,6 @@ export class Timeline {
     removeViewportSelectionListener(listener: (ev: ViewportSelectionEvent) => void) {
         this.viewportSelectionListeners = this.viewportSelectionListeners
             .filter(el => (el !== listener));
-    }
-
-    /** @hidden */
-    fireViewportMouseMoveEvent(event: ViewportMouseMoveEvent) {
-        this.viewportMouseMoveListeners.forEach(l => l(event));
-    }
-
-    /** @hidden */
-    fireViewportMouseLeaveEvent(event: ViewportMouseLeaveEvent) {
-        this.viewportMouseLeaveListeners.forEach(l => l(event));
     }
 
     /**

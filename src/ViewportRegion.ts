@@ -4,6 +4,8 @@ import { MouseHitEvent } from './graphics/MouseHitEvent';
 import { Point } from './graphics/Point';
 import { WheelHitEvent } from './graphics/WheelHitEvent';
 import { Timeline } from './Timeline';
+import { ViewportMouseLeaveEvent } from './ViewportMouseLeaveEvent';
+import { ViewportMouseMoveEvent } from './ViewportMouseMoveEvent';
 
 export class ViewportRegion implements HitRegionSpecification {
     id: string;
@@ -11,8 +13,45 @@ export class ViewportRegion implements HitRegionSpecification {
     private grabStartPoint?: Point;
     private grabStartCursor?: string;
 
+    private mouseMoveListeners: Array<(ev: ViewportMouseMoveEvent) => void> = [];
+    private mouseLeaveListeners: Array<(ev: ViewportMouseLeaveEvent) => void> = [];
+
     constructor(id: string, private timeline: Timeline) {
         this.id = id;
+    }
+
+    /**
+     * Register a listener that receives updates whenever the mouse is moving
+     * over the viewport.
+     */
+    addMouseMoveListener(listener: (ev: ViewportMouseMoveEvent) => void) {
+        this.mouseMoveListeners.push(listener);
+    }
+
+    /**
+     * Unregister a previously registered listener to stop receiving
+     * viewport mouse-move events.
+     */
+    removeMouseMoveListener(listener: (ev: ViewportMouseMoveEvent) => void) {
+        this.mouseMoveListeners = this.mouseMoveListeners
+            .filter(el => (el !== listener));
+    }
+
+    /**
+     * Register a listener that receives updates whenever the mouse is moving
+     * outside the viewport.
+     */
+    addMouseLeaveListener(listener: (ev: ViewportMouseLeaveEvent) => void) {
+        this.mouseLeaveListeners.push(listener);
+    }
+
+    /**
+     * Unregister a previously registered listener to stop receiving
+     * mouse-leave events.
+     */
+    removeMouseLeaveListener(listener: (ev: ViewportMouseLeaveEvent) => void) {
+        this.mouseLeaveListeners = this.mouseLeaveListeners
+            .filter(el => (el !== listener));
     }
 
     click() {
@@ -60,17 +99,19 @@ export class ViewportRegion implements HitRegionSpecification {
     }
 
     mouseMove(mouseEvent: MouseHitEvent) {
-        this.timeline.fireViewportMouseMoveEvent({
+        const vpEvent: ViewportMouseMoveEvent = {
             clientX: mouseEvent.clientX,
             clientY: mouseEvent.clientY,
             time: this.timeline.timeForCanvasPosition(mouseEvent.point.x),
-        });
+        };
+        this.mouseMoveListeners.forEach(l => l(vpEvent));
     }
 
     mouseLeave(mouseEvent: MouseHitEvent) {
-        this.timeline.fireViewportMouseLeaveEvent({
+        const vpEvent: ViewportMouseLeaveEvent = {
             clientX: mouseEvent.clientX,
             clientY: mouseEvent.clientY,
-        });
+        };
+        this.mouseLeaveListeners.forEach(l => l(vpEvent));
     }
 }

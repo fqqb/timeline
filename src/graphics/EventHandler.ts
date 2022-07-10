@@ -194,7 +194,6 @@ export class EventHandler {
         const { x, y } = mouseEvent.point;
         const region = this.hitCanvas.getActiveRegion(x, y, 'wheel');
         if (region) {
-            console.log(event);
             region.wheel!({
                 ...mouseEvent,
                 deltaX: event.deltaX,
