@@ -176,8 +176,8 @@ export class EventHandler {
 
             this.grabTarget.grab!({
                 ...this.toCanvasMouseEvent(domEvent),
-                dx: x - this.grabPoint!.x,
-                dy: y - this.grabPoint!.y,
+                deltaX: x - this.grabPoint!.x,
+                deltaY: y - this.grabPoint!.y,
             });
         }
     }
@@ -194,10 +194,11 @@ export class EventHandler {
         const { x, y } = mouseEvent.point;
         const region = this.hitCanvas.getActiveRegion(x, y, 'wheel');
         if (region) {
+            console.log(event);
             region.wheel!({
                 ...mouseEvent,
-                dx: event.deltaX,
-                dy: event.deltaY,
+                deltaX: event.deltaX,
+                deltaY: event.deltaY,
             });
 
             event.preventDefault();

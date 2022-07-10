@@ -7,9 +7,9 @@ export interface GrabHitEvent extends MouseHitEvent {
     /**
      * Delta movement on the X-axis, relative to the grab start point.
      */
-    dx: number;
+    deltaX: number;
     /**
      * Delta movement on the Y-axis, relative to the grab start point.
      */
-    dy: number;
+    deltaY: number;
 }

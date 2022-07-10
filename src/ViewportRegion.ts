@@ -28,7 +28,7 @@ export class ViewportRegion implements HitRegionSpecification {
         switch (this.timeline.tool) {
             case 'hand':
                 this.timeline.cursor = 'grabbing';
-                this.timeline.panBy(-grabEvent.dx, false);
+                this.timeline.panBy(-grabEvent.deltaX, false);
                 this.timeline.eventHandler.grabPoint = grabEvent.point;
                 break;
             case 'range-select':
@@ -45,16 +45,16 @@ export class ViewportRegion implements HitRegionSpecification {
     }
 
     wheel(wheelEvent: WheelHitEvent) {
-        if (wheelEvent.dx > 0) {
+        if (wheelEvent.deltaX > 0) {
             this.timeline.panBy(50);
-        } else if (wheelEvent.dx < 0) {
+        } else if (wheelEvent.deltaX < 0) {
             this.timeline.panBy(-50);
         }
 
         const relto = this.timeline.timeForCanvasPosition(wheelEvent.point.x);
-        if (wheelEvent.dy > 0) {
+        if (wheelEvent.deltaY > 0) {
             this.timeline.zoom(2, true, relto);
-        } else if (wheelEvent.dy < 0) {
+        } else if (wheelEvent.deltaY < 0) {
             this.timeline.zoom(0.5, true, relto);
         }
     }
