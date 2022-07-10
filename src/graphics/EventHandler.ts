@@ -59,9 +59,9 @@ export class EventHandler {
         canvas.addEventListener('wheel', e => this.onCanvasWheel(e), false);
     }
 
-    private toPoint(event: MouseEvent): Point {
+    private toPoint(domEvent: MouseEvent): Point {
         const bbox = this.canvas.getBoundingClientRect();
-        return { x: event.clientX - bbox.left, y: event.clientY - bbox.top };
+        return { x: domEvent.clientX - bbox.left, y: domEvent.clientY - bbox.top };
     }
 
     private toCanvasMouseEvent(domEvent: MouseEvent): MouseHitEvent {
@@ -69,6 +69,11 @@ export class EventHandler {
             clientX: domEvent.clientX,
             clientY: domEvent.clientY,
             ...this.toPoint(domEvent),
+            altKey: domEvent.altKey,
+            ctrlKey: domEvent.ctrlKey,
+            metaKey: domEvent.metaKey,
+            shiftKey: domEvent.shiftKey,
+            button: domEvent.button,
         };
     }
 
@@ -95,14 +100,7 @@ export class EventHandler {
         const { x, y } = this.toPoint(domEvent);
         const region = this.hitCanvas.getActiveRegion(x, y, 'doubleClick');
         if (region) {
-            region.doubleClick!({
-                ...this.toCanvasMouseEvent(domEvent),
-                altKey: domEvent.altKey,
-                ctrlKey: domEvent.ctrlKey,
-                metaKey: domEvent.metaKey,
-                shiftKey: domEvent.shiftKey,
-                button: domEvent.button,
-            });
+            region.doubleClick!(this.toCanvasMouseEvent(domEvent));
 
             domEvent.preventDefault();
             domEvent.stopPropagation();
@@ -122,16 +120,16 @@ export class EventHandler {
         }
     }
 
-    private onCanvasMouseDown(event: MouseEvent) {
+    private onCanvasMouseDown(domEvent: MouseEvent) {
         document.removeEventListener('click', consumeNextClick,
             true /* Must be same as when created */);
 
-        if (isLeftPressed(event)) {
-            const { x, y } = this.toPoint(event);
+        if (isLeftPressed(domEvent)) {
+            const { x, y } = this.toPoint(domEvent);
 
             const mouseDownRegion = this.hitCanvas.getActiveRegion(x, y, 'mouseDown');
             if (mouseDownRegion) {
-                const mouseEvent = this.toCanvasMouseEvent(event);
+                const mouseEvent = this.toCanvasMouseEvent(domEvent);
                 mouseDownRegion.mouseDown!(mouseEvent);
             }
 
@@ -142,27 +140,33 @@ export class EventHandler {
                 // Actual grab initialisation is subject to snap (see mousemove)
             }
 
-            event.preventDefault();
-            event.stopPropagation();
+            domEvent.preventDefault();
+            domEvent.stopPropagation();
             return false;
         }
     }
 
-    private onCanvasMouseUp(event: MouseEvent) {
-        const { x, y } = this.toPoint(event);
+    private onCanvasMouseUp(domEvent: MouseEvent) {
+        const { x, y } = this.toPoint(domEvent);
         const region = this.hitCanvas.getActiveRegion(x, y, 'mouseUp');
-        region?.mouseUp!();
+        if (region) {
+            region.mouseUp!(this.toCanvasMouseEvent(domEvent));
+
+            domEvent.preventDefault();
+            domEvent.stopPropagation();
+            return false;
+        }
     }
 
-    private onCanvasMouseLeave(event: MouseEvent) {
-        const mouseEvent = this.toCanvasMouseEvent(event);
+    private onCanvasMouseLeave(domEvent: MouseEvent) {
+        const mouseEvent = this.toCanvasMouseEvent(domEvent);
         for (const region of this.prevActiveRegions) {
             region.mouseLeave && region.mouseLeave(mouseEvent);
         }
         this.prevActiveRegions = [];
 
-        event.preventDefault();
-        event.stopPropagation();
+        domEvent.preventDefault();
+        domEvent.stopPropagation();
     }
 
     private wasActive(region: HitRegionSpecification) {

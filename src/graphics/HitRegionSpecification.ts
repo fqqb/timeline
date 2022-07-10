@@ -1,4 +1,3 @@
-import { ClickHitEvent } from './ClickHitEvent';
 import { GrabHitEvent } from './GrabHitEvent';
 import { MouseHitEvent } from './MouseHitEvent';
 import { WheelHitEvent } from './WheelHitEvent';
@@ -35,44 +34,44 @@ export interface HitRegionSpecification {
     /**
      * Callback when this region is clicked.
      */
-    click?: (clickEvent: ClickHitEvent) => void;
+    click?: (event: MouseHitEvent) => void;
 
     /**
      * Callback when this region is double-clicked.
      */
-    doubleClick?: (clickEvent: ClickHitEvent) => void;
+    doubleClick?: (event: MouseHitEvent) => void;
 
     /**
      * Callback when the user attempts to open a context menu.
      * (usually by right click).
      */
-    contextMenu?: (mouseEvent: MouseHitEvent) => void;
+    contextMenu?: (event: MouseHitEvent) => void;
 
     /**
      * Callback when the mouse enters this region.
      */
-    mouseEnter?: (mouseEvent: MouseHitEvent) => void;
+    mouseEnter?: (event: MouseHitEvent) => void;
 
     /**
      * Callback when the mouse moves over this region
      * (or any child regions).
      */
-    mouseMove?: (mouseEvent: MouseHitEvent) => void;
+    mouseMove?: (event: MouseHitEvent) => void;
 
     /**
      * Callback when the mouse leaves this region.
      */
-    mouseLeave?: (mouseEvent: MouseHitEvent) => void;
+    mouseLeave?: (event: MouseHitEvent) => void;
 
     /**
      * Callback when a mouse-down occurs on this region.
      */
-    mouseDown?: (mouseEvent: MouseHitEvent) => void;
+    mouseDown?: (event: MouseHitEvent) => void;
 
     /**
      * Callback when a mouse-up occurs on this region.
      */
-    mouseUp?: () => void;
+    mouseUp?: (event: MouseHitEvent) => void;
 
     /**
      * Callback while a grab of this region is going on.
@@ -80,7 +79,7 @@ export interface HitRegionSpecification {
      * Grab events trigger when a click-and-drag is recorded on the hit
      * region.
      */
-    grab?: (grabEvent: GrabHitEvent) => void;
+    grab?: (event: GrabHitEvent) => void;
 
     /**
      * Callback when a grab has ended that was initiated on this region.
@@ -90,5 +89,5 @@ export interface HitRegionSpecification {
     /**
      * Callback when a wheel event occus on this region.
      */
-    wheel?: (wheelEvent: WheelHitEvent) => void;
+    wheel?: (event: WheelHitEvent) => void;
 }
