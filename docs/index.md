@@ -17,28 +17,13 @@ npm install --save @fqqb/timeline
 
 ## Usage
 
-ES Modules:
-
 ```html
 <div id="timeline"></div>
 <script type="module">
-    import { Timeline } from 'https://unpkg.com/@fqqb/timeline';
+    import { Timeline } from 'https://esm.run/@fqqb/timeline';
 
     const targetEl = document.getElementById('timeline');
     const timeline = new Timeline(targetEl);
-    // ...
-</script>
-```
-
-
-UMD:
-
-```html
-<div id="timeline"></div>
-<script src="https://unpkg.com/@fqqb/timeline"></script>
-<script>
-    const targetEl = document.getElementById('timeline');
-    const timeline = new tn.Timeline(targetEl);
     // ...
 </script>
 ```

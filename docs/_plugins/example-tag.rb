@@ -13,7 +13,7 @@ module Jekyll
             file_path = File.join(site.source, '_examples', filename)
             html = File.open(file_path).read
 
-            html = html.gsub('https://unpkg.com/@fqqb/timeline', '/timeline/assets/timeline.js')
+            html = html.gsub('https://esm.run/@fqqb/timeline', '/timeline/assets/timeline.js')
             html = html.gsub('"timeline"', '"id_' + filename + '"')
             html = html.gsub("'timeline'", "'id_" + filename + "'")
 
