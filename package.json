@@ -16,7 +16,6 @@
     "jekyll": "npm run tsdoc && npm run serve",
     "dev": "npx concurrently -n rollup,jekyll -c yellow,magenta npm:watch npm:jekyll"
   },
-  "main": "dist/timeline.umd.js",
   "module": "dist/timeline.js",
   "types": "dist/types/index.d.ts",
   "files": [

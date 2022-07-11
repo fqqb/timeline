@@ -13,22 +13,15 @@ export default {
       }
     })
   ],
-  output: [
-    {
-      file: 'dist/timeline.umd.js',
-      name: 'tn',
-      format: 'umd',
-      sourcemap: true
-    }, {
-      file: 'dist/timeline.js',
-      format: 'esm',
-      sourcemap: true
-    }, {
-      file: 'docs/assets/timeline.js',
-      format: 'esm',
-      sourcemap: true
-    }
-  ],
+  output: [{
+    file: 'dist/timeline.js',
+    format: 'esm',
+    sourcemap: true
+  }, {
+    file: 'docs/assets/timeline.js',
+    format: 'esm',
+    sourcemap: true
+  }],
   watch: {
     include: 'src/**',
   },
