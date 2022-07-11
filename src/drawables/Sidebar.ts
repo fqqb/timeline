@@ -18,7 +18,7 @@ export abstract class Sidebar extends Drawable {
     set width(width: number) {
         this._opened = true;
         this._width = width;
-        this._clippedWidth.value = width;
+        this._clippedWidth.value = Math.max(0, width);
         this.reportMutation();
     }
 
