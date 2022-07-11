@@ -17,3 +17,8 @@ The following examples force a specific scale. If no scale is specified, a scale
 
 {% excerpt timeruler-months.html excerpt-1 %}
 {% example timeruler-months.html %}
+
+## Timezones
+
+{% excerpt timeruler-timezones.html excerpt-1 %}
+{% example timeruler-timezones.html %}

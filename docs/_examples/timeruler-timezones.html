@@ -1,0 +1,31 @@
+<div id="timeline" style="height: 93px"></div>
+<script type="module">
+    import { Timeline, TimeLocator, TimeRuler } from 'https://unpkg.com/@fqqb/timeline';
+    window.addEventListener('load', () => {
+        const targetEl = document.getElementById('timeline');
+        const timeline = new Timeline(targetEl);
+
+        const start = new Date();
+        start.setHours(0, 0, 0, 0);
+        const stop = new Date(start.getTime());
+        stop.setDate(stop.getDate() + 1);
+
+        timeline.setViewRange(start.getTime(), stop.getTime());
+
+        new TimeLocator(timeline);
+
+        // BEGIN excerpt-1
+        let line = new TimeRuler(timeline);
+        line.label = 'New York';
+        line.timezone = 'America/New_York';
+
+        line = new TimeRuler(timeline);
+        line.label = 'London';
+        line.timezone = 'Europe/London';
+
+        line = new TimeRuler(timeline);
+        line.label = 'Tokyo';
+        line.timezone = 'Asia/Tokyo';
+        // END excerpt-1
+    });
+</script>
