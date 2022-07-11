@@ -35,6 +35,7 @@ export { Graphics } from './graphics/Graphics';
 export { HitCanvas } from './graphics/HitCanvas';
 export { HitRegionBuilder } from './graphics/HitRegionBuilder';
 export { HitRegionSpecification } from './graphics/HitRegionSpecification';
+export { KeyboardHitEvent } from './graphics/KeyboardHitEvent';
 export { MouseHitEvent } from './graphics/MouseHitEvent';
 export { Path } from './graphics/Path';
 export { PathFill } from './graphics/PathFill';

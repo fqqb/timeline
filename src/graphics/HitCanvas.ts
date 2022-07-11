@@ -121,6 +121,16 @@ export class HitCanvas {
         }
     }
 
+    getRegionsForProperty<K extends keyof HitRegionSpecification>(property: K) {
+        const result = [];
+        for (const region of this.regionsById.values()) {
+            if (region[property] !== undefined) {
+                result.push(region);
+            }
+        }
+        return result;
+    }
+
     drawRegions(ctx: CanvasRenderingContext2D, dx: number, dy: number) {
         ctx.drawImage(this.ctx.canvas, dx, dy);
     }

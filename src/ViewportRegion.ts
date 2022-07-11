@@ -1,5 +1,6 @@
 import { GrabHitEvent } from './graphics/GrabHitEvent';
 import { HitRegionSpecification } from './graphics/HitRegionSpecification';
+import { KeyboardHitEvent } from './graphics/KeyboardHitEvent';
 import { MouseHitEvent } from './graphics/MouseHitEvent';
 import { Point } from './graphics/Point';
 import { WheelHitEvent } from './graphics/WheelHitEvent';
@@ -112,5 +113,32 @@ export class ViewportRegion implements HitRegionSpecification {
             clientY: mouseEvent.clientY,
         };
         this.mouseLeaveListeners.forEach(l => l(vpEvent));
+    }
+
+    keyDown(event: KeyboardHitEvent) {
+        switch (event.key) {
+            case '+':
+            case '=': // Easier on qwerty
+                this.timeline.zoomIn();
+                return;
+            case '-':
+                this.timeline.zoomOut();
+                return;
+            case 'ArrowLeft':
+                this.timeline.panBy(50);
+                return;
+            case 'ArrowRight':
+                this.timeline.panBy(-50);
+                return;
+        }
+
+        switch (event.code) {
+            case 'Plus':
+                this.timeline.zoomIn();
+                return;
+            case 'Minus':
+                this.timeline.zoomOut();
+                return;
+        }
     }
 }

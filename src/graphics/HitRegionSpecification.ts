@@ -1,4 +1,5 @@
 import { GrabHitEvent } from './GrabHitEvent';
+import { KeyboardHitEvent } from './KeyboardHitEvent';
 import { MouseHitEvent } from './MouseHitEvent';
 import { WheelHitEvent } from './WheelHitEvent';
 
@@ -90,4 +91,14 @@ export interface HitRegionSpecification {
      * Callback when a wheel event occus on this region.
      */
     wheel?: (event: WheelHitEvent) => void;
+
+    /**
+     * Callback when a key is pressed.
+     */
+    keyDown?: (event: KeyboardHitEvent) => void;
+
+    /**
+     * Callback when a key is released.
+     */
+    keyUp?: (event: KeyboardHitEvent) => void;
 }

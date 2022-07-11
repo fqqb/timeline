@@ -103,6 +103,11 @@ export class Timeline {
         this.rootPanel.appendChild(this.scrollPanel);
 
         const canvas = document.createElement('canvas');
+
+        // Allow focus (required for capturing keyboard events)
+        canvas.tabIndex = 0;
+        canvas.style.outline = 'none';
+
         this.scrollPanel.appendChild(canvas);
         this.g = new Graphics(canvas);
 

@@ -1,6 +1,6 @@
 
 /**
- * Event generated whiling using a mouse over a hit region.
+ * Event generated while using a mouse over a hit region.
  */
 export interface MouseHitEvent {
 
