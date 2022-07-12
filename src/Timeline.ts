@@ -51,15 +51,12 @@ export class Timeline {
     frameTime?: number;
 
     private repaintRequested = false;
-    private autoRepaintDelay = 1000;
 
     // Frozen header outside of the scrollpane
     private frozenGraphics: Graphics;
 
     private viewportChangeListeners: Array<(ev: ViewportChangeEvent) => void> = [];
     private viewportSelectionListeners: Array<(ev: ViewportSelectionEvent) => void> = [];
-
-    private repaintIntervalHandle?: number;
 
     /**
      * If true, some actions (e.g. panBy) animate property transitions.
@@ -132,9 +129,6 @@ export class Timeline {
         this.sidebar = new DefaultSidebar(this);
 
         this.animationFrameRequest = window.requestAnimationFrame(t => this.step(t));
-
-        // Periodically redraw everything (used by continuously changing elements)
-        this.repaintIntervalHandle = window.setInterval(() => this.requestRepaint(), this.autoRepaintDelay);
     }
 
     /**
@@ -142,7 +136,6 @@ export class Timeline {
      */
     disconnect() {
         this.animationFrameRequest && window.cancelAnimationFrame(this.animationFrameRequest);
-        this.repaintIntervalHandle && window.clearInterval(this.repaintIntervalHandle);
         for (const drawable of this._drawables) {
             drawable.disconnectedCallback();
         }

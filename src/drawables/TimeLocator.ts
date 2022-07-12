@@ -12,21 +12,14 @@ export class TimeLocator extends Drawable {
     private _lineColor = 'red';
     private _lineWidth = 1;
     private _lineDash: number[] = [];
-    private _time?: number | (() => number | undefined);
+    private _time?: number;
 
     drawOverlay(g: Graphics) {
-        let t;
-        if (typeof this.time === 'function') {
-            t = this.time();
-        } else {
-            t = this.time;
-        }
-
-        if (t === undefined) {
+        if (this.time === undefined) {
             return;
         }
 
-        const x = Math.round(this.timeline.positionTime(t));
+        const x = Math.round(this.timeline.positionTime(this.time));
 
         g.strokePath({
             color: this.lineColor,
@@ -42,11 +35,10 @@ export class TimeLocator extends Drawable {
     }
 
     /**
-     * Time for this locator. This may also be provided as a function which will
-     * be called upon each redraw.
+     * Time for this locator.
      */
     get time() { return this._time; }
-    set time(time: undefined | number | (() => number | undefined)) {
+    set time(time: undefined | number) {
         this._time = time;
         this.reportMutation();
     }

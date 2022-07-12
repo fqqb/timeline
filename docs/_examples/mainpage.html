@@ -120,7 +120,11 @@ button:hover, button.active {
         const locator = new TimeLocator(timeline);
         locator.knobColor = 'salmon';
         locator.lineColor = 'salmon';
-        locator.time = () => new Date().getTime();
+
+        locator.time = new Date().getTime();
+        setInterval(() => {
+            locator.time = new Date().getTime();
+        }, 1000);
 
         const tracker = new MouseTracker(timeline);
 
