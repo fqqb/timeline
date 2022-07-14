@@ -153,37 +153,37 @@ export class HitCanvas {
 
             if (!this.regionsByColor.has(color) && color !== WHITE) {
                 if (IS_BRAVE) { // Work around farbling-based fingerprinting defenses
-                    (this.root || this).regionsByColor.set(`rgb(${r - 1},${g - 1},${b - 1})`, hitRegion);
-                    (this.root || this).regionsByColor.set(`rgb(${r - 1},${g - 1},${b})`, hitRegion);
-                    (this.root || this).regionsByColor.set(`rgb(${r - 1},${g - 1},${b + 1})`, hitRegion);
-                    (this.root || this).regionsByColor.set(`rgb(${r - 1},${g},${b - 1})`, hitRegion);
-                    (this.root || this).regionsByColor.set(`rgb(${r - 1},${g},${b})`, hitRegion);
-                    (this.root || this).regionsByColor.set(`rgb(${r - 1},${g},${b + 1})`, hitRegion);
-                    (this.root || this).regionsByColor.set(`rgb(${r - 1},${g + 1},${b - 1})`, hitRegion);
-                    (this.root || this).regionsByColor.set(`rgb(${r - 1},${g + 1},${b})`, hitRegion);
-                    (this.root || this).regionsByColor.set(`rgb(${r - 1},${g + 1},${b + 1})`, hitRegion);
+                    this.regionsByColor.set(`rgb(${r - 1},${g - 1},${b - 1})`, hitRegion);
+                    this.regionsByColor.set(`rgb(${r - 1},${g - 1},${b})`, hitRegion);
+                    this.regionsByColor.set(`rgb(${r - 1},${g - 1},${b + 1})`, hitRegion);
+                    this.regionsByColor.set(`rgb(${r - 1},${g},${b - 1})`, hitRegion);
+                    this.regionsByColor.set(`rgb(${r - 1},${g},${b})`, hitRegion);
+                    this.regionsByColor.set(`rgb(${r - 1},${g},${b + 1})`, hitRegion);
+                    this.regionsByColor.set(`rgb(${r - 1},${g + 1},${b - 1})`, hitRegion);
+                    this.regionsByColor.set(`rgb(${r - 1},${g + 1},${b})`, hitRegion);
+                    this.regionsByColor.set(`rgb(${r - 1},${g + 1},${b + 1})`, hitRegion);
 
-                    (this.root || this).regionsByColor.set(`rgb(${r},${g - 1},${b - 1})`, hitRegion);
-                    (this.root || this).regionsByColor.set(`rgb(${r},${g - 1},${b})`, hitRegion);
-                    (this.root || this).regionsByColor.set(`rgb(${r},${g - 1},${b + 1})`, hitRegion);
-                    (this.root || this).regionsByColor.set(`rgb(${r},${g},${b - 1})`, hitRegion);
-                    (this.root || this).regionsByColor.set(`rgb(${r},${g},${b})`, hitRegion);
-                    (this.root || this).regionsByColor.set(`rgb(${r},${g},${b + 1})`, hitRegion);
-                    (this.root || this).regionsByColor.set(`rgb(${r},${g + 1},${b - 1})`, hitRegion);
-                    (this.root || this).regionsByColor.set(`rgb(${r},${g + 1},${b})`, hitRegion);
-                    (this.root || this).regionsByColor.set(`rgb(${r},${g + 1},${b + 1})`, hitRegion);
+                    this.regionsByColor.set(`rgb(${r},${g - 1},${b - 1})`, hitRegion);
+                    this.regionsByColor.set(`rgb(${r},${g - 1},${b})`, hitRegion);
+                    this.regionsByColor.set(`rgb(${r},${g - 1},${b + 1})`, hitRegion);
+                    this.regionsByColor.set(`rgb(${r},${g},${b - 1})`, hitRegion);
+                    this.regionsByColor.set(`rgb(${r},${g},${b})`, hitRegion);
+                    this.regionsByColor.set(`rgb(${r},${g},${b + 1})`, hitRegion);
+                    this.regionsByColor.set(`rgb(${r},${g + 1},${b - 1})`, hitRegion);
+                    this.regionsByColor.set(`rgb(${r},${g + 1},${b})`, hitRegion);
+                    this.regionsByColor.set(`rgb(${r},${g + 1},${b + 1})`, hitRegion);
 
-                    (this.root || this).regionsByColor.set(`rgb(${r + 1},${g - 1},${b - 1})`, hitRegion);
-                    (this.root || this).regionsByColor.set(`rgb(${r + 1},${g - 1},${b})`, hitRegion);
-                    (this.root || this).regionsByColor.set(`rgb(${r + 1},${g - 1},${b + 1})`, hitRegion);
-                    (this.root || this).regionsByColor.set(`rgb(${r + 1},${g},${b - 1})`, hitRegion);
-                    (this.root || this).regionsByColor.set(`rgb(${r + 1},${g},${b})`, hitRegion);
-                    (this.root || this).regionsByColor.set(`rgb(${r + 1},${g},${b + 1})`, hitRegion);
-                    (this.root || this).regionsByColor.set(`rgb(${r + 1},${g + 1},${b - 1})`, hitRegion);
-                    (this.root || this).regionsByColor.set(`rgb(${r + 1},${g + 1},${b})`, hitRegion);
-                    (this.root || this).regionsByColor.set(`rgb(${r + 1},${g + 1},${b + 1})`, hitRegion);
+                    this.regionsByColor.set(`rgb(${r + 1},${g - 1},${b - 1})`, hitRegion);
+                    this.regionsByColor.set(`rgb(${r + 1},${g - 1},${b})`, hitRegion);
+                    this.regionsByColor.set(`rgb(${r + 1},${g - 1},${b + 1})`, hitRegion);
+                    this.regionsByColor.set(`rgb(${r + 1},${g},${b - 1})`, hitRegion);
+                    this.regionsByColor.set(`rgb(${r + 1},${g},${b})`, hitRegion);
+                    this.regionsByColor.set(`rgb(${r + 1},${g},${b + 1})`, hitRegion);
+                    this.regionsByColor.set(`rgb(${r + 1},${g + 1},${b - 1})`, hitRegion);
+                    this.regionsByColor.set(`rgb(${r + 1},${g + 1},${b})`, hitRegion);
+                    this.regionsByColor.set(`rgb(${r + 1},${g + 1},${b + 1})`, hitRegion);
                 } else {
-                    (this.root || this).regionsByColor.set(color, hitRegion);
+                    this.regionsByColor.set(color, hitRegion);
                 }
 
                 return color;
