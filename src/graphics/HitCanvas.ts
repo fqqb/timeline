@@ -1,6 +1,7 @@
 import { HitRegionSpecification } from './HitRegionSpecification';
 
 const WHITE = 'rgb(255,255,255)';
+const IS_BRAVE = !!(navigator as any).brave;
 
 /**
  * Keeps track of regions of interest (hit regions).
@@ -53,8 +54,7 @@ export class HitCanvas {
     beginHitRegion(hitRegion: HitRegionSpecification) {
         (this.root || this).regionsById.set(hitRegion.id, hitRegion);
 
-        const color = (this.root || this).generateUniqueColor();
-        (this.root || this).regionsByColor.set(color, hitRegion);
+        const color = (this.root || this).generateUniqueColor(hitRegion);
 
         this.ctx.beginPath();
         this.ctx.fillStyle = color;
@@ -144,7 +144,7 @@ export class HitCanvas {
         ctx.drawImage(this.ctx.canvas, dx, dy, dw, dh);
     }
 
-    private generateUniqueColor(): string {
+    private generateUniqueColor(hitRegion: HitRegionSpecification): string {
         while (true) {
             const r = Math.round(Math.random() * 255);
             const g = Math.round(Math.random() * 255);
@@ -152,6 +152,40 @@ export class HitCanvas {
             const color = `rgb(${r},${g},${b})`;
 
             if (!this.regionsByColor.has(color) && color !== WHITE) {
+                if (IS_BRAVE) { // Work around farbling-based fingerprinting defenses
+                    (this.root || this).regionsByColor.set(`rgb(${r - 1},${g - 1},${b - 1})`, hitRegion);
+                    (this.root || this).regionsByColor.set(`rgb(${r - 1},${g - 1},${b})`, hitRegion);
+                    (this.root || this).regionsByColor.set(`rgb(${r - 1},${g - 1},${b + 1})`, hitRegion);
+                    (this.root || this).regionsByColor.set(`rgb(${r - 1},${g},${b - 1})`, hitRegion);
+                    (this.root || this).regionsByColor.set(`rgb(${r - 1},${g},${b})`, hitRegion);
+                    (this.root || this).regionsByColor.set(`rgb(${r - 1},${g},${b + 1})`, hitRegion);
+                    (this.root || this).regionsByColor.set(`rgb(${r - 1},${g + 1},${b - 1})`, hitRegion);
+                    (this.root || this).regionsByColor.set(`rgb(${r - 1},${g + 1},${b})`, hitRegion);
+                    (this.root || this).regionsByColor.set(`rgb(${r - 1},${g + 1},${b + 1})`, hitRegion);
+
+                    (this.root || this).regionsByColor.set(`rgb(${r},${g - 1},${b - 1})`, hitRegion);
+                    (this.root || this).regionsByColor.set(`rgb(${r},${g - 1},${b})`, hitRegion);
+                    (this.root || this).regionsByColor.set(`rgb(${r},${g - 1},${b + 1})`, hitRegion);
+                    (this.root || this).regionsByColor.set(`rgb(${r},${g},${b - 1})`, hitRegion);
+                    (this.root || this).regionsByColor.set(`rgb(${r},${g},${b})`, hitRegion);
+                    (this.root || this).regionsByColor.set(`rgb(${r},${g},${b + 1})`, hitRegion);
+                    (this.root || this).regionsByColor.set(`rgb(${r},${g + 1},${b - 1})`, hitRegion);
+                    (this.root || this).regionsByColor.set(`rgb(${r},${g + 1},${b})`, hitRegion);
+                    (this.root || this).regionsByColor.set(`rgb(${r},${g + 1},${b + 1})`, hitRegion);
+
+                    (this.root || this).regionsByColor.set(`rgb(${r + 1},${g - 1},${b - 1})`, hitRegion);
+                    (this.root || this).regionsByColor.set(`rgb(${r + 1},${g - 1},${b})`, hitRegion);
+                    (this.root || this).regionsByColor.set(`rgb(${r + 1},${g - 1},${b + 1})`, hitRegion);
+                    (this.root || this).regionsByColor.set(`rgb(${r + 1},${g},${b - 1})`, hitRegion);
+                    (this.root || this).regionsByColor.set(`rgb(${r + 1},${g},${b})`, hitRegion);
+                    (this.root || this).regionsByColor.set(`rgb(${r + 1},${g},${b + 1})`, hitRegion);
+                    (this.root || this).regionsByColor.set(`rgb(${r + 1},${g + 1},${b - 1})`, hitRegion);
+                    (this.root || this).regionsByColor.set(`rgb(${r + 1},${g + 1},${b})`, hitRegion);
+                    (this.root || this).regionsByColor.set(`rgb(${r + 1},${g + 1},${b + 1})`, hitRegion);
+                } else {
+                    (this.root || this).regionsByColor.set(color, hitRegion);
+                }
+
                 return color;
             }
         }
