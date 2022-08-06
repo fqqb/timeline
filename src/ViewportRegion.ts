@@ -116,6 +116,10 @@ export class ViewportRegion implements HitRegionSpecification {
     }
 
     keyDown(event: KeyboardHitEvent) {
+        if (event.ctrlKey || event.metaKey || event.altKey) {
+            return; // Don't interfere with browser shortcuts
+        }
+
         switch (event.key) {
             case '+':
             case '=': // Easier on qwerty
