@@ -181,7 +181,7 @@ class HourScale implements Scale {
             t = t.plus({ hours: 1 });
         }
 
-        const height = g.canvas.height;
+        const height = g.height;
         const path = new Path(0, 0);
         for (const x of this.majorX) {
             path.moveTo(Math.round(x) + 0.5, 0);
@@ -242,7 +242,7 @@ class HourScale implements Scale {
             const path = new Path(0, 0);
             for (const x of this.majorX) {
                 path.moveTo(Math.round(x) + 0.5, ruler.y + ruler.height);
-                path.lineTo(Math.round(x) + 0.5, g.canvas.height);
+                path.lineTo(Math.round(x) + 0.5, g.height);
             }
             g.strokePath({
                 color: ruler.timeline.bandBorderColor,
@@ -278,7 +278,7 @@ class QuarterDayScale implements Scale {
 
         this.majorX.length = 0;
 
-        const height = g.canvas.height;
+        const height = g.height;
         const font = `${ruler.timeline.textSize}px ${ruler.timeline.fontFamily}`;
 
         const stop = DateTime.fromMillis(ruler.timeline.stop);
@@ -335,7 +335,7 @@ class QuarterDayScale implements Scale {
             const path = new Path(0, 0);
             for (const x of this.majorX) {
                 path.moveTo(Math.round(x) + 0.5, ruler.y + ruler.height);
-                path.lineTo(Math.round(x) + 0.5, g.canvas.height);
+                path.lineTo(Math.round(x) + 0.5, g.height);
             }
             g.strokePath({
                 color: ruler.timeline.bandBorderColor,
@@ -371,7 +371,7 @@ class WeekDayScale implements Scale {
 
         this.majorX.length = 0;
 
-        const height = g.canvas.height;
+        const height = g.height;
         const font = `${ruler.timeline.textSize}px ${ruler.timeline.fontFamily}`;
 
         const stop = DateTime.fromMillis(ruler.timeline.stop);
@@ -428,7 +428,7 @@ class WeekDayScale implements Scale {
             const path = new Path(0, 0);
             for (const x of this.majorX) {
                 path.moveTo(Math.round(x) + 0.5, ruler.y + ruler.height);
-                path.lineTo(Math.round(x) + 0.5, g.canvas.height);
+                path.lineTo(Math.round(x) + 0.5, g.height);
             }
             g.strokePath({
                 color: ruler.timeline.bandBorderColor,
@@ -464,7 +464,7 @@ class WeekScale implements Scale {
 
         this.majorX.length = 0;
 
-        const height = g.canvas.height;
+        const height = g.height;
         const font = `${ruler.timeline.textSize}px ${ruler.timeline.fontFamily}`;
 
         const start = t;
@@ -523,7 +523,7 @@ class WeekScale implements Scale {
             const path = new Path(0, 0);
             for (const x of this.majorX) {
                 path.moveTo(Math.round(x) + 0.5, ruler.y + ruler.height);
-                path.lineTo(Math.round(x) + 0.5, g.canvas.height);
+                path.lineTo(Math.round(x) + 0.5, g.height);
             }
             g.strokePath({
                 color: ruler.timeline.bandBorderColor,
@@ -559,7 +559,7 @@ class MonthScale implements Scale {
 
         this.majorX.length = 0;
 
-        const height = g.canvas.height;
+        const height = g.height;
         const font = `${ruler.timeline.textSize}px ${ruler.timeline.fontFamily}`;
 
         const stop = DateTime.fromMillis(ruler.timeline.stop);
@@ -617,7 +617,7 @@ class MonthScale implements Scale {
             const path = new Path(0, 0);
             for (const x of this.majorX) {
                 path.moveTo(Math.round(x) + 0.5, ruler.y + ruler.height);
-                path.lineTo(Math.round(x) + 0.5, g.canvas.height);
+                path.lineTo(Math.round(x) + 0.5, g.height);
             }
             g.strokePath({
                 color: ruler.timeline.bandBorderColor,
@@ -649,7 +649,7 @@ class YearScale implements Scale {
         }
         t = t.startOf('year');
 
-        const height = g.canvas.height;
+        const height = g.height;
         const font = `${ruler.timeline.textSize}px ${ruler.timeline.fontFamily}`;
 
         const stop = DateTime.fromMillis(ruler.timeline.stop);
@@ -704,7 +704,7 @@ class DecadeScale implements Scale {
         t = t.startOf('year');
         t = t.set({ year: t.year - (t.year % 10) });
 
-        const height = g.canvas.height;
+        const height = g.height;
         const font = `${ruler.timeline.textSize}px ${ruler.timeline.fontFamily}`;
 
         const stop = DateTime.fromMillis(ruler.timeline.stop);

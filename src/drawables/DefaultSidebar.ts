@@ -31,7 +31,7 @@ export class DefaultSidebar extends Sidebar {
             x: 0,
             y: 0,
             width: this.clippedWidth,
-            height: g.canvas.height,
+            height: g.height,
             fill: this.timeline.background,
         });
 
@@ -47,7 +47,7 @@ export class DefaultSidebar extends Sidebar {
             x: 0,
             y: 0,
             width: this.clippedWidth,
-            height: g.canvas.height,
+            height: g.height,
             fill: this.overlayColor,
         });
 
@@ -70,7 +70,7 @@ export class DefaultSidebar extends Sidebar {
         const dividerX = this.clippedWidth - 0.5;
         g.strokePath({
             color: this.dividerColor,
-            path: new Path(dividerX, 0).lineTo(dividerX, g.canvas.height),
+            path: new Path(dividerX, 0).lineTo(dividerX, g.height),
         });
     }
 

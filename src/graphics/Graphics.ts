@@ -39,6 +39,11 @@ export class Graphics {
      */
     readonly hitCtx: CanvasRenderingContext2D;
 
+    /**
+     * Dots per pixel
+     */
+    private dppx = window.devicePixelRatio;
+
     constructor(readonly canvas: HTMLCanvasElement, hitCanvas?: HitCanvas) {
         this.ctx = canvas.getContext('2d')!;
         this.hitCanvas = hitCanvas ? hitCanvas : new HitCanvas();
@@ -48,14 +53,14 @@ export class Graphics {
     createChild(width: number, height: number) {
         const tmpHitCanvas = this.hitCanvas.createChild(width, height);
         const childCanvas = document.createElement('canvas');
-        childCanvas.width = width;
-        childCanvas.height = height;
-        return new Graphics(childCanvas, tmpHitCanvas);
+        const g = new Graphics(childCanvas, tmpHitCanvas);
+        g.resize(width, height);
+        return g;
     }
 
     copy(g: Graphics, dx: number, dy: number) {
-        this.ctx.drawImage(g.canvas, dx, dy);
-        g.hitCanvas.transferTo(this.hitCtx, dx, dy, g.canvas.width, g.canvas.height);
+        this.ctx.drawImage(g.canvas, dx, dy, g.width, g.height);
+        g.hitCanvas.transferTo(this.hitCtx, dx, dy, g.width, g.height);
     }
 
     clearHitCanvas() {
@@ -64,16 +69,46 @@ export class Graphics {
 
     fillCanvas(fill: FillStyle) {
         this.ctx.fillStyle = fill;
-        this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+        this.ctx.fillRect(0, 0, this.width, this.height);
+    }
+
+    /**
+     * Returns the CSS width.
+     */
+    get width() {
+        return parseInt(this.canvas.style.width) || this.canvas.width;
+    }
+
+    /**
+     * Returns the CSS height.
+     */
+    get height() {
+        return parseInt(this.canvas.style.height) || this.canvas.height;
     }
 
     resize(width: number, height: number) {
+        const { devicePixelRatio: dppx } = window;
+
+        const cssWidth = Math.floor(width);
+        const cssHeight = Math.floor(height);
+        const canvasWidth = Math.floor(width * dppx);
+        const canvasHeight = Math.floor(height * dppx);
+
+        const { canvas, ctx, hitCtx } = this;
+
         // Careful not to reset dimensions all the time (it does lots of stuff)
-        if (this.ctx.canvas.width !== width || this.ctx.canvas.height !== height) {
-            this.ctx.canvas.width = width;
-            this.ctx.canvas.height = height;
-            this.hitCanvas.ctx.canvas.width = width;
-            this.hitCanvas.ctx.canvas.height = height;
+        if (canvas.width !== canvasWidth || canvas.height !== canvasHeight || dppx !== this.dppx) {
+            this.dppx = dppx;
+
+            // When hidpi or zoomed in/out, match the canvas for a crisper look.
+            canvas.width = Math.floor(width * dppx);
+            canvas.height = Math.floor(height * dppx);
+            ctx.setTransform(dppx, 0, 0, dppx, 0, 0);
+
+            canvas.style.width = `${cssWidth}px`;
+            canvas.style.height = `${cssHeight}px`;
+            hitCtx.canvas.width = cssWidth;
+            hitCtx.canvas.height = cssHeight;
         }
     }
 

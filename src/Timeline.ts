@@ -16,16 +16,6 @@ import { ViewportMouseMoveEvent } from './ViewportMouseMoveEvent';
 import { ViewportRegion } from './ViewportRegion';
 import { ViewportSelectionEvent } from './ViewportSelectionEvent';
 
-/**
- * Resizes a canvas, but only if the new bounds are different.
- */
-function resizeCanvas(canvas: HTMLCanvasElement, width: number, height: number) {
-    if (canvas.width != width || canvas.height != height) {
-        canvas.width = width;
-        canvas.height = height;
-    }
-}
-
 export const REGION_ID_VIEWPORT = 'viewport';
 export const REGION_ID_DIVIDER = 'divider';
 
@@ -76,6 +66,8 @@ export class Timeline {
     private _selectedLineDash = [4, 3];
     private _selectedLineColor = 'transparent';
 
+    private mediaQueryList?: MediaQueryList;
+    private mediaQueryListEventListener: () => void;
     private animationFrameRequest?: number;
 
     private viewportRegion = new ViewportRegion(REGION_ID_VIEWPORT, this);
@@ -117,6 +109,13 @@ export class Timeline {
 
         new EventHandler(canvas, this.g.hitCanvas);
 
+        this.mediaQueryListEventListener = () => {
+            this.repaintRequested = true;
+            this.mediaQueryList = matchMedia(`(resolution: ${window.devicePixelRatio}dppx)`);
+            this.mediaQueryList.addEventListener('change', this.mediaQueryListEventListener, { once: true });
+        };
+        this.mediaQueryListEventListener();
+
         const frozenCanvas = document.createElement('canvas');
         frozenCanvas.className = 'timeline-frozen';
         frozenCanvas.style.position = 'absolute';
@@ -135,6 +134,7 @@ export class Timeline {
      * Free resources used by this Timeline instance (like intervals).
      */
     disconnect() {
+        this.mediaQueryList?.removeEventListener('change', this.mediaQueryListEventListener);
         this.animationFrameRequest && window.cancelAnimationFrame(this.animationFrameRequest);
         for (const drawable of this._drawables) {
             drawable.disconnectedCallback();
@@ -691,7 +691,7 @@ export class Timeline {
                 g.fillRect({
                     x: drawable.x,
                     y: drawable.y,
-                    width: g.canvas.width,
+                    width: g.width,
                     height: drawable.height,
                     fill: drawable.background,
                 });
@@ -710,7 +710,7 @@ export class Timeline {
                     g.strokePath({
                         color: band.borderColor || this.bandBorderColor,
                         lineWidth: borderWidth,
-                        path: new Path(0, dividerY).lineTo(g.canvas.width, dividerY),
+                        path: new Path(0, dividerY).lineTo(g.width, dividerY),
                     });
                 }
             }
@@ -739,22 +739,22 @@ export class Timeline {
             x: 0,
             y: 0,
             width: x1,
-            height: g.canvas.height,
+            height: g.height,
             fill: this._unselectedBackground,
         });
         g.fillRect({
             x: x2,
             y: 0,
-            width: g.canvas.width - x2,
-            height: g.canvas.height,
+            width: g.width - x2,
+            height: g.height,
             fill: this._unselectedBackground,
         });
 
         g.fillRect({
             x: x1,
             y: 0,
-            width: g.canvas.width,
-            height: g.canvas.height,
+            width: g.width,
+            height: g.height,
             fill: this._selectedBackground,
         });
 
@@ -762,9 +762,9 @@ export class Timeline {
             color: this._selectedLineColor,
             dash: this._selectedLineDash,
             path: new Path(x1 + 0.5, 0)
-                .lineTo(x1 + 0.5, g.canvas.height)
+                .lineTo(x1 + 0.5, g.height)
                 .moveTo(x2 - 0.5, 0)
-                .lineTo(x2 - 0.5, g.canvas.height)
+                .lineTo(x2 - 0.5, g.height)
         });
     }
 
@@ -772,7 +772,7 @@ export class Timeline {
     // possible to image dump the entire main canvas.
     private drawFrozenTop() {
         const frozenCtx = this.frozenGraphics.ctx;
-        const width = this.g.canvas.width;
+        const width = this.g.width;
 
         let height = 0;
         for (const band of this.getBands()) {
@@ -781,9 +781,9 @@ export class Timeline {
             }
         }
 
-        resizeCanvas(this.frozenGraphics.canvas, width, height);
+        this.frozenGraphics.resize(width, height);
         if (height) {
-            frozenCtx.drawImage(this.g.canvas, 0, 0);
+            frozenCtx.drawImage(this.g.canvas, 0, 0, this.frozenGraphics.canvas.width, this.frozenGraphics.canvas.height, 0, 0, width, height);
         }
     }
 }

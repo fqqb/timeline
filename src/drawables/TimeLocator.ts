@@ -25,7 +25,7 @@ export class TimeLocator extends Drawable {
             color: this.lineColor,
             lineWidth: this.lineWidth,
             dash: this.lineDash,
-            path: new Path(x + 0.5, 0).lineTo(x + 0.5, g.canvas.height),
+            path: new Path(x + 0.5, 0).lineTo(x + 0.5, g.height),
         });
 
         g.ctx.beginPath();
