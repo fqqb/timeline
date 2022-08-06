@@ -3,6 +3,8 @@ import { HitCanvas } from './HitCanvas';
 import { HitRegionSpecification } from './HitRegionSpecification';
 import { KeyboardHitEvent } from './KeyboardHitEvent';
 import { MouseHitEvent } from './MouseHitEvent';
+import { TouchHit } from './TouchHit';
+import { TouchHitEvent } from './TouchHitEvent';
 
 /**
  * Consumes any click event wherever they may originate.
@@ -45,6 +47,8 @@ export class EventHandler {
     // Purpose is to support the user doing grab actions while leaving the canvas.
     private documentMouseMoveListener = (e: MouseEvent) => this.onDocumentMouseMove(e);
     private documentMouseUpListener = (e: MouseEvent) => this.onDocumentMouseUp(e);
+    private documentTouchMoveListener = (e: TouchEvent) => this.onDocumentTouchMove(e);
+    private documentTouchEndListener = (e: TouchEvent) => this.onDocumentTouchEnd(e);
 
     private prevActiveRegions: HitRegionSpecification[] = [];
 
@@ -58,6 +62,8 @@ export class EventHandler {
         canvas.addEventListener('mouseup', e => this.onCanvasMouseUp(e), false);
         canvas.addEventListener('mouseleave', e => this.onCanvasMouseLeave(e), false);
         canvas.addEventListener('mousemove', e => this.onCanvasMouseMove(e), false);
+        canvas.addEventListener('touchstart', e => this.onCanvasTouchStart(e), false);
+        canvas.addEventListener('touchmove', e => this.onCanvasTouchMove(e), false);
         canvas.addEventListener('wheel', e => this.onCanvasWheel(e), false);
     }
 
@@ -202,7 +208,11 @@ export class EventHandler {
         if (this.grabPoint && !this.grabbing && isLeftPressed(domEvent)) {
             const distance = measureDistance(this.grabPoint.x, this.grabPoint.y, x, y);
             if (Math.abs(distance) > snap) {
-                this.initiateGrab();
+                document.addEventListener('click', consumeNextClick, true /* capture ! */);
+                document.addEventListener('mouseup', this.documentMouseUpListener);
+                document.addEventListener('mousemove', this.documentMouseMoveListener);
+                this.grabbing = true;
+
                 // Prevent stutter on first move
                 if (snap > 0 && this.grabPoint) {
                     this.grabPoint = this.grabbingPoint = { x, y };
@@ -219,11 +229,64 @@ export class EventHandler {
         }
     }
 
-    private initiateGrab() {
-        document.addEventListener('click', consumeNextClick, true /* capture ! */);
-        document.addEventListener('mouseup', this.documentMouseUpListener);
-        document.addEventListener('mousemove', this.documentMouseMoveListener);
-        this.grabbing = true;
+    private onCanvasTouchStart(domEvent: TouchEvent) {
+        const hitEvent = this.toTouchHitEvent(domEvent);
+        const { x, y } = hitEvent.touches[0];
+
+        if (hitEvent.touches.length === 1) {
+            const grabRegion = this.hitCanvas.getActiveRegion(x, y, 'grab');
+            if (grabRegion) {
+                this.grabPoint = this.grabbingPoint = { x, y };
+                this.grabTarget = grabRegion;
+                // Actual grab initialisation is subject to snap (see mousemove)
+            }
+        }
+
+        // Do not preventDefault(), it allows the canvas to receive focus
+        // when clicked on (useful for catching keyboard events).
+        domEvent.stopPropagation();
+    }
+
+    private onCanvasTouchMove(domEvent: TouchEvent) {
+        const hitEvent = this.toTouchHitEvent(domEvent);
+        const { x, y } = hitEvent.touches[0];
+
+        if (this.grabPoint && !this.grabbing && domEvent.touches.length === 1) {
+            const distance = measureDistance(this.grabPoint.x, this.grabPoint.y, x, y);
+            if (Math.abs(distance) > snap) {
+                document.addEventListener('touchend', this.documentTouchEndListener);
+                document.addEventListener('touchmove', this.documentTouchMoveListener);
+                this.grabbing = true;
+
+                // Prevent stutter on first move
+                if (snap > 0 && this.grabPoint) {
+                    this.grabPoint = this.grabbingPoint = { x, y };
+                }
+            }
+        }
+
+        if (this.grabbing && this.grabTarget && domEvent.touches.length === 1) {
+            domEvent.preventDefault();
+            domEvent.stopPropagation();
+
+            const grabHitEvent: GrabHitEvent = {
+                clientX: hitEvent.touches[0].clientX,
+                clientY: hitEvent.touches[0].clientY,
+                x: hitEvent.touches[0].x,
+                y: hitEvent.touches[0].y,
+                deltaX: x - this.grabPoint!.x,
+                deltaY: y - this.grabPoint!.y,
+                movementX: x - this.grabbingPoint!.x,
+                movementY: y - this.grabbingPoint!.y,
+                altKey: hitEvent.altKey,
+                ctrlKey: hitEvent.ctrlKey,
+                metaKey: hitEvent.metaKey,
+                shiftKey: hitEvent.shiftKey,
+            };
+
+            this.grabTarget.grab!(grabHitEvent);
+            this.grabbingPoint = { x, y };
+        }
     }
 
     private onCanvasWheel(domEvent: WheelEvent) {
@@ -260,6 +323,24 @@ export class EventHandler {
         this.onCanvasMouseMove(event);
     }
 
+    private onDocumentTouchEnd(domEvent: TouchEvent) {
+        if (this.grabbing) {
+            document.removeEventListener('touchend', this.documentTouchEndListener);
+            document.removeEventListener('touchmove', this.documentTouchMoveListener);
+            const grabTarget = this.grabTarget;
+            this.grabbing = false;
+            this.grabPoint = undefined;
+            this.grabTarget = undefined;
+            if (grabTarget?.grabEnd) {
+                grabTarget.grabEnd();
+            }
+        }
+    }
+
+    private onDocumentTouchMove(event: TouchEvent) {
+        this.onCanvasTouchMove(event);
+    }
+
     private toMouseHitEvent(domEvent: MouseEvent): MouseHitEvent {
         const bbox = this.canvas.getBoundingClientRect();
         return {
@@ -272,6 +353,26 @@ export class EventHandler {
             metaKey: domEvent.metaKey,
             shiftKey: domEvent.shiftKey,
             button: domEvent.button,
+        };
+    }
+
+    private toTouchHitEvent(domEvent: TouchEvent): TouchHitEvent {
+        const bbox = this.canvas.getBoundingClientRect();
+        const touches: TouchHit[] = [];
+        for (const touch of domEvent.touches) {
+            touches.push({
+                clientX: touch.clientX,
+                clientY: touch.clientY,
+                x: touch.clientX - bbox.left,
+                y: touch.clientY - bbox.top,
+            });
+        }
+        return {
+            touches,
+            altKey: domEvent.altKey,
+            ctrlKey: domEvent.ctrlKey,
+            metaKey: domEvent.metaKey,
+            shiftKey: domEvent.shiftKey,
         };
     }
 

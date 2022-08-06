@@ -46,6 +46,8 @@ export { RectFill } from './graphics/RectFill';
 export { RectStroke } from './graphics/RectStroke';
 export { TextFill } from './graphics/TextFill';
 export { TextMetrics } from './graphics/TextMetrics';
+export { TouchHit } from './graphics/TouchHit';
+export { TouchHitEvent } from './graphics/TouchHitEvent';
 export { WheelHitEvent } from './graphics/WheelHitEvent';
 export { Timeline } from './Timeline';
 export { TimelineEvent } from './TimelineEvent';
