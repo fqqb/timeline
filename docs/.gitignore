@@ -1,7 +1,7 @@
 /_data/tsdoc.json
 /_site/
 /.jekyll-cache/
-/assets/types/
+/assets/**/*.d.ts
 /assets/timeline.js
 /assets/timeline.js.map
 .ruby-version
