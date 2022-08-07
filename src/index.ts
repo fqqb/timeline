@@ -29,6 +29,7 @@ export { TimeLocator } from './drawables/TimeLocator';
 export { Bounds } from './graphics/Bounds';
 export { EllipseFill } from './graphics/EllipseFill';
 export { EllipseStroke } from './graphics/EllipseStroke';
+export { EventHandler } from './graphics/EventHandler';
 export { FillStyle } from './graphics/FillStyle';
 export { GrabHitEvent } from './graphics/GrabHitEvent';
 export { Graphics } from './graphics/Graphics';
