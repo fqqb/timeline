@@ -1,5 +1,6 @@
 import { Graphics } from '../graphics/Graphics';
 import { Path } from '../graphics/Path';
+import { Point } from '../graphics/Point';
 import { Drawable } from './Drawable';
 
 /**
@@ -21,15 +22,29 @@ export class TimeLocator extends Drawable {
 
         const x = Math.round(this.timeline.positionTime(this.time));
 
+        const top: Point = { x, y: 0 };
+        const bottom: Point = { x, y: g.height };
+
         g.strokePath({
             color: this.lineColor,
             lineWidth: this.lineWidth,
             dash: this.lineDash,
-            path: new Path(x + 0.5, 0).lineTo(x + 0.5, g.height),
+            path: new Path(top.x + 0.5, top.y).lineTo(bottom.x + 0.5, bottom.y),
         });
 
+        this.drawKnob(g, top, bottom);
+    }
+
+    /**
+     * Draw the knob shape on the locator. The default behaviour is to
+     * draw the bottom half of a circle.
+     *
+     * @param top top of the locator
+     * @param bottom bottom of the locator
+     */
+    drawKnob(g: Graphics, top: Point, bottom: Point) {
         g.ctx.beginPath();
-        g.ctx.arc(x + 0.5, 0, this.knobRadius, 0, 2 * Math.PI);
+        g.ctx.arc(top.x + 0.5, top.y, this.knobRadius, 0, 2 * Math.PI);
         g.ctx.fillStyle = this.knobColor;
         g.ctx.fill();
     }
