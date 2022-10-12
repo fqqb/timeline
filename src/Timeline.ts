@@ -11,6 +11,7 @@ import { Path } from './graphics/Path';
 import { TimeRange } from './TimeRange';
 import { Tool } from './Tool';
 import { ViewportChangeEvent } from './ViewportChangeEvent';
+import { ViewportDoubleClickEvent } from './ViewportDoubleClickEvent';
 import { ViewportMouseLeaveEvent } from './ViewportMouseLeaveEvent';
 import { ViewportMouseMoveEvent } from './ViewportMouseMoveEvent';
 import { ViewportRegion } from './ViewportRegion';
@@ -394,6 +395,22 @@ export class Timeline {
     removeViewportChangeListener(listener: (ev: ViewportChangeEvent) => void) {
         this.viewportChangeListeners = this.viewportChangeListeners
             .filter(el => (el !== listener));
+    }
+
+    /**
+     * Register a listener that recevies updates whenever the viewport
+     * is double-clicked.
+     */
+    addViewportDoubleClickListener(listener: (ev: ViewportDoubleClickEvent) => void) {
+        this.viewportRegion.addDoubleClickListener(listener);
+    }
+
+    /**
+     * Unregister a previously registered listener to stop receiving
+     * viewport double-click events.
+     */
+    removeViewportDoubleClickListener(listener: (ev: ViewportDoubleClickEvent) => void) {
+        this.viewportRegion.removeDoubleClickListener(listener);
     }
 
     /**

@@ -55,6 +55,7 @@ export { TimelineEvent } from './TimelineEvent';
 export { TimeRange } from './TimeRange';
 export { Tool } from './Tool';
 export { ViewportChangeEvent } from './ViewportChangeEvent';
+export { ViewportDoubleClickEvent } from './ViewportDoubleClickEvent';
 export { ViewportMouseLeaveEvent } from './ViewportMouseLeaveEvent';
 export { ViewportMouseMoveEvent } from './ViewportMouseMoveEvent';
 export { ViewportSelectionEvent } from './ViewportSelectionEvent';

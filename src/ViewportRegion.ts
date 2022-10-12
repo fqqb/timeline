@@ -5,8 +5,10 @@ import { MouseHitEvent } from './graphics/MouseHitEvent';
 import { Point } from './graphics/Point';
 import { WheelHitEvent } from './graphics/WheelHitEvent';
 import { Timeline } from './Timeline';
+import { ViewportDoubleClickEvent } from './ViewportDoubleClickEvent';
 import { ViewportMouseLeaveEvent } from './ViewportMouseLeaveEvent';
 import { ViewportMouseMoveEvent } from './ViewportMouseMoveEvent';
+
 
 export class ViewportRegion implements HitRegionSpecification {
     id: string;
@@ -14,11 +16,29 @@ export class ViewportRegion implements HitRegionSpecification {
     private grabStartPoint?: Point;
     private grabStartCursor?: string;
 
+    private doubleClickListeners: Array<(ev: ViewportDoubleClickEvent) => void> = [];
     private mouseMoveListeners: Array<(ev: ViewportMouseMoveEvent) => void> = [];
     private mouseLeaveListeners: Array<(ev: ViewportMouseLeaveEvent) => void> = [];
 
     constructor(id: string, private timeline: Timeline) {
         this.id = id;
+    }
+
+    /**
+     * Register a listener that recevies updates whenever the viewport
+     * is double-clicked.
+     */
+    addDoubleClickListener(listener: (ev: ViewportDoubleClickEvent) => void) {
+        this.doubleClickListeners.push(listener);
+    }
+
+    /**
+     * Unregister a previously registered listener to stop receiving
+     * viewport double-click events.
+     */
+    removeDoubleClickListener(listener: (ev: ViewportDoubleClickEvent) => void) {
+        this.doubleClickListeners = this.doubleClickListeners
+            .filter(el => (el !== listener));
     }
 
     /**
@@ -53,6 +73,15 @@ export class ViewportRegion implements HitRegionSpecification {
     removeMouseLeaveListener(listener: (ev: ViewportMouseLeaveEvent) => void) {
         this.mouseLeaveListeners = this.mouseLeaveListeners
             .filter(el => (el !== listener));
+    }
+
+    doubleClick(mouseEvent: MouseHitEvent) {
+        const vpEvent: ViewportDoubleClickEvent = {
+            clientX: mouseEvent.clientX,
+            clientY: mouseEvent.clientY,
+            time: this.timeline.timeForCanvasPosition(mouseEvent.x),
+        };
+        this.doubleClickListeners.forEach(l => l(vpEvent));
     }
 
     click() {

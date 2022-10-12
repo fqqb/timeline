@@ -1,4 +1,3 @@
-
 /**
  * Event generated while using a mouse over a hit region.
  */
