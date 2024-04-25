@@ -343,7 +343,7 @@ export class LinePlot extends Band {
      */
     get lineColor() { return this._lineColor; }
     set lineColor(lineColor: string) {
-        this.lineColor = lineColor;
+        this._lineColor = lineColor;
         this.reportMutation();
     }
 
@@ -352,7 +352,7 @@ export class LinePlot extends Band {
      */
     get lineWidth() { return this._lineWidth; }
     set lineWidth(lineWidth: number) {
-        this.lineWidth = lineWidth;
+        this._lineWidth = lineWidth;
         this.reportMutation();
     }
 
