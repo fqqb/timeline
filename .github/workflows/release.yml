@@ -38,10 +38,6 @@ jobs:
 
       - name: Draft Release
         id: create_release
-        uses: actions/create-release@latest
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.ref }}
-          release_name: v${{ steps.set-version.outputs.version }}
           draft: true # Only publish after manual trigger
