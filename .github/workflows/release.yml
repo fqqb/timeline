@@ -29,13 +29,6 @@ jobs:
           echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_AUTH_TOKEN }}" > ~/.npmrc
           npm publish --access public
 
-      - name: Set version
-        id: set-version
-        run: |
-          REF=${{ github.ref }}
-          VERSION=${REF/refs\/tags\/v/}
-          echo "::set-output name=version::$VERSION"
-
       - name: Draft Release
         id: create_release
         uses: softprops/action-gh-release@v2
