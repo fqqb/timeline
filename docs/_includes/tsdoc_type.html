@@ -3,7 +3,7 @@
 
 
 {%- elsif include.type.type == 'reference' -%}
-    {%- if include.type.id -%}
+    {%- if include.type.target -%}
 
         {%- assign match = nil -%}
         {%- for page in site.pages -%}

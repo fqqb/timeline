@@ -31,7 +31,11 @@ permalink: /api/
                 {%- endif -%}
             </td>
             <td style="white-space: nowrap">
-                {{- child.kindString -}}
+                {%- case child.kind -%}
+                {%- when 128 -%}Class
+                {%- when 256 -%}Interface
+                {%- when 2097152 -%}Type alias
+                {%- endcase -%}
             </td>
             <td>
                 {%- include tsdoc_comment_abbr.html comment=child.comment -%}

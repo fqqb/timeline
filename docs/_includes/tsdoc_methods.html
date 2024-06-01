@@ -3,7 +3,7 @@
         {%- if child.flags.isPrivate -%}
             {%- continue -%}
         {%- endif -%}
-        {%- if child.kindString == "Constructor" -%}
+        {%- if child.kind == 512 -%}  {%- comment -%}Constructor{%- endcomment -%}
             {%- for signature in child.signatures -%}
             <dt>
                 <a class="anchor" name="{{ child.name }}"></a>
@@ -33,7 +33,7 @@
         {%- endfor -%}
 
 
-        {%- elsif child.kindString == "Method" -%}
+        {%- elsif child.kind == 2048 -%}  {%- comment -%}Method{%- endcomment -%}
             {%- for signature in child.signatures -%}
                 <dt>
                     <a class="anchor" name="{{ child.name }}"></a>

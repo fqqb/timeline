@@ -10,7 +10,11 @@
                     {%- if child.flags.isAbstract -%}
                         abstract&nbsp;
                     {%- endif -%}
-                    {{- child.kindString | downcase -}}
+
+                    {%- case child.kind -%}
+                    {%- when 128 -%}class
+                    {%- when 256 -%}interface
+                    {%- endcase -%}
                 </code>
                 {{ child.name -}}
                 {%- if child.typeParameter -%}
@@ -43,10 +47,10 @@
             </h1>
             {%- include tsdoc_comment.html comment=child.comment -%}
 
-            {% assign constructors = child.children | where: "kindString", "Constructor" %}
-            {% assign properties = child.children | where: "kindString", "Property" %}
-            {% assign accessors = child.children | where: "kindString", "Accessor" %}
-            {% assign methods = child.children | where: "kindString", "Method" %}
+            {% assign constructors = child.children | where: "kind", 512 %}
+            {% assign properties = child.children | where: "kind", 1024%}
+            {% assign accessors = child.children | where: "kind", 262144 %}
+            {% assign methods = child.children | where: "kind", 2048 %}
 
             {%- if accessors -%}
                 {%- assign all_properties = properties | concat:accessors | sort:"name" -%}
@@ -60,7 +64,7 @@
                 {%- assign all_methods = methods -%}
             {%- endif -%}
 
-            {%- if child.kindString == "Function" -%}
+            {%- if child.kind == 64 -%} {%- comment -%}Function{%- endcomment -%}
                 {%- for signature in child.signatures -%}
                     {%- include tsdoc_comment.html comment=signature.comment -%}
                 {%- endfor -%}
@@ -77,7 +81,7 @@
                     {%- endfor -%}
                 </dl>
 
-            {%- elsif child.kindString == "Type alias" -%}
+            {%- elsif child.kind == 2097152 -%} {%- comment -%}Type alias{%- endcomment -%}
                 <dl class="field-list">
                     {%- if child.type -%}
                         <dt>
