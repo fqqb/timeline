@@ -13,7 +13,7 @@
     "prepublishOnly": "npm run build",
     "watch": "npm run build -- --watch",
     "tsdoc": "typedoc --options typedoc.json",
-    "serve": "cd docs; bundle exec jekyll serve",
+    "serve": "cd docs; JEKYLL_ENV=production bundle exec jekyll serve",
     "jekyll": "npm run tsdoc && npm run serve",
     "dev": "npx concurrently -n esbuild,jekyll -c yellow,magenta npm:watch npm:jekyll"
   },
