@@ -1,5 +1,4 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.11.2/css/all.min.css">
-<script src="https://cdn.jsdelivr.net/npm/luxon@1.21.3"></script>
 
 <style>
 .toolbar {
@@ -128,9 +127,12 @@ button:hover, button.active {
 
         const tracker = new MouseTracker(timeline);
 
-        const start = luxon.DateTime.local().startOf('day');
-        const stop = luxon.DateTime.local().endOf('day');
-        timeline.setViewRange(start.toMillis(), stop.toMillis());
+        const dt = new Date();
+        dt.setHours(0, 0, 0, 0);
+        const start = new Date(dt.getTime());
+        dt.setDate(dt.getDate() + 1);
+        const stop = new Date(dt.getTime());
+        timeline.setViewRange(start.getTime(), stop.getTime());
 
         timeline.sidebar.overlayColor = 'rgba(238, 238, 238, 0.2)';
 
@@ -147,10 +149,12 @@ button:hover, button.active {
             }
 
             const randomItems = [];
-            const dataStart = start.minus({ days: 5 }).toMillis();
-            const dataStop = start.plus({ days: 5 }).toMillis();
+            const dataStart = new Date(start.getTime());
+            dataStart.setDate(start.getDate() - 5);
+            const dataStop = new Date(start.getTime());
+            dataStop.setDate(start.getDate() + 5);
             for (let j = 0; j < 50; j++) {
-                const itemStart = getRandomInt(dataStart, dataStop);
+                const itemStart = getRandomInt(dataStart.getTime(), dataStop.getTime());
                 const itemDuration = getRandomInt(2000000, 8000000);
                 randomItems.push({
                     start: itemStart,

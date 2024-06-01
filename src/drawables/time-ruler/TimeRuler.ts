@@ -1,9 +1,101 @@
-import { DateTime } from 'luxon';
+import { addDays, addHours, addMinutes, addMonths, addWeeks, addYears, setHours, startOfDay, startOfDecade, startOfHour, startOfMonth, startOfWeek, startOfYear } from 'date-fns';
+import { formatInTimeZone, fromZonedTime, toZonedTime } from 'date-fns-tz';
+import { enUS } from 'date-fns/locale';
 import { Graphics } from '../../graphics/Graphics';
 import { Path } from '../../graphics/Path';
 import { Band } from '../Band';
 import { ScaleKind } from './ScaleKind';
 
+/**
+ * Perform a timezone-aware startOfHour operation
+ */
+function startOfTZHour(t: Date, timezone: string) {
+    // Shift t to the proper timezone
+    t = toZonedTime(t, timezone);
+
+    t = startOfHour(t);
+
+    // Shift back
+    return fromZonedTime(t, timezone);
+}
+
+/**
+ * Perform a timezone-aware startOfDay operation
+ */
+function startOfTZDay(t: Date, timezone: string) {
+    // Shift t to the proper timezone
+    t = toZonedTime(t, timezone);
+
+    t = startOfDay(t);
+
+    // Shift back
+    return fromZonedTime(t, timezone);
+}
+
+/**
+ * Perform a timezone-aware startOfWeek operation
+ */
+function startOfTZWeek(t: Date, timezone: string) {
+    // Shift t to the proper timezone
+    t = toZonedTime(t, timezone);
+
+    t = startOfWeek(t, { weekStartsOn: 1 });
+
+    // Shift back
+    return fromZonedTime(t, timezone);
+}
+
+/**
+ * Perform a timezone-aware startOfMonth operation
+ */
+function startOfTZMonth(t: Date, timezone: string) {
+    // Shift t to the proper timezone
+    t = toZonedTime(t, timezone);
+
+    t = startOfMonth(t);
+
+    // Shift back
+    return fromZonedTime(t, timezone);
+}
+
+/**
+ * Perform a timezone-aware startOfYear operation
+ */
+function startOfTZYear(t: Date, timezone: string) {
+    // Shift t to the proper timezone
+    t = toZonedTime(t, timezone);
+
+    t = startOfYear(t);
+
+    // Shift back
+    return fromZonedTime(t, timezone);
+}
+
+/**
+ * Perform a timezone-aware startOfDecade operation
+ */
+function startOfTZDecade(t: Date, timezone: string) {
+    // Shift t to the proper timezone
+    t = toZonedTime(t, timezone);
+
+    t = startOfDecade(t);
+
+    // Shift back
+    return fromZonedTime(t, timezone);
+}
+
+/**
+ * Perform a timezone-aware setHours operation
+ */
+function setTZHours(t: Date, hours: number, timezone: string) {
+    // Shift t to the proper timezone
+    t = toZonedTime(t, timezone);
+
+    t = setHours(t, hours);
+
+    // Shift back
+    return fromZonedTime(t, timezone);
+}
 
 /**
  * A ruler that interprets time as milliseconds since January 01, 1970, 00:00:00 UTC.
@@ -154,31 +246,36 @@ class HourScale implements Scale {
     }
 
     drawBandContent(g: Graphics, ruler: TimeRuler) {
-        let t = DateTime.fromMillis(ruler.timeline.start);
-        if (ruler.timezone) {
-            t = t.setZone(ruler.timezone);
-        }
-        t = t.startOf('hour');
+        let t = new Date(ruler.timeline.start);
 
-        const halfHourDistance = ruler.timeline.distanceBetween(t.toMillis(), t.plus({ minutes: 30 }).toMillis());
-        const quarterHourDistance = ruler.timeline.distanceBetween(t.toMillis(), t.plus({ minutes: 15 }).toMillis());
+        // Default to local
+        const timezone = ruler.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+        t = startOfTZHour(t, timezone);
+
+        const halfHourDistance = ruler.timeline.distanceBetween(t.getTime(), addMinutes(t, 30).getTime());
+        const quarterHourDistance = ruler.timeline.distanceBetween(t.getTime(), addMinutes(t, 15).getTime());
 
         this.majorX.length = 0;
         this.majorLabels.length = 0;
         this.midX.length = 0;
         this.minorX.length = 0;
 
-        const stop = DateTime.fromMillis(ruler.timeline.stop);
-        while (t <= stop) {
-            const x = ruler.timeline.positionTime(t.toMillis());
+        while (t.getTime() <= ruler.timeline.stop) {
+            const x = ruler.timeline.positionTime(t.getTime());
 
             this.majorX.push(x);
             this.minorX.push(x + quarterHourDistance);
             this.midX.push(x + halfHourDistance);
             this.minorX.push(x + halfHourDistance + quarterHourDistance);
-            this.majorLabels.push(t.toFormat(t.hour === 0 ? 'MMM dd' : 'HH'));
 
-            t = t.plus({ hours: 1 });
+            let majorLabel = formatInTimeZone(t, timezone, 'HH', { locale: enUS });
+            if (majorLabel === '00') {
+                majorLabel = formatInTimeZone(t, timezone, 'MMM dd', { locale: enUS });
+            }
+            this.majorLabels.push(majorLabel);
+
+            t = addHours(t, 1);
         }
 
         const height = g.height;
@@ -270,21 +367,20 @@ class QuarterDayScale implements Scale {
     }
 
     drawBandContent(g: Graphics, ruler: TimeRuler) {
-        let t = DateTime.fromMillis(ruler.timeline.start);
-        if (ruler.timezone) {
-            t = t.setZone(ruler.timezone);
-        }
-        t = t.startOf('day');
+        let t = new Date(ruler.timeline.start);
+
+        // Default to local
+        const timezone = ruler.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+        t = startOfTZDay(t, timezone);
 
         this.majorX.length = 0;
 
         const height = g.height;
         const font = `${ruler.timeline.textSize}px ${ruler.timeline.fontFamily}`;
 
-        const stop = DateTime.fromMillis(ruler.timeline.stop);
-
-        while (t <= stop) {
-            const x = ruler.timeline.positionTime(t.toMillis());
+        while (t.getTime() <= ruler.timeline.stop) {
+            const x = ruler.timeline.positionTime(t.getTime());
             this.majorX.push(x);
 
             g.strokePath({
@@ -296,7 +392,7 @@ class QuarterDayScale implements Scale {
             g.fillText({
                 x: x + 2,
                 y: height / 4,
-                text: t.toFormat('EEE dd/MM'),
+                text: formatInTimeZone(t, timezone, 'EEE dd/MM', { locale: enUS }),
                 font,
                 color: ruler.textColor,
                 baseline: 'middle',
@@ -304,9 +400,9 @@ class QuarterDayScale implements Scale {
             });
 
             for (const hour of [0, 6, 12, 18]) {
-                const sub = t.set({ hour });
+                const sub = setTZHours(t, hour, timezone);
                 if (hour !== 0) {
-                    const subX = ruler.timeline.positionTime(sub.toMillis());
+                    const subX = ruler.timeline.positionTime(sub.getTime());
                     g.strokePath({
                         color: ruler.timeline.bandBorderColor,
                         path: new Path(0, 0)
@@ -314,11 +410,11 @@ class QuarterDayScale implements Scale {
                             .lineTo(Math.round(subX) + 0.5, height),
                     });
                 }
-                const subLabelX = ruler.timeline.positionTime(sub.plus({ hours: 3 }).toMillis());
+                const subLabelX = ruler.timeline.positionTime(addHours(sub, 3).getTime());
                 g.fillText({
                     x: subLabelX,
                     y: height * 0.75,
-                    text: sub.toFormat('HH'),
+                    text: formatInTimeZone(sub, timezone, 'HH', { locale: enUS }),
                     font,
                     color: ruler.textColor,
                     baseline: 'middle',
@@ -326,7 +422,7 @@ class QuarterDayScale implements Scale {
                 });
             }
 
-            t = t.plus({ days: 1 }); // This accounts for DST (adding hours does not)
+            t = addDays(t, 1); // This accounts for DST (adding hours does not)
         }
     }
 
@@ -363,21 +459,20 @@ class WeekDayScale implements Scale {
     }
 
     drawBandContent(g: Graphics, ruler: TimeRuler) {
-        let t = DateTime.fromMillis(ruler.timeline.start);
-        if (ruler.timezone) {
-            t = t.setZone(ruler.timezone);
-        }
-        t = t.startOf('week');
+        let t = new Date(ruler.timeline.start);
+
+        // Default to local
+        const timezone = ruler.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+        t = startOfTZWeek(t, timezone);
 
         this.majorX.length = 0;
 
         const height = g.height;
         const font = `${ruler.timeline.textSize}px ${ruler.timeline.fontFamily}`;
 
-        const stop = DateTime.fromMillis(ruler.timeline.stop);
-
-        while (t <= stop) {
-            const x = ruler.timeline.positionTime(t.toMillis());
+        while (t.getTime() <= ruler.timeline.stop) {
+            const x = ruler.timeline.positionTime(t.getTime());
             this.majorX.push(x);
 
             g.strokePath({
@@ -389,37 +484,35 @@ class WeekDayScale implements Scale {
             g.fillText({
                 x: x + 2,
                 y: height / 4,
-                text: t.toFormat("dd MMM, yy"),
+                text: formatInTimeZone(t, timezone, "dd MMM, yy", { locale: enUS }),
                 font,
                 color: ruler.textColor,
                 baseline: 'middle',
                 align: 'left',
             });
 
-            for (let weekday = 1; weekday <= 7; weekday++) {
-                const sub = t.set({ weekday });
-                if (weekday !== 1) {
-                    const subX = ruler.timeline.positionTime(sub.toMillis());
-                    g.strokePath({
-                        color: ruler.timeline.bandBorderColor,
-                        path: new Path(0, 0)
-                            .moveTo(Math.round(subX) + 0.5, height / 2)
-                            .lineTo(Math.round(subX) + 0.5, height),
-                    });
-                }
-                const subLabelX = ruler.timeline.positionTime(sub.plus({ hours: 12 }).toMillis());
+            for (let weekday = 0; weekday < 7; weekday++) {
+                t = addDays(t, 1);
+
+                const subX = ruler.timeline.positionTime(t.getTime());
+                g.strokePath({
+                    color: ruler.timeline.bandBorderColor,
+                    path: new Path(0, 0)
+                        .moveTo(Math.round(subX) + 0.5, height / 2)
+                        .lineTo(Math.round(subX) + 0.5, height),
+                });
+
+                const subLabelX = ruler.timeline.positionTime(addHours(t, 12).getTime());
                 g.fillText({
                     x: subLabelX,
                     y: height * 0.75,
-                    text: sub.toFormat('EEEEE'),
+                    text: formatInTimeZone(t, timezone, 'EEEEE', { locale: enUS }),
                     font,
                     color: ruler.textColor,
                     baseline: 'middle',
                     align: 'center',
                 });
             }
-
-            t = t.plus({ weeks: 1 });
         }
     }
 
@@ -456,11 +549,12 @@ class WeekScale implements Scale {
     }
 
     drawBandContent(g: Graphics, ruler: TimeRuler) {
-        let t = DateTime.fromMillis(ruler.timeline.start);
-        if (ruler.timezone) {
-            t = t.setZone(ruler.timezone);
-        }
-        t = t.startOf('month');
+        let t = new Date(ruler.timeline.start);
+
+        // Default to local
+        const timezone = ruler.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+        t = startOfTZMonth(t, timezone);
 
         this.majorX.length = 0;
 
@@ -468,10 +562,9 @@ class WeekScale implements Scale {
         const font = `${ruler.timeline.textSize}px ${ruler.timeline.fontFamily}`;
 
         const start = t;
-        const stop = DateTime.fromMillis(ruler.timeline.stop);
 
-        while (t <= stop) {
-            const x = ruler.timeline.positionTime(t.toMillis());
+        while (t.getTime() <= ruler.timeline.stop) {
+            const x = ruler.timeline.positionTime(t.getTime());
             this.majorX.push(x);
 
             g.strokePath({
@@ -483,19 +576,19 @@ class WeekScale implements Scale {
             g.fillText({
                 x: x + 2,
                 y: height / 4,
-                text: t.toFormat("LLLL"),
+                text: formatInTimeZone(t, timezone, "LLLL", { locale: enUS }),
                 font,
                 color: ruler.textColor,
                 baseline: 'middle',
                 align: 'left',
             });
 
-            t = t.plus({ months: 1 });
+            t = addMonths(t, 1);
         }
 
-        t = start.startOf('week');
-        while (t <= stop) {
-            const x = ruler.timeline.positionTime(t.toMillis());
+        t = startOfTZWeek(start, timezone);
+        while (t.getTime() <= ruler.timeline.stop) {
+            const x = ruler.timeline.positionTime(t.getTime());
 
             g.strokePath({
                 color: ruler.timeline.bandBorderColor,
@@ -503,18 +596,19 @@ class WeekScale implements Scale {
                     .moveTo(Math.round(x) + 0.5, height / 2)
                     .lineTo(Math.round(x) + 0.5, height),
             });
-            const subLabelX = ruler.timeline.positionTime(t.plus({ days: 3, hours: 12 }).toMillis());
+            let subLabelT = addDays(addHours(t, 12), 3);
+            const subLabelX = ruler.timeline.positionTime(subLabelT.getTime());
             g.fillText({
                 x: subLabelX,
                 y: height * 0.75,
-                text: t.toFormat('dd/MM'),
+                text: formatInTimeZone(t, timezone, 'dd/MM', { locale: enUS }),
                 font,
                 color: ruler.textColor,
                 baseline: 'middle',
                 align: 'center',
             });
 
-            t = t.plus({ weeks: 1 });
+            t = addWeeks(t, 1);
         }
     }
 
@@ -551,21 +645,20 @@ class MonthScale implements Scale {
     }
 
     drawBandContent(g: Graphics, ruler: TimeRuler) {
-        let t = DateTime.fromMillis(ruler.timeline.start);
-        if (ruler.timezone) {
-            t = t.setZone(ruler.timezone);
-        }
-        t = t.startOf('year');
+        let t = new Date(ruler.timeline.start);
+
+        // Default to local
+        const timezone = ruler.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+        t = startOfTZYear(t, timezone);
 
         this.majorX.length = 0;
 
         const height = g.height;
         const font = `${ruler.timeline.textSize}px ${ruler.timeline.fontFamily}`;
 
-        const stop = DateTime.fromMillis(ruler.timeline.stop);
-
-        while (t <= stop) {
-            const x = ruler.timeline.positionTime(t.toMillis());
+        while (t.getTime() <= ruler.timeline.stop) {
+            const x = ruler.timeline.positionTime(t.getTime());
             this.majorX.push(x);
 
             g.strokePath({
@@ -577,38 +670,34 @@ class MonthScale implements Scale {
             g.fillText({
                 x: x + 2,
                 y: height / 4,
-                text: t.toFormat("yyyy"),
+                text: formatInTimeZone(t, timezone, "yyyy", { locale: enUS }),
                 font,
                 color: ruler.textColor,
                 baseline: 'middle',
                 align: 'left',
             });
 
-            for (let month = 1; month <= 12; month++) {
-                const sub = t.set({ month });
-                if (month !== 1) {
-                    const subX = ruler.timeline.positionTime(sub.toMillis());
-                    g.strokePath({
-                        color: ruler.timeline.bandBorderColor,
-                        path: new Path(0, 0)
-                            .moveTo(Math.round(subX) + 0.5, height / 2)
-                            .lineTo(Math.round(subX) + 0.5, height),
-                    });
-                }
-                const x2 = sub.plus({ months: 1 }).toMillis();
-                const subLabelX = ruler.timeline.positionTime((sub.toMillis() + x2) / 2);
+            for (let month = 0; month < 12; month++) {
+                t = addMonths(t, 1);
+                const subX = ruler.timeline.positionTime(t.getTime());
+                g.strokePath({
+                    color: ruler.timeline.bandBorderColor,
+                    path: new Path(0, 0)
+                        .moveTo(Math.round(subX) + 0.5, height / 2)
+                        .lineTo(Math.round(subX) + 0.5, height),
+                });
+                const x2 = addMonths(t, 1).getTime();
+                const subLabelX = ruler.timeline.positionTime((t.getTime() + x2) / 2);
                 g.fillText({
                     x: subLabelX,
                     y: height * 0.75,
-                    text: sub.toFormat('LLL'),
+                    text: formatInTimeZone(t, timezone, 'LLL', { locale: enUS }),
                     font,
                     color: ruler.textColor,
                     baseline: 'middle',
                     align: 'center',
                 });
             }
-
-            t = t.plus({ years: 1 });
         }
     }
 
@@ -643,19 +732,18 @@ class YearScale implements Scale {
     }
 
     drawBandContent(g: Graphics, ruler: TimeRuler) {
-        let t = DateTime.fromMillis(ruler.timeline.start);
-        if (ruler.timezone) {
-            t = t.setZone(ruler.timezone);
-        }
-        t = t.startOf('year');
+        let t = new Date(ruler.timeline.start);
+
+        // Default to local
+        const timezone = ruler.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+        t = startOfTZYear(t, timezone);
 
         const height = g.height;
         const font = `${ruler.timeline.textSize}px ${ruler.timeline.fontFamily}`;
 
-        const stop = DateTime.fromMillis(ruler.timeline.stop);
-
-        while (t <= stop) {
-            const x = ruler.timeline.positionTime(t.toMillis());
+        while (t.getTime() <= ruler.timeline.stop) {
+            const x = ruler.timeline.positionTime(t.getTime());
 
             g.strokePath({
                 color: ruler.timeline.bandBorderColor,
@@ -666,14 +754,14 @@ class YearScale implements Scale {
             g.fillText({
                 x: x + 2,
                 y: height / 2,
-                text: t.toFormat("yyyy"),
+                text: formatInTimeZone(t, timezone, "yyyy", { locale: enUS }),
                 font,
                 color: ruler.textColor,
                 baseline: 'middle',
                 align: 'left',
             });
 
-            t = t.plus({ years: 1 });
+            t = addYears(t, 1);
         }
     }
 
@@ -697,20 +785,18 @@ class DecadeScale implements Scale {
     }
 
     drawBandContent(g: Graphics, ruler: TimeRuler) {
-        let t = DateTime.fromMillis(ruler.timeline.start);
-        if (ruler.timezone) {
-            t = t.setZone(ruler.timezone);
-        }
-        t = t.startOf('year');
-        t = t.set({ year: t.year - (t.year % 10) });
+        let t = new Date(ruler.timeline.start);
+
+        // Default to local
+        const timezone = ruler.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+        t = startOfTZDecade(t, timezone);
 
         const height = g.height;
         const font = `${ruler.timeline.textSize}px ${ruler.timeline.fontFamily}`;
 
-        const stop = DateTime.fromMillis(ruler.timeline.stop);
-
-        while (t <= stop) {
-            const x = ruler.timeline.positionTime(t.toMillis());
+        while (t.getTime() <= ruler.timeline.stop) {
+            const x = ruler.timeline.positionTime(t.getTime());
 
             g.strokePath({
                 color: ruler.timeline.bandBorderColor,
@@ -721,14 +807,14 @@ class DecadeScale implements Scale {
             g.fillText({
                 x: x + 2,
                 y: height / 2,
-                text: t.toFormat("yyyy") + 's',
+                text: formatInTimeZone(t, timezone, 'yyyy', { locale: enUS }) + 's',
                 font,
                 color: ruler.textColor,
                 baseline: 'middle',
                 align: 'left',
             });
 
-            t = t.plus({ years: 10 });
+            t = addYears(t, 10);
         }
     }
 
