@@ -6,7 +6,7 @@
     "strict": true,
     "sourceMap": true,
     "declaration": true,
-    "declarationDir": "types",
+    "declarationDir": "dist/types",
     "outDir": "dist/lib"
   },
   "include": [
