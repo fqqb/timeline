@@ -494,13 +494,15 @@ class WeekDayScale implements Scale {
             for (let weekday = 0; weekday < 7; weekday++) {
                 t = addDays(t, 1);
 
-                const subX = ruler.timeline.positionTime(t.getTime());
-                g.strokePath({
-                    color: ruler.timeline.bandBorderColor,
-                    path: new Path(0, 0)
-                        .moveTo(Math.round(subX) + 0.5, height / 2)
-                        .lineTo(Math.round(subX) + 0.5, height),
-                });
+                if (weekday !== 6) { // Avoid overlap with day divider
+                    const subX = ruler.timeline.positionTime(t.getTime());
+                    g.strokePath({
+                        color: ruler.timeline.bandBorderColor,
+                        path: new Path(0, 0)
+                            .moveTo(Math.round(subX) + 0.5, height / 2)
+                            .lineTo(Math.round(subX) + 0.5, height),
+                    });
+                }
 
                 const subLabelX = ruler.timeline.positionTime(addHours(t, 12).getTime());
                 g.fillText({
