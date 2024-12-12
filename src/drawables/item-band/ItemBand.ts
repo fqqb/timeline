@@ -197,7 +197,7 @@ export class ItemBand extends Band {
         this.lines = this.multiline ? this.wrapItems(visibleItems) : [visibleItems];
 
         let newHeight;
-        if (this.lines.length) {
+        if (this.lines.length > 1) {
             newHeight = this.itemHeight * this.lines.length;
             newHeight += this.lineSpacing * (this.lines.length - 1);
             return newHeight;
