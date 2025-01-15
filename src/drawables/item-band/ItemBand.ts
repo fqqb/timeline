@@ -22,6 +22,7 @@ interface DrawInfo {
     offscreenStart: boolean; // True if the item starts before the visible range
     marginLeft: number; // Margin specific to the item, or else inherited from its band
     labelFitsBox: boolean; // True if the label fits in the actual item box
+    labelFitsVisibleBox: boolean; // True if the label fits in the visible box (excluding offscreen portion)
     font: string; // Font specific to the item, or else inherited from its band
     milestone: boolean; // True if this item must be rendered as a milestone
 }
@@ -286,7 +287,8 @@ export class ItemBand extends Band {
     private drawItem(g: Graphics, item: AnnotatedItem, y: number) {
         const {
             startX, stopX, label, renderStartX, renderStopX,
-            marginLeft, offscreenStart, labelFitsBox, font,
+            marginLeft, offscreenStart, labelFitsBox, labelFitsVisibleBox,
+            font,
         } = item.drawInfo!;
 
         const box: Bounds = {
@@ -333,7 +335,7 @@ export class ItemBand extends Band {
             if (offscreenStart) {
                 textX = this.timeline.positionTime(this.timeline.start);
             }
-            if (labelFitsBox || this.itemTextOverflow === 'show') {
+            if (labelFitsBox || labelFitsVisibleBox || this.itemTextOverflow === 'show') {
                 g.fillText({
                     x: textX,
                     y: textY,
@@ -375,6 +377,7 @@ export class ItemBand extends Band {
             const marginLeft = item.marginLeft ?? this.itemMarginLeft;
             const offscreenStart = start < this.timeline.start && stop > this.timeline.start;
             let labelFitsBox;
+            let labelFitsVisibleBox;
 
             let startX = this.timeline.positionTime(start);
             let stopX = this.timeline.positionTime(stop);
@@ -390,6 +393,8 @@ export class ItemBand extends Band {
                 renderStartX = startX;
                 renderStopX = stopX;
                 labelFitsBox = false;
+                labelFitsVisibleBox = false;
+
                 if (label && this.itemTextOverflow === 'show') {
                     const fm = g.measureText(label, font);
                     renderStopX += marginLeft + fm.width;
@@ -406,11 +411,14 @@ export class ItemBand extends Band {
                     renderStartX = this.timeline.positionTime(this.timeline.start);
                     renderStopX = Math.max(renderStartX + fm.width, stopX);
                     labelFitsBox = false;
+                    const availableLabelWidth = renderStopX - renderStartX - marginLeft;
+                    labelFitsVisibleBox = availableLabelWidth >= fm.width;
                 } else {
                     renderStartX = startX;
                     renderStopX = stopX;
                     const availableLabelWidth = renderStopX - renderStartX - marginLeft;
                     labelFitsBox = availableLabelWidth >= fm.width;
+                    labelFitsVisibleBox = labelFitsBox;
                     if (!labelFitsBox) {
                         if (this.itemTextOverflow === 'show') {
                             renderStopX = renderStartX + marginLeft + fm.width;
@@ -431,6 +439,7 @@ export class ItemBand extends Band {
                 renderStopX,
                 label,
                 labelFitsBox,
+                labelFitsVisibleBox,
                 milestone,
             };
         }
