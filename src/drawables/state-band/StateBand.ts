@@ -40,7 +40,7 @@ export class StateBand extends Band {
     private _stateCursor = 'pointer';
     private _stateFontFamily = 'Verdana, Geneva, sans-serif';
     private _stateHoverBackground: FillStyle = 'rgba(255, 255, 255, 0.2)';
-    private _stateMarginLeft = 5;
+    private _statePaddingLeft = 5;
     private _stateTextColor = '#333333';
     private _stateTextSize = 10;
     private _states: State[] = [];
@@ -248,7 +248,7 @@ export class StateBand extends Band {
         const stopX = this.timeline.positionTime(state.stop);
 
         let text = state.label || '';
-        let textX = startX + this.stateMarginLeft;
+        let textX = startX + this.statePaddingLeft;
         if (state.start < this.timeline.start && state.stop > this.timeline.start) {
             text = '◀' + text;
             textX = this.timeline.positionTime(this.timeline.start);
@@ -397,9 +397,9 @@ export class StateBand extends Band {
      * Whitespace between the left border of a state, and
      * its label.
      */
-    get stateMarginLeft() { return this._stateMarginLeft; }
-    set stateMarginLeft(stateMarginLeft: number) {
-        this._stateMarginLeft = stateMarginLeft;
+    get statePaddingLeft() { return this._statePaddingLeft; }
+    set statePaddingLeft(statePaddingLeft: number) {
+        this._statePaddingLeft = statePaddingLeft;
         this.reportMutation();
     }
 

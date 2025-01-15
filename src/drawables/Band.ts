@@ -22,8 +22,8 @@ export abstract class Band extends Drawable {
     private _headerBackground: FillStyle = 'transparent';
     private _borderWidth?: number;
     private _borderColor?: string;
-    private _marginBottom = 0;
-    private _marginTop = 0;
+    private _paddingBottom = 0;
+    private _paddingTop = 0;
 
     private offscreen?: Graphics;
 
@@ -170,9 +170,9 @@ export abstract class Band extends Drawable {
      * Whitespace in points between the top of this band and
      * band content.
      */
-    get marginTop() { return this._marginTop; }
-    set marginTop(marginTop: number) {
-        this._marginTop = marginTop;
+    get paddingTop() { return this._paddingTop; }
+    set paddingTop(paddingTop: number) {
+        this._paddingTop = paddingTop;
         this.reportMutation();
     }
 
@@ -180,9 +180,9 @@ export abstract class Band extends Drawable {
      * Whitespace in points between the bottom of this band
      * and band content.
      */
-    get marginBottom() { return this._marginBottom; }
-    set marginBottom(marginBottom: number) {
-        this._marginBottom = marginBottom;
+    get paddingBottom() { return this._paddingBottom; }
+    set paddingBottom(paddingBottom: number) {
+        this._paddingBottom = paddingBottom;
         this.reportMutation();
     }
 
@@ -215,7 +215,7 @@ export abstract class Band extends Drawable {
 
     drawContent(g: Graphics) {
         if (this.offscreen) {
-            g.copy(this.offscreen, this.x, this.y + this.marginTop);
+            g.copy(this.offscreen, this.x, this.y + this.paddingTop);
         }
     }
 

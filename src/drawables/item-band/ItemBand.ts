@@ -20,7 +20,7 @@ interface DrawInfo {
     renderStartX: number; // Left of bbox containing item and maybe outside label
     renderStopX: number; // Right of bbox containing item and maybe outside label
     offscreenStart: boolean; // True if the item starts before the visible range
-    marginLeft: number; // Margin specific to the item, or else inherited from its band
+    paddingLeft: number; // Padding specific to the item, or else inherited from its band
     labelFitsBox: boolean; // True if the label fits in the actual item box
     labelFitsVisibleBox: boolean; // True if the label fits in the visible box (excluding offscreen portion)
     font: string; // Font specific to the item, or else inherited from its band
@@ -49,7 +49,7 @@ export class ItemBand extends Band {
     private _itemFontFamily = 'Verdana, Geneva, sans-serif';
     private _itemHeight = 30;
     private _itemHoverBackground: FillStyle = 'rgba(255, 255, 255, 0.2)';
-    private _itemMarginLeft = 5;
+    private _itemPaddingLeft = 5;
     private _itemTextColor = '#333333';
     private _itemTextOverflow: TextOverflow = 'show';
     private _itemTextSize = 10;
@@ -223,7 +223,7 @@ export class ItemBand extends Band {
 
     private drawMilestone(g: Graphics, item: AnnotatedItem, y: number) {
         const {
-            startX, renderStartX, renderStopX, label, font, marginLeft
+            startX, renderStartX, renderStopX, label, font, paddingLeft
         } = item.drawInfo!;
 
         const bounds: Bounds = {
@@ -253,7 +253,7 @@ export class ItemBand extends Band {
 
         if (label) {
             g.fillText({
-                x: startX + bounds.width + marginLeft,
+                x: startX + bounds.width + paddingLeft,
                 y: y + bounds.height / 2,
                 text: label,
                 font,
@@ -287,7 +287,7 @@ export class ItemBand extends Band {
     private drawItem(g: Graphics, item: AnnotatedItem, y: number) {
         const {
             startX, stopX, label, renderStartX, renderStopX,
-            marginLeft, offscreenStart, labelFitsBox, labelFitsVisibleBox,
+            paddingLeft, offscreenStart, labelFitsBox, labelFitsVisibleBox,
             font,
         } = item.drawInfo!;
 
@@ -330,7 +330,7 @@ export class ItemBand extends Band {
         });
 
         if (label) {
-            let textX = box.x + marginLeft;
+            let textX = box.x + paddingLeft;
             const textY = box.y + (box.height / 2);
             if (offscreenStart) {
                 textX = this.timeline.positionTime(this.timeline.start);
@@ -354,7 +354,7 @@ export class ItemBand extends Band {
                 offscreenCtx.font = font;
                 offscreenCtx.textBaseline = 'middle';
                 offscreenCtx.textAlign = 'left';
-                offscreenCtx.fillText(label, marginLeft, box.height / 2);
+                offscreenCtx.fillText(label, paddingLeft, box.height / 2);
                 g.ctx.drawImage(tmpCanvas, box.x, box.y);
             }
         }
@@ -374,7 +374,7 @@ export class ItemBand extends Band {
             const textSize = item.textSize ?? this.itemTextSize;
             const fontFamily = item.fontFamily ?? this.itemFontFamily;
             const font = `${textSize}px ${fontFamily}`;
-            const marginLeft = item.marginLeft ?? this.itemMarginLeft;
+            const paddingLeft = item.paddingLeft ?? this.itemPaddingLeft;
             const offscreenStart = start < this.timeline.start && stop > this.timeline.start;
             let labelFitsBox;
             let labelFitsVisibleBox;
@@ -397,7 +397,7 @@ export class ItemBand extends Band {
 
                 if (label && this.itemTextOverflow === 'show') {
                     const fm = g.measureText(label, font);
-                    renderStopX += marginLeft + fm.width;
+                    renderStopX += paddingLeft + fm.width;
                 } else {
                     label = '';
                 }
@@ -411,17 +411,17 @@ export class ItemBand extends Band {
                     renderStartX = this.timeline.positionTime(this.timeline.start);
                     renderStopX = Math.max(renderStartX + fm.width, stopX);
                     labelFitsBox = false;
-                    const availableLabelWidth = renderStopX - renderStartX - marginLeft;
+                    const availableLabelWidth = renderStopX - renderStartX - paddingLeft;
                     labelFitsVisibleBox = availableLabelWidth >= fm.width;
                 } else {
                     renderStartX = startX;
                     renderStopX = stopX;
-                    const availableLabelWidth = renderStopX - renderStartX - marginLeft;
+                    const availableLabelWidth = renderStopX - renderStartX - paddingLeft;
                     labelFitsBox = availableLabelWidth >= fm.width;
                     labelFitsVisibleBox = labelFitsBox;
                     if (!labelFitsBox) {
                         if (this.itemTextOverflow === 'show') {
-                            renderStopX = renderStartX + marginLeft + fm.width;
+                            renderStopX = renderStartX + paddingLeft + fm.width;
                         } else if (this.itemTextOverflow === 'hide') {
                             label = '';
                         }
@@ -431,7 +431,7 @@ export class ItemBand extends Band {
 
             item.drawInfo = {
                 font,
-                marginLeft,
+                paddingLeft,
                 offscreenStart,
                 startX,
                 stopX,
@@ -574,9 +574,9 @@ export class ItemBand extends Band {
      * Whitespace between the left border of an item, and
      * its label.
      */
-    get itemMarginLeft() { return this._itemMarginLeft; }
-    set itemMarginLeft(itemMarginLeft: number) {
-        this._itemMarginLeft = itemMarginLeft;
+    get itemPaddingLeft() { return this._itemPaddingLeft; }
+    set itemPaddingLeft(itemPaddingLeft: number) {
+        this._itemPaddingLeft = itemPaddingLeft;
         this.reportMutation();
     }
 
@@ -600,7 +600,7 @@ export class ItemBand extends Band {
     }
 
     /**
-     * In case of ``multiline=true``, this allows reserving
+     * In case of multiline, this allows reserving
      * some extra whitespace that has to be present, or else
      * an item is considered to overlap.
      */
@@ -611,7 +611,7 @@ export class ItemBand extends Band {
     }
 
     /**
-     * In case of ``multiline=true``, this specifies the
+     * In case of multiline, this specifies the
      * whitespace between lines.
      */
     get lineSpacing() { return this._lineSpacing; }

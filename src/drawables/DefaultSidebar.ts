@@ -53,10 +53,10 @@ export class DefaultSidebar extends Sidebar {
 
         for (const band of bands) {
             if (band.label) {
-                const contentHeight = band.height - band.marginTop - band.marginBottom;
+                const contentHeight = band.height - band.paddingTop - band.paddingBottom;
                 g.fillText({
                     x: 5,
-                    y: band.y + band.marginTop + (contentHeight / 2),
+                    y: band.y + band.paddingTop + (contentHeight / 2),
                     align: 'left',
                     baseline: 'middle',
                     color: this.foregroundColor,

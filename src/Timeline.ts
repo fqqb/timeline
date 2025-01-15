@@ -663,7 +663,7 @@ export class Timeline {
             band.coords.x = 0;
             band.coords.y = y;
             band.coords.width = this.mainWidth;
-            band.coords.height = band.marginTop + band.contentHeight + band.marginBottom;
+            band.coords.height = band.paddingTop + band.contentHeight + band.paddingBottom;
 
             y += band.height + (band.borderWidth ?? this.bandBorderWidth);
         }

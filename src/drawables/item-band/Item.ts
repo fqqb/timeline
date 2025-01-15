@@ -69,7 +69,7 @@ export interface Item {
     /**
      * Whitespace between the left border and the label
      */
-    marginLeft?: number;
+    paddingLeft?: number;
 
     /**
      * Corner radius for this item.
