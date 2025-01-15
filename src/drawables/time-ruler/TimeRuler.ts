@@ -4,6 +4,7 @@ import { enUS } from 'date-fns/locale';
 import { Graphics } from '../../graphics/Graphics';
 import { Path } from '../../graphics/Path';
 import { Band } from '../Band';
+import { FullHeightKind } from './FullHeightKind';
 import { ScaleKind } from './ScaleKind';
 
 /**
@@ -105,7 +106,7 @@ export class TimeRuler extends Band {
 
     private _contentHeight = 30;
     private _textColor = 'grey';
-    private _fullHeight = false;
+    private _fullHeight?: FullHeightKind;
     private _timezone?: string;
     private _scale: ScaleKind = 'auto';
 
@@ -129,17 +130,25 @@ export class TimeRuler extends Band {
 
     private scaleRenderer?: Scale;
 
-    calculateContentHeight(g: Graphics) {
+    override calculateContentHeight(g: Graphics) {
         return this.contentHeight;
     }
 
-    drawBandContent(g: Graphics) {
+    override drawBandContent(g: Graphics) {
         this.scaleRenderer = this.determineScale();
         this.scaleRenderer!.drawBandContent(g, this);
     }
 
-    drawUnderlay(g: Graphics) {
-        this.scaleRenderer!.drawUnderlay(g, this);
+    override drawUnderlay(g: Graphics) {
+        if (this.fullHeight === 'underlay') {
+            this.scaleRenderer!.drawFullHeightTicks(g, this);
+        }
+    }
+
+    override drawOverlay(g: Graphics): void {
+        if (this.fullHeight === 'overlay') {
+            this.scaleRenderer!.drawFullHeightTicks(g, this);
+        }
     }
 
     /**
@@ -152,7 +161,7 @@ export class TimeRuler extends Band {
     }
 
     get fullHeight() { return this._fullHeight; }
-    set fullHeight(fullHeight: boolean) {
+    set fullHeight(fullHeight: FullHeightKind | undefined) {
         this._fullHeight = fullHeight;
         this.reportMutation();
     }
@@ -222,7 +231,7 @@ interface Scale {
     getPreferredUnitWidth(): number;
     measureUnitWidth(ruler: TimeRuler): number;
     drawBandContent(g: Graphics, ruler: TimeRuler): void;
-    drawUnderlay(g: Graphics, ruler: TimeRuler): void;
+    drawFullHeightTicks(g: Graphics, ruler: TimeRuler): void;
 }
 
 /**
@@ -334,18 +343,16 @@ class HourScale implements Scale {
         }
     }
 
-    drawUnderlay(g: Graphics, ruler: TimeRuler) {
-        if (ruler.fullHeight) {
-            const path = new Path(0, 0);
-            for (const x of this.majorX) {
-                path.moveTo(Math.round(x) + 0.5, ruler.y + ruler.height);
-                path.lineTo(Math.round(x) + 0.5, g.height);
-            }
-            g.strokePath({
-                color: ruler.timeline.bandBorderColor,
-                path,
-            });
+    drawFullHeightTicks(g: Graphics, ruler: TimeRuler) {
+        const path = new Path(0, 0);
+        for (const x of this.majorX) {
+            path.moveTo(Math.round(x) + 0.5, ruler.y + ruler.height);
+            path.lineTo(Math.round(x) + 0.5, g.height);
         }
+        g.strokePath({
+            color: ruler.timeline.bandBorderColor,
+            path,
+        });
     }
 }
 
@@ -426,18 +433,16 @@ class QuarterDayScale implements Scale {
         }
     }
 
-    drawUnderlay(g: Graphics, ruler: TimeRuler) {
-        if (ruler.fullHeight) {
-            const path = new Path(0, 0);
-            for (const x of this.majorX) {
-                path.moveTo(Math.round(x) + 0.5, ruler.y + ruler.height);
-                path.lineTo(Math.round(x) + 0.5, g.height);
-            }
-            g.strokePath({
-                color: ruler.timeline.bandBorderColor,
-                path,
-            });
+    drawFullHeightTicks(g: Graphics, ruler: TimeRuler) {
+        const path = new Path(0, 0);
+        for (const x of this.majorX) {
+            path.moveTo(Math.round(x) + 0.5, ruler.y + ruler.height);
+            path.lineTo(Math.round(x) + 0.5, g.height);
         }
+        g.strokePath({
+            color: ruler.timeline.bandBorderColor,
+            path,
+        });
     }
 }
 
@@ -518,18 +523,16 @@ class WeekDayScale implements Scale {
         }
     }
 
-    drawUnderlay(g: Graphics, ruler: TimeRuler) {
-        if (ruler.fullHeight) {
-            const path = new Path(0, 0);
-            for (const x of this.majorX) {
-                path.moveTo(Math.round(x) + 0.5, ruler.y + ruler.height);
-                path.lineTo(Math.round(x) + 0.5, g.height);
-            }
-            g.strokePath({
-                color: ruler.timeline.bandBorderColor,
-                path,
-            });
+    drawFullHeightTicks(g: Graphics, ruler: TimeRuler) {
+        const path = new Path(0, 0);
+        for (const x of this.majorX) {
+            path.moveTo(Math.round(x) + 0.5, ruler.y + ruler.height);
+            path.lineTo(Math.round(x) + 0.5, g.height);
         }
+        g.strokePath({
+            color: ruler.timeline.bandBorderColor,
+            path,
+        });
     }
 }
 
@@ -614,18 +617,16 @@ class WeekScale implements Scale {
         }
     }
 
-    drawUnderlay(g: Graphics, ruler: TimeRuler) {
-        if (ruler.fullHeight) {
-            const path = new Path(0, 0);
-            for (const x of this.majorX) {
-                path.moveTo(Math.round(x) + 0.5, ruler.y + ruler.height);
-                path.lineTo(Math.round(x) + 0.5, g.height);
-            }
-            g.strokePath({
-                color: ruler.timeline.bandBorderColor,
-                path,
-            });
+    drawFullHeightTicks(g: Graphics, ruler: TimeRuler) {
+        const path = new Path(0, 0);
+        for (const x of this.majorX) {
+            path.moveTo(Math.round(x) + 0.5, ruler.y + ruler.height);
+            path.lineTo(Math.round(x) + 0.5, g.height);
         }
+        g.strokePath({
+            color: ruler.timeline.bandBorderColor,
+            path,
+        });
     }
 }
 
@@ -703,18 +704,16 @@ class MonthScale implements Scale {
         }
     }
 
-    drawUnderlay(g: Graphics, ruler: TimeRuler) {
-        if (ruler.fullHeight) {
-            const path = new Path(0, 0);
-            for (const x of this.majorX) {
-                path.moveTo(Math.round(x) + 0.5, ruler.y + ruler.height);
-                path.lineTo(Math.round(x) + 0.5, g.height);
-            }
-            g.strokePath({
-                color: ruler.timeline.bandBorderColor,
-                path,
-            });
+    drawFullHeightTicks(g: Graphics, ruler: TimeRuler) {
+        const path = new Path(0, 0);
+        for (const x of this.majorX) {
+            path.moveTo(Math.round(x) + 0.5, ruler.y + ruler.height);
+            path.lineTo(Math.round(x) + 0.5, g.height);
         }
+        g.strokePath({
+            color: ruler.timeline.bandBorderColor,
+            path,
+        });
     }
 }
 
@@ -767,7 +766,7 @@ class YearScale implements Scale {
         }
     }
 
-    drawUnderlay(g: Graphics, ruler: TimeRuler) {
+    drawFullHeightTicks(g: Graphics, ruler: TimeRuler) {
     }
 }
 
@@ -820,6 +819,6 @@ class DecadeScale implements Scale {
         }
     }
 
-    drawUnderlay(g: Graphics, ruler: TimeRuler) {
+    drawFullHeightTicks(g: Graphics, ruler: TimeRuler) {
     }
 }

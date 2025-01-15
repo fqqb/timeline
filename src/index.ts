@@ -23,6 +23,7 @@ export { StateClickEvent } from './drawables/state-band/StateClickEvent';
 export { StateMouseEvent } from './drawables/state-band/StateMouseEvent';
 export { TextAlignment } from './drawables/TextAlignment';
 export { TextOverflow } from './drawables/TextOverflow';
+export { FullHeightKind } from './drawables/time-ruler/FullHeightKind';
 export { ScaleKind } from './drawables/time-ruler/ScaleKind';
 export { TimeRuler } from './drawables/time-ruler/TimeRuler';
 export { TimeLocator } from './drawables/TimeLocator';
