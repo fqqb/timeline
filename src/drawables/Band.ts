@@ -2,6 +2,7 @@ import { FillStyle } from '../graphics/FillStyle';
 import { Graphics } from '../graphics/Graphics';
 import { Drawable } from './Drawable';
 import { HeaderClickEvent } from './HeaderClickEvent';
+import { HeaderMouseEvent } from './HeaderMouseEvent';
 
 export interface DrawCoordinates {
     x: number;
@@ -37,6 +38,15 @@ export abstract class Band extends Drawable {
     /** @hidden */
     headerClickListeners: Array<(ev: HeaderClickEvent) => void> = [];
 
+    /** @hidden */
+    headerMouseEnterListeners: Array<(ev: HeaderMouseEvent) => void> = [];
+
+    /** @hidden */
+    headerMouseMoveListeners: Array<(ev: HeaderMouseEvent) => void> = [];
+
+    /** @hidden */
+    headerMouseLeaveListeners: Array<(ev: HeaderMouseEvent) => void> = [];
+
     /**
      * Register a listener that receives updates when a line header is clicked.
      */
@@ -51,6 +61,59 @@ export abstract class Band extends Drawable {
      */
     removeHeaderClickListener(listener: (ev: HeaderClickEvent) => void) {
         this.headerClickListeners = this.headerClickListeners.filter(el => (el !== listener));
+        this.reportMutation();
+    }
+
+    /**
+     * Register a listener that receives updates when the mouse enters a band's header.
+     */
+    addHeaderMouseEnterListener(listener: (ev: HeaderMouseEvent) => void) {
+        this.headerMouseEnterListeners.push(listener);
+        this.reportMutation();
+    }
+
+    /**
+     * Unregister a previously registered listener to stop receiving
+     * band header mouse-enter events.
+     */
+    removeHeaderMouseEnterListener(listener: (ev: HeaderMouseEvent) => void) {
+        this.headerMouseEnterListeners = this.headerMouseEnterListeners.filter(el => (el !== listener));
+        this.reportMutation();
+    }
+
+    /**
+     * Register a listener that receives updates when the mouse is moving over
+     * a band's header.
+     */
+    addHeaderMouseMoveListener(listener: (ev: HeaderMouseEvent) => void) {
+        this.headerMouseMoveListeners.push(listener);
+        this.reportMutation();
+    }
+
+    /**
+     * Unregister a previously registered listener to stop receiving
+     * band header mouse-move events.
+     */
+    removeHeaderMouseMoveListener(listener: (ev: HeaderMouseEvent) => void) {
+        this.headerMouseMoveListeners = this.headerMouseMoveListeners.filter(el => (el !== listener));
+        this.reportMutation();
+    }
+
+    /**
+     * Register a listener that receives updates when the mouse is moving
+     * outside a band's header.
+     */
+    addHeaderMouseLeaveListener(listener: (ev: HeaderMouseEvent) => void) {
+        this.headerMouseLeaveListeners.push(listener);
+        this.reportMutation();
+    }
+
+    /**
+     * Unregister a previously registered listener to stop receiving
+     * band header mouse-leave events.
+     */
+    removeHeaderMouseLeaveListener(listener: (ev: HeaderMouseEvent) => void) {
+        this.headerMouseLeaveListeners = this.headerMouseLeaveListeners.filter(el => (el !== listener));
         this.reportMutation();
     }
 

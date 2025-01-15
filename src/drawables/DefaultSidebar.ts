@@ -101,17 +101,38 @@ export class DefaultSidebar extends Sidebar {
             });
         }
 
-        if (band.headerClickListeners.length) {
+        if (band.headerClickListeners.length
+            || band.headerMouseEnterListeners.length
+            || band.headerMouseMoveListeners.length
+            || band.headerMouseLeaveListeners.length
+        ) {
             const hitRegionSpec: HitRegionSpecification = {
                 id: `band-${idx}-header`,
-                cursor: 'pointer',
-                mouseEnter: () => {
+                cursor: band.headerClickListeners.length ? 'pointer' : 'default',
+                mouseEnter: mouseEvent => {
                     this.hoveredIndex = idx;
                     this.reportMutation();
+                    band.headerMouseEnterListeners.forEach(listener => listener({
+                        clientX: mouseEvent.clientX,
+                        clientY: mouseEvent.clientY,
+                        band,
+                    }));
                 },
-                mouseLeave: () => {
+                mouseMove: mouseEvent => {
+                    band.headerMouseMoveListeners.forEach(listener => listener({
+                        clientX: mouseEvent.clientX,
+                        clientY: mouseEvent.clientY,
+                        band,
+                    }));
+                },
+                mouseLeave: mouseEvent => {
                     this.hoveredIndex = undefined;
                     this.reportMutation();
+                    band.headerMouseLeaveListeners.forEach(listener => listener({
+                        clientX: mouseEvent.clientX,
+                        clientY: mouseEvent.clientY,
+                        band,
+                    }));
                 },
                 click: () => {
                     band.headerClickListeners.forEach(listener => listener({ band }));

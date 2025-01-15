@@ -4,6 +4,7 @@ export { Banner } from './drawables/Banner';
 export { DefaultSidebar } from './drawables/DefaultSidebar';
 export { Drawable } from './drawables/Drawable';
 export { HeaderClickEvent } from './drawables/HeaderClickEvent';
+export { HeaderMouseEvent } from './drawables/HeaderMouseEvent';
 export { Item } from './drawables/item-band/Item';
 export { ItemBand } from './drawables/item-band/ItemBand';
 export { ItemClickEvent } from './drawables/item-band/ItemClickEvent';
