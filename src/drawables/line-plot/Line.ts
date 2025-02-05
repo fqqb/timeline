@@ -42,4 +42,9 @@ export interface Line {
      * Data points (time to value).
      */
     points: Map<number, number | null>;
+
+    /**
+     * Arbitrary data associated with this line.
+     */
+    data?: any;
 }
