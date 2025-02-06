@@ -39,9 +39,16 @@ export interface Line {
     pointColor?: string;
 
     /**
-     * Data points (time to value).
+     * Color of the low/area color.
      */
-    points: Map<number, number | null>;
+    lohiColor?: string;
+
+    /**
+     * Data points (time to value). The value null may be used
+     * to indicate a gap. The value may also be an array of
+     * [low, mid, high], where mid is the y value on the line plot.
+     */
+    points: Map<number, number | null> | Map<number, [number, number, number] | null>;
 
     /**
      * Arbitrary data associated with this line.

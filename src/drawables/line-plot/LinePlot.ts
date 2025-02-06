@@ -21,6 +21,7 @@ interface DrawInfo {
 interface AnnotatedPoint {
     x: number;
     y: number | null;
+    lohi?: [number, number];
     region: HitRegionSpecification;
     hovered: boolean;
     drawInfo?: DrawInfo;
@@ -45,6 +46,7 @@ export class LinePlot extends Band {
     private _pointRadius = 1.5;
     private _pointHoverRadius = 4;
     private _pointColor = '#4f9146';
+    private _lohiColor = '#5555552b';
     private _lines: Line[] = [];
     private _contentHeight = 30;
     private _zeroLineColor = '#e8e8e8';
@@ -101,9 +103,18 @@ export class LinePlot extends Band {
             for (const line of this.lines) {
                 const lineId = 'line_plot_' + lineSequence++;
                 const annotatedPoints = [];
-                for (const [x, y] of line.points) {
+                for (const [x, val] of line.points) {
+                    const isTuple = Array.isArray(val);
+                    const y = (isTuple && val !== null) ? val[1] : val;
+
+                    let lohi: [number, number] | undefined = undefined;
+                    if (isTuple) {
+                        lohi = [val[0], val[2]];
+                    }
+
                     const annotatedPoint: AnnotatedPoint = {
                         x, y,
+                        lohi,
                         hovered: false,
                         region: {
                             id: lineId + '_' + x,
@@ -132,13 +143,15 @@ export class LinePlot extends Band {
                     };
                     annotatedPoints.push(annotatedPoint);
                     if (this.minimum === undefined && y !== null) {
-                        if (this.viewMinimum === undefined || y < this.viewMinimum) {
-                            this.viewMinimum = y;
+                        const low = lohi ? Math.min(lohi[0], y) : y;
+                        if (this.viewMinimum === undefined || low < this.viewMinimum) {
+                            this.viewMinimum = low;
                         }
                     }
                     if (this.maximum === undefined && y !== null) {
-                        if (this.viewMaximum === undefined || y > this.viewMaximum) {
-                            this.viewMaximum = y;
+                        const high = lohi ? Math.max(lohi[1], y) : y;
+                        if (this.viewMaximum === undefined || high > this.viewMaximum) {
+                            this.viewMaximum = high;
                         }
                     }
                 }
@@ -171,9 +184,10 @@ export class LinePlot extends Band {
             };
 
             // Draw order:
-            // 1/ area fill (per line)
-            // 2/ zero line (shared)
-            // 3/ trace (per line)
+            // 1/ Low/High area (per line)
+            // 2/ area fill (per line)
+            // 3/ zero line (shared)
+            // 4/ trace (per line)
 
             for (let i = 0; i < this.lines.length; i++) {
                 if (this.lines[i].points.size) {
@@ -186,6 +200,7 @@ export class LinePlot extends Band {
                         };
                     }
 
+                    this.drawLohi(g, this.lines[i], annotatedLine, positionValueFn);
                     this.drawArea(g, this.lines[i], annotatedLine, positionValueFn);
                     this.drawLine(g, this.lines[i], annotatedLine);
                 }
@@ -255,6 +270,31 @@ export class LinePlot extends Band {
                 x: this.timeline.mainWidth - tickLength - tickMargin,
                 y: 0,
             });
+        }
+    }
+
+    private drawLohi(g: Graphics, line: Line, annotatedLine: AnnotatedLine,
+        positionValueFn: (value: number) => number) {
+        const fill = line.lohiColor ?? this.lohiColor;
+
+        for (let i = 1; i < annotatedLine.points.length; i++) {
+            const prev = annotatedLine.points[i - 1].drawInfo!;
+            const prevLohi = annotatedLine.points[i - 1].lohi;
+            const point = annotatedLine.points[i].drawInfo!;
+            const pointLohi = annotatedLine.points[i].lohi;
+            if (prev.renderY !== undefined && point.renderY !== undefined && prevLohi && pointLohi) {
+                const prevLowY = positionValueFn(prevLohi[0]);
+                const prevHighY = positionValueFn(prevLohi[1]);
+                const pointLowY = positionValueFn(pointLohi[0]);
+                const pointHighY = positionValueFn(pointLohi[1]);
+                g.fillPath({
+                    path: new Path(prev.renderX, prevHighY)
+                        .lineTo(prev.renderX, prevLowY)
+                        .lineTo(point.renderX, pointLowY)
+                        .lineTo(point.renderX, pointHighY),
+                    fill,
+                });
+            }
         }
     }
 
@@ -371,6 +411,15 @@ export class LinePlot extends Band {
     get pointColor() { return this._pointColor; }
     set pointColor(pointColor: string) {
         this._pointColor = pointColor;
+        this.reportMutation();
+    }
+
+    /**
+     * Color of the low/high area.
+     */
+    get lohiColor() { return this._lohiColor; }
+    set lohiColor(lohiColor: string) {
+        this._lohiColor = lohiColor;
         this.reportMutation();
     }
 
