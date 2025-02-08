@@ -1,9 +1,9 @@
 import { TimelineEvent } from '../../TimelineEvent';
 
 /**
- * Event generated when a point on a LinePlot was hovered.
+ * Event generated when the mouse is moving outside a LinePlot.
  */
-export interface PointHoverEvent extends TimelineEvent {
+export interface LinePlotMouseLeaveEvent extends TimelineEvent {
     /**
      * Horizontal coordinate of the mouse pointer, relative to
      * the browser page.
@@ -15,14 +15,4 @@ export interface PointHoverEvent extends TimelineEvent {
      * browser page.
      */
     clientY: number;
-
-    /**
-     * Time value of the hovered point.
-     */
-    time: number;
-
-    /**
-     * Value of the hovered point.
-     */
-    value: number | null;
 }

@@ -29,11 +29,6 @@ export interface Line {
     pointRadius?: number;
 
     /**
-     * Radius of the point symbol when hovered.
-     */
-    pointHoverRadius?: number;
-
-    /**
      * Color of the point symbol.
      */
     pointColor?: string;
@@ -45,10 +40,15 @@ export interface Line {
 
     /**
      * Data points (time to value). The value null may be used
-     * to indicate a gap. The value may also be an array of
-     * [low, mid, high], where mid is the y value on the line plot.
+     * to indicate a gap.
      */
-    points: Map<number, number | null> | Map<number, [number, number, number] | null>;
+    points: Map<number, number | null>;
+
+    /**
+     * Low/high values by time. Timestamps should match the provided
+     * points array.
+     */
+    lohi?: Map<number, [number, number] | null>;
 
     /**
      * Arbitrary data associated with this line.

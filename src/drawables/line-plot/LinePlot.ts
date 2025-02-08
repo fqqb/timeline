@@ -1,11 +1,13 @@
 import { FillStyle } from '../../graphics/FillStyle';
 import { Graphics } from '../../graphics/Graphics';
-import { HitRegionSpecification } from '../../graphics/HitRegionSpecification';
 import { Path } from '../../graphics/Path';
+import { REGION_ID_VIEWPORT } from '../../Timeline';
 import { Band } from '../Band';
 import { Line } from './Line';
-import { PointClickEvent } from './PointClickEvent';
-import { PointHoverEvent } from './PointHoverEvent';
+import { LinePlotClickEvent } from './LinePlotClickEvent';
+import { LinePlotMouseLeaveEvent } from './LinePlotMouseLeaveEvent';
+import { LinePlotMouseMoveEvent } from './LinePlotMouseMoveEvent';
+import { LinePlotPoint } from './LinePlotPoint';
 
 
 interface AnnotatedLine {
@@ -21,12 +23,12 @@ interface DrawInfo {
 interface AnnotatedPoint {
     x: number;
     y: number | null;
-    lohi?: [number, number];
-    region: HitRegionSpecification;
-    hovered: boolean;
+    low: number | null;
+    high: number | null;
     drawInfo?: DrawInfo;
 }
 
+let plotSequence = 1;
 let lineSequence = 1;
 
 /**
@@ -44,7 +46,6 @@ export class LinePlot extends Band {
     private _minimum?: number;
     private _maximum?: number;
     private _pointRadius = 1.5;
-    private _pointHoverRadius = 4;
     private _pointColor = '#4f9146';
     private _lohiColor = '#5555552b';
     private _lines: Line[] = [];
@@ -60,39 +61,56 @@ export class LinePlot extends Band {
     private viewMinimum?: number;
     private viewMaximum?: number;
 
-    private pointClickListeners: Array<(ev: PointClickEvent) => void> = [];
-    private pointHoverListeners: Array<(ev: PointHoverEvent) => void> = [];
+    private linePlotRegionId = 'line_plot_' + plotSequence++;
+    private clickListeners: Array<(ev: LinePlotClickEvent) => void> = [];
+    private mouseMoveListeners: Array<(ev: LinePlotMouseMoveEvent) => void> = [];
+    private mouseLeaveListeners: Array<(ev: LinePlotMouseLeaveEvent) => void> = [];
 
     /**
-     * Register a listener that receives an update when a point on
-     * a Line is clicked.
+     * Register a listener that receives an update when the plot is clicked.
      */
-    addPointClickListener(listener: (ev: PointClickEvent) => void) {
-        this.pointClickListeners.push(listener);
+    addClickListener(listener: (ev: LinePlotClickEvent) => void) {
+        this.clickListeners.push(listener);
     }
 
     /**
      * Unregister a previously registered listener to stop receiving
      * click events.
      */
-    removePointClickListener(listener: (ev: PointClickEvent) => void) {
-        this.pointClickListeners = this.pointClickListeners.filter(el => (el !== listener));
+    removeClickListener(listener: (ev: LinePlotClickEvent) => void) {
+        this.clickListeners = this.clickListeners.filter(el => (el !== listener));
     }
 
     /**
-     * Register a listener that receives an update when a point on a
-     * Line is hovered.
+     * Register a listener that receives updates whenever the mouse is moving over
+     * this plot.
      */
-    addPointHoverListener(listener: (ev: PointHoverEvent) => void) {
-        this.pointHoverListeners.push(listener);
+    addMouseMoveListener(listener: (ev: LinePlotMouseMoveEvent) => void) {
+        this.mouseMoveListeners.push(listener);
     }
 
     /**
      * Unregister a previously registered listener to stop receiving
-     * hover events.
+     * plot mouse-move events.
      */
-    removePointHoverListener(listener: (ev: PointHoverEvent) => void) {
-        this.pointHoverListeners = this.pointHoverListeners.filter(el => (el !== listener));
+    removeMouseMoveListener(listener: (ev: LinePlotMouseMoveEvent) => void) {
+        this.mouseMoveListeners = this.mouseMoveListeners.filter(el => (el !== listener));
+    }
+
+    /**
+     * Register a listener that receives updates whenever the mouse is moving outside
+     * this plot.
+     */
+    addMouseLeaveListener(listener: (ev: LinePlotMouseLeaveEvent) => void) {
+        this.mouseLeaveListeners.push(listener);
+    }
+
+    /**
+     * Unregister a previously registered listener to stop receiving
+     * plot mouse-leave events.
+     */
+    removeMouseLeaveListener(listener: (ev: LinePlotMouseLeaveEvent) => void) {
+        this.mouseLeaveListeners = this.mouseLeaveListeners.filter(el => (el !== listener));
     }
 
     private processData() {
@@ -103,55 +121,27 @@ export class LinePlot extends Band {
             for (const line of this.lines) {
                 const lineId = 'line_plot_' + lineSequence++;
                 const annotatedPoints = [];
-                for (const [x, val] of line.points) {
-                    const isTuple = Array.isArray(val);
-                    const y = (isTuple && val !== null) ? val[1] : val;
-
-                    let lohi: [number, number] | undefined = undefined;
-                    if (isTuple) {
-                        lohi = [val[0], val[2]];
+                for (const [x, y] of line.points) {
+                    let low = null;
+                    let high = null;
+                    if (line.lohi) {
+                        const lohi = line.lohi.get(x);
+                        low = lohi ? lohi[0] ?? null : null;
+                        high = lohi ? lohi[1] ?? null : null;
                     }
 
-                    const annotatedPoint: AnnotatedPoint = {
-                        x, y,
-                        lohi,
-                        hovered: false,
-                        region: {
-                            id: lineId + '_' + x,
-                            cursor: 'pointer',
-                            click: () => {
-                                this.pointClickListeners.forEach(listener => listener({
-                                    time: annotatedPoint.x,
-                                    value: annotatedPoint.y,
-                                }));
-                            },
-                            mouseEnter: mouseEvent => {
-                                annotatedPoint.hovered = true;
-                                this.pointHoverListeners.forEach(listener => listener({
-                                    clientX: mouseEvent.clientX,
-                                    clientY: mouseEvent.clientY,
-                                    time: annotatedPoint.x,
-                                    value: annotatedPoint.y,
-                                }));
-                                this.reportMutation();
-                            },
-                            mouseLeave: () => {
-                                annotatedPoint.hovered = false;
-                                this.reportMutation();
-                            }
-                        },
-                    };
+                    const annotatedPoint: AnnotatedPoint = { x, y, low, high };
                     annotatedPoints.push(annotatedPoint);
                     if (this.minimum === undefined && y !== null) {
-                        const low = lohi ? Math.min(lohi[0], y) : y;
-                        if (this.viewMinimum === undefined || low < this.viewMinimum) {
-                            this.viewMinimum = low;
+                        const viewLow = low !== null ? Math.min(low, y) : y;
+                        if (this.viewMinimum === undefined || viewLow < this.viewMinimum) {
+                            this.viewMinimum = viewLow;
                         }
                     }
                     if (this.maximum === undefined && y !== null) {
-                        const high = lohi ? Math.max(lohi[1], y) : y;
-                        if (this.viewMaximum === undefined || high > this.viewMaximum) {
-                            this.viewMaximum = high;
+                        const viewHigh = high !== null ? Math.max(high, y) : y;
+                        if (this.viewMaximum === undefined || viewHigh > this.viewMaximum) {
+                            this.viewMaximum = viewHigh;
                         }
                     }
                 }
@@ -172,107 +162,146 @@ export class LinePlot extends Band {
         const { contentHeight } = this;
         const { viewMinimum: min, viewMaximum: max } = this;
 
-        if (min !== undefined && max !== undefined) {
+        if (min === undefined || max === undefined) {
+            return;
+        }
 
-            // Plot max should align with mid of top label, and plot min with mid of bottom label.
-            // So we add a little whitespace to the actually available plot area.
-            // (unrelated to any other band margins)
-            const margin = this.labelTextSize / 2;
-            const plotHeight = contentHeight - margin - margin;
-            const positionValueFn = (value: number) => {
-                return contentHeight - margin - ((value - min) / (max - min) * (plotHeight - 0));
-            };
+        // Plot max should align with mid of top label, and plot min with mid of bottom label.
+        // So we add a little whitespace to the actually available plot area.
+        // (unrelated to any other band margins)
+        const margin = this.labelTextSize / 2;
+        const plotHeight = contentHeight - margin - margin;
+        const positionForValueFn = (value: number) => {
+            return contentHeight - margin - ((value - min) / (max - min) * (plotHeight - 0));
+        };
+        const valueForPositionFn = (y: number) => {
+            return ((contentHeight - margin - y) / (plotHeight - 0)) * (max - min) + min;
+        };
 
-            // Draw order:
-            // 1/ Low/High area (per line)
-            // 2/ area fill (per line)
-            // 3/ zero line (shared)
-            // 4/ trace (per line)
+        const hitRegion = g.addHitRegion({
+            id: this.linePlotRegionId,
+            parentId: REGION_ID_VIEWPORT,
+            mouseMove: evt => {
+                const time = this.timeline.timeForCanvasPosition(evt.x);
+                const mouseEvent: LinePlotMouseMoveEvent = {
+                    clientX: evt.clientX,
+                    clientY: evt.clientY,
+                    time,
+                    value: valueForPositionFn(evt.y),
+                    points: this.findClosestByTime(time),
+                };
+                this.mouseMoveListeners.forEach(l => l(mouseEvent));
+            },
+            mouseLeave: evt => {
+                const mouseEvent: LinePlotMouseLeaveEvent = {
+                    clientX: evt.clientX,
+                    clientY: evt.clientY,
+                };
+                this.mouseLeaveListeners.forEach(l => l(mouseEvent));
+            },
+            click: evt => {
+                const time = this.timeline.timeForCanvasPosition(evt.x);
+                const clickEvent: LinePlotClickEvent = {
+                    clientX: evt.clientX,
+                    clientY: evt.clientY,
+                    time,
+                    value: valueForPositionFn(evt.y),
+                    points: this.findClosestByTime(time),
+                };
+                this.clickListeners.forEach(l => l(clickEvent));
+            },
+        });
+        hitRegion.addRect(0, 0, this.timeline.mainWidth, this.contentHeight);
 
-            for (let i = 0; i < this.lines.length; i++) {
-                if (this.lines[i].points.size) {
-                    const annotatedLine = this.annotatedLines[i];
+        // Draw order:
+        // 1/ Low/High area (per line)
+        // 2/ area fill (per line)
+        // 3/ zero line (shared)
+        // 4/ trace (per line)
 
-                    for (const point of annotatedLine.points) {
-                        point.drawInfo = {
-                            renderX: Math.round(this.timeline.positionTime(point.x)),
-                            renderY: point.y !== null ? positionValueFn(point.y) : undefined,
-                        };
-                    }
+        for (let i = 0; i < this.lines.length; i++) {
+            if (this.lines[i].points.size) {
+                const annotatedLine = this.annotatedLines[i];
 
-                    this.drawLohi(g, this.lines[i], annotatedLine, positionValueFn);
-                    this.drawArea(g, this.lines[i], annotatedLine, positionValueFn);
-                    this.drawLine(g, this.lines[i], annotatedLine);
+                for (const point of annotatedLine.points) {
+                    point.drawInfo = {
+                        renderX: Math.round(this.timeline.positionTime(point.x)),
+                        renderY: point.y !== null ? positionForValueFn(point.y) : undefined,
+                    };
                 }
-            }
 
-            if (this.zeroLineWidth > 0) {
-                const originY = Math.round(positionValueFn(0)) - 0.5;
-                g.strokePath({
-                    path: new Path(0, originY).lineTo(this.timeline.mainWidth, originY),
-                    color: this.zeroLineColor,
-                    dash: this.zeroLineDash,
-                    lineWidth: this.zeroLineWidth,
-                });
+                this.drawLohi(g, this.lines[i], annotatedLine, positionForValueFn);
+                this.drawArea(g, this.lines[i], annotatedLine, positionForValueFn);
+                this.drawLine(g, this.lines[i], annotatedLine);
             }
+        }
 
-            for (let i = 0; i < this.lines.length; i++) {
-                if (this.lines[i].points.size) {
-                    this.drawLine(g, this.lines[i], this.annotatedLines[i]);
-                }
-            }
-
-            const tickLength = 5;
-            const tickMargin = 2;
-            const minY = Math.round(contentHeight - (this.labelTextSize / 2)) - 0.5;
-            const maxY = Math.round(this.labelTextSize / 2) - 0.5;
+        if (this.zeroLineWidth > 0) {
+            const originY = Math.round(positionForValueFn(0)) - 0.5;
             g.strokePath({
-                path: new Path(this.timeline.mainWidth, minY)
-                    .lineTo(this.timeline.mainWidth - tickLength, minY)
-                    .moveTo(this.timeline.mainWidth, maxY)
-                    .lineTo(this.timeline.mainWidth - tickLength, maxY),
-                color: this.labelTextColor,
-            });
-
-            const font = `${this.labelTextSize}px ${this.labelFontFamily}`;
-            const minText = this.labelFormatter(min);
-            let fm = g.measureText(minText, font);
-            g.fillRect({
-                x: this.timeline.mainWidth - tickLength - tickMargin - fm.width,
-                y: contentHeight - this.labelTextSize,
-                width: fm.width,
-                height: this.labelTextSize,
-                fill: this.labelBackground,
-            });
-            const maxText = this.labelFormatter(max);
-            fm = g.measureText(maxText, font);
-            g.fillRect({
-                x: this.timeline.mainWidth - tickLength - tickMargin - fm.width,
-                y: 0,
-                width: fm.width,
-                height: this.labelTextSize,
-                fill: this.labelBackground,
-            });
-
-            g.fillText({
-                text: minText,
-                align: 'right',
-                baseline: 'bottom',
-                color: this.labelTextColor,
-                font,
-                x: this.timeline.mainWidth - tickLength - tickMargin,
-                y: contentHeight,
-            });
-            g.fillText({
-                text: maxText,
-                align: 'right',
-                baseline: 'top',
-                color: this.labelTextColor,
-                font,
-                x: this.timeline.mainWidth - tickLength - tickMargin,
-                y: 0,
+                path: new Path(0, originY).lineTo(this.timeline.mainWidth, originY),
+                color: this.zeroLineColor,
+                dash: this.zeroLineDash,
+                lineWidth: this.zeroLineWidth,
             });
         }
+
+        for (let i = 0; i < this.lines.length; i++) {
+            if (this.lines[i].points.size) {
+                this.drawLine(g, this.lines[i], this.annotatedLines[i]);
+            }
+        }
+
+        const tickLength = 5;
+        const tickMargin = 2;
+        const minY = Math.round(contentHeight - (this.labelTextSize / 2)) - 0.5;
+        const maxY = Math.round(this.labelTextSize / 2) - 0.5;
+        g.strokePath({
+            path: new Path(this.timeline.mainWidth, minY)
+                .lineTo(this.timeline.mainWidth - tickLength, minY)
+                .moveTo(this.timeline.mainWidth, maxY)
+                .lineTo(this.timeline.mainWidth - tickLength, maxY),
+            color: this.labelTextColor,
+        });
+
+        const font = `${this.labelTextSize}px ${this.labelFontFamily}`;
+        const minText = this.labelFormatter(min);
+        let fm = g.measureText(minText, font);
+        g.fillRect({
+            x: this.timeline.mainWidth - tickLength - tickMargin - fm.width,
+            y: contentHeight - this.labelTextSize,
+            width: fm.width,
+            height: this.labelTextSize,
+            fill: this.labelBackground,
+        });
+        const maxText = this.labelFormatter(max);
+        fm = g.measureText(maxText, font);
+        g.fillRect({
+            x: this.timeline.mainWidth - tickLength - tickMargin - fm.width,
+            y: 0,
+            width: fm.width,
+            height: this.labelTextSize,
+            fill: this.labelBackground,
+        });
+
+        g.fillText({
+            text: minText,
+            align: 'right',
+            baseline: 'bottom',
+            color: this.labelTextColor,
+            font,
+            x: this.timeline.mainWidth - tickLength - tickMargin,
+            y: contentHeight,
+        });
+        g.fillText({
+            text: maxText,
+            align: 'right',
+            baseline: 'top',
+            color: this.labelTextColor,
+            font,
+            x: this.timeline.mainWidth - tickLength - tickMargin,
+            y: 0,
+        });
     }
 
     private drawLohi(g: Graphics, line: Line, annotatedLine: AnnotatedLine,
@@ -281,14 +310,21 @@ export class LinePlot extends Band {
 
         for (let i = 1; i < annotatedLine.points.length; i++) {
             const prev = annotatedLine.points[i - 1].drawInfo!;
-            const prevLohi = annotatedLine.points[i - 1].lohi;
+            const prevLow = annotatedLine.points[i - 1].low;
+            const prevHigh = annotatedLine.points[i - 1].high;
             const point = annotatedLine.points[i].drawInfo!;
-            const pointLohi = annotatedLine.points[i].lohi;
-            if (prev.renderY !== undefined && point.renderY !== undefined && prevLohi && pointLohi) {
-                const prevLowY = positionValueFn(prevLohi[0]);
-                const prevHighY = positionValueFn(prevLohi[1]);
-                const pointLowY = positionValueFn(pointLohi[0]);
-                const pointHighY = positionValueFn(pointLohi[1]);
+            const pointLow = annotatedLine.points[i].low;
+            const pointHigh = annotatedLine.points[i].high;
+            if (prev.renderY !== undefined
+                && point.renderY !== undefined
+                && prevLow !== null
+                && prevHigh != null
+                && pointLow !== null
+                && pointHigh !== null) {
+                const prevLowY = positionValueFn(prevLow);
+                const prevHighY = positionValueFn(prevHigh);
+                const pointLowY = positionValueFn(pointLow);
+                const pointHighY = positionValueFn(pointHigh);
                 g.fillPath({
                     path: new Path(prev.renderX, prevHighY)
                         .lineTo(prev.renderX, prevLowY)
@@ -326,7 +362,6 @@ export class LinePlot extends Band {
         const lineWidth = line.lineWidth ?? this.lineWidth;
         const pointColor = line.pointColor ?? this.pointColor;
         const pointRadius = line.pointRadius ?? this.pointRadius;
-        const pointHoverRadius = line.pointHoverRadius ?? this.pointHoverRadius;
 
         const { points } = annotatedLine;
 
@@ -357,18 +392,52 @@ export class LinePlot extends Band {
                 g.fillEllipse({
                     cx: renderX,
                     cy: renderY,
-                    rx: point.hovered ? pointHoverRadius : pointRadius,
-                    ry: point.hovered ? pointHoverRadius : pointRadius,
+                    rx: pointRadius,
+                    ry: pointRadius,
                     fill: pointColor,
                 });
-
-                const hitRegion = g.addHitRegion(point.region);
-                hitRegion.addRect(renderX - pointHoverRadius,
-                    renderY - pointHoverRadius,
-                    2 * pointHoverRadius,
-                    2 * pointHoverRadius);
             }
         }
+    }
+
+    private findClosestByTime(t: number): Array<LinePlotPoint | null> {
+        // Note: closest may also be a gap
+        const closestPoints: Array<LinePlotPoint | null> = [];
+
+        for (const line of this.lines) {
+            let currX: number | null = null;
+            let currY: number | null = null;
+            let currLohi: [number | null, number | null] = [null, null];
+            let tdelta = Infinity;
+            for (const [x, y] of line.points) {
+                if (y === null) {
+                    continue;
+                } else if (Math.abs(x - t) < tdelta) {
+                    currX = x;
+                    currY = y;
+                    if (line.lohi) {
+                        currLohi = line.lohi.get(x) ?? [null, null];
+                    } else {
+                        currLohi = [null, null];
+                    }
+
+                    tdelta = Math.abs(x - t);
+                }
+            }
+
+            if (currX !== null) {
+                closestPoints.push({
+                    time: currX,
+                    value: currY,
+                    low: currLohi[0],
+                    high: currLohi[1],
+                });
+            } else {
+                closestPoints.push(null);
+            }
+        }
+
+        return closestPoints;
     }
 
     /**
@@ -431,15 +500,6 @@ export class LinePlot extends Band {
     get pointRadius() { return this._pointRadius; }
     set pointRadius(pointRadius: number) {
         this._pointRadius = pointRadius;
-        this.reportMutation();
-    }
-
-    /**
-     * Radius of the point symbol when hovered.
-     */
-    get pointHoverRadius() { return this._pointHoverRadius; }
-    set pointHoverRadius(pointHoverRadius: number) {
-        this._pointHoverRadius = pointHoverRadius;
         this.reportMutation();
     }
 
