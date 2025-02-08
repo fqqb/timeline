@@ -206,13 +206,15 @@ export class LinePlot extends Band {
                 }
             }
 
-            const originY = Math.round(positionValueFn(0)) - 0.5;
-            g.strokePath({
-                path: new Path(0, originY).lineTo(this.timeline.mainWidth, originY),
-                color: this.zeroLineColor,
-                dash: this.zeroLineDash,
-                lineWidth: this.zeroLineWidth,
-            });
+            if (this.zeroLineWidth > 0) {
+                const originY = Math.round(positionValueFn(0)) - 0.5;
+                g.strokePath({
+                    path: new Path(0, originY).lineTo(this.timeline.mainWidth, originY),
+                    color: this.zeroLineColor,
+                    dash: this.zeroLineDash,
+                    lineWidth: this.zeroLineWidth,
+                });
+            }
 
             for (let i = 0; i < this.lines.length; i++) {
                 if (this.lines[i].points.size) {
