@@ -58,8 +58,6 @@ export class LinePlot extends Band {
     };
 
     private annotatedLines: AnnotatedLine[] = [];
-    private viewMinimum?: number;
-    private viewMaximum?: number;
 
     private linePlotRegionId = 'line_plot_' + plotSequence++;
     private clickListeners: Array<(ev: LinePlotClickEvent) => void> = [];
@@ -113,10 +111,9 @@ export class LinePlot extends Band {
         this.mouseLeaveListeners = this.mouseLeaveListeners.filter(el => (el !== listener));
     }
 
+    // Convert user input to internal data structure
     private processData() {
         this.annotatedLines.length = 0;
-        this.viewMinimum = this.minimum;
-        this.viewMaximum = this.maximum;
         if (this.lines.length) {
             for (const line of this.lines) {
                 const lineId = 'line_plot_' + lineSequence++;
@@ -129,21 +126,7 @@ export class LinePlot extends Band {
                         low = lohi ? lohi[0] ?? null : null;
                         high = lohi ? lohi[1] ?? null : null;
                     }
-
-                    const annotatedPoint: AnnotatedPoint = { x, y, low, high };
-                    annotatedPoints.push(annotatedPoint);
-                    if (this.minimum === undefined && y !== null) {
-                        const viewLow = low !== null ? Math.min(low, y) : y;
-                        if (this.viewMinimum === undefined || viewLow < this.viewMinimum) {
-                            this.viewMinimum = viewLow;
-                        }
-                    }
-                    if (this.maximum === undefined && y !== null) {
-                        const viewHigh = high !== null ? Math.max(high, y) : y;
-                        if (this.viewMaximum === undefined || viewHigh > this.viewMaximum) {
-                            this.viewMaximum = viewHigh;
-                        }
-                    }
+                    annotatedPoints.push({ x, y, low, high });
                 }
                 annotatedPoints.sort((a, b) => a.x - b.x);
                 this.annotatedLines.push({
@@ -160,10 +143,38 @@ export class LinePlot extends Band {
 
     drawBandContent(g: Graphics) {
         const { contentHeight } = this;
-        const { viewMinimum: min, viewMaximum: max } = this;
+
+        // Determine min/max, either through configuration or from the data
+        // However, ignore data outside of viewport.
+        let min = this.minimum;
+        let max = this.maximum;
+        if (min == undefined || max == undefined) {
+            for (const line of this.annotatedLines) {
+                for (const pt of line.points) {
+                    if (pt.x < this.timeline.start || pt.x > this.timeline.stop) {
+                        continue;
+                    }
+                    if (this.minimum === undefined && pt.y !== null) {
+                        const viewLow = pt.low !== null ? Math.min(pt.low, pt.y) : pt.y;
+                        if (min === undefined || viewLow < min) {
+                            min = viewLow;
+                        }
+                    }
+                    if (this.maximum === undefined && pt.y !== null) {
+                        const viewHigh = pt.high !== null ? Math.max(pt.high, pt.y) : pt.y;
+                        if (max === undefined || viewHigh > max) {
+                            max = viewHigh;
+                        }
+                    }
+                }
+            }
+        }
 
         if (min === undefined || max === undefined) {
             return;
+        }
+        if (max < min) { // Edge case in case only one of minimum/maximum was configured
+            [min, max] = [max, min];
         }
 
         // Plot max should align with mid of top label, and plot min with mid of bottom label.
