@@ -1,4 +1,4 @@
-import { addDays, addHours, addMinutes, addMonths, addWeeks, addYears, setHours, startOfDay, startOfDecade, startOfHour, startOfMonth, startOfWeek, startOfYear } from 'date-fns';
+import { addDays, addHours, addMilliseconds, addMinutes, addMonths, addSeconds, addWeeks, addYears, setHours, setMinutes, startOfDay, startOfDecade, startOfHour, startOfMinute, startOfMonth, startOfWeek, startOfYear } from 'date-fns';
 import { formatInTimeZone, fromZonedTime, toZonedTime } from 'date-fns-tz';
 import { enUS } from 'date-fns/locale';
 import { Graphics } from '../../graphics/Graphics';
@@ -6,6 +6,19 @@ import { Path } from '../../graphics/Path';
 import { Band } from '../Band';
 import { FullHeightKind } from './FullHeightKind';
 import { ScaleKind } from './ScaleKind';
+
+/**
+ * Perform a timezone-aware startOfMinute operation
+ */
+function startOfTZMinute(t: Date, timezone: string) {
+    // Shift t to the proper timezone
+    t = toZonedTime(t, timezone);
+
+    t = startOfMinute(t);
+
+    // Shift back
+    return fromZonedTime(t, timezone);
+}
 
 /**
  * Perform a timezone-aware startOfHour operation
@@ -99,6 +112,19 @@ function setTZHours(t: Date, hours: number, timezone: string) {
 }
 
 /**
+ * Perform a timezone-aware setMinutes operation
+ */
+function setTZMinutes(t: Date, minutes: number, timezone: string) {
+    // Shift t to the proper timezone
+    t = toZonedTime(t, timezone);
+
+    t = setMinutes(t, minutes);
+
+    // Shift back
+    return fromZonedTime(t, timezone);
+}
+
+/**
  * A ruler that interprets time as milliseconds since January 01, 1970, 00:00:00 UTC.
  * Same as JavaScript Date.
  */
@@ -110,6 +136,17 @@ export class TimeRuler extends Band {
     private _timezone?: string;
     private _scale: ScaleKind = 'auto';
 
+    private tenMillisecondsScale = new TenMillisecondsScale();
+    private hundredMillisecondsScale = new HundredMillisecondsScale();
+    private twoHundredMillisecondsScale = new TwoHundredMillisecondsScale();
+    private secondScale = new SecondScale();
+    private fiveSecondsScale = new FiveSecondsScale();
+    private tenSecondsScale = new TenSecondsScale();
+    private halfMinuteScale = new HalfMinuteScale();
+    private minuteScale = new MinuteScale();
+    private fiveMinutesScale = new FiveMinutesScale();
+    private tenMinutesScale = new TenMinutesScale();
+    private halfHourScale = new HalfHourScale();
     private hourScale = new HourScale();
     private quarterDayScale = new QuarterDayScale();
     private weekDayScale = new WeekDayScale();
@@ -125,7 +162,18 @@ export class TimeRuler extends Band {
         this.weekScale,
         this.weekDayScale,
         this.quarterDayScale,
-        this.hourScale, // Micro
+        this.hourScale,
+        this.halfHourScale,
+        this.tenMinutesScale,
+        this.fiveMinutesScale,
+        this.minuteScale,
+        this.halfMinuteScale,
+        this.tenSecondsScale,
+        this.fiveSecondsScale,
+        this.secondScale,
+        this.twoHundredMillisecondsScale,
+        this.hundredMillisecondsScale,
+        this.tenMillisecondsScale, // Micro
     ];
 
     private scaleRenderer?: Scale;
@@ -195,6 +243,28 @@ export class TimeRuler extends Band {
 
     private determineScale(): Scale {
         switch (this._scale) {
+            case 'tenMilliseconds':
+                return this.tenMillisecondsScale;
+            case 'hundredMilliseconds':
+                return this.hundredMillisecondsScale;
+            case 'twoHundredMilliseconds':
+                return this.twoHundredMillisecondsScale;
+            case 'second':
+                return this.secondScale;
+            case 'fiveSeconds':
+                return this.fiveSecondsScale;
+            case 'tenSeconds':
+                return this.tenSecondsScale;
+            case 'halfMinute':
+                return this.halfMinuteScale;
+            case 'minute':
+                return this.minuteScale;
+            case 'fiveMinutes':
+                return this.fiveMinutesScale;
+            case 'tenMinutes':
+                return this.tenMinutesScale;
+            case 'halfHour':
+                return this.halfHourScale;
             case 'hour':
                 return this.hourScale;
             case 'quarterDay':
@@ -232,6 +302,681 @@ interface Scale {
     measureUnitWidth(ruler: TimeRuler): number;
     drawBandContent(g: Graphics, ruler: TimeRuler): void;
     drawFullHeightTicks(g: Graphics, ruler: TimeRuler): void;
+}
+
+/**
+ * A scale that displays a label and ticks for each 10 ms.
+ */
+class TenMillisecondsScale implements Scale {
+
+    getPreferredUnitWidth(): number {
+        return 110;
+    }
+    measureUnitWidth(ruler: TimeRuler): number {
+        const x1 = ruler.timeline.start;
+        const x2 = x1 + 10; // 10 ms
+        return ruler.timeline.positionTime(x2) - ruler.timeline.positionTime(x1);
+    }
+    drawBandContent(g: Graphics, ruler: TimeRuler): void {
+        let t = new Date(ruler.timeline.start);
+
+        // Default to local
+        const timezone = ruler.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+        t = startOfTZMinute(t, timezone);
+
+        const height = g.height;
+        const font = `${ruler.timeline.textSize}px ${ruler.timeline.fontFamily}`;
+
+        while (t.getTime() <= ruler.timeline.stop) {
+            const pos = ruler.timeline.positionTime(t.getTime());
+            g.strokePath({
+                color: ruler.timeline.bandBorderColor,
+                path: new Path(0, 0)
+                    .moveTo(Math.round(pos) + 0.5, height - 4)
+                    .lineTo(Math.round(pos) + 0.5, height),
+            });
+
+            const subLabelX = ruler.timeline.positionTime(t.getTime());
+            g.fillText({
+                x: subLabelX,
+                y: height / 2,
+                text: formatInTimeZone(t, timezone, 'HH:mm:ss.SSS', { locale: enUS }),
+                font,
+                color: ruler.textColor,
+                baseline: 'middle',
+                align: 'center',
+            });
+
+            t = addMilliseconds(t, 10);
+        }
+    }
+    drawFullHeightTicks(g: Graphics, ruler: TimeRuler): void {
+    }
+}
+
+/**
+ * A scale that displays a label and ticks for 100 ms.
+ */
+class HundredMillisecondsScale implements Scale {
+
+    getPreferredUnitWidth(): number {
+        return 100;
+    }
+    measureUnitWidth(ruler: TimeRuler): number {
+        const x1 = ruler.timeline.start;
+        const x2 = x1 + 100; // 100 ms
+        return ruler.timeline.positionTime(x2) - ruler.timeline.positionTime(x1);
+    }
+    drawBandContent(g: Graphics, ruler: TimeRuler): void {
+        let t = new Date(ruler.timeline.start);
+
+        // Default to local
+        const timezone = ruler.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+        t = startOfTZMinute(t, timezone);
+
+        const height = g.height;
+        const font = `${ruler.timeline.textSize}px ${ruler.timeline.fontFamily}`;
+
+        while (t.getTime() <= ruler.timeline.stop) {
+            const pos = ruler.timeline.positionTime(t.getTime());
+            g.strokePath({
+                color: ruler.timeline.bandBorderColor,
+                path: new Path(0, 0)
+                    .moveTo(Math.round(pos) + 0.5, height - 4)
+                    .lineTo(Math.round(pos) + 0.5, height),
+            });
+
+            const subLabelX = ruler.timeline.positionTime(t.getTime());
+            g.fillText({
+                x: subLabelX,
+                y: height / 2,
+                text: formatInTimeZone(t, timezone, 'HH:mm:ss.SSS', { locale: enUS }),
+                font,
+                color: ruler.textColor,
+                baseline: 'middle',
+                align: 'center',
+            });
+
+            t = addMilliseconds(t, 100);
+        }
+    }
+    drawFullHeightTicks(g: Graphics, ruler: TimeRuler): void {
+    }
+}
+
+/**
+ * A scale that displays a label and ticks for 200 ms.
+ */
+class TwoHundredMillisecondsScale implements Scale {
+
+    getPreferredUnitWidth(): number {
+        return 97;
+    }
+    measureUnitWidth(ruler: TimeRuler): number {
+        const x1 = ruler.timeline.start;
+        const x2 = x1 + 200; // 200 ms
+        return ruler.timeline.positionTime(x2) - ruler.timeline.positionTime(x1);
+    }
+    drawBandContent(g: Graphics, ruler: TimeRuler): void {
+        let t = new Date(ruler.timeline.start);
+
+        // Default to local
+        const timezone = ruler.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+        t = startOfTZMinute(t, timezone);
+
+        const height = g.height;
+        const font = `${ruler.timeline.textSize}px ${ruler.timeline.fontFamily}`;
+
+        while (t.getTime() <= ruler.timeline.stop) {
+            const pos = ruler.timeline.positionTime(t.getTime());
+            g.strokePath({
+                color: ruler.timeline.bandBorderColor,
+                path: new Path(0, 0)
+                    .moveTo(Math.round(pos) + 0.5, height - 4)
+                    .lineTo(Math.round(pos) + 0.5, height),
+            });
+
+            const subLabelX = ruler.timeline.positionTime(t.getTime());
+            g.fillText({
+                x: subLabelX,
+                y: height / 2,
+                text: formatInTimeZone(t, timezone, 'HH:mm:ss.SSS', { locale: enUS }),
+                font,
+                color: ruler.textColor,
+                baseline: 'middle',
+                align: 'center',
+            });
+
+            t = addMilliseconds(t, 200);
+        }
+    }
+    drawFullHeightTicks(g: Graphics, ruler: TimeRuler): void {
+    }
+}
+
+/**
+ * A scale that displays a label and ticks for each second.
+ */
+class SecondScale implements Scale {
+
+    getPreferredUnitWidth(): number {
+        return 95;
+    }
+    measureUnitWidth(ruler: TimeRuler): number {
+        const x1 = ruler.timeline.start;
+        const x2 = x1 + 1000; // 1 second
+        return ruler.timeline.positionTime(x2) - ruler.timeline.positionTime(x1);
+    }
+    drawBandContent(g: Graphics, ruler: TimeRuler): void {
+        let t = new Date(ruler.timeline.start);
+
+        // Default to local
+        const timezone = ruler.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+        t = startOfTZMinute(t, timezone);
+
+        const height = g.height;
+        const font = `${ruler.timeline.textSize}px ${ruler.timeline.fontFamily}`;
+
+        while (t.getTime() <= ruler.timeline.stop) {
+            const pos = ruler.timeline.positionTime(t.getTime());
+            g.strokePath({
+                color: ruler.timeline.bandBorderColor,
+                path: new Path(0, 0)
+                    .moveTo(Math.round(pos) + 0.5, height - 4)
+                    .lineTo(Math.round(pos) + 0.5, height),
+            });
+
+            const subLabelX = ruler.timeline.positionTime(t.getTime());
+            g.fillText({
+                x: subLabelX,
+                y: height / 2,
+                text: formatInTimeZone(t, timezone, 'HH:mm:ss', { locale: enUS }),
+                font,
+                color: ruler.textColor,
+                baseline: 'middle',
+                align: 'center',
+            });
+
+            t = addSeconds(t, 1);
+        }
+    }
+    drawFullHeightTicks(g: Graphics, ruler: TimeRuler): void {
+    }
+}
+
+/**
+ * A scale that displays a label and ticks for each 5 seconds.
+ */
+class FiveSecondsScale implements Scale {
+
+    getPreferredUnitWidth(): number {
+        return 92;
+    }
+    measureUnitWidth(ruler: TimeRuler): number {
+        const x1 = ruler.timeline.start;
+        const x2 = x1 + 5000; // 5 seconds
+        return ruler.timeline.positionTime(x2) - ruler.timeline.positionTime(x1);
+    }
+    drawBandContent(g: Graphics, ruler: TimeRuler): void {
+        let t = new Date(ruler.timeline.start);
+
+        // Default to local
+        const timezone = ruler.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+        t = startOfTZMinute(t, timezone);
+
+        const height = g.height;
+        const font = `${ruler.timeline.textSize}px ${ruler.timeline.fontFamily}`;
+
+        while (t.getTime() <= ruler.timeline.stop) {
+            const pos = ruler.timeline.positionTime(t.getTime());
+            g.strokePath({
+                color: ruler.timeline.bandBorderColor,
+                path: new Path(0, 0)
+                    .moveTo(Math.round(pos) + 0.5, height - 4)
+                    .lineTo(Math.round(pos) + 0.5, height),
+            });
+
+            const subLabelX = ruler.timeline.positionTime(t.getTime());
+            g.fillText({
+                x: subLabelX,
+                y: height / 2,
+                text: formatInTimeZone(t, timezone, 'HH:mm:ss', { locale: enUS }),
+                font,
+                color: ruler.textColor,
+                baseline: 'middle',
+                align: 'center',
+            });
+
+            t = addSeconds(t, 5);
+        }
+    }
+    drawFullHeightTicks(g: Graphics, ruler: TimeRuler): void {
+    }
+}
+
+/**
+ * A scale that displays a label and ticks for each 10 seconds.
+ */
+class TenSecondsScale implements Scale {
+
+    getPreferredUnitWidth(): number {
+        return 90;
+    }
+    measureUnitWidth(ruler: TimeRuler): number {
+        const x1 = ruler.timeline.start;
+        const x2 = x1 + 10000; // 10 seconds
+        return ruler.timeline.positionTime(x2) - ruler.timeline.positionTime(x1);
+    }
+    drawBandContent(g: Graphics, ruler: TimeRuler): void {
+        let t = new Date(ruler.timeline.start);
+
+        // Default to local
+        const timezone = ruler.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+        t = startOfTZMinute(t, timezone);
+
+        const height = g.height;
+        const font = `${ruler.timeline.textSize}px ${ruler.timeline.fontFamily}`;
+
+        while (t.getTime() <= ruler.timeline.stop) {
+            const pos = ruler.timeline.positionTime(t.getTime());
+            g.strokePath({
+                color: ruler.timeline.bandBorderColor,
+                path: new Path(0, 0)
+                    .moveTo(Math.round(pos) + 0.5, height - 4)
+                    .lineTo(Math.round(pos) + 0.5, height),
+            });
+
+            const subLabelX = ruler.timeline.positionTime(t.getTime());
+            g.fillText({
+                x: subLabelX,
+                y: height / 2,
+                text: formatInTimeZone(t, timezone, 'HH:mm:ss', { locale: enUS }),
+                font,
+                color: ruler.textColor,
+                baseline: 'middle',
+                align: 'center',
+            });
+
+            t = addSeconds(t, 10);
+        }
+    }
+    drawFullHeightTicks(g: Graphics, ruler: TimeRuler): void {
+    }
+}
+
+/**
+ * A scale that displays a label and ticks for each 30 seconds.
+ */
+class HalfMinuteScale implements Scale {
+
+    getPreferredUnitWidth(): number {
+        return 85;
+    }
+    measureUnitWidth(ruler: TimeRuler): number {
+        const x1 = ruler.timeline.start;
+        const x2 = x1 + 30000; // 30 seconds
+        return ruler.timeline.positionTime(x2) - ruler.timeline.positionTime(x1);
+    }
+    drawBandContent(g: Graphics, ruler: TimeRuler): void {
+        let t = new Date(ruler.timeline.start);
+
+        // Default to local
+        const timezone = ruler.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+        t = startOfTZHour(t, timezone);
+
+        const height = g.height;
+        const font = `${ruler.timeline.textSize}px ${ruler.timeline.fontFamily}`;
+
+        while (t.getTime() <= ruler.timeline.stop) {
+            const pos = ruler.timeline.positionTime(t.getTime());
+            g.strokePath({
+                color: ruler.timeline.bandBorderColor,
+                path: new Path(0, 0)
+                    .moveTo(Math.round(pos) + 0.5, height - 4)
+                    .lineTo(Math.round(pos) + 0.5, height),
+            });
+
+            const subLabelX = ruler.timeline.positionTime(t.getTime());
+            g.fillText({
+                x: subLabelX,
+                y: height / 2,
+                text: formatInTimeZone(t, timezone, 'HH:mm:ss', { locale: enUS }),
+                font,
+                color: ruler.textColor,
+                baseline: 'middle',
+                align: 'center',
+            });
+
+            t = addSeconds(t, 30);
+        }
+    }
+    drawFullHeightTicks(g: Graphics, ruler: TimeRuler): void {
+    }
+}
+
+/**
+ * A scale that displays a label and ticks for each minute.
+ */
+class MinuteScale implements Scale {
+
+    getPreferredUnitWidth(): number {
+        return 80;
+    }
+    measureUnitWidth(ruler: TimeRuler): number {
+        const x1 = ruler.timeline.start;
+        const x2 = x1 + 60000; // 1 minute
+        return ruler.timeline.positionTime(x2) - ruler.timeline.positionTime(x1);
+    }
+    drawBandContent(g: Graphics, ruler: TimeRuler): void {
+        let t = new Date(ruler.timeline.start);
+
+        // Default to local
+        const timezone = ruler.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+        t = startOfTZHour(t, timezone);
+
+        const height = g.height;
+        const font = `${ruler.timeline.textSize}px ${ruler.timeline.fontFamily}`;
+
+        while (t.getTime() <= ruler.timeline.stop) {
+            const pos = ruler.timeline.positionTime(t.getTime());
+            g.strokePath({
+                color: ruler.timeline.bandBorderColor,
+                path: new Path(0, 0)
+                    .moveTo(Math.round(pos) + 0.5, height - 4)
+                    .lineTo(Math.round(pos) + 0.5, height),
+            });
+
+            const subLabelX = ruler.timeline.positionTime(t.getTime());
+            g.fillText({
+                x: subLabelX,
+                y: height / 2,
+                text: formatInTimeZone(t, timezone, 'HH:mm', { locale: enUS }),
+                font,
+                color: ruler.textColor,
+                baseline: 'middle',
+                align: 'center',
+            });
+
+            t = addMinutes(t, 1);
+        }
+    }
+    drawFullHeightTicks(g: Graphics, ruler: TimeRuler): void {
+    }
+}
+
+/**
+ * A scale that displays a label for each day, and ticks for each 5 min.
+ */
+class FiveMinutesScale implements Scale {
+
+    private majorX: number[] = [];
+
+    getPreferredUnitWidth(): number {
+        return 65;
+    }
+    measureUnitWidth(ruler: TimeRuler): number {
+        const x1 = ruler.timeline.start;
+        const x2 = x1 + 300000; // 5 minutes
+        return ruler.timeline.positionTime(x2) - ruler.timeline.positionTime(x1);
+    }
+    drawBandContent(g: Graphics, ruler: TimeRuler): void {
+        let t = new Date(ruler.timeline.start);
+
+        // Default to local
+        const timezone = ruler.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+        t = startOfTZDay(t, timezone);
+
+        this.majorX.length = 0;
+
+        const height = g.height;
+        const font = `${ruler.timeline.textSize}px ${ruler.timeline.fontFamily}`;
+
+        while (t.getTime() <= ruler.timeline.stop) {
+            const x = ruler.timeline.positionTime(t.getTime());
+            this.majorX.push(x);
+
+            g.strokePath({
+                color: ruler.timeline.bandBorderColor,
+                path: new Path(0, 0)
+                    .moveTo(Math.round(x) + 0.5, 0)
+                    .lineTo(Math.round(x) + 0.5, height),
+            });
+            g.fillText({
+                x: x + 2,
+                y: height / 4,
+                text: formatInTimeZone(t, timezone, 'MMM dd', { locale: enUS }),
+                font,
+                color: ruler.textColor,
+                baseline: 'middle',
+                align: 'left',
+            });
+
+            for (let i = 0; i < 48 * 6; i++) {
+                const sub = setTZMinutes(t, i * 5, timezone);
+                if (t.getTime() > ruler.timeline.stop) {
+                    break;
+                }
+                if (i !== 0) {
+                    const subX = ruler.timeline.positionTime(sub.getTime());
+                    g.strokePath({
+                        color: ruler.timeline.bandBorderColor,
+                        path: new Path(0, 0)
+                            .moveTo(Math.round(subX) + 0.5, height - 4)
+                            .lineTo(Math.round(subX) + 0.5, height),
+                    });
+                }
+                const subLabelX = ruler.timeline.positionTime(sub.getTime());
+                g.fillText({
+                    x: subLabelX,
+                    y: (i === 0) ? height * 0.75 : height / 2,
+                    text: formatInTimeZone(sub, timezone, 'HH:mm', { locale: enUS }),
+                    font,
+                    color: ruler.textColor,
+                    baseline: 'middle',
+                    align: 'center',
+                });
+            }
+
+            t = addDays(t, 1); // This accounts for DST (adding hours does not)
+        }
+    }
+    drawFullHeightTicks(g: Graphics, ruler: TimeRuler): void {
+        const path = new Path(0, 0);
+        for (const x of this.majorX) {
+            path.moveTo(Math.round(x) + 0.5, ruler.y + ruler.height);
+            path.lineTo(Math.round(x) + 0.5, g.height);
+        }
+        g.strokePath({
+            color: ruler.timeline.bandBorderColor,
+            path,
+        });
+    }
+}
+
+/**
+ * A scale that displays a label for each day, and ticks for each 10 min.
+ */
+class TenMinutesScale implements Scale {
+
+    private majorX: number[] = [];
+
+    getPreferredUnitWidth(): number {
+        return 60;
+    }
+    measureUnitWidth(ruler: TimeRuler): number {
+        const x1 = ruler.timeline.start;
+        const x2 = x1 + 600000; // 10 minutes
+        return ruler.timeline.positionTime(x2) - ruler.timeline.positionTime(x1);
+    }
+    drawBandContent(g: Graphics, ruler: TimeRuler): void {
+        let t = new Date(ruler.timeline.start);
+
+        // Default to local
+        const timezone = ruler.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+        t = startOfTZDay(t, timezone);
+
+        this.majorX.length = 0;
+
+        const height = g.height;
+        const font = `${ruler.timeline.textSize}px ${ruler.timeline.fontFamily}`;
+
+        while (t.getTime() <= ruler.timeline.stop) {
+            const x = ruler.timeline.positionTime(t.getTime());
+            this.majorX.push(x);
+
+            g.strokePath({
+                color: ruler.timeline.bandBorderColor,
+                path: new Path(0, 0)
+                    .moveTo(Math.round(x) + 0.5, 0)
+                    .lineTo(Math.round(x) + 0.5, height),
+            });
+            g.fillText({
+                x: x + 2,
+                y: height / 4,
+                text: formatInTimeZone(t, timezone, 'MMM dd', { locale: enUS }),
+                font,
+                color: ruler.textColor,
+                baseline: 'middle',
+                align: 'left',
+            });
+
+            for (let i = 0; i < 48 * 3; i++) {
+                const sub = setTZMinutes(t, i * 10, timezone);
+                if (t.getTime() > ruler.timeline.stop) {
+                    break;
+                }
+                if (i !== 0) {
+                    const subX = ruler.timeline.positionTime(sub.getTime());
+                    g.strokePath({
+                        color: ruler.timeline.bandBorderColor,
+                        path: new Path(0, 0)
+                            .moveTo(Math.round(subX) + 0.5, height - 4)
+                            .lineTo(Math.round(subX) + 0.5, height),
+                    });
+                }
+                const subLabelX = ruler.timeline.positionTime(sub.getTime());
+                g.fillText({
+                    x: subLabelX,
+                    y: (i === 0) ? height * 0.75 : height / 2,
+                    text: formatInTimeZone(sub, timezone, 'HH:mm', { locale: enUS }),
+                    font,
+                    color: ruler.textColor,
+                    baseline: 'middle',
+                    align: 'center',
+                });
+            }
+
+            t = addDays(t, 1); // This accounts for DST (adding hours does not)
+        }
+    }
+    drawFullHeightTicks(g: Graphics, ruler: TimeRuler): void {
+        const path = new Path(0, 0);
+        for (const x of this.majorX) {
+            path.moveTo(Math.round(x) + 0.5, ruler.y + ruler.height);
+            path.lineTo(Math.round(x) + 0.5, g.height);
+        }
+        g.strokePath({
+            color: ruler.timeline.bandBorderColor,
+            path,
+        });
+    }
+}
+
+/**
+ * A scale that displays a label for each day, and ticks for each 30 min.
+ */
+class HalfHourScale implements Scale {
+
+    private majorX: number[] = [];
+
+    getPreferredUnitWidth(): number {
+        return 50;
+    }
+    measureUnitWidth(ruler: TimeRuler): number {
+        const x1 = ruler.timeline.start;
+        const x2 = x1 + 1800000; // 30 minutes
+        return ruler.timeline.positionTime(x2) - ruler.timeline.positionTime(x1);
+    }
+    drawBandContent(g: Graphics, ruler: TimeRuler): void {
+        let t = new Date(ruler.timeline.start);
+
+        // Default to local
+        const timezone = ruler.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+        t = startOfTZDay(t, timezone);
+
+        this.majorX.length = 0;
+
+        const height = g.height;
+        const font = `${ruler.timeline.textSize}px ${ruler.timeline.fontFamily}`;
+
+        while (t.getTime() <= ruler.timeline.stop) {
+            const x = ruler.timeline.positionTime(t.getTime());
+            this.majorX.push(x);
+
+            g.strokePath({
+                color: ruler.timeline.bandBorderColor,
+                path: new Path(0, 0)
+                    .moveTo(Math.round(x) + 0.5, 0)
+                    .lineTo(Math.round(x) + 0.5, height),
+            });
+            g.fillText({
+                x: x + 2,
+                y: height / 4,
+                text: formatInTimeZone(t, timezone, 'MMM dd', { locale: enUS }),
+                font,
+                color: ruler.textColor,
+                baseline: 'middle',
+                align: 'left',
+            });
+
+            for (let i = 0; i < 48; i++) {
+                const sub = setTZMinutes(t, i * 30, timezone);
+                if (i !== 0) {
+                    const subX = ruler.timeline.positionTime(sub.getTime());
+                    g.strokePath({
+                        color: ruler.timeline.bandBorderColor,
+                        path: new Path(0, 0)
+                            .moveTo(Math.round(subX) + 0.5, height - 4)
+                            .lineTo(Math.round(subX) + 0.5, height),
+                    });
+                }
+                const subLabelX = ruler.timeline.positionTime(sub.getTime());
+                g.fillText({
+                    x: subLabelX,
+                    y: (i === 0) ? height * 0.75 : height / 2,
+                    text: formatInTimeZone(sub, timezone, 'HH:mm', { locale: enUS }),
+                    font,
+                    color: ruler.textColor,
+                    baseline: 'middle',
+                    align: 'center',
+                });
+            }
+
+            t = addDays(t, 1); // This accounts for DST (adding hours does not)
+        }
+    }
+    drawFullHeightTicks(g: Graphics, ruler: TimeRuler): void {
+        const path = new Path(0, 0);
+        for (const x of this.majorX) {
+            path.moveTo(Math.round(x) + 0.5, ruler.y + ruler.height);
+            path.lineTo(Math.round(x) + 0.5, g.height);
+        }
+        g.strokePath({
+            color: ruler.timeline.bandBorderColor,
+            path,
+        });
+    }
 }
 
 /**

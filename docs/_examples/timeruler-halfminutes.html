@@ -1,0 +1,21 @@
+<div id="timeline" style="height: 31px"></div>
+<script type="module">
+    import { Timeline, TimeRuler } from 'https://esm.run/@fqqb/timeline';
+    window.addEventListener('load', () => {
+        const targetEl = document.getElementById('timeline');
+        const timeline = new Timeline(targetEl);
+
+        // BEGIN excerpt-1
+        const start = new Date();
+        start.setHours(0, 0, 0, 0);
+        const stop = new Date(start.getTime());
+        stop.setHours(0, 5, 0, 0);
+
+        timeline.setViewRange(start.getTime(), stop.getTime());
+
+        const line = new TimeRuler(timeline);
+        line.label = 'Time';
+        line.scale = 'halfMinute';
+        // END excerpt-1
+    });
+</script>
