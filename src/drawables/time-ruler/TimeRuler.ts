@@ -132,6 +132,7 @@ export class TimeRuler extends Band {
 
     private _contentHeight = 30;
     private _textColor = 'grey';
+    private _tickColor = '#888888';
     private _fullHeight?: FullHeightKind;
     private _timezone?: string;
     private _scale: ScaleKind = 'auto';
@@ -188,14 +189,14 @@ export class TimeRuler extends Band {
     }
 
     override drawUnderlay(g: Graphics) {
-        if (this.fullHeight === 'underlay') {
-            this.scaleRenderer!.drawFullHeightTicks(g, this);
+        if (this.fullHeight === 'underlay' && this.scaleRenderer?.drawFullHeightTicks) {
+            this.scaleRenderer.drawFullHeightTicks(g, this);
         }
     }
 
     override drawOverlay(g: Graphics): void {
-        if (this.fullHeight === 'overlay') {
-            this.scaleRenderer!.drawFullHeightTicks(g, this);
+        if (this.fullHeight === 'overlay' && this.scaleRenderer?.drawFullHeightTicks) {
+            this.scaleRenderer.drawFullHeightTicks(g, this);
         }
     }
 
@@ -217,6 +218,12 @@ export class TimeRuler extends Band {
     get textColor() { return this._textColor; }
     set textColor(textColor: string) {
         this._textColor = textColor;
+        this.reportMutation();
+    }
+
+    get tickColor() { return this._tickColor; }
+    set tickColor(tickColor: string) {
+        this._tickColor = tickColor;
         this.reportMutation();
     }
 
@@ -301,7 +308,7 @@ interface Scale {
     getPreferredUnitWidth(): number;
     measureUnitWidth(ruler: TimeRuler): number;
     drawBandContent(g: Graphics, ruler: TimeRuler): void;
-    drawFullHeightTicks(g: Graphics, ruler: TimeRuler): void;
+    drawFullHeightTicks?(g: Graphics, ruler: TimeRuler): void;
 }
 
 /**
@@ -331,7 +338,7 @@ class TenMillisecondsScale implements Scale {
         while (t.getTime() <= ruler.timeline.stop) {
             const pos = ruler.timeline.positionTime(t.getTime());
             g.strokePath({
-                color: ruler.timeline.bandBorderColor,
+                color: ruler.tickColor,
                 path: new Path(0, 0)
                     .moveTo(Math.round(pos) + 0.5, height - 4)
                     .lineTo(Math.round(pos) + 0.5, height),
@@ -350,8 +357,6 @@ class TenMillisecondsScale implements Scale {
 
             t = addMilliseconds(t, 10);
         }
-    }
-    drawFullHeightTicks(g: Graphics, ruler: TimeRuler): void {
     }
 }
 
@@ -382,7 +387,7 @@ class HundredMillisecondsScale implements Scale {
         while (t.getTime() <= ruler.timeline.stop) {
             const pos = ruler.timeline.positionTime(t.getTime());
             g.strokePath({
-                color: ruler.timeline.bandBorderColor,
+                color: ruler.tickColor,
                 path: new Path(0, 0)
                     .moveTo(Math.round(pos) + 0.5, height - 4)
                     .lineTo(Math.round(pos) + 0.5, height),
@@ -401,8 +406,6 @@ class HundredMillisecondsScale implements Scale {
 
             t = addMilliseconds(t, 100);
         }
-    }
-    drawFullHeightTicks(g: Graphics, ruler: TimeRuler): void {
     }
 }
 
@@ -433,7 +436,7 @@ class TwoHundredMillisecondsScale implements Scale {
         while (t.getTime() <= ruler.timeline.stop) {
             const pos = ruler.timeline.positionTime(t.getTime());
             g.strokePath({
-                color: ruler.timeline.bandBorderColor,
+                color: ruler.tickColor,
                 path: new Path(0, 0)
                     .moveTo(Math.round(pos) + 0.5, height - 4)
                     .lineTo(Math.round(pos) + 0.5, height),
@@ -452,8 +455,6 @@ class TwoHundredMillisecondsScale implements Scale {
 
             t = addMilliseconds(t, 200);
         }
-    }
-    drawFullHeightTicks(g: Graphics, ruler: TimeRuler): void {
     }
 }
 
@@ -484,7 +485,7 @@ class SecondScale implements Scale {
         while (t.getTime() <= ruler.timeline.stop) {
             const pos = ruler.timeline.positionTime(t.getTime());
             g.strokePath({
-                color: ruler.timeline.bandBorderColor,
+                color: ruler.tickColor,
                 path: new Path(0, 0)
                     .moveTo(Math.round(pos) + 0.5, height - 4)
                     .lineTo(Math.round(pos) + 0.5, height),
@@ -503,8 +504,6 @@ class SecondScale implements Scale {
 
             t = addSeconds(t, 1);
         }
-    }
-    drawFullHeightTicks(g: Graphics, ruler: TimeRuler): void {
     }
 }
 
@@ -535,7 +534,7 @@ class FiveSecondsScale implements Scale {
         while (t.getTime() <= ruler.timeline.stop) {
             const pos = ruler.timeline.positionTime(t.getTime());
             g.strokePath({
-                color: ruler.timeline.bandBorderColor,
+                color: ruler.tickColor,
                 path: new Path(0, 0)
                     .moveTo(Math.round(pos) + 0.5, height - 4)
                     .lineTo(Math.round(pos) + 0.5, height),
@@ -554,8 +553,6 @@ class FiveSecondsScale implements Scale {
 
             t = addSeconds(t, 5);
         }
-    }
-    drawFullHeightTicks(g: Graphics, ruler: TimeRuler): void {
     }
 }
 
@@ -586,7 +583,7 @@ class TenSecondsScale implements Scale {
         while (t.getTime() <= ruler.timeline.stop) {
             const pos = ruler.timeline.positionTime(t.getTime());
             g.strokePath({
-                color: ruler.timeline.bandBorderColor,
+                color: ruler.tickColor,
                 path: new Path(0, 0)
                     .moveTo(Math.round(pos) + 0.5, height - 4)
                     .lineTo(Math.round(pos) + 0.5, height),
@@ -605,8 +602,6 @@ class TenSecondsScale implements Scale {
 
             t = addSeconds(t, 10);
         }
-    }
-    drawFullHeightTicks(g: Graphics, ruler: TimeRuler): void {
     }
 }
 
@@ -637,7 +632,7 @@ class HalfMinuteScale implements Scale {
         while (t.getTime() <= ruler.timeline.stop) {
             const pos = ruler.timeline.positionTime(t.getTime());
             g.strokePath({
-                color: ruler.timeline.bandBorderColor,
+                color: ruler.tickColor,
                 path: new Path(0, 0)
                     .moveTo(Math.round(pos) + 0.5, height - 4)
                     .lineTo(Math.round(pos) + 0.5, height),
@@ -656,8 +651,6 @@ class HalfMinuteScale implements Scale {
 
             t = addSeconds(t, 30);
         }
-    }
-    drawFullHeightTicks(g: Graphics, ruler: TimeRuler): void {
     }
 }
 
@@ -688,7 +681,7 @@ class MinuteScale implements Scale {
         while (t.getTime() <= ruler.timeline.stop) {
             const pos = ruler.timeline.positionTime(t.getTime());
             g.strokePath({
-                color: ruler.timeline.bandBorderColor,
+                color: ruler.tickColor,
                 path: new Path(0, 0)
                     .moveTo(Math.round(pos) + 0.5, height - 4)
                     .lineTo(Math.round(pos) + 0.5, height),
@@ -707,8 +700,6 @@ class MinuteScale implements Scale {
 
             t = addMinutes(t, 1);
         }
-    }
-    drawFullHeightTicks(g: Graphics, ruler: TimeRuler): void {
     }
 }
 
@@ -745,7 +736,7 @@ class FiveMinutesScale implements Scale {
             this.majorX.push(x);
 
             g.strokePath({
-                color: ruler.timeline.bandBorderColor,
+                color: ruler.tickColor,
                 path: new Path(0, 0)
                     .moveTo(Math.round(x) + 0.5, 0)
                     .lineTo(Math.round(x) + 0.5, height),
@@ -768,7 +759,7 @@ class FiveMinutesScale implements Scale {
                 if (i !== 0) {
                     const subX = ruler.timeline.positionTime(sub.getTime());
                     g.strokePath({
-                        color: ruler.timeline.bandBorderColor,
+                        color: ruler.tickColor,
                         path: new Path(0, 0)
                             .moveTo(Math.round(subX) + 0.5, height - 4)
                             .lineTo(Math.round(subX) + 0.5, height),
@@ -835,7 +826,7 @@ class TenMinutesScale implements Scale {
             this.majorX.push(x);
 
             g.strokePath({
-                color: ruler.timeline.bandBorderColor,
+                color: ruler.tickColor,
                 path: new Path(0, 0)
                     .moveTo(Math.round(x) + 0.5, 0)
                     .lineTo(Math.round(x) + 0.5, height),
@@ -858,7 +849,7 @@ class TenMinutesScale implements Scale {
                 if (i !== 0) {
                     const subX = ruler.timeline.positionTime(sub.getTime());
                     g.strokePath({
-                        color: ruler.timeline.bandBorderColor,
+                        color: ruler.tickColor,
                         path: new Path(0, 0)
                             .moveTo(Math.round(subX) + 0.5, height - 4)
                             .lineTo(Math.round(subX) + 0.5, height),
@@ -925,7 +916,7 @@ class HalfHourScale implements Scale {
             this.majorX.push(x);
 
             g.strokePath({
-                color: ruler.timeline.bandBorderColor,
+                color: ruler.tickColor,
                 path: new Path(0, 0)
                     .moveTo(Math.round(x) + 0.5, 0)
                     .lineTo(Math.round(x) + 0.5, height),
@@ -945,7 +936,7 @@ class HalfHourScale implements Scale {
                 if (i !== 0) {
                     const subX = ruler.timeline.positionTime(sub.getTime());
                     g.strokePath({
-                        color: ruler.timeline.bandBorderColor,
+                        color: ruler.tickColor,
                         path: new Path(0, 0)
                             .moveTo(Math.round(subX) + 0.5, height - 4)
                             .lineTo(Math.round(subX) + 0.5, height),
@@ -1047,7 +1038,7 @@ class HourScale implements Scale {
             path.lineTo(Math.round(x) + 0.5, height);
         }
         g.strokePath({
-            color: ruler.timeline.bandBorderColor,
+            color: ruler.tickColor,
             path,
         });
 
@@ -1136,7 +1127,7 @@ class QuarterDayScale implements Scale {
             this.majorX.push(x);
 
             g.strokePath({
-                color: ruler.timeline.bandBorderColor,
+                color: ruler.tickColor,
                 path: new Path(0, 0)
                     .moveTo(Math.round(x) + 0.5, 0)
                     .lineTo(Math.round(x) + 0.5, height),
@@ -1156,7 +1147,7 @@ class QuarterDayScale implements Scale {
                 if (hour !== 0) {
                     const subX = ruler.timeline.positionTime(sub.getTime());
                     g.strokePath({
-                        color: ruler.timeline.bandBorderColor,
+                        color: ruler.tickColor,
                         path: new Path(0, 0)
                             .moveTo(Math.round(subX) + 0.5, height / 2)
                             .lineTo(Math.round(subX) + 0.5, height),
@@ -1226,7 +1217,7 @@ class WeekDayScale implements Scale {
             this.majorX.push(x);
 
             g.strokePath({
-                color: ruler.timeline.bandBorderColor,
+                color: ruler.tickColor,
                 path: new Path(0, 0)
                     .moveTo(Math.round(x) + 0.5, 0)
                     .lineTo(Math.round(x) + 0.5, height),
@@ -1247,7 +1238,7 @@ class WeekDayScale implements Scale {
                 if (weekday !== 6) { // Avoid overlap with day divider
                     const subX = ruler.timeline.positionTime(t.getTime());
                     g.strokePath({
-                        color: ruler.timeline.bandBorderColor,
+                        color: ruler.tickColor,
                         path: new Path(0, 0)
                             .moveTo(Math.round(subX) + 0.5, height / 2)
                             .lineTo(Math.round(subX) + 0.5, height),
@@ -1318,7 +1309,7 @@ class WeekScale implements Scale {
             this.majorX.push(x);
 
             g.strokePath({
-                color: ruler.timeline.bandBorderColor,
+                color: ruler.tickColor,
                 path: new Path(0, 0)
                     .moveTo(Math.round(x) + 0.5, 0)
                     .lineTo(Math.round(x) + 0.5, height / 2),
@@ -1341,7 +1332,7 @@ class WeekScale implements Scale {
             const x = ruler.timeline.positionTime(t.getTime());
 
             g.strokePath({
-                color: ruler.timeline.bandBorderColor,
+                color: ruler.tickColor,
                 path: new Path(0, 0)
                     .moveTo(Math.round(x) + 0.5, height / 2)
                     .lineTo(Math.round(x) + 0.5, height),
@@ -1410,7 +1401,7 @@ class MonthScale implements Scale {
             this.majorX.push(x);
 
             g.strokePath({
-                color: ruler.timeline.bandBorderColor,
+                color: ruler.tickColor,
                 path: new Path(0, 0)
                     .moveTo(Math.round(x) + 0.5, 0)
                     .lineTo(Math.round(x) + 0.5, height),
@@ -1429,7 +1420,7 @@ class MonthScale implements Scale {
                 t = addMonths(t, 1);
                 const subX = ruler.timeline.positionTime(t.getTime());
                 g.strokePath({
-                    color: ruler.timeline.bandBorderColor,
+                    color: ruler.tickColor,
                     path: new Path(0, 0)
                         .moveTo(Math.round(subX) + 0.5, height / 2)
                         .lineTo(Math.round(subX) + 0.5, height),
@@ -1492,7 +1483,7 @@ class YearScale implements Scale {
             const x = ruler.timeline.positionTime(t.getTime());
 
             g.strokePath({
-                color: ruler.timeline.bandBorderColor,
+                color: ruler.tickColor,
                 path: new Path(0, 0)
                     .moveTo(Math.round(x) + 0.5, 0)
                     .lineTo(Math.round(x) + 0.5, height),
@@ -1545,7 +1536,7 @@ class DecadeScale implements Scale {
             const x = ruler.timeline.positionTime(t.getTime());
 
             g.strokePath({
-                color: ruler.timeline.bandBorderColor,
+                color: ruler.tickColor,
                 path: new Path(0, 0)
                     .moveTo(Math.round(x) + 0.5, 0)
                     .lineTo(Math.round(x) + 0.5, height),
