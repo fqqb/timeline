@@ -225,9 +225,9 @@ export class LinePlot extends Band {
         hitRegion.addRect(0, 0, this.timeline.mainWidth, this.contentHeight);
 
         // Draw order:
-        // 1/ Low/High area (per line)
-        // 2/ area fill (per line)
-        // 3/ zero line (shared)
+        // 1/ area fill (per line)
+        // 2/ zero line (shared)
+        // 3/ Low/High area (per line)
         // 4/ trace (per line)
 
         for (let i = 0; i < this.lines.length; i++) {
@@ -241,9 +241,7 @@ export class LinePlot extends Band {
                     };
                 }
 
-                this.drawLohi(g, this.lines[i], annotatedLine, positionForValueFn);
                 this.drawArea(g, this.lines[i], annotatedLine, positionForValueFn);
-                this.drawLine(g, this.lines[i], annotatedLine);
             }
         }
 
@@ -259,7 +257,9 @@ export class LinePlot extends Band {
 
         for (let i = 0; i < this.lines.length; i++) {
             if (this.lines[i].points.size) {
-                this.drawLine(g, this.lines[i], this.annotatedLines[i]);
+                const annotatedLine = this.annotatedLines[i];
+                this.drawLohi(g, this.lines[i], annotatedLine, positionForValueFn);
+                this.drawLine(g, this.lines[i], annotatedLine);
             }
         }
 
