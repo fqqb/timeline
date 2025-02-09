@@ -177,16 +177,11 @@ export class LinePlot extends Band {
             [min, max] = [max, min];
         }
 
-        // Plot max should align with mid of top label, and plot min with mid of bottom label.
-        // So we add a little whitespace to the actually available plot area.
-        // (unrelated to any other band margins)
-        const margin = this.labelTextSize / 2;
-        const plotHeight = contentHeight - margin - margin;
         const positionForValueFn = (value: number) => {
-            return contentHeight - margin - ((value - min) / (max - min) * (plotHeight - 0));
+            return contentHeight - ((value - min) / (max - min) * (contentHeight - 0));
         };
         const valueForPositionFn = (y: number) => {
-            return ((contentHeight - margin - y) / (plotHeight - 0)) * (max - min) + min;
+            return ((contentHeight - y) / (contentHeight - 0)) * (max - min) + min;
         };
 
         const hitRegion = g.addHitRegion({
@@ -263,24 +258,13 @@ export class LinePlot extends Band {
             }
         }
 
-        const tickLength = 5;
-        const tickMargin = 2;
-        const minY = Math.round(contentHeight - (this.labelTextSize / 2)) - 0.5;
-        const maxY = Math.round(this.labelTextSize / 2) - 0.5;
-        g.strokePath({
-            path: new Path(this.timeline.mainWidth, minY)
-                .lineTo(this.timeline.mainWidth - tickLength, minY)
-                .moveTo(this.timeline.mainWidth, maxY)
-                .lineTo(this.timeline.mainWidth - tickLength, maxY),
-            color: this.labelTextColor,
-        });
-
+        const rightMargin = 4;
         const font = `${this.labelTextSize}px ${this.labelFontFamily}`;
         const minText = this.labelFormatter(min);
         let fm = g.measureText(minText, font);
         g.fillRect({
-            x: this.timeline.mainWidth - tickLength - tickMargin - fm.width,
-            y: contentHeight - this.labelTextSize,
+            x: this.timeline.mainWidth - fm.width - rightMargin,
+            y: contentHeight - this.labelTextSize - 0.5,
             width: fm.width,
             height: this.labelTextSize,
             fill: this.labelBackground,
@@ -288,8 +272,8 @@ export class LinePlot extends Band {
         const maxText = this.labelFormatter(max);
         fm = g.measureText(maxText, font);
         g.fillRect({
-            x: this.timeline.mainWidth - tickLength - tickMargin - fm.width,
-            y: 0,
+            x: this.timeline.mainWidth - fm.width - rightMargin,
+            y: 0.5,
             width: fm.width,
             height: this.labelTextSize,
             fill: this.labelBackground,
@@ -301,7 +285,7 @@ export class LinePlot extends Band {
             baseline: 'bottom',
             color: this.labelTextColor,
             font,
-            x: this.timeline.mainWidth - tickLength - tickMargin,
+            x: this.timeline.mainWidth - rightMargin,
             y: contentHeight,
         });
         g.fillText({
@@ -310,8 +294,8 @@ export class LinePlot extends Band {
             baseline: 'top',
             color: this.labelTextColor,
             font,
-            x: this.timeline.mainWidth - tickLength - tickMargin,
-            y: 0,
+            x: this.timeline.mainWidth - rightMargin,
+            y: 0.5,
         });
     }
 
