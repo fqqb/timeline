@@ -415,15 +415,16 @@ export class LinePlot extends Band {
         const closestPoints: Array<LinePlotPoint | null> = [];
 
         for (const line of this.visibleLines) {
+            let currIdx: number | null = null;
             let currX: number | null = null;
             let currY: number | null = null;
             let currLow: number | null = null;
             let currHigh: number | null = null;
             let tdelta = Infinity;
-            for (const { x, y, low, high } of line.points) {
-                if (y === null) {
-                    continue;
-                } else if (Math.abs(x - t) < tdelta) {
+            for (let i = 0; i < line.points.length; i++) {
+                const { x, y, low, high } = line.points[i];
+                if (Math.abs(x - t) < tdelta) {
+                    currIdx = i;
                     currX = x;
                     currY = y;
                     currLow = low;
@@ -433,7 +434,9 @@ export class LinePlot extends Band {
                 }
             }
 
-            if (currX !== null) {
+            // Avoiding show value for trailing gap
+            const ignorePoint = (currIdx === line.points.length - 1) && currX !== t;
+            if (currX !== null && !ignorePoint) {
                 closestPoints.push({
                     time: currX,
                     value: currY,
