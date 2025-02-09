@@ -12,6 +12,13 @@ import { LinePlotPoint } from './LinePlotPoint';
 
 interface AnnotatedLine {
     id: string;
+    visible: boolean;
+    lineColor?: string;
+    lineWidth?: number;
+    fill?: FillStyle;
+    pointRadius?: number;
+    pointColor?: string;
+    lohiColor?: string;
     points: AnnotatedPoint[];
 }
 
@@ -131,6 +138,13 @@ export class LinePlot extends Band {
                 annotatedPoints.sort((a, b) => a.x - b.x);
                 this.annotatedLines.push({
                     id: lineId,
+                    visible: line.visible ?? true,
+                    lineColor: line.lineColor,
+                    lineWidth: line.lineWidth,
+                    fill: line.fill,
+                    pointRadius: line.pointRadius,
+                    pointColor: line.pointColor,
+                    lohiColor: line.lohiColor,
                     points: annotatedPoints,
                 });
             }
@@ -149,7 +163,7 @@ export class LinePlot extends Band {
         let min = this.minimum;
         let max = this.maximum;
         if (min == undefined || max == undefined) {
-            for (const line of this.annotatedLines) {
+            for (const line of this.visibleLines) {
                 for (const pt of line.points) {
                     if (pt.x < this.timeline.start || pt.x > this.timeline.stop) {
                         continue;
@@ -225,18 +239,18 @@ export class LinePlot extends Band {
         // 3/ Low/High area (per line)
         // 4/ trace (per line)
 
-        for (let i = 0; i < this.lines.length; i++) {
-            if (this.lines[i].points.size) {
-                const annotatedLine = this.annotatedLines[i];
+        for (let i = 0; i < this.visibleLines.length; i++) {
+            if (this.visibleLines[i].points.length) {
+                const visibleLine = this.visibleLines[i];
 
-                for (const point of annotatedLine.points) {
+                for (const point of visibleLine.points) {
                     point.drawInfo = {
                         renderX: Math.round(this.timeline.positionTime(point.x)),
                         renderY: point.y !== null ? positionForValueFn(point.y) : undefined,
                     };
                 }
 
-                this.drawArea(g, this.lines[i], annotatedLine, positionForValueFn);
+                this.drawArea(g, visibleLine, positionForValueFn);
             }
         }
 
@@ -250,11 +264,11 @@ export class LinePlot extends Band {
             });
         }
 
-        for (let i = 0; i < this.lines.length; i++) {
-            if (this.lines[i].points.size) {
-                const annotatedLine = this.annotatedLines[i];
-                this.drawLohi(g, this.lines[i], annotatedLine, positionForValueFn);
-                this.drawLine(g, this.lines[i], annotatedLine);
+        for (let i = 0; i < this.visibleLines.length; i++) {
+            if (this.visibleLines[i].points.length) {
+                const visibleLine = this.visibleLines[i];
+                this.drawLohi(g, visibleLine, positionForValueFn);
+                this.drawLine(g, visibleLine);
             }
         }
 
@@ -299,17 +313,16 @@ export class LinePlot extends Band {
         });
     }
 
-    private drawLohi(g: Graphics, line: Line, annotatedLine: AnnotatedLine,
-        positionValueFn: (value: number) => number) {
+    private drawLohi(g: Graphics, line: AnnotatedLine, positionValueFn: (value: number) => number) {
         const fill = line.lohiColor ?? this.lohiColor;
 
-        for (let i = 1; i < annotatedLine.points.length; i++) {
-            const prev = annotatedLine.points[i - 1].drawInfo!;
-            const prevLow = annotatedLine.points[i - 1].low;
-            const prevHigh = annotatedLine.points[i - 1].high;
-            const point = annotatedLine.points[i].drawInfo!;
-            const pointLow = annotatedLine.points[i].low;
-            const pointHigh = annotatedLine.points[i].high;
+        for (let i = 1; i < line.points.length; i++) {
+            const prev = line.points[i - 1].drawInfo!;
+            const prevLow = line.points[i - 1].low;
+            const prevHigh = line.points[i - 1].high;
+            const point = line.points[i].drawInfo!;
+            const pointLow = line.points[i].low;
+            const pointHigh = line.points[i].high;
             if (prev.renderY !== undefined
                 && point.renderY !== undefined
                 && prevLow !== null
@@ -331,15 +344,13 @@ export class LinePlot extends Band {
         }
     }
 
-    private drawArea(g: Graphics, line: Line, annotatedLine: AnnotatedLine,
-        positionValueFn: (value: number) => number) {
-
+    private drawArea(g: Graphics, line: AnnotatedLine, positionValueFn: (value: number) => number) {
         const fill = line.fill ?? this.fill;
 
         const originY = Math.round(positionValueFn(0)) + 0.5;
-        for (let i = 1; i < annotatedLine.points.length; i++) {
-            const prev = annotatedLine.points[i - 1].drawInfo!;
-            const point = annotatedLine.points[i].drawInfo!;
+        for (let i = 1; i < line.points.length; i++) {
+            const prev = line.points[i - 1].drawInfo!;
+            const point = line.points[i].drawInfo!;
             if (prev.renderY !== undefined && point.renderY !== undefined) {
                 g.fillPath({
                     path: new Path(prev.renderX, prev.renderY)
@@ -352,13 +363,13 @@ export class LinePlot extends Band {
         }
     }
 
-    private drawLine(g: Graphics, line: Line, annotatedLine: AnnotatedLine) {
+    private drawLine(g: Graphics, line: AnnotatedLine) {
         const lineColor = line.lineColor ?? this.lineColor;
         const lineWidth = line.lineWidth ?? this.lineWidth;
         const pointColor = line.pointColor ?? this.pointColor;
         const pointRadius = line.pointRadius ?? this.pointRadius;
 
-        const { points } = annotatedLine;
+        const { points } = line;
 
         // Draw trace
         const path = new Path(points[0].drawInfo!.renderX, points[0].drawInfo!.renderY ?? 0);
@@ -395,26 +406,28 @@ export class LinePlot extends Band {
         }
     }
 
+    private get visibleLines(): AnnotatedLine[] {
+        return this.annotatedLines.filter(line => line.visible);
+    }
+
     private findClosestByTime(t: number): Array<LinePlotPoint | null> {
         // Note: closest may also be a gap
         const closestPoints: Array<LinePlotPoint | null> = [];
 
-        for (const line of this.lines) {
+        for (const line of this.visibleLines) {
             let currX: number | null = null;
             let currY: number | null = null;
-            let currLohi: [number | null, number | null] = [null, null];
+            let currLow: number | null = null;
+            let currHigh: number | null = null;
             let tdelta = Infinity;
-            for (const [x, y] of line.points) {
+            for (const { x, y, low, high } of line.points) {
                 if (y === null) {
                     continue;
                 } else if (Math.abs(x - t) < tdelta) {
                     currX = x;
                     currY = y;
-                    if (line.lohi) {
-                        currLohi = line.lohi.get(x) ?? [null, null];
-                    } else {
-                        currLohi = [null, null];
-                    }
+                    currLow = low;
+                    currHigh = high;
 
                     tdelta = Math.abs(x - t);
                 }
@@ -424,8 +437,8 @@ export class LinePlot extends Band {
                 closestPoints.push({
                     time: currX,
                     value: currY,
-                    low: currLohi[0],
-                    high: currLohi[1],
+                    low: currLow,
+                    high: currHigh,
                 });
             } else {
                 closestPoints.push(null);

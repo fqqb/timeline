@@ -51,7 +51,9 @@ export interface Line {
     lohi?: Map<number, [number, number] | null>;
 
     /**
-     * Arbitrary data associated with this line.
+     * Whether this plot line is visible.
+     *
+     * If unset, defaults to true.
      */
-    data?: any;
+    visible?: boolean;
 }
