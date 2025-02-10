@@ -1,0 +1,786 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/timeline/assets/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.11.2/css/all.min.css">
+    <title>LinePlot | @fqqb/timeline</title>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-NECB56PK4F"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-NECB56PK4F');
+    </script>
+</head><body>
+    <header class="site-header">
+        <div class="wrapper">
+            <a class="site-title" href="/timeline">@fqqb/timeline</a>
+
+            <nav class="site-nav">
+                <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+                <label for="nav-trigger">
+                    <span class="menu-icon">
+                        <svg viewBox="0 0 18 15" width="18px" height="15px">
+                            <path
+                                d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z" />
+                        </svg>
+                    </span>
+                </label>
+
+                <div class="trigger">
+                    <a class="page-link"
+                       href="https://www.npmjs.com/package/@fqqb/timeline"
+                       title="npm">
+                        <i class="fab fa-npm" style="font-size: 24px; vertical-align: middle;"></i>
+                    </a>
+                    <a class="page-link"
+                       href="https://github.com/fqqb/timeline"
+                       title="GitHub">
+                        <i class="fab fa-github" style="font-size: 24px; vertical-align: middle;"></i>
+                    </a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <div class="wrapper">
+        <div class="page-content">
+            
+
+
+
+
+
+
+
+
+
+<div class="tsdoc">
+            <h1>
+                <code>class</code>
+                LinePlot<small>
+                        <code>
+                            extends&nbsp;<a href="/timeline/api/Band/">Band</a></code>
+                    </small></h1><p>Band type that plots a line along the timeline.</p>
+
+            
+            
+            <dl class="field-list"><dt>Properties</dt>
+                        <dd><a href="#background">background</a>, <a href="#borderColor">borderColor</a>, <a href="#borderWidth">borderWidth</a>, <a href="#contentHeight">contentHeight</a>, <a href="#data">data</a>, <a href="#fill">fill</a>, <a href="#frozen">frozen</a>, <a href="#headerBackground">headerBackground</a>, <a href="#height">height</a>, <a href="#label">label</a>, <a href="#labelBackground">labelBackground</a>, <a href="#labelFontFamily">labelFontFamily</a>, <a href="#labelFormatter">labelFormatter</a>, <a href="#labelTextColor">labelTextColor</a>, <a href="#labelTextSize">labelTextSize</a>, <a href="#lineColor">lineColor</a>, <a href="#lineWidth">lineWidth</a>, <a href="#lines">lines</a>, <a href="#lohiColor">lohiColor</a>, <a href="#maximum">maximum</a>, <a href="#minimum">minimum</a>, <a href="#paddingBottom">paddingBottom</a>, <a href="#paddingTop">paddingTop</a>, <a href="#pointColor">pointColor</a>, <a href="#pointRadius">pointRadius</a>, <a href="#timeline">timeline</a>, <a href="#width">width</a>, <a href="#x">x</a>, <a href="#y">y</a>, <a href="#zeroLineColor">zeroLineColor</a>, <a href="#zeroLineDash">zeroLineDash</a>, <a href="#zeroLineWidth">zeroLineWidth</a></dd><dt>Methods</dt>
+                        <dd><a href="#constructor">constructor</a>, <a href="#addClickListener">addClickListener</a>, <a href="#addHeaderClickListener">addHeaderClickListener</a>, <a href="#addHeaderMouseEnterListener">addHeaderMouseEnterListener</a>, <a href="#addHeaderMouseLeaveListener">addHeaderMouseLeaveListener</a>, <a href="#addHeaderMouseMoveListener">addHeaderMouseMoveListener</a>, <a href="#addMouseLeaveListener">addMouseLeaveListener</a>, <a href="#addMouseMoveListener">addMouseMoveListener</a>, <a href="#addMutationListener">addMutationListener</a>, <a href="#beforeDraw">beforeDraw</a>, <a href="#calculateContentHeight">calculateContentHeight</a>, <a href="#createAnimatableProperty">createAnimatableProperty</a>, <a href="#disconnectedCallback">disconnectedCallback</a>, <a href="#drawBandContent">drawBandContent</a>, <a href="#drawContent">drawContent</a>, <a href="#drawOverlay">drawOverlay</a>, <a href="#drawUnderlay">drawUnderlay</a>, <a href="#removeClickListener">removeClickListener</a>, <a href="#removeHeaderClickListener">removeHeaderClickListener</a>, <a href="#removeHeaderMouseEnterListener">removeHeaderMouseEnterListener</a>, <a href="#removeHeaderMouseLeaveListener">removeHeaderMouseLeaveListener</a>, <a href="#removeHeaderMouseMoveListener">removeHeaderMouseMoveListener</a>, <a href="#removeMouseLeaveListener">removeMouseLeaveListener</a>, <a href="#removeMouseMoveListener">removeMouseMoveListener</a>, <a href="#removeMutationListener">removeMutationListener</a>, <a href="#reportMutation">reportMutation</a></dd></dl><h2>Properties</h2><dl class="properties"><dt style="display: flex">
+            <a class="anchor" name="background"></a>background<div style="flex: 1 1 auto"></div><span class="tag tag-get">get</span><span class="tag tag-set">set</span></dt>
+        <dd><p>Background of this band.</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code><a href="/timeline/api/FillStyle/">FillStyle</a></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="borderColor"></a>borderColor<div style="flex: 1 1 auto"></div><span class="tag tag-get">get</span><span class="tag tag-set">set</span></dt>
+        <dd><p>Border color of this band. If undefined, the color
+is determined by the property ‘bandBorderColor’
+of the Timeline instance.</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code><span class="type">undefined</span>&nbsp;|&nbsp;<span class="type">string</span></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="borderWidth"></a>borderWidth<div style="flex: 1 1 auto"></div><span class="tag tag-get">get</span><span class="tag tag-set">set</span></dt>
+        <dd><p>Border width of this band. If undefined, the width
+is determined by the property ‘bandBorderWidth’
+of the Timeline instance.</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code><span class="type">undefined</span>&nbsp;|&nbsp;<span class="type">number</span></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="contentHeight"></a>contentHeight<div style="flex: 1 1 auto"></div><span class="tag tag-get">get</span><span class="tag tag-set">set</span></dt>
+        <dd><p>The height of the band content (excluding margins).</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code><span class="type">number</span></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="data"></a>data<div style="flex: 1 1 auto"></div><span class="tag tag-get">get</span><span class="tag tag-set">set</span></dt>
+        <dd><p>Arbitrary data. For example an identifier of a backend system.</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code><span class="type">any</span></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="fill"></a>fill<div style="flex: 1 1 auto"></div><span class="tag tag-get">get</span><span class="tag tag-set">set</span></dt>
+        <dd><p>Area fill between the plot line and the value 0.</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code><a href="/timeline/api/FillStyle/">FillStyle</a></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="frozen"></a>frozen<div style="flex: 1 1 auto"></div><span class="tag tag-get">get</span><span class="tag tag-set">set</span></dt>
+        <dd><p>If set to true, this band stays fixed on top, even while
+scrolling vertically.</p>
+
+<p>Frozen bands precede non-frozen bands, regardless of the order in
+which bands were added.</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code><span class="type">boolean</span></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="headerBackground"></a>headerBackground<div style="flex: 1 1 auto"></div><span class="tag tag-get">get</span><span class="tag tag-set">set</span></dt>
+        <dd><p>Background of the header of this band.</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code><a href="/timeline/api/FillStyle/">FillStyle</a></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="height"></a>height<div style="flex: 1 1 auto"></div><span class="tag tag-get">get</span></dt>
+        <dd><p>The height of this band.</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code><span class="type">number</span></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="label"></a>label<div style="flex: 1 1 auto"></div><span class="tag tag-get">get</span><span class="tag tag-set">set</span></dt>
+        <dd><p>Human-friendly label for this band. Used in sidebar.</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code><span class="type">undefined</span>&nbsp;|&nbsp;<span class="type">string</span></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="labelBackground"></a>labelBackground<div style="flex: 1 1 auto"></div><span class="tag tag-get">get</span><span class="tag tag-set">set</span></dt>
+        <dd><p>Background color of any value labels.</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code><a href="/timeline/api/FillStyle/">FillStyle</a></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="labelFontFamily"></a>labelFontFamily<div style="flex: 1 1 auto"></div><span class="tag tag-get">get</span><span class="tag tag-set">set</span></dt>
+        <dd><p>Font family of any value labels.</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code><span class="type">string</span></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="labelFormatter"></a>labelFormatter<div style="flex: 1 1 auto"></div><span class="tag tag-get">get</span><span class="tag tag-set">set</span></dt>
+        <dd><p>Function that formats a point value to string.</p>
+
+<p>The default behaviour is to format with 2 digits after the
+decimal point.</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code>(value: <span class="type">number</span>)&nbsp;=&gt;&nbsp;<span class="type">string</span></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="labelTextColor"></a>labelTextColor<div style="flex: 1 1 auto"></div><span class="tag tag-get">get</span><span class="tag tag-set">set</span></dt>
+        <dd><p>Text color of any value labels.</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code><span class="type">string</span></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="labelTextSize"></a>labelTextSize<div style="flex: 1 1 auto"></div><span class="tag tag-get">get</span><span class="tag tag-set">set</span></dt>
+        <dd><p>Size of any value labels.</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code><span class="type">number</span></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="lineColor"></a>lineColor<div style="flex: 1 1 auto"></div><span class="tag tag-get">get</span><span class="tag tag-set">set</span></dt>
+        <dd><p>Color of the line that connects data points.</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code><span class="type">string</span></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="lineWidth"></a>lineWidth<div style="flex: 1 1 auto"></div><span class="tag tag-get">get</span><span class="tag tag-set">set</span></dt>
+        <dd><p>Thickness of the plot line.</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code><span class="type">number</span></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="lines"></a>lines<div style="flex: 1 1 auto"></div><span class="tag tag-get">get</span><span class="tag tag-set">set</span></dt>
+        <dd><dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code><a href="/timeline/api/Line/">Line</a>[]</code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="lohiColor"></a>lohiColor<div style="flex: 1 1 auto"></div><span class="tag tag-get">get</span><span class="tag tag-set">set</span></dt>
+        <dd><p>Color of the low/high area.</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code><span class="type">string</span></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="maximum"></a>maximum<div style="flex: 1 1 auto"></div><span class="tag tag-get">get</span><span class="tag tag-set">set</span></dt>
+        <dd><p>Value that corresponds with the maximum value on the curve. If undefined,
+the value is automatically derived from the plot data.</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code><span class="type">undefined</span>&nbsp;|&nbsp;<span class="type">number</span></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="minimum"></a>minimum<div style="flex: 1 1 auto"></div><span class="tag tag-get">get</span><span class="tag tag-set">set</span></dt>
+        <dd><p>Value that corresponds with the minimum value on the curve. If undefined,
+the value is automatically derived from the plot data.</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code><span class="type">undefined</span>&nbsp;|&nbsp;<span class="type">number</span></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="paddingBottom"></a>paddingBottom<div style="flex: 1 1 auto"></div><span class="tag tag-get">get</span><span class="tag tag-set">set</span></dt>
+        <dd><p>Whitespace in points between the bottom of this band
+and band content.</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code><span class="type">number</span></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="paddingTop"></a>paddingTop<div style="flex: 1 1 auto"></div><span class="tag tag-get">get</span><span class="tag tag-set">set</span></dt>
+        <dd><p>Whitespace in points between the top of this band and
+band content.</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code><span class="type">number</span></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="pointColor"></a>pointColor<div style="flex: 1 1 auto"></div><span class="tag tag-get">get</span><span class="tag tag-set">set</span></dt>
+        <dd><p>Color of the point symbol.</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code><span class="type">string</span></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="pointRadius"></a>pointRadius<div style="flex: 1 1 auto"></div><span class="tag tag-get">get</span><span class="tag tag-set">set</span></dt>
+        <dd><p>Radius of the point symbol.</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code><span class="type">number</span></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="timeline"></a>timeline<div style="flex: 1 1 auto"></div><span class="tag tag-get">get</span></dt>
+        <dd><p>Timeline instance that this instance is bound to.</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code><a href="/timeline/api/Timeline/">Timeline</a></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="width"></a>width<div style="flex: 1 1 auto"></div><span class="tag tag-get">get</span></dt>
+        <dd><p>The width of this band.</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code><span class="type">number</span></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="x"></a>x<div style="flex: 1 1 auto"></div><span class="tag tag-get">get</span></dt>
+        <dd><p>The X-coordinate of this band.</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code><span class="type">number</span></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="y"></a>y<div style="flex: 1 1 auto"></div><span class="tag tag-get">get</span></dt>
+        <dd><p>The Y-coordinate of this band.</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code><span class="type">number</span></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="zeroLineColor"></a>zeroLineColor<div style="flex: 1 1 auto"></div><span class="tag tag-get">get</span><span class="tag tag-set">set</span></dt>
+        <dd><p>Color of the line at value zero.</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code><span class="type">string</span></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="zeroLineDash"></a>zeroLineDash<div style="flex: 1 1 auto"></div><span class="tag tag-get">get</span><span class="tag tag-set">set</span></dt>
+        <dd><p>Dash pattern of the line at value zero.</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code><span class="type">number</span>[]</code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="zeroLineWidth"></a>zeroLineWidth<div style="flex: 1 1 auto"></div><span class="tag tag-get">get</span><span class="tag tag-set">set</span></dt>
+        <dd><p>Width of the line at value zero.</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code><span class="type">number</span></code>
+                </dd></dl>
+        </dd></dl>
+<h2>Methods</h2>
+                    <dl class="methods"><dt>
+                <a class="anchor" name="constructor"></a>constructor(timeline)
+            </dt>
+            <dd><dl class="field-list">
+                        <dt>Parameters:</dt>
+                        <dd>
+                            <ul><li>
+                                        <code><a href="/timeline/api/Timeline/">Timeline</a></code>
+                                        timeline<p>Timeline instance that this instance is bound to.</p>
+</li></ul>
+                        </dd>
+                    </dl></dd><dt>
+                    <a class="anchor" name="addClickListener"></a>addClickListener(listener)
+                </dt>
+                <dd><p>Register a listener that receives an update when the plot is clicked.</p>
+<dl class="field-list"><dt>Parameters:</dt>
+                            <dd>
+                                <ul><li>
+                                            <code>(ev: <a href="/timeline/api/LinePlotClickEvent/">LinePlotClickEvent</a>)&nbsp;=&gt;&nbsp;<span class="type">void</span></code>
+                                            listener
+                                            
+                                        </li></ul>
+                            </dd><dt>Return type:</dt>
+                            <dd><code><span class="type">void</span></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="addHeaderClickListener"></a>addHeaderClickListener(listener)
+                </dt>
+                <dd><p>Register a listener that receives updates when a line header is clicked.</p>
+<dl class="field-list"><dt>Parameters:</dt>
+                            <dd>
+                                <ul><li>
+                                            <code>(ev: <a href="/timeline/api/HeaderClickEvent/">HeaderClickEvent</a>)&nbsp;=&gt;&nbsp;<span class="type">void</span></code>
+                                            listener
+                                            
+                                        </li></ul>
+                            </dd><dt>Return type:</dt>
+                            <dd><code><span class="type">void</span></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="addHeaderMouseEnterListener"></a>addHeaderMouseEnterListener(listener)
+                </dt>
+                <dd><p>Register a listener that receives updates when the mouse enters a band’s header.</p>
+<dl class="field-list"><dt>Parameters:</dt>
+                            <dd>
+                                <ul><li>
+                                            <code>(ev: <a href="/timeline/api/HeaderMouseEvent/">HeaderMouseEvent</a>)&nbsp;=&gt;&nbsp;<span class="type">void</span></code>
+                                            listener
+                                            
+                                        </li></ul>
+                            </dd><dt>Return type:</dt>
+                            <dd><code><span class="type">void</span></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="addHeaderMouseLeaveListener"></a>addHeaderMouseLeaveListener(listener)
+                </dt>
+                <dd><p>Register a listener that receives updates when the mouse is moving
+outside a band’s header.</p>
+<dl class="field-list"><dt>Parameters:</dt>
+                            <dd>
+                                <ul><li>
+                                            <code>(ev: <a href="/timeline/api/HeaderMouseEvent/">HeaderMouseEvent</a>)&nbsp;=&gt;&nbsp;<span class="type">void</span></code>
+                                            listener
+                                            
+                                        </li></ul>
+                            </dd><dt>Return type:</dt>
+                            <dd><code><span class="type">void</span></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="addHeaderMouseMoveListener"></a>addHeaderMouseMoveListener(listener)
+                </dt>
+                <dd><p>Register a listener that receives updates when the mouse is moving over
+a band’s header.</p>
+<dl class="field-list"><dt>Parameters:</dt>
+                            <dd>
+                                <ul><li>
+                                            <code>(ev: <a href="/timeline/api/HeaderMouseEvent/">HeaderMouseEvent</a>)&nbsp;=&gt;&nbsp;<span class="type">void</span></code>
+                                            listener
+                                            
+                                        </li></ul>
+                            </dd><dt>Return type:</dt>
+                            <dd><code><span class="type">void</span></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="addMouseLeaveListener"></a>addMouseLeaveListener(listener)
+                </dt>
+                <dd><p>Register a listener that receives updates whenever the mouse is moving outside
+this plot.</p>
+<dl class="field-list"><dt>Parameters:</dt>
+                            <dd>
+                                <ul><li>
+                                            <code>(ev: <a href="/timeline/api/LinePlotMouseLeaveEvent/">LinePlotMouseLeaveEvent</a>)&nbsp;=&gt;&nbsp;<span class="type">void</span></code>
+                                            listener
+                                            
+                                        </li></ul>
+                            </dd><dt>Return type:</dt>
+                            <dd><code><span class="type">void</span></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="addMouseMoveListener"></a>addMouseMoveListener(listener)
+                </dt>
+                <dd><p>Register a listener that receives updates whenever the mouse is moving over
+this plot.</p>
+<dl class="field-list"><dt>Parameters:</dt>
+                            <dd>
+                                <ul><li>
+                                            <code>(ev: <a href="/timeline/api/LinePlotMouseMoveEvent/">LinePlotMouseMoveEvent</a>)&nbsp;=&gt;&nbsp;<span class="type">void</span></code>
+                                            listener
+                                            
+                                        </li></ul>
+                            </dd><dt>Return type:</dt>
+                            <dd><code><span class="type">void</span></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="addMutationListener"></a>addMutationListener(mutationListener)
+                </dt>
+                <dd><p>Adds a listener that is notified whenever one of the properties
+changes.</p>
+
+<p>This method is used by the Timeline instance to detect when
+to redraw the Canvas.</p>
+<dl class="field-list"><dt>Parameters:</dt>
+                            <dd>
+                                <ul><li>
+                                            <code>()&nbsp;=&gt;&nbsp;<span class="type">void</span></code>
+                                            mutationListener
+                                            
+                                        </li></ul>
+                            </dd><dt>Return type:</dt>
+                            <dd><code><span class="type">void</span></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="beforeDraw"></a>beforeDraw(g)
+                </dt>
+                <dd><p>Gets called before any of the draw methods.</p>
+<dl class="field-list"><dt>Parameters:</dt>
+                            <dd>
+                                <ul><li>
+                                            <code><a href="/timeline/api/Graphics/">Graphics</a></code>
+                                            g
+                                            
+                                        </li></ul>
+                            </dd><dt>Return type:</dt>
+                            <dd><code><span class="type">void</span></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="calculateContentHeight"></a>calculateContentHeight(g)
+                </dt>
+                <dd><p>Implementations should return required content height
+(excluding margins) during the current draw operation.</p>
+<dl class="field-list"><dt>Parameters:</dt>
+                            <dd>
+                                <ul><li>
+                                            <code><a href="/timeline/api/Graphics/">Graphics</a></code>
+                                            g
+                                            
+                                        </li></ul>
+                            </dd><dt>Return type:</dt>
+                            <dd><code><span class="type">number</span></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="createAnimatableProperty"></a>createAnimatableProperty(value)
+                </dt>
+                <dd><p>Creates an animatable property.</p>
+
+<p>Animatable properties apply easing over time between numeric
+value changes.</p>
+<dl class="field-list"><dt>Parameters:</dt>
+                            <dd>
+                                <ul><li>
+                                            <code><span class="type">number</span></code>
+                                            value
+                                            
+                                                &ndash;
+                                                
+
+                                            
+                                        </li></ul>
+                            </dd><dt>Return type:</dt>
+                            <dd><code><a href="/timeline/api/AnimatableProperty/">AnimatableProperty</a></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="disconnectedCallback"></a>disconnectedCallback()
+                </dt>
+                <dd><p>Called when this drawable is removed from its Timeline</p>
+<dl class="field-list"><dt>Return type:</dt>
+                            <dd><code><span class="type">void</span></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="drawBandContent"></a>drawBandContent(g)
+                </dt>
+                <dd><dl class="field-list"><dt>Parameters:</dt>
+                            <dd>
+                                <ul><li>
+                                            <code><a href="/timeline/api/Graphics/">Graphics</a></code>
+                                            g
+                                            
+                                        </li></ul>
+                            </dd><dt>Return type:</dt>
+                            <dd><code><span class="type">void</span></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="drawContent"></a>drawContent(g)
+                </dt>
+                <dd><p>Draw regular content.</p>
+<dl class="field-list"><dt>Parameters:</dt>
+                            <dd>
+                                <ul><li>
+                                            <code><a href="/timeline/api/Graphics/">Graphics</a></code>
+                                            g
+                                            
+                                        </li></ul>
+                            </dd><dt>Return type:</dt>
+                            <dd><code><span class="type">void</span></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="drawOverlay"></a>drawOverlay(g)
+                </dt>
+                <dd><p>Gets called after regular content is drawn.
+Override this if you need a top layer.</p>
+<dl class="field-list"><dt>Parameters:</dt>
+                            <dd>
+                                <ul><li>
+                                            <code><a href="/timeline/api/Graphics/">Graphics</a></code>
+                                            g
+                                            
+                                        </li></ul>
+                            </dd><dt>Return type:</dt>
+                            <dd><code><span class="type">void</span></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="drawUnderlay"></a>drawUnderlay(g)
+                </dt>
+                <dd><p>Gets called before regular content is drawn.
+Override this if you need a bottom layer.</p>
+<dl class="field-list"><dt>Parameters:</dt>
+                            <dd>
+                                <ul><li>
+                                            <code><a href="/timeline/api/Graphics/">Graphics</a></code>
+                                            g
+                                            
+                                        </li></ul>
+                            </dd><dt>Return type:</dt>
+                            <dd><code><span class="type">void</span></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="removeClickListener"></a>removeClickListener(listener)
+                </dt>
+                <dd><p>Unregister a previously registered listener to stop receiving
+click events.</p>
+<dl class="field-list"><dt>Parameters:</dt>
+                            <dd>
+                                <ul><li>
+                                            <code>(ev: <a href="/timeline/api/LinePlotClickEvent/">LinePlotClickEvent</a>)&nbsp;=&gt;&nbsp;<span class="type">void</span></code>
+                                            listener
+                                            
+                                        </li></ul>
+                            </dd><dt>Return type:</dt>
+                            <dd><code><span class="type">void</span></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="removeHeaderClickListener"></a>removeHeaderClickListener(listener)
+                </dt>
+                <dd><p>Unregister a previously registered listener to stop receiving
+header click events.</p>
+<dl class="field-list"><dt>Parameters:</dt>
+                            <dd>
+                                <ul><li>
+                                            <code>(ev: <a href="/timeline/api/HeaderClickEvent/">HeaderClickEvent</a>)&nbsp;=&gt;&nbsp;<span class="type">void</span></code>
+                                            listener
+                                            
+                                        </li></ul>
+                            </dd><dt>Return type:</dt>
+                            <dd><code><span class="type">void</span></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="removeHeaderMouseEnterListener"></a>removeHeaderMouseEnterListener(listener)
+                </dt>
+                <dd><p>Unregister a previously registered listener to stop receiving
+band header mouse-enter events.</p>
+<dl class="field-list"><dt>Parameters:</dt>
+                            <dd>
+                                <ul><li>
+                                            <code>(ev: <a href="/timeline/api/HeaderMouseEvent/">HeaderMouseEvent</a>)&nbsp;=&gt;&nbsp;<span class="type">void</span></code>
+                                            listener
+                                            
+                                        </li></ul>
+                            </dd><dt>Return type:</dt>
+                            <dd><code><span class="type">void</span></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="removeHeaderMouseLeaveListener"></a>removeHeaderMouseLeaveListener(listener)
+                </dt>
+                <dd><p>Unregister a previously registered listener to stop receiving
+band header mouse-leave events.</p>
+<dl class="field-list"><dt>Parameters:</dt>
+                            <dd>
+                                <ul><li>
+                                            <code>(ev: <a href="/timeline/api/HeaderMouseEvent/">HeaderMouseEvent</a>)&nbsp;=&gt;&nbsp;<span class="type">void</span></code>
+                                            listener
+                                            
+                                        </li></ul>
+                            </dd><dt>Return type:</dt>
+                            <dd><code><span class="type">void</span></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="removeHeaderMouseMoveListener"></a>removeHeaderMouseMoveListener(listener)
+                </dt>
+                <dd><p>Unregister a previously registered listener to stop receiving
+band header mouse-move events.</p>
+<dl class="field-list"><dt>Parameters:</dt>
+                            <dd>
+                                <ul><li>
+                                            <code>(ev: <a href="/timeline/api/HeaderMouseEvent/">HeaderMouseEvent</a>)&nbsp;=&gt;&nbsp;<span class="type">void</span></code>
+                                            listener
+                                            
+                                        </li></ul>
+                            </dd><dt>Return type:</dt>
+                            <dd><code><span class="type">void</span></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="removeMouseLeaveListener"></a>removeMouseLeaveListener(listener)
+                </dt>
+                <dd><p>Unregister a previously registered listener to stop receiving
+plot mouse-leave events.</p>
+<dl class="field-list"><dt>Parameters:</dt>
+                            <dd>
+                                <ul><li>
+                                            <code>(ev: <a href="/timeline/api/LinePlotMouseLeaveEvent/">LinePlotMouseLeaveEvent</a>)&nbsp;=&gt;&nbsp;<span class="type">void</span></code>
+                                            listener
+                                            
+                                        </li></ul>
+                            </dd><dt>Return type:</dt>
+                            <dd><code><span class="type">void</span></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="removeMouseMoveListener"></a>removeMouseMoveListener(listener)
+                </dt>
+                <dd><p>Unregister a previously registered listener to stop receiving
+plot mouse-move events.</p>
+<dl class="field-list"><dt>Parameters:</dt>
+                            <dd>
+                                <ul><li>
+                                            <code>(ev: <a href="/timeline/api/LinePlotMouseMoveEvent/">LinePlotMouseMoveEvent</a>)&nbsp;=&gt;&nbsp;<span class="type">void</span></code>
+                                            listener
+                                            
+                                        </li></ul>
+                            </dd><dt>Return type:</dt>
+                            <dd><code><span class="type">void</span></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="removeMutationListener"></a>removeMutationListener(mutationListener)
+                </dt>
+                <dd><p>Remove a previously added mutation listener.</p>
+<dl class="field-list"><dt>Parameters:</dt>
+                            <dd>
+                                <ul><li>
+                                            <code>()&nbsp;=&gt;&nbsp;<span class="type">void</span></code>
+                                            mutationListener
+                                            
+                                        </li></ul>
+                            </dd><dt>Return type:</dt>
+                            <dd><code><span class="type">void</span></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="reportMutation"></a>reportMutation()
+                </dt>
+                <dd><p>Mark this Drawable as dirty. This method is intended for use in subclasses
+and should be called in the implementation of set accessors.</p>
+<dl class="field-list"><dt>Return type:</dt>
+                            <dd><code><span class="type">void</span></code></dd></dl>
+                </dd><dl>
+</div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        </div>
+    </div>
+
+    <div class="sidebar">
+        <ul>
+            <li class="">
+                <a href="/timeline/">About @fqqb/timeline</a>
+            </li>
+            <li class="active">
+                <a href="/timeline/api/">API Reference</a>
+            </li>
+        </ul>
+
+        <h3>Drawables</h3>
+        <ul><li class="">
+                    <a href="/timeline/drawables/banner/">Banner</a>
+                </li><li class="">
+                    <a href="/timeline/drawables/item-band/">ItemBand</a>
+                </li><li class="">
+                    <a href="/timeline/drawables/line-plot/">LinePlot</a>
+                </li><li class="">
+                    <a href="/timeline/drawables/mouse-tracker/">MouseTracker</a>
+                </li><li class="">
+                    <a href="/timeline/drawables/state-band/">StateBand</a>
+                </li><li class="">
+                    <a href="/timeline/drawables/time-locator/">TimeLocator</a>
+                </li><li class="">
+                    <a href="/timeline/drawables/time-ruler/">TimeRuler</a>
+                </li></ul>
+    </div>
+
+</body>
+
+</html>

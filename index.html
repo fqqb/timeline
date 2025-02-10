@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/timeline/assets/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.11.2/css/all.min.css">
+    <title>About @fqqb/timeline | @fqqb/timeline</title>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-NECB56PK4F"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-NECB56PK4F');
+    </script>
+</head><body>
+    <header class="site-header">
+        <div class="wrapper">
+            <a class="site-title" href="/timeline">@fqqb/timeline</a>
+
+            <nav class="site-nav">
+                <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+                <label for="nav-trigger">
+                    <span class="menu-icon">
+                        <svg viewBox="0 0 18 15" width="18px" height="15px">
+                            <path
+                                d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z" />
+                        </svg>
+                    </span>
+                </label>
+
+                <div class="trigger">
+                    <a class="page-link"
+                       href="https://www.npmjs.com/package/@fqqb/timeline"
+                       title="npm">
+                        <i class="fab fa-npm" style="font-size: 24px; vertical-align: middle;"></i>
+                    </a>
+                    <a class="page-link"
+                       href="https://github.com/fqqb/timeline"
+                       title="GitHub">
+                        <i class="fab fa-github" style="font-size: 24px; vertical-align: middle;"></i>
+                    </a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <div class="wrapper">
+        <div class="page-content">
+            <p><strong>@fqqb/timeline</strong> is a framework-agnostic JavaScript library for rendering interactive timeline charts such as this:</p>
+
+<div class="example"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.11.2/css/all.min.css" />
+
+<style>
+.toolbar {
+    background-color: #e6e6e6;
+    border-bottom: 1px solid#a5a5a5;
+    height: 50px;
+    line-height: 50px;
+    padding-left: 1em;
+    box-sizing: border-box;
+}
+
+button {
+    background: linear-gradient(white, #efefef);
+    border: none;
+    color: #555;
+    padding: 6px 8px;
+    font-size: 12px;
+    cursor: pointer;
+    box-shadow: 0 3px 1px -2px rgba(0, 0, 0, .2), 0 2px 2px 0 rgba(0, 0, 0, .14), 0 1px 5px 0 rgba(0, 0, 0, .12);
+    outline: none;
+}
+
+button:hover, button.active {
+    color: #4597fd;
+}
+
+.btn-group {
+    display: inline-block;
+    font-size: 0;
+    margin-right: 5px;
+}
+
+.btn-group button {
+    margin-left: 0;
+    margin-right: 1px;
+}
+
+.btn-group button:first-child {
+    border-top-left-radius: 3px;
+    border-bottom-left-radius: 3px;
+}
+
+.btn-group button:last-child {
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+}
+</style>
+
+<div class="toolbar">
+    <div class="btn-group">
+        <button onclick="toggleSidebar()">
+            <i class="fas fa-fw fa-bars"></i>
+        </button>
+    </div>
+    <div class="btn-group">
+        <button onclick="pageLeft()">
+            <i class="fas fa-fw fa-angle-double-left"></i>
+        </button>
+        <button onmousedown="toggleMove(-50)" onmouseup="untoggleMove()" onmouseleave="untoggleMove()">
+            <i class="fas fa-fw fa-angle-left"></i>
+        </button>
+        <button onmousedown="toggleMove(50)" onmouseup="untoggleMove()" onmouseleave="untoggleMove()">
+            <i class="fas fa-fw fa-angle-right"></i>
+        </button>
+        <button onclick="pageRight()">
+            <i class="fas fa-fw fa-angle-double-right"></i>
+        </button>
+    </div>
+    <div class="btn-group">
+        <button onclick="jumpToToday()">
+            <i class="far fa-fw fa-calendar"></i>
+            Today
+        </button>
+        <button onclick="jumpToNow()">
+            <i class="fas fa-fw fa-crosshairs"></i>
+        </button>
+    </div>
+    <div class="btn-group">
+        <button onclick="zoomIn()">
+            <i class="fas fa-fw fa-plus"></i>
+        </button>
+        <button onclick="zoomOut()">
+            <i class="fas fa-fw fa-minus"></i>
+        </button>
+    </div>
+    <div class="btn-group">
+        <button id="hand" onclick="changeTool('hand')">
+            <i class="fas fa-fw fa-hand-paper"></i>
+        </button>
+        <button id="range-select" onclick="changeTool('range-select')">
+            <i class="fas fa-fw fa-arrows-alt-h"></i>
+        </button>
+    </div>
+</div>
+<div id="id_mainpage.html" style="height: 550px"></div>
+
+<script type="module">
+    import { TimeRuler, ItemBand, MouseTracker, Timeline, TimeLocator } from '/timeline/assets/timeline.js';
+
+    function getRandomInt(min, max) {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    window.addEventListener('load', () => {
+        const targetEl = document.getElementById('id_mainpage.html');
+        const timeline = new Timeline(targetEl);
+
+        const timeRuler = new TimeRuler(timeline);
+        timeRuler.frozen = true;
+        timeRuler.contentHeight = 20;
+        timeRuler.fullHeight = 'underlay';
+
+        const locator = new TimeLocator(timeline);
+        locator.knobColor = 'salmon';
+        locator.lineColor = 'salmon';
+
+        locator.time = new Date().getTime();
+        setInterval(() => {
+            locator.time = new Date().getTime();
+        }, 1000);
+
+        const tracker = new MouseTracker(timeline);
+
+        const dt = new Date();
+        dt.setHours(0, 0, 0, 0);
+        const start = new Date(dt.getTime());
+        dt.setDate(dt.getDate() + 1);
+        const stop = new Date(dt.getTime());
+        timeline.setViewRange(start.getTime(), stop.getTime());
+
+        timeline.sidebar.overlayColor = 'rgba(238, 238, 238, 0.2)';
+
+        for (let i = 0; i < 10; i++) {
+            const band = new ItemBand(timeline);
+            band.paddingTop = 7;
+            band.paddingBottom = 7;
+            band.lineSpacing = 2;
+            band.itemHeight = 20;
+            band.itemCornerRadius = 2;
+
+            if (i % 2 === 0) {
+                band.background = '#f5f5f5';
+            }
+
+            const randomItems = [];
+            const dataStart = new Date(start.getTime());
+            dataStart.setDate(start.getDate() - 5);
+            const dataStop = new Date(start.getTime());
+            dataStop.setDate(start.getDate() + 5);
+            for (let j = 0; j < 50; j++) {
+                const itemStart = getRandomInt(dataStart.getTime(), dataStop.getTime());
+                const itemDuration = getRandomInt(2000000, 8000000);
+                randomItems.push({
+                    start: itemStart,
+                    stop: j % 10 ? itemStart + itemDuration : undefined,
+                    label: `${i + 1}.${j + 1}`,
+                });
+            }
+            band.items = randomItems;
+            band.label = 'Band ' + (i + 1);
+        }
+
+        document.getElementById('hand').className = 'active';
+
+        let moveInterval;
+
+        window.toggleMove = (x) => {
+            timeline.panBy(x);
+            clearInterval(moveInterval);
+            moveInterval = setInterval(() => timeline.panBy(x), 50);
+        };
+
+        window.untoggleMove = () => {
+            clearInterval(moveInterval);
+            moveInterval = undefined;
+        };
+
+        window.pageLeft = () => {
+            const x = timeline.distanceBetween(timeline.start, timeline.stop);
+            timeline.panBy(-x);
+        };
+
+        window.pageRight = () => {
+            const x = timeline.distanceBetween(timeline.start, timeline.stop);
+            timeline.panBy(x);
+        };
+
+        window.zoomIn = () => timeline.zoomIn();
+        window.zoomOut = () => timeline.zoomOut();
+
+        window.jumpToToday = () => {
+            const dt = new Date();
+            dt.setHours(0, 0, 0, 0);
+            const start = dt.getTime();
+            dt.setDate(dt.getDate() + 1);
+            const stop = dt.getTime();
+            timeline.setViewRange(start, stop);
+        };
+
+        window.jumpToNow = () => timeline.panTo(new Date().getTime());
+
+        window.toggleSidebar = () => timeline.sidebar.toggle();
+
+        window.changeTool = tool => {
+            timeline.tool = tool;
+            for (const id of ['hand', 'range-select']) {
+                document.getElementById(id).className = (tool === id ? 'active' : '');
+            }
+        };
+    });
+</script>
+</div>
+
+<h2 id="download">Download</h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm install --save @fqqb/timeline
+</code></pre></div></div>
+
+<h2 id="usage">Usage</h2>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">"timeline"</span><span class="nt">&gt;&lt;/div&gt;</span>
+<span class="nt">&lt;script </span><span class="na">type=</span><span class="s">"module"</span><span class="nt">&gt;</span>
+    <span class="k">import</span> <span class="p">{</span> <span class="nx">Timeline</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">https://esm.run/@fqqb/timeline</span><span class="dl">'</span><span class="p">;</span>
+
+    <span class="kd">const</span> <span class="nx">targetEl</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nf">getElementById</span><span class="p">(</span><span class="dl">'</span><span class="s1">timeline</span><span class="dl">'</span><span class="p">);</span>
+    <span class="kd">const</span> <span class="nx">timeline</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Timeline</span><span class="p">(</span><span class="nx">targetEl</span><span class="p">);</span>
+    <span class="c1">// ...</span>
+<span class="nt">&lt;/script&gt;</span>
+</code></pre></div></div>
+
+        </div>
+    </div>
+
+    <div class="sidebar">
+        <ul>
+            <li class="active">
+                <a href="/timeline/">About @fqqb/timeline</a>
+            </li>
+            <li class="">
+                <a href="/timeline/api/">API Reference</a>
+            </li>
+        </ul>
+
+        <h3>Drawables</h3>
+        <ul><li class="">
+                    <a href="/timeline/drawables/banner/">Banner</a>
+                </li><li class="">
+                    <a href="/timeline/drawables/item-band/">ItemBand</a>
+                </li><li class="">
+                    <a href="/timeline/drawables/line-plot/">LinePlot</a>
+                </li><li class="">
+                    <a href="/timeline/drawables/mouse-tracker/">MouseTracker</a>
+                </li><li class="">
+                    <a href="/timeline/drawables/state-band/">StateBand</a>
+                </li><li class="">
+                    <a href="/timeline/drawables/time-locator/">TimeLocator</a>
+                </li><li class="">
+                    <a href="/timeline/drawables/time-ruler/">TimeRuler</a>
+                </li></ul>
+    </div>
+
+</body>
+
+</html>

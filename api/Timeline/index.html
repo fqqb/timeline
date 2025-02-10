@@ -1,0 +1,716 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/timeline/assets/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.11.2/css/all.min.css">
+    <title>Timeline | @fqqb/timeline</title>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-NECB56PK4F"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-NECB56PK4F');
+    </script>
+</head><body>
+    <header class="site-header">
+        <div class="wrapper">
+            <a class="site-title" href="/timeline">@fqqb/timeline</a>
+
+            <nav class="site-nav">
+                <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+                <label for="nav-trigger">
+                    <span class="menu-icon">
+                        <svg viewBox="0 0 18 15" width="18px" height="15px">
+                            <path
+                                d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z" />
+                        </svg>
+                    </span>
+                </label>
+
+                <div class="trigger">
+                    <a class="page-link"
+                       href="https://www.npmjs.com/package/@fqqb/timeline"
+                       title="npm">
+                        <i class="fab fa-npm" style="font-size: 24px; vertical-align: middle;"></i>
+                    </a>
+                    <a class="page-link"
+                       href="https://github.com/fqqb/timeline"
+                       title="GitHub">
+                        <i class="fab fa-github" style="font-size: 24px; vertical-align: middle;"></i>
+                    </a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <div class="wrapper">
+        <div class="page-content">
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="tsdoc">
+            <h1>
+                <code>class</code>
+                Timeline</h1>
+            
+            
+            <dl class="field-list"><dt>Properties</dt>
+                        <dd><a href="#animated">animated</a>, <a href="#background">background</a>, <a href="#bandBorderColor">bandBorderColor</a>, <a href="#bandBorderWidth">bandBorderWidth</a>, <a href="#center">center</a>, <a href="#cursor">cursor</a>, <a href="#fontFamily">fontFamily</a>, <a href="#foregroundColor">foregroundColor</a>, <a href="#mainWidth">mainWidth</a>, <a href="#max">max</a>, <a href="#maxRange">maxRange</a>, <a href="#min">min</a>, <a href="#minRange">minRange</a>, <a href="#sidebar">sidebar</a>, <a href="#start">start</a>, <a href="#stop">stop</a>, <a href="#textSize">textSize</a>, <a href="#tool">tool</a>, <a href="#width">width</a></dd><dt>Methods</dt>
+                        <dd><a href="#constructor">constructor</a>, <a href="#addViewportChangeListener">addViewportChangeListener</a>, <a href="#addViewportDoubleClickListener">addViewportDoubleClickListener</a>, <a href="#addViewportMouseLeaveListener">addViewportMouseLeaveListener</a>, <a href="#addViewportMouseMoveListener">addViewportMouseMoveListener</a>, <a href="#addViewportSelectionListener">addViewportSelectionListener</a>, <a href="#clearSelection">clearSelection</a>, <a href="#createAnimatableProperty">createAnimatableProperty</a>, <a href="#disconnect">disconnect</a>, <a href="#distanceBetween">distanceBetween</a>, <a href="#getBands">getBands</a>, <a href="#getChildren">getChildren</a>, <a href="#getSelection">getSelection</a>, <a href="#panBy">panBy</a>, <a href="#panTo">panTo</a>, <a href="#positionTime">positionTime</a>, <a href="#removeChild">removeChild</a>, <a href="#removeViewportChangeListener">removeViewportChangeListener</a>, <a href="#removeViewportDoubleClickListener">removeViewportDoubleClickListener</a>, <a href="#removeViewportMouseLeaveListener">removeViewportMouseLeaveListener</a>, <a href="#removeViewportMouseMoveListener">removeViewportMouseMoveListener</a>, <a href="#removeViewportSelectionListener">removeViewportSelectionListener</a>, <a href="#requestRepaint">requestRepaint</a>, <a href="#setSelection">setSelection</a>, <a href="#setViewRange">setViewRange</a>, <a href="#timeForCanvasPosition">timeForCanvasPosition</a>, <a href="#toDataURL">toDataURL</a>, <a href="#zoom">zoom</a>, <a href="#zoomIn">zoomIn</a>, <a href="#zoomOut">zoomOut</a></dd></dl><h2>Properties</h2><dl class="properties"><dt style="display: flex">
+            <a class="anchor" name="animated"></a>animated<div style="flex: 1 1 auto"></div></dt>
+        <dd><p>If true, some actions (e.g. panBy) animate property transitions.</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code><span class="type">boolean</span></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="background"></a>background<div style="flex: 1 1 auto"></div><span class="tag tag-get">get</span><span class="tag tag-set">set</span></dt>
+        <dd><dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code><a href="/timeline/api/FillStyle/">FillStyle</a></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="bandBorderColor"></a>bandBorderColor<div style="flex: 1 1 auto"></div><span class="tag tag-get">get</span><span class="tag tag-set">set</span></dt>
+        <dd><dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code><span class="type">string</span></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="bandBorderWidth"></a>bandBorderWidth<div style="flex: 1 1 auto"></div><span class="tag tag-get">get</span><span class="tag tag-set">set</span></dt>
+        <dd><dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code><span class="type">number</span></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="center"></a>center<div style="flex: 1 1 auto"></div><span class="tag tag-get">get</span><span class="tag tag-set">set</span></dt>
+        <dd><p>The time corresponding with the visible center.</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code><span class="type">number</span></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="cursor"></a>cursor<div style="flex: 1 1 auto"></div><span class="tag tag-get">get</span><span class="tag tag-set">set</span></dt>
+        <dd><dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code><span class="type">string</span></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="fontFamily"></a>fontFamily<div style="flex: 1 1 auto"></div><span class="tag tag-get">get</span><span class="tag tag-set">set</span></dt>
+        <dd><dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code><span class="type">string</span></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="foregroundColor"></a>foregroundColor<div style="flex: 1 1 auto"></div><span class="tag tag-get">get</span><span class="tag tag-set">set</span></dt>
+        <dd><dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code><span class="type">string</span></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="mainWidth"></a>mainWidth<div style="flex: 1 1 auto"></div><span class="tag tag-get">get</span></dt>
+        <dd><p>The pixel width of this Timeline (excl. sidebar)</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code><span class="type">number</span></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="max"></a>max<div style="flex: 1 1 auto"></div><span class="tag tag-get">get</span><span class="tag tag-set">set</span></dt>
+        <dd><p>The maximum possible visible time.</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code><span class="type">undefined</span>&nbsp;|&nbsp;<span class="type">number</span></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="maxRange"></a>maxRange<div style="flex: 1 1 auto"></div><span class="tag tag-get">get</span><span class="tag tag-set">set</span></dt>
+        <dd><p>The maximum possible visible time range.</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code><span class="type">undefined</span>&nbsp;|&nbsp;<span class="type">number</span></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="min"></a>min<div style="flex: 1 1 auto"></div><span class="tag tag-get">get</span><span class="tag tag-set">set</span></dt>
+        <dd><p>The minimum possible visible time.</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code><span class="type">undefined</span>&nbsp;|&nbsp;<span class="type">number</span></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="minRange"></a>minRange<div style="flex: 1 1 auto"></div><span class="tag tag-get">get</span><span class="tag tag-set">set</span></dt>
+        <dd><p>The minimum possible visible time range.</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code><span class="type">undefined</span>&nbsp;|&nbsp;<span class="type">number</span></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="sidebar"></a>sidebar<div style="flex: 1 1 auto"></div><span class="tag tag-get">get</span><span class="tag tag-set">set</span></dt>
+        <dd><p>Optional sidebar. If set, this is positioned left of
+the main area.</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code><span class="type">undefined</span>&nbsp;|&nbsp;<a href="/timeline/api/Sidebar/">Sidebar</a></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="start"></a>start<div style="flex: 1 1 auto"></div><span class="tag tag-get">get</span></dt>
+        <dd><p>The leftmost visible start time.</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code><span class="type">number</span></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="stop"></a>stop<div style="flex: 1 1 auto"></div><span class="tag tag-get">get</span></dt>
+        <dd><p>The rightmost visible stop time.</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code><span class="type">number</span></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="textSize"></a>textSize<div style="flex: 1 1 auto"></div><span class="tag tag-get">get</span><span class="tag tag-set">set</span></dt>
+        <dd><dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code><span class="type">number</span></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="tool"></a>tool<div style="flex: 1 1 auto"></div><span class="tag tag-get">get</span><span class="tag tag-set">set</span></dt>
+        <dd><p>Activate a built-in tool.</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code><span class="type">undefined</span>&nbsp;|&nbsp;<a href="/timeline/api/Tool/">Tool</a></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="width"></a>width<div style="flex: 1 1 auto"></div><span class="tag tag-get">get</span></dt>
+        <dd><p>The pixel width of this Timeline (incl. sidebar)</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code><span class="type">number</span></code>
+                </dd></dl>
+        </dd></dl>
+<h2>Methods</h2>
+                    <dl class="methods"><dt>
+                <a class="anchor" name="constructor"></a>constructor(targetElement)
+            </dt>
+            <dd><dl class="field-list">
+                        <dt>Parameters:</dt>
+                        <dd>
+                            <ul><li>
+                                        <code>HTMLElement</code>
+                                        targetElement</li></ul>
+                        </dd>
+                    </dl></dd><dt>
+                    <a class="anchor" name="addViewportChangeListener"></a>addViewportChangeListener(listener)
+                </dt>
+                <dd><p>Register a listener that receives updates when the viewport bounds
+have changed.</p>
+<dl class="field-list"><dt>Parameters:</dt>
+                            <dd>
+                                <ul><li>
+                                            <code>(ev: <a href="/timeline/api/ViewportChangeEvent/">ViewportChangeEvent</a>)&nbsp;=&gt;&nbsp;<span class="type">void</span></code>
+                                            listener
+                                            
+                                        </li></ul>
+                            </dd><dt>Return type:</dt>
+                            <dd><code><span class="type">void</span></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="addViewportDoubleClickListener"></a>addViewportDoubleClickListener(listener)
+                </dt>
+                <dd><p>Register a listener that recevies updates whenever the viewport
+is double-clicked.</p>
+<dl class="field-list"><dt>Parameters:</dt>
+                            <dd>
+                                <ul><li>
+                                            <code>(ev: <a href="/timeline/api/ViewportDoubleClickEvent/">ViewportDoubleClickEvent</a>)&nbsp;=&gt;&nbsp;<span class="type">void</span></code>
+                                            listener
+                                            
+                                        </li></ul>
+                            </dd><dt>Return type:</dt>
+                            <dd><code><span class="type">void</span></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="addViewportMouseLeaveListener"></a>addViewportMouseLeaveListener(listener)
+                </dt>
+                <dd><p>Register a listener that receives updates whenever the mouse is moving
+outside the viewport.</p>
+<dl class="field-list"><dt>Parameters:</dt>
+                            <dd>
+                                <ul><li>
+                                            <code>(ev: <a href="/timeline/api/ViewportMouseLeaveEvent/">ViewportMouseLeaveEvent</a>)&nbsp;=&gt;&nbsp;<span class="type">void</span></code>
+                                            listener
+                                            
+                                        </li></ul>
+                            </dd><dt>Return type:</dt>
+                            <dd><code><span class="type">void</span></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="addViewportMouseMoveListener"></a>addViewportMouseMoveListener(listener)
+                </dt>
+                <dd><p>Register a listener that receives updates whenever the mouse is moving
+over the viewport.</p>
+<dl class="field-list"><dt>Parameters:</dt>
+                            <dd>
+                                <ul><li>
+                                            <code>(ev: <a href="/timeline/api/ViewportMouseMoveEvent/">ViewportMouseMoveEvent</a>)&nbsp;=&gt;&nbsp;<span class="type">void</span></code>
+                                            listener
+                                            
+                                        </li></ul>
+                            </dd><dt>Return type:</dt>
+                            <dd><code><span class="type">void</span></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="addViewportSelectionListener"></a>addViewportSelectionListener(listener)
+                </dt>
+                <dd><p>Register a listener that receives updates whenever the time range selection
+has changed.</p>
+<dl class="field-list"><dt>Parameters:</dt>
+                            <dd>
+                                <ul><li>
+                                            <code>(ev: <a href="/timeline/api/ViewportSelectionEvent/">ViewportSelectionEvent</a>)&nbsp;=&gt;&nbsp;<span class="type">void</span></code>
+                                            listener
+                                            
+                                        </li></ul>
+                            </dd><dt>Return type:</dt>
+                            <dd><code><span class="type">void</span></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="clearSelection"></a>clearSelection()
+                </dt>
+                <dd><p>Clear the current time range selection (if any)</p>
+<dl class="field-list"><dt>Return type:</dt>
+                            <dd><code><span class="type">void</span></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="createAnimatableProperty"></a>createAnimatableProperty(value)
+                </dt>
+                <dd><dl class="field-list"><dt>Parameters:</dt>
+                            <dd>
+                                <ul><li>
+                                            <code><span class="type">number</span></code>
+                                            value
+                                            
+                                        </li></ul>
+                            </dd><dt>Return type:</dt>
+                            <dd><code><a href="/timeline/api/AnimatableProperty/">AnimatableProperty</a></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="disconnect"></a>disconnect()
+                </dt>
+                <dd><p>Free resources used by this Timeline instance (like intervals).</p>
+<dl class="field-list"><dt>Return type:</dt>
+                            <dd><code><span class="type">void</span></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="distanceBetween"></a>distanceBetween(time1,&nbsp;time2)
+                </dt>
+                <dd><p>Returns pixel count between two times. The sign
+is negative if time2 comes after time1.</p>
+<dl class="field-list"><dt>Parameters:</dt>
+                            <dd>
+                                <ul><li>
+                                            <code><span class="type">number</span></code>
+                                            time1
+                                            
+                                        </li><li>
+                                            <code><span class="type">number</span></code>
+                                            time2
+                                            
+                                        </li></ul>
+                            </dd><dt>Return type:</dt>
+                            <dd><code><span class="type">number</span></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="getBands"></a>getBands()
+                </dt>
+                <dd><p>Returns all Band instances bound to this Timeline instance.</p>
+<dl class="field-list"><dt>Return type:</dt>
+                            <dd><code><a href="/timeline/api/Band/">Band</a>[]</code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="getChildren"></a>getChildren()
+                </dt>
+                <dd><p>Returns the drawables bound to this Timeline instance.</p>
+<dl class="field-list"><dt>Return type:</dt>
+                            <dd><code><a href="/timeline/api/Drawable/">Drawable</a>[]</code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="getSelection"></a>getSelection()
+                </dt>
+                <dd><p>Returns the currently active selection (if any).</p>
+<dl class="field-list"><dt>Return type:</dt>
+                            <dd><code><span class="type">undefined</span>&nbsp;|&nbsp;<a href="/timeline/api/TimeRange/">TimeRange</a></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="panBy"></a>panBy(x,&nbsp;animate=true)
+                </dt>
+                <dd><p>Change the the visible range by a distance in pixels.</p>
+
+<p>A positive number pans towards the future, whereas a negative number
+pans towards the past.</p>
+<dl class="field-list"><dt>Parameters:</dt>
+                            <dd>
+                                <ul><li>
+                                            <code><span class="type">number</span></code>
+                                            x
+                                            
+                                        </li><li>
+                                            <code><span class="type">boolean</span></code>
+                                            animate
+                                            
+                                        </li></ul>
+                            </dd><dt>Return type:</dt>
+                            <dd><code><span class="type">void</span></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="panTo"></a>panTo(time,&nbsp;animate=true)
+                </dt>
+                <dd><p>Pan to the specified time while keeping the current time range.</p>
+<dl class="field-list"><dt>Parameters:</dt>
+                            <dd>
+                                <ul><li>
+                                            <code><span class="type">number</span></code>
+                                            time
+                                            
+                                                &ndash;
+                                                
+
+                                            
+                                        </li><li>
+                                            <code><span class="type">boolean</span></code>
+                                            animate
+                                            
+                                        </li></ul>
+                            </dd><dt>Return type:</dt>
+                            <dd><code><span class="type">void</span></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="positionTime"></a>positionTime(time)
+                </dt>
+                <dd><p>Returns the x position in points for the given time
+(relative to viewport)</p>
+<dl class="field-list"><dt>Parameters:</dt>
+                            <dd>
+                                <ul><li>
+                                            <code><span class="type">number</span></code>
+                                            time
+                                            
+                                        </li></ul>
+                            </dd><dt>Return type:</dt>
+                            <dd><code><span class="type">number</span></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="removeChild"></a>removeChild(drawable)
+                </dt>
+                <dd><p>Remove a drawable from this Timeline instance.</p>
+<dl class="field-list"><dt>Parameters:</dt>
+                            <dd>
+                                <ul><li>
+                                            <code><a href="/timeline/api/Drawable/">Drawable</a></code>
+                                            drawable
+                                            
+                                        </li></ul>
+                            </dd><dt>Return type:</dt>
+                            <dd><code><span class="type">boolean</span></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="removeViewportChangeListener"></a>removeViewportChangeListener(listener)
+                </dt>
+                <dd><p>Unregister a previously registered listener to stop receiving
+viewport change events.</p>
+<dl class="field-list"><dt>Parameters:</dt>
+                            <dd>
+                                <ul><li>
+                                            <code>(ev: <a href="/timeline/api/ViewportChangeEvent/">ViewportChangeEvent</a>)&nbsp;=&gt;&nbsp;<span class="type">void</span></code>
+                                            listener
+                                            
+                                        </li></ul>
+                            </dd><dt>Return type:</dt>
+                            <dd><code><span class="type">void</span></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="removeViewportDoubleClickListener"></a>removeViewportDoubleClickListener(listener)
+                </dt>
+                <dd><p>Unregister a previously registered listener to stop receiving
+viewport double-click events.</p>
+<dl class="field-list"><dt>Parameters:</dt>
+                            <dd>
+                                <ul><li>
+                                            <code>(ev: <a href="/timeline/api/ViewportDoubleClickEvent/">ViewportDoubleClickEvent</a>)&nbsp;=&gt;&nbsp;<span class="type">void</span></code>
+                                            listener
+                                            
+                                        </li></ul>
+                            </dd><dt>Return type:</dt>
+                            <dd><code><span class="type">void</span></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="removeViewportMouseLeaveListener"></a>removeViewportMouseLeaveListener(listener)
+                </dt>
+                <dd><p>Unregister a previously registered listener to stop receiving
+viewport mouse-leave events.</p>
+<dl class="field-list"><dt>Parameters:</dt>
+                            <dd>
+                                <ul><li>
+                                            <code>(ev: <a href="/timeline/api/ViewportMouseLeaveEvent/">ViewportMouseLeaveEvent</a>)&nbsp;=&gt;&nbsp;<span class="type">void</span></code>
+                                            listener
+                                            
+                                        </li></ul>
+                            </dd><dt>Return type:</dt>
+                            <dd><code><span class="type">void</span></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="removeViewportMouseMoveListener"></a>removeViewportMouseMoveListener(listener)
+                </dt>
+                <dd><p>Unregister a previously registered listener to stop receiving
+viewport mouse-move events.</p>
+<dl class="field-list"><dt>Parameters:</dt>
+                            <dd>
+                                <ul><li>
+                                            <code>(ev: <a href="/timeline/api/ViewportMouseMoveEvent/">ViewportMouseMoveEvent</a>)&nbsp;=&gt;&nbsp;<span class="type">void</span></code>
+                                            listener
+                                            
+                                        </li></ul>
+                            </dd><dt>Return type:</dt>
+                            <dd><code><span class="type">void</span></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="removeViewportSelectionListener"></a>removeViewportSelectionListener(listener)
+                </dt>
+                <dd><p>Unregister a previously registered listener to stop receiving viewport
+selection events.</p>
+<dl class="field-list"><dt>Parameters:</dt>
+                            <dd>
+                                <ul><li>
+                                            <code>(ev: <a href="/timeline/api/ViewportSelectionEvent/">ViewportSelectionEvent</a>)&nbsp;=&gt;&nbsp;<span class="type">void</span></code>
+                                            listener
+                                            
+                                        </li></ul>
+                            </dd><dt>Return type:</dt>
+                            <dd><code><span class="type">void</span></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="requestRepaint"></a>requestRepaint()
+                </dt>
+                <dd><p>Request a repaint of the canvas.</p>
+
+<p>The repaint is done async from a  UI render loop.</p>
+
+<p>In general it should not be needed to use this method. Bands and decorations
+trigger repaints automatically.</p>
+<dl class="field-list"><dt>Return type:</dt>
+                            <dd><code><span class="type">void</span></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="setSelection"></a>setSelection(start,&nbsp;stop)
+                </dt>
+                <dd><p>Highlight a time range as being selected.</p>
+<dl class="field-list"><dt>Parameters:</dt>
+                            <dd>
+                                <ul><li>
+                                            <code><span class="type">number</span></code>
+                                            start
+                                            
+                                                &ndash;
+                                                
+
+                                            
+                                        </li><li>
+                                            <code><span class="type">number</span></code>
+                                            stop
+                                            
+                                                &ndash;
+                                                
+
+                                            
+                                        </li></ul>
+                            </dd><dt>Return type:</dt>
+                            <dd><code><span class="type">void</span></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="setViewRange"></a>setViewRange(start,&nbsp;stop,&nbsp;animate=true)
+                </dt>
+                <dd><p>Sets the visible range.</p>
+<dl class="field-list"><dt>Parameters:</dt>
+                            <dd>
+                                <ul><li>
+                                            <code><span class="type">number</span></code>
+                                            start
+                                            
+                                        </li><li>
+                                            <code><span class="type">number</span></code>
+                                            stop
+                                            
+                                        </li><li>
+                                            <code><span class="type">boolean</span></code>
+                                            animate
+                                            
+                                        </li></ul>
+                            </dd><dt>Return type:</dt>
+                            <dd><code><span class="type">void</span></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="timeForCanvasPosition"></a>timeForCanvasPosition(canvasX)
+                </dt>
+                <dd><p>Returns the time matching canvas x coordinate
+(relative to full canvas)</p>
+<dl class="field-list"><dt>Parameters:</dt>
+                            <dd>
+                                <ul><li>
+                                            <code><span class="type">number</span></code>
+                                            canvasX
+                                            
+                                        </li></ul>
+                            </dd><dt>Return type:</dt>
+                            <dd><code><span class="type">number</span></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="toDataURL"></a>toDataURL(type='image/png',&nbsp;quality?)
+                </dt>
+                <dd><p>Returns the content of the current canvas as an image.</p>
+<dl class="field-list"><dt>Parameters:</dt>
+                            <dd>
+                                <ul><li>
+                                            <code><span class="type">string</span></code>
+                                            type
+                                            
+                                        </li><li>
+                                            <code><span class="type">any</span></code>
+                                            quality
+                                            
+                                        </li></ul>
+                            </dd><dt>Return type:</dt>
+                            <dd><code><span class="type">string</span></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="zoom"></a>zoom(factor,&nbsp;animate=true,&nbsp;relto?)
+                </dt>
+                <dd><p>Zoom by a scale factor relative to the current range.
+For example: 2 shows twice the current range, 0.5 shows
+half the current range.</p>
+<dl class="field-list"><dt>Parameters:</dt>
+                            <dd>
+                                <ul><li>
+                                            <code><span class="type">number</span></code>
+                                            factor
+                                            
+                                        </li><li>
+                                            <code><span class="type">boolean</span></code>
+                                            animate
+                                            
+                                        </li><li>
+                                            <code><span class="type">number</span></code>
+                                            relto
+                                            
+                                                &ndash;
+                                                
+
+                                            
+                                        </li></ul>
+                            </dd><dt>Return type:</dt>
+                            <dd><code><span class="type">void</span></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="zoomIn"></a>zoomIn()
+                </dt>
+                <dd><p>Zooms in with a scale factor of 0.5 (half the current range).</p>
+<dl class="field-list"><dt>Return type:</dt>
+                            <dd><code><span class="type">void</span></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="zoomOut"></a>zoomOut()
+                </dt>
+                <dd><p>Zooms out with a scale factor of 2 (twice the current range).</p>
+<dl class="field-list"><dt>Return type:</dt>
+                            <dd><code><span class="type">void</span></code></dd></dl>
+                </dd><dl>
+</div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        </div>
+    </div>
+
+    <div class="sidebar">
+        <ul>
+            <li class="">
+                <a href="/timeline/">About @fqqb/timeline</a>
+            </li>
+            <li class="active">
+                <a href="/timeline/api/">API Reference</a>
+            </li>
+        </ul>
+
+        <h3>Drawables</h3>
+        <ul><li class="">
+                    <a href="/timeline/drawables/banner/">Banner</a>
+                </li><li class="">
+                    <a href="/timeline/drawables/item-band/">ItemBand</a>
+                </li><li class="">
+                    <a href="/timeline/drawables/line-plot/">LinePlot</a>
+                </li><li class="">
+                    <a href="/timeline/drawables/mouse-tracker/">MouseTracker</a>
+                </li><li class="">
+                    <a href="/timeline/drawables/state-band/">StateBand</a>
+                </li><li class="">
+                    <a href="/timeline/drawables/time-locator/">TimeLocator</a>
+                </li><li class="">
+                    <a href="/timeline/drawables/time-ruler/">TimeRuler</a>
+                </li></ul>
+    </div>
+
+</body>
+
+</html>

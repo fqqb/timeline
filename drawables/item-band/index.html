@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/timeline/assets/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.11.2/css/all.min.css">
+    <title>ItemBand | @fqqb/timeline</title>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-NECB56PK4F"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-NECB56PK4F');
+    </script>
+</head><body>
+    <header class="site-header">
+        <div class="wrapper">
+            <a class="site-title" href="/timeline">@fqqb/timeline</a>
+
+            <nav class="site-nav">
+                <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+                <label for="nav-trigger">
+                    <span class="menu-icon">
+                        <svg viewBox="0 0 18 15" width="18px" height="15px">
+                            <path
+                                d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z" />
+                        </svg>
+                    </span>
+                </label>
+
+                <div class="trigger">
+                    <a class="page-link"
+                       href="https://www.npmjs.com/package/@fqqb/timeline"
+                       title="npm">
+                        <i class="fab fa-npm" style="font-size: 24px; vertical-align: middle;"></i>
+                    </a>
+                    <a class="page-link"
+                       href="https://github.com/fqqb/timeline"
+                       title="GitHub">
+                        <i class="fab fa-github" style="font-size: 24px; vertical-align: middle;"></i>
+                    </a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <div class="wrapper">
+        <div class="page-content">
+            <h1 id="itemband">ItemBand</h1>
+
+<p>A band showing items.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">const</span> <span class="nx">band</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ItemBand</span><span class="p">(</span><span class="nx">timeline</span><span class="p">);</span>
+<span class="nx">band</span><span class="p">.</span><span class="nx">label</span> <span class="o">=</span> <span class="dl">'</span><span class="s1">Items</span><span class="dl">'</span><span class="p">;</span>
+<span class="nx">band</span><span class="p">.</span><span class="nx">items</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">{</span> <span class="na">start</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span> <span class="na">stop</span><span class="p">:</span> <span class="mi">40</span><span class="p">,</span> <span class="na">label</span><span class="p">:</span> <span class="dl">'</span><span class="s1">Item</span><span class="dl">'</span> <span class="p">},</span>
+    <span class="p">{</span> <span class="na">start</span><span class="p">:</span> <span class="mi">60</span><span class="p">,</span> <span class="na">label</span><span class="p">:</span> <span class="dl">'</span><span class="s1">Milestone</span><span class="dl">'</span> <span class="p">},</span>
+<span class="p">];</span>
+</code></pre></div></div>
+
+<div class="example"><div id="id_itemband.html" style="height: 31px"></div>
+<script type="module">
+    import { Timeline, ItemBand } from '/timeline/assets/timeline.js';
+    window.addEventListener('load', () => {
+        const targetEl = document.getElementById('id_itemband.html');
+        const timeline = new Timeline(targetEl);
+
+        // BEGIN excerpt-1
+        const band = new ItemBand(timeline);
+        band.label = 'Items';
+        band.items = [
+            { start: 20, stop: 40, label: 'Item' },
+            { start: 60, label: 'Milestone' },
+        ];
+        // END excerpt-1
+    });
+</script>
+</div>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">const</span> <span class="nx">band1</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ItemBand</span><span class="p">(</span><span class="nx">timeline</span><span class="p">);</span>
+<span class="nx">band1</span><span class="p">.</span><span class="nx">label</span> <span class="o">=</span> <span class="dl">'</span><span class="s1">Band 1</span><span class="dl">'</span><span class="p">;</span>
+<span class="nx">band1</span><span class="p">.</span><span class="nx">items</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">{</span> <span class="na">start</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span> <span class="na">stop</span><span class="p">:</span> <span class="mi">40</span><span class="p">,</span> <span class="na">label</span><span class="p">:</span> <span class="dl">'</span><span class="s1">Item 1</span><span class="dl">'</span> <span class="p">},</span>
+<span class="p">];</span>
+
+<span class="kd">const</span> <span class="nx">band2</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ItemBand</span><span class="p">(</span><span class="nx">timeline</span><span class="p">);</span>
+<span class="nx">band2</span><span class="p">.</span><span class="nx">label</span> <span class="o">=</span> <span class="dl">'</span><span class="s1">Band 2</span><span class="dl">'</span><span class="p">;</span>
+<span class="nx">band2</span><span class="p">.</span><span class="nx">itemBorderWidth</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+<span class="nx">band2</span><span class="p">.</span><span class="nx">itemBackground</span> <span class="o">=</span> <span class="dl">'</span><span class="s1">#ffe4b5</span><span class="dl">'</span><span class="p">;</span>
+<span class="nx">band2</span><span class="p">.</span><span class="nx">items</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">{</span> <span class="na">start</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="na">stop</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span> <span class="na">label</span><span class="p">:</span> <span class="dl">'</span><span class="s1">Item 2</span><span class="dl">'</span> <span class="p">},</span>
+    <span class="p">{</span> <span class="na">start</span><span class="p">:</span> <span class="mi">40</span><span class="p">,</span> <span class="na">stop</span><span class="p">:</span> <span class="mi">70</span><span class="p">,</span> <span class="na">label</span><span class="p">:</span> <span class="dl">'</span><span class="s1">Item 3</span><span class="dl">'</span><span class="p">,</span> <span class="na">background</span><span class="p">:</span> <span class="dl">'</span><span class="s1">orange</span><span class="dl">'</span><span class="p">,</span> <span class="na">cornerRadius</span><span class="p">:</span> <span class="mi">5</span> <span class="p">},</span>
+    <span class="p">{</span> <span class="na">start</span><span class="p">:</span> <span class="mi">60</span><span class="p">,</span> <span class="na">stop</span><span class="p">:</span> <span class="mi">120</span><span class="p">,</span> <span class="na">label</span><span class="p">:</span> <span class="dl">'</span><span class="s1">Item 4</span><span class="dl">'</span> <span class="p">},</span>
+<span class="p">];</span>
+</code></pre></div></div>
+
+<div class="example"><div id="id_itemband2.html" style="height: 92px"></div>
+<script type="module">
+    import { ItemBand, Timeline } from '/timeline/assets/timeline.js';
+    window.addEventListener('load', () => {
+        const targetEl = document.getElementById('id_itemband2.html');
+        const timeline = new Timeline(targetEl);
+
+        // BEGIN excerpt-1
+        const band1 = new ItemBand(timeline);
+        band1.label = 'Band 1';
+        band1.items = [
+            { start: 20, stop: 40, label: 'Item 1' },
+        ];
+
+        const band2 = new ItemBand(timeline);
+        band2.label = 'Band 2';
+        band2.itemBorderWidth = 1;
+        band2.itemBackground = '#ffe4b5';
+        band2.items = [
+            { start: 10, stop: 50, label: 'Item 2' },
+            { start: 40, stop: 70, label: 'Item 3', background: 'orange', cornerRadius: 5 },
+            { start: 60, stop: 120, label: 'Item 4' },
+        ];
+        // END excerpt-1
+    });
+</script>
+</div>
+
+        </div>
+    </div>
+
+    <div class="sidebar">
+        <ul>
+            <li class="">
+                <a href="/timeline/">About @fqqb/timeline</a>
+            </li>
+            <li class="">
+                <a href="/timeline/api/">API Reference</a>
+            </li>
+        </ul>
+
+        <h3>Drawables</h3>
+        <ul><li class="">
+                    <a href="/timeline/drawables/banner/">Banner</a>
+                </li><li class="active">
+                    <a href="/timeline/drawables/item-band/">ItemBand</a>
+                </li><li class="">
+                    <a href="/timeline/drawables/line-plot/">LinePlot</a>
+                </li><li class="">
+                    <a href="/timeline/drawables/mouse-tracker/">MouseTracker</a>
+                </li><li class="">
+                    <a href="/timeline/drawables/state-band/">StateBand</a>
+                </li><li class="">
+                    <a href="/timeline/drawables/time-locator/">TimeLocator</a>
+                </li><li class="">
+                    <a href="/timeline/drawables/time-ruler/">TimeRuler</a>
+                </li></ul>
+    </div>
+
+</body>
+
+</html>

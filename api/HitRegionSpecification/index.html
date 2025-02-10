@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/timeline/assets/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.11.2/css/all.min.css">
+    <title>HitRegionSpecification | @fqqb/timeline</title>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-NECB56PK4F"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-NECB56PK4F');
+    </script>
+</head><body>
+    <header class="site-header">
+        <div class="wrapper">
+            <a class="site-title" href="/timeline">@fqqb/timeline</a>
+
+            <nav class="site-nav">
+                <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+                <label for="nav-trigger">
+                    <span class="menu-icon">
+                        <svg viewBox="0 0 18 15" width="18px" height="15px">
+                            <path
+                                d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z" />
+                        </svg>
+                    </span>
+                </label>
+
+                <div class="trigger">
+                    <a class="page-link"
+                       href="https://www.npmjs.com/package/@fqqb/timeline"
+                       title="npm">
+                        <i class="fab fa-npm" style="font-size: 24px; vertical-align: middle;"></i>
+                    </a>
+                    <a class="page-link"
+                       href="https://github.com/fqqb/timeline"
+                       title="GitHub">
+                        <i class="fab fa-github" style="font-size: 24px; vertical-align: middle;"></i>
+                    </a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <div class="wrapper">
+        <div class="page-content">
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="tsdoc">
+            <h1>
+                <code>interface</code>
+                HitRegionSpecification</h1><p>Specifies which properties a hit region responds too.</p>
+
+            
+            
+            <dl class="field-list"><dt>Properties</dt>
+                        <dd><a href="#click">click</a>, <a href="#contextMenu">contextMenu</a>, <a href="#cursor">cursor</a>, <a href="#doubleClick">doubleClick</a>, <a href="#grab">grab</a>, <a href="#grabEnd">grabEnd</a>, <a href="#id">id</a>, <a href="#keyDown">keyDown</a>, <a href="#keyUp">keyUp</a>, <a href="#mouseDown">mouseDown</a>, <a href="#mouseEnter">mouseEnter</a>, <a href="#mouseLeave">mouseLeave</a>, <a href="#mouseMove">mouseMove</a>, <a href="#mouseUp">mouseUp</a>, <a href="#parentId">parentId</a>, <a href="#wheel">wheel</a></dd></dl><h2>Properties</h2><dl class="properties"><dt style="display: flex">
+            <a class="anchor" name="click"></a>click<div style="flex: 1 1 auto"></div><span class="tag tag-optional">optional</span></dt>
+        <dd><p>Callback when this region is clicked.</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code>(event: <a href="/timeline/api/MouseHitEvent/">MouseHitEvent</a>)&nbsp;=&gt;&nbsp;<span class="type">void</span></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="contextMenu"></a>contextMenu<div style="flex: 1 1 auto"></div><span class="tag tag-optional">optional</span></dt>
+        <dd><p>Callback when the user attempts to open a context menu.
+(usually by right click).</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code>(event: <a href="/timeline/api/MouseHitEvent/">MouseHitEvent</a>)&nbsp;=&gt;&nbsp;<span class="type">void</span></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="cursor"></a>cursor<div style="flex: 1 1 auto"></div><span class="tag tag-optional">optional</span></dt>
+        <dd><p>Cursor on hover.</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code><span class="type">string</span></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="doubleClick"></a>doubleClick<div style="flex: 1 1 auto"></div><span class="tag tag-optional">optional</span></dt>
+        <dd><p>Callback when this region is double-clicked.</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code>(event: <a href="/timeline/api/MouseHitEvent/">MouseHitEvent</a>)&nbsp;=&gt;&nbsp;<span class="type">void</span></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="grab"></a>grab<div style="flex: 1 1 auto"></div><span class="tag tag-optional">optional</span></dt>
+        <dd><p>Callback while a grab of this region is going on.</p>
+
+<p>Grab events trigger when a click-and-drag is recorded on the hit
+region.</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code>(event: <a href="/timeline/api/GrabHitEvent/">GrabHitEvent</a>)&nbsp;=&gt;&nbsp;<span class="type">void</span></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="grabEnd"></a>grabEnd<div style="flex: 1 1 auto"></div><span class="tag tag-optional">optional</span></dt>
+        <dd><p>Callback when a grab has ended that was initiated on this region.</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code>()&nbsp;=&gt;&nbsp;<span class="type">void</span></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="id"></a>id<div style="flex: 1 1 auto"></div></dt>
+        <dd><p>Unique identifier for this region.</p>
+
+<p>While it is preferred to make hit regions outside of
+the draw loop, it is allowed and the ID is what establishes
+conceptually a unique region.</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code><span class="type">string</span></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="keyDown"></a>keyDown<div style="flex: 1 1 auto"></div><span class="tag tag-optional">optional</span></dt>
+        <dd><p>Callback when a key is pressed.</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code>(event: <a href="/timeline/api/KeyboardHitEvent/">KeyboardHitEvent</a>)&nbsp;=&gt;&nbsp;<span class="type">void</span></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="keyUp"></a>keyUp<div style="flex: 1 1 auto"></div><span class="tag tag-optional">optional</span></dt>
+        <dd><p>Callback when a key is released.</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code>(event: <a href="/timeline/api/KeyboardHitEvent/">KeyboardHitEvent</a>)&nbsp;=&gt;&nbsp;<span class="type">void</span></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="mouseDown"></a>mouseDown<div style="flex: 1 1 auto"></div><span class="tag tag-optional">optional</span></dt>
+        <dd><p>Callback when a mouse-down occurs on this region.</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code>(event: <a href="/timeline/api/MouseHitEvent/">MouseHitEvent</a>)&nbsp;=&gt;&nbsp;<span class="type">void</span></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="mouseEnter"></a>mouseEnter<div style="flex: 1 1 auto"></div><span class="tag tag-optional">optional</span></dt>
+        <dd><p>Callback when the mouse enters this region.</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code>(event: <a href="/timeline/api/MouseHitEvent/">MouseHitEvent</a>)&nbsp;=&gt;&nbsp;<span class="type">void</span></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="mouseLeave"></a>mouseLeave<div style="flex: 1 1 auto"></div><span class="tag tag-optional">optional</span></dt>
+        <dd><p>Callback when the mouse leaves this region.</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code>(event: <a href="/timeline/api/MouseHitEvent/">MouseHitEvent</a>)&nbsp;=&gt;&nbsp;<span class="type">void</span></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="mouseMove"></a>mouseMove<div style="flex: 1 1 auto"></div><span class="tag tag-optional">optional</span></dt>
+        <dd><p>Callback when the mouse moves over this region
+(or any child regions).</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code>(event: <a href="/timeline/api/MouseHitEvent/">MouseHitEvent</a>)&nbsp;=&gt;&nbsp;<span class="type">void</span></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="mouseUp"></a>mouseUp<div style="flex: 1 1 auto"></div><span class="tag tag-optional">optional</span></dt>
+        <dd><p>Callback when a mouse-up occurs on this region.</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code>(event: <a href="/timeline/api/MouseHitEvent/">MouseHitEvent</a>)&nbsp;=&gt;&nbsp;<span class="type">void</span></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="parentId"></a>parentId<div style="flex: 1 1 auto"></div><span class="tag tag-optional">optional</span></dt>
+        <dd><p>Optional identifier of a parent region. Some region
+properties ‘bubble up’ to parent regions.</p>
+
+<p>For example if a cursor is set on a parent, but not
+on the child region, the parent’s cursor will be
+displayed even if the child is hovered.</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code><span class="type">string</span></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="wheel"></a>wheel<div style="flex: 1 1 auto"></div><span class="tag tag-optional">optional</span></dt>
+        <dd><p>Callback when a wheel event occus on this region.</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code>(event: <a href="/timeline/api/WheelHitEvent/">WheelHitEvent</a>)&nbsp;=&gt;&nbsp;<span class="type">void</span></code>
+                </dd></dl>
+        </dd></dl>
+</div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        </div>
+    </div>
+
+    <div class="sidebar">
+        <ul>
+            <li class="">
+                <a href="/timeline/">About @fqqb/timeline</a>
+            </li>
+            <li class="active">
+                <a href="/timeline/api/">API Reference</a>
+            </li>
+        </ul>
+
+        <h3>Drawables</h3>
+        <ul><li class="">
+                    <a href="/timeline/drawables/banner/">Banner</a>
+                </li><li class="">
+                    <a href="/timeline/drawables/item-band/">ItemBand</a>
+                </li><li class="">
+                    <a href="/timeline/drawables/line-plot/">LinePlot</a>
+                </li><li class="">
+                    <a href="/timeline/drawables/mouse-tracker/">MouseTracker</a>
+                </li><li class="">
+                    <a href="/timeline/drawables/state-band/">StateBand</a>
+                </li><li class="">
+                    <a href="/timeline/drawables/time-locator/">TimeLocator</a>
+                </li><li class="">
+                    <a href="/timeline/drawables/time-ruler/">TimeRuler</a>
+                </li></ul>
+    </div>
+
+</body>
+
+</html>

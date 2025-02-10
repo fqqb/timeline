@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/timeline/assets/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.11.2/css/all.min.css">
+    <title>Graphics | @fqqb/timeline</title>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-NECB56PK4F"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-NECB56PK4F');
+    </script>
+</head><body>
+    <header class="site-header">
+        <div class="wrapper">
+            <a class="site-title" href="/timeline">@fqqb/timeline</a>
+
+            <nav class="site-nav">
+                <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+                <label for="nav-trigger">
+                    <span class="menu-icon">
+                        <svg viewBox="0 0 18 15" width="18px" height="15px">
+                            <path
+                                d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z" />
+                        </svg>
+                    </span>
+                </label>
+
+                <div class="trigger">
+                    <a class="page-link"
+                       href="https://www.npmjs.com/package/@fqqb/timeline"
+                       title="npm">
+                        <i class="fab fa-npm" style="font-size: 24px; vertical-align: middle;"></i>
+                    </a>
+                    <a class="page-link"
+                       href="https://github.com/fqqb/timeline"
+                       title="GitHub">
+                        <i class="fab fa-github" style="font-size: 24px; vertical-align: middle;"></i>
+                    </a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <div class="wrapper">
+        <div class="page-content">
+            
+
+
+
+
+
+<div class="tsdoc">
+            <h1>
+                <code>class</code>
+                Graphics</h1><p>Draw on an HTML5 canvas.</p>
+
+<p>This class wraps an HTML5 Canvas and 2D rendering context in a
+slightly higher-level API, while also allowing to register hit
+regions.</p>
+
+            
+            
+            <dl class="field-list"><dt>Properties</dt>
+                        <dd><a href="#canvas">canvas</a>, <a href="#ctx">ctx</a>, <a href="#height">height</a>, <a href="#hitCanvas">hitCanvas</a>, <a href="#hitCtx">hitCtx</a>, <a href="#width">width</a></dd><dt>Methods</dt>
+                        <dd><a href="#constructor">constructor</a>, <a href="#addHitRegion">addHitRegion</a>, <a href="#clearHitCanvas">clearHitCanvas</a>, <a href="#copy">copy</a>, <a href="#createChild">createChild</a>, <a href="#fillCanvas">fillCanvas</a>, <a href="#fillEllipse">fillEllipse</a>, <a href="#fillPath">fillPath</a>, <a href="#fillRect">fillRect</a>, <a href="#fillText">fillText</a>, <a href="#measureText">measureText</a>, <a href="#resize">resize</a>, <a href="#strokeEllipse">strokeEllipse</a>, <a href="#strokePath">strokePath</a>, <a href="#strokeRect">strokeRect</a></dd></dl><h2>Properties</h2><dl class="properties"><dt style="display: flex">
+            <a class="anchor" name="canvas"></a>canvas<div style="flex: 1 1 auto"></div><span class="tag tag-get">get</span></dt>
+        <dd><dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code>HTMLCanvasElement</code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="ctx"></a>ctx<div style="flex: 1 1 auto"></div><span class="tag tag-get">get</span></dt>
+        <dd><p>Native draw context for the HTML5 Canvas.</p>
+
+<p>Can be used to draw directly without using any convenience API.</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code>CanvasRenderingContext2D</code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="height"></a>height<div style="flex: 1 1 auto"></div><span class="tag tag-get">get</span></dt>
+        <dd><p>Returns the CSS height.</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code><span class="type">number</span></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="hitCanvas"></a>hitCanvas<div style="flex: 1 1 auto"></div><span class="tag tag-get">get</span></dt>
+        <dd><p>Manages hit regions which connects DOM interactions to the Canvas.</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code><a href="/timeline/api/HitCanvas/">HitCanvas</a></code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="hitCtx"></a>hitCtx<div style="flex: 1 1 auto"></div><span class="tag tag-get">get</span></dt>
+        <dd><p>Draw context matching the hit canvas.</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code>CanvasRenderingContext2D</code>
+                </dd></dl>
+        </dd><dt style="display: flex">
+            <a class="anchor" name="width"></a>width<div style="flex: 1 1 auto"></div><span class="tag tag-get">get</span></dt>
+        <dd><p>Returns the CSS width.</p>
+<dl class="field-list">
+                <dt>Type:</dt>
+                <dd>
+                    <code><span class="type">number</span></code>
+                </dd></dl>
+        </dd></dl>
+<h2>Methods</h2>
+                    <dl class="methods"><dt>
+                <a class="anchor" name="constructor"></a>constructor(canvas,&nbsp;hitCanvas?)
+            </dt>
+            <dd><dl class="field-list">
+                        <dt>Parameters:</dt>
+                        <dd>
+                            <ul><li>
+                                        <code>HTMLCanvasElement</code>
+                                        canvas</li><li>
+                                        <code><a href="/timeline/api/HitCanvas/">HitCanvas</a></code>
+                                        hitCanvas</li></ul>
+                        </dd>
+                    </dl></dd><dt>
+                    <a class="anchor" name="addHitRegion"></a>addHitRegion(region)
+                </dt>
+                <dd><dl class="field-list"><dt>Parameters:</dt>
+                            <dd>
+                                <ul><li>
+                                            <code><a href="/timeline/api/HitRegionSpecification/">HitRegionSpecification</a></code>
+                                            region
+                                            
+                                        </li></ul>
+                            </dd><dt>Return type:</dt>
+                            <dd><code><a href="/timeline/api/HitRegionBuilder/">HitRegionBuilder</a></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="clearHitCanvas"></a>clearHitCanvas()
+                </dt>
+                <dd><dl class="field-list"><dt>Return type:</dt>
+                            <dd><code><span class="type">void</span></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="copy"></a>copy(g,&nbsp;dx,&nbsp;dy)
+                </dt>
+                <dd><dl class="field-list"><dt>Parameters:</dt>
+                            <dd>
+                                <ul><li>
+                                            <code><a href="/timeline/api/Graphics/">Graphics</a></code>
+                                            g
+                                            
+                                        </li><li>
+                                            <code><span class="type">number</span></code>
+                                            dx
+                                            
+                                        </li><li>
+                                            <code><span class="type">number</span></code>
+                                            dy
+                                            
+                                        </li></ul>
+                            </dd><dt>Return type:</dt>
+                            <dd><code><span class="type">void</span></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="createChild"></a>createChild(width,&nbsp;height)
+                </dt>
+                <dd><dl class="field-list"><dt>Parameters:</dt>
+                            <dd>
+                                <ul><li>
+                                            <code><span class="type">number</span></code>
+                                            width
+                                            
+                                        </li><li>
+                                            <code><span class="type">number</span></code>
+                                            height
+                                            
+                                        </li></ul>
+                            </dd><dt>Return type:</dt>
+                            <dd><code><a href="/timeline/api/Graphics/">Graphics</a></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="fillCanvas"></a>fillCanvas(fill)
+                </dt>
+                <dd><dl class="field-list"><dt>Parameters:</dt>
+                            <dd>
+                                <ul><li>
+                                            <code><a href="/timeline/api/FillStyle/">FillStyle</a></code>
+                                            fill
+                                            
+                                        </li></ul>
+                            </dd><dt>Return type:</dt>
+                            <dd><code><span class="type">void</span></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="fillEllipse"></a>fillEllipse(fill)
+                </dt>
+                <dd><dl class="field-list"><dt>Parameters:</dt>
+                            <dd>
+                                <ul><li>
+                                            <code><a href="/timeline/api/EllipseFill/">EllipseFill</a></code>
+                                            fill
+                                            
+                                        </li></ul>
+                            </dd><dt>Return type:</dt>
+                            <dd><code><span class="type">void</span></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="fillPath"></a>fillPath(fill)
+                </dt>
+                <dd><dl class="field-list"><dt>Parameters:</dt>
+                            <dd>
+                                <ul><li>
+                                            <code><a href="/timeline/api/PathFill/">PathFill</a></code>
+                                            fill
+                                            
+                                        </li></ul>
+                            </dd><dt>Return type:</dt>
+                            <dd><code><span class="type">void</span></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="fillRect"></a>fillRect(fill)
+                </dt>
+                <dd><dl class="field-list"><dt>Parameters:</dt>
+                            <dd>
+                                <ul><li>
+                                            <code><a href="/timeline/api/RectFill/">RectFill</a></code>
+                                            fill
+                                            
+                                        </li></ul>
+                            </dd><dt>Return type:</dt>
+                            <dd><code><span class="type">void</span></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="fillText"></a>fillText(fill)
+                </dt>
+                <dd><dl class="field-list"><dt>Parameters:</dt>
+                            <dd>
+                                <ul><li>
+                                            <code><a href="/timeline/api/TextFill/">TextFill</a></code>
+                                            fill
+                                            
+                                        </li></ul>
+                            </dd><dt>Return type:</dt>
+                            <dd><code><span class="type">void</span></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="measureText"></a>measureText(text,&nbsp;font)
+                </dt>
+                <dd><dl class="field-list"><dt>Parameters:</dt>
+                            <dd>
+                                <ul><li>
+                                            <code><span class="type">string</span></code>
+                                            text
+                                            
+                                        </li><li>
+                                            <code><span class="type">string</span></code>
+                                            font
+                                            
+                                        </li></ul>
+                            </dd><dt>Return type:</dt>
+                            <dd><code><a href="/timeline/api/TextMetrics/">TextMetrics</a></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="resize"></a>resize(width,&nbsp;height)
+                </dt>
+                <dd><dl class="field-list"><dt>Parameters:</dt>
+                            <dd>
+                                <ul><li>
+                                            <code><span class="type">number</span></code>
+                                            width
+                                            
+                                        </li><li>
+                                            <code><span class="type">number</span></code>
+                                            height
+                                            
+                                        </li></ul>
+                            </dd><dt>Return type:</dt>
+                            <dd><code><span class="type">void</span></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="strokeEllipse"></a>strokeEllipse(stroke)
+                </dt>
+                <dd><dl class="field-list"><dt>Parameters:</dt>
+                            <dd>
+                                <ul><li>
+                                            <code><a href="/timeline/api/EllipseStroke/">EllipseStroke</a></code>
+                                            stroke
+                                            
+                                        </li></ul>
+                            </dd><dt>Return type:</dt>
+                            <dd><code><span class="type">void</span></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="strokePath"></a>strokePath(stroke)
+                </dt>
+                <dd><dl class="field-list"><dt>Parameters:</dt>
+                            <dd>
+                                <ul><li>
+                                            <code><a href="/timeline/api/PathStroke/">PathStroke</a></code>
+                                            stroke
+                                            
+                                        </li></ul>
+                            </dd><dt>Return type:</dt>
+                            <dd><code><span class="type">void</span></code></dd></dl>
+                </dd><dt>
+                    <a class="anchor" name="strokeRect"></a>strokeRect(stroke)
+                </dt>
+                <dd><dl class="field-list"><dt>Parameters:</dt>
+                            <dd>
+                                <ul><li>
+                                            <code><a href="/timeline/api/RectStroke/">RectStroke</a></code>
+                                            stroke
+                                            
+                                        </li></ul>
+                            </dd><dt>Return type:</dt>
+                            <dd><code><span class="type">void</span></code></dd></dl>
+                </dd><dl>
+</div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        </div>
+    </div>
+
+    <div class="sidebar">
+        <ul>
+            <li class="">
+                <a href="/timeline/">About @fqqb/timeline</a>
+            </li>
+            <li class="active">
+                <a href="/timeline/api/">API Reference</a>
+            </li>
+        </ul>
+
+        <h3>Drawables</h3>
+        <ul><li class="">
+                    <a href="/timeline/drawables/banner/">Banner</a>
+                </li><li class="">
+                    <a href="/timeline/drawables/item-band/">ItemBand</a>
+                </li><li class="">
+                    <a href="/timeline/drawables/line-plot/">LinePlot</a>
+                </li><li class="">
+                    <a href="/timeline/drawables/mouse-tracker/">MouseTracker</a>
+                </li><li class="">
+                    <a href="/timeline/drawables/state-band/">StateBand</a>
+                </li><li class="">
+                    <a href="/timeline/drawables/time-locator/">TimeLocator</a>
+                </li><li class="">
+                    <a href="/timeline/drawables/time-ruler/">TimeRuler</a>
+                </li></ul>
+    </div>
+
+</body>
+
+</html>

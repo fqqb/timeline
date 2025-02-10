@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/timeline/assets/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.11.2/css/all.min.css">
+    <title>API Reference | @fqqb/timeline</title>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-NECB56PK4F"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-NECB56PK4F');
+    </script>
+</head><body>
+    <header class="site-header">
+        <div class="wrapper">
+            <a class="site-title" href="/timeline">@fqqb/timeline</a>
+
+            <nav class="site-nav">
+                <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+                <label for="nav-trigger">
+                    <span class="menu-icon">
+                        <svg viewBox="0 0 18 15" width="18px" height="15px">
+                            <path
+                                d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z" />
+                        </svg>
+                    </span>
+                </label>
+
+                <div class="trigger">
+                    <a class="page-link"
+                       href="https://www.npmjs.com/package/@fqqb/timeline"
+                       title="npm">
+                        <i class="fab fa-npm" style="font-size: 24px; vertical-align: middle;"></i>
+                    </a>
+                    <a class="page-link"
+                       href="https://github.com/fqqb/timeline"
+                       title="GitHub">
+                        <i class="fab fa-github" style="font-size: 24px; vertical-align: middle;"></i>
+                    </a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <div class="wrapper">
+        <div class="page-content">
+            <h1 id="api-reference">API Reference</h1>
+
+<table>
+    <tr>
+        <th width="1">Name</th>
+        <th width="1">Kind</th>
+        <th>Description</th>
+    </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/AnimatableProperty/">AnimatableProperty</a></td>
+            <td style="white-space: nowrap">Class</td>
+            <td>Transitions a numeric property over a configurable duration</td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/Band/">Band</a></td>
+            <td style="white-space: nowrap">Class</td>
+            <td>Base type for bands</td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/Banner/">Banner</a></td>
+            <td style="white-space: nowrap">Class</td>
+            <td>Displays a fixed-position text banner</td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/Bounds/">Bounds</a></td>
+            <td style="white-space: nowrap">Interface</td>
+            <td>Coordinates of a box shape</td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/DefaultSidebar/">DefaultSidebar</a></td>
+            <td style="white-space: nowrap">Class</td>
+            <td>Default sidebar implementation</td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/Drawable/">Drawable</a></td>
+            <td style="white-space: nowrap">Class</td>
+            <td>Base class for any visual component that can be added to a
+Timeline instance (bands or decorations)</td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/EllipseFill/">EllipseFill</a></td>
+            <td style="white-space: nowrap">Interface</td>
+            <td>Properties to be provided with Graphics</td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/EllipseStroke/">EllipseStroke</a></td>
+            <td style="white-space: nowrap">Interface</td>
+            <td>Properties to be provided with Graphics</td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/EventHandler/">EventHandler</a></td>
+            <td style="white-space: nowrap">Class</td>
+            <td>Translates Canvas DOM events into non-DOM hit events</td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/FillStyle/">FillStyle</a></td>
+            <td style="white-space: nowrap">Type alias</td>
+            <td>Style to use when filling shapes</td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/FullHeightKind/">FullHeightKind</a></td>
+            <td style="white-space: nowrap">Type alias</td>
+            <td></td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/GrabHitEvent/">GrabHitEvent</a></td>
+            <td style="white-space: nowrap">Interface</td>
+            <td>Event generated while grabbing a hit region</td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/Graphics/">Graphics</a></td>
+            <td style="white-space: nowrap">Class</td>
+            <td>Draw on an HTML5 canvas</td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/HeaderClickEvent/">HeaderClickEvent</a></td>
+            <td style="white-space: nowrap">Interface</td>
+            <td>Event generated when the header of a Timeline Band was
+clicked</td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/HeaderMouseEvent/">HeaderMouseEvent</a></td>
+            <td style="white-space: nowrap">Interface</td>
+            <td>Event generated in relation to mouse interactions on Timeline
+bands</td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/HitCanvas/">HitCanvas</a></td>
+            <td style="white-space: nowrap">Class</td>
+            <td>Keeps track of regions of interest (hit regions)</td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/HitRegionBuilder/">HitRegionBuilder</a></td>
+            <td style="white-space: nowrap">Class</td>
+            <td></td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/HitRegionSpecification/">HitRegionSpecification</a></td>
+            <td style="white-space: nowrap">Interface</td>
+            <td>Specifies which properties a hit region responds too</td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/Item/">Item</a></td>
+            <td style="white-space: nowrap">Interface</td>
+            <td>Item-specific properties</td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/ItemBand/">ItemBand</a></td>
+            <td style="white-space: nowrap">Class</td>
+            <td>Band that draws events</td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/ItemClickEvent/">ItemClickEvent</a></td>
+            <td style="white-space: nowrap">Interface</td>
+            <td>Event generated when a Timeline item was clicked</td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/ItemMouseEvent/">ItemMouseEvent</a></td>
+            <td style="white-space: nowrap">Interface</td>
+            <td>Event generated in relation to mouse interactions on Timeline
+items</td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/KeyboardHitEvent/">KeyboardHitEvent</a></td>
+            <td style="white-space: nowrap">Interface</td>
+            <td>Event generated for keyboard events on a hit region</td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/Line/">Line</a></td>
+            <td style="white-space: nowrap">Interface</td>
+            <td>Line-specific properties</td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/LinePlot/">LinePlot</a></td>
+            <td style="white-space: nowrap">Class</td>
+            <td>Band type that plots a line along the timeline</td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/LinePlotClickEvent/">LinePlotClickEvent</a></td>
+            <td style="white-space: nowrap">Interface</td>
+            <td>Event generated when a LinePlot was clicked</td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/LinePlotMouseLeaveEvent/">LinePlotMouseLeaveEvent</a></td>
+            <td style="white-space: nowrap">Interface</td>
+            <td>Event generated when the mouse is moving outside a LinePlot</td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/LinePlotMouseMoveEvent/">LinePlotMouseMoveEvent</a></td>
+            <td style="white-space: nowrap">Interface</td>
+            <td>Event generated when the mouse is moving over a LinePlot</td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/LinePlotPoint/">LinePlotPoint</a></td>
+            <td style="white-space: nowrap">Interface</td>
+            <td></td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/MilestoneShape/">MilestoneShape</a></td>
+            <td style="white-space: nowrap">Type alias</td>
+            <td></td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/MouseHitEvent/">MouseHitEvent</a></td>
+            <td style="white-space: nowrap">Interface</td>
+            <td>Event generated while using a mouse over a hit region</td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/MouseTracker/">MouseTracker</a></td>
+            <td style="white-space: nowrap">Class</td>
+            <td>Displays a vertical bar matching the time where the mouse is hovering</td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/Path/">Path</a></td>
+            <td style="white-space: nowrap">Class</td>
+            <td></td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/PathFill/">PathFill</a></td>
+            <td style="white-space: nowrap">Interface</td>
+            <td>Properties to be provided with Graphics</td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/PathSegment/">PathSegment</a></td>
+            <td style="white-space: nowrap">Interface</td>
+            <td></td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/PathStroke/">PathStroke</a></td>
+            <td style="white-space: nowrap">Interface</td>
+            <td>Properties to be provided with Graphics</td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/Point/">Point</a></td>
+            <td style="white-space: nowrap">Interface</td>
+            <td>(x, y) coordinates</td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/RectFill/">RectFill</a></td>
+            <td style="white-space: nowrap">Interface</td>
+            <td>Properties to be provided with Graphics</td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/RectStroke/">RectStroke</a></td>
+            <td style="white-space: nowrap">Interface</td>
+            <td>Properties to be provided with Graphics</td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/ScaleKind/">ScaleKind</a></td>
+            <td style="white-space: nowrap">Type alias</td>
+            <td></td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/ShapeRenderer/">ShapeRenderer</a></td>
+            <td style="white-space: nowrap">Type alias</td>
+            <td></td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/ShapeStyle/">ShapeStyle</a></td>
+            <td style="white-space: nowrap">Interface</td>
+            <td></td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/Sidebar/">Sidebar</a></td>
+            <td style="white-space: nowrap">Class</td>
+            <td>Sidebar where band headers are displayed</td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/State/">State</a></td>
+            <td style="white-space: nowrap">Interface</td>
+            <td>State-specific properties</td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/StateBand/">StateBand</a></td>
+            <td style="white-space: nowrap">Class</td>
+            <td>Draw discrete state changes</td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/StateClickEvent/">StateClickEvent</a></td>
+            <td style="white-space: nowrap">Interface</td>
+            <td>Event generated when a Timeline state was clicked</td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/StateMouseEvent/">StateMouseEvent</a></td>
+            <td style="white-space: nowrap">Interface</td>
+            <td>Event generated in relation to mouse interactions on Timeline
+states</td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/TextAlignment/">TextAlignment</a></td>
+            <td style="white-space: nowrap">Type alias</td>
+            <td></td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/TextFill/">TextFill</a></td>
+            <td style="white-space: nowrap">Interface</td>
+            <td>Properties to be provided with Graphics</td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/TextMetrics/">TextMetrics</a></td>
+            <td style="white-space: nowrap">Interface</td>
+            <td></td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/TextOverflow/">TextOverflow</a></td>
+            <td style="white-space: nowrap">Type alias</td>
+            <td></td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/Timeline/">Timeline</a></td>
+            <td style="white-space: nowrap">Class</td>
+            <td></td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/TimelineEvent/">TimelineEvent</a></td>
+            <td style="white-space: nowrap">Interface</td>
+            <td>Tag interface for all events generated by a Timeline instance</td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/TimeLocator/">TimeLocator</a></td>
+            <td style="white-space: nowrap">Class</td>
+            <td>Draws a vertical bar at a specific time</td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/TimeRange/">TimeRange</a></td>
+            <td style="white-space: nowrap">Interface</td>
+            <td>Data holder for a range of time</td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/TimeRuler/">TimeRuler</a></td>
+            <td style="white-space: nowrap">Class</td>
+            <td>A ruler that interprets time as milliseconds since January 01, 1970, 00:00:00 UTC</td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/Tool/">Tool</a></td>
+            <td style="white-space: nowrap">Type alias</td>
+            <td></td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/TouchHit/">TouchHit</a></td>
+            <td style="white-space: nowrap">Interface</td>
+            <td>Single contact point on a touch-sensitive device</td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/TouchHitEvent/">TouchHitEvent</a></td>
+            <td style="white-space: nowrap">Interface</td>
+            <td>Event generated while touching a hit region</td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/ViewportChangeEvent/">ViewportChangeEvent</a></td>
+            <td style="white-space: nowrap">Interface</td>
+            <td>Event generated when the viewport has changed</td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/ViewportDoubleClickEvent/">ViewportDoubleClickEvent</a></td>
+            <td style="white-space: nowrap">Interface</td>
+            <td>Event generated when the viewport is double-clicked</td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/ViewportMouseLeaveEvent/">ViewportMouseLeaveEvent</a></td>
+            <td style="white-space: nowrap">Interface</td>
+            <td>Event generated when the mouse is moving outside the viewport</td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/ViewportMouseMoveEvent/">ViewportMouseMoveEvent</a></td>
+            <td style="white-space: nowrap">Interface</td>
+            <td>Event generated when the mouse is moving over
+the viewport</td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/ViewportSelectionEvent/">ViewportSelectionEvent</a></td>
+            <td style="white-space: nowrap">Interface</td>
+            <td>Event generated when the selected range has changed</td>
+        </tr><tr>
+            <td style="white-space: nowrap"><a href="/timeline/api/WheelHitEvent/">WheelHitEvent</a></td>
+            <td style="white-space: nowrap">Interface</td>
+            <td>Event generated when moving a mouse wheel</td>
+        </tr></table>
+
+        </div>
+    </div>
+
+    <div class="sidebar">
+        <ul>
+            <li class="">
+                <a href="/timeline/">About @fqqb/timeline</a>
+            </li>
+            <li class="active">
+                <a href="/timeline/api/">API Reference</a>
+            </li>
+        </ul>
+
+        <h3>Drawables</h3>
+        <ul><li class="">
+                    <a href="/timeline/drawables/banner/">Banner</a>
+                </li><li class="">
+                    <a href="/timeline/drawables/item-band/">ItemBand</a>
+                </li><li class="">
+                    <a href="/timeline/drawables/line-plot/">LinePlot</a>
+                </li><li class="">
+                    <a href="/timeline/drawables/mouse-tracker/">MouseTracker</a>
+                </li><li class="">
+                    <a href="/timeline/drawables/state-band/">StateBand</a>
+                </li><li class="">
+                    <a href="/timeline/drawables/time-locator/">TimeLocator</a>
+                </li><li class="">
+                    <a href="/timeline/drawables/time-ruler/">TimeRuler</a>
+                </li></ul>
+    </div>
+
+</body>
+
+</html>
