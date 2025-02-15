@@ -2,10 +2,10 @@ import { TimelineEvent } from '../TimelineEvent';
 import { Band } from './Band';
 
 /**
- * Event generated in relation to mouse interactions on Timeline
- * bands.
+ * Event generated when the mouse is moving over
+ * a band.
  */
-export interface HeaderMouseEvent extends TimelineEvent {
+export interface BandMouseMoveEvent extends TimelineEvent {
     /**
      * Horizontal coordinate of the mouse pointer, relative to
      * the browser page.
@@ -22,4 +22,9 @@ export interface HeaderMouseEvent extends TimelineEvent {
      * The applicable band.
      */
     band: Band;
+
+    /**
+     * Time matching with the coordinates of the mouse pointer.
+     */
+    time: number;
 }

@@ -1,8 +1,12 @@
 import { FillStyle } from '../graphics/FillStyle';
 import { Graphics } from '../graphics/Graphics';
+import { MouseHitEvent } from '../graphics/MouseHitEvent';
+import { REGION_ID_VIEWPORT } from '../Timeline';
+import { BandClickEvent } from './BandClickEvent';
+import { BandMouseEnterEvent } from './BandMouseEnterEvent';
+import { BandMouseLeaveEvent } from './BandMouseLeaveEvent';
+import { BandMouseMoveEvent } from './BandMouseMoveEvent';
 import { Drawable } from './Drawable';
-import { HeaderClickEvent } from './HeaderClickEvent';
-import { HeaderMouseEvent } from './HeaderMouseEvent';
 
 export interface DrawCoordinates {
     x: number;
@@ -10,6 +14,8 @@ export interface DrawCoordinates {
     width: number;
     height: number;
 }
+
+let bandSequence = 1;
 
 /**
  * Base type for bands.
@@ -36,21 +42,32 @@ export abstract class Band extends Drawable {
     };
 
     /** @hidden */
-    headerClickListeners: Array<(ev: HeaderClickEvent) => void> = [];
+    headerClickListeners: Array<(ev: BandClickEvent) => void> = [];
 
     /** @hidden */
-    headerMouseEnterListeners: Array<(ev: HeaderMouseEvent) => void> = [];
+    headerMouseEnterListeners: Array<(ev: BandMouseEnterEvent) => void> = [];
 
     /** @hidden */
-    headerMouseMoveListeners: Array<(ev: HeaderMouseEvent) => void> = [];
+    headerMouseMoveListeners: Array<(ev: BandMouseMoveEvent) => void> = [];
 
     /** @hidden */
-    headerMouseLeaveListeners: Array<(ev: HeaderMouseEvent) => void> = [];
+    headerMouseLeaveListeners: Array<(ev: BandMouseLeaveEvent) => void> = [];
+
+    /** @hidden */
+    mouseEnterListeners: Array<(ev: BandMouseEnterEvent) => void> = [];
+
+    /** @hidden */
+    mouseMoveListeners: Array<(ev: BandMouseMoveEvent) => void> = [];
+
+    /** @hidden */
+    mouseLeaveListeners: Array<(ev: BandMouseLeaveEvent) => void> = [];
+
+    protected bandRegionId = 'band_' + bandSequence++;
 
     /**
      * Register a listener that receives updates when a line header is clicked.
      */
-    addHeaderClickListener(listener: (ev: HeaderClickEvent) => void) {
+    addHeaderClickListener(listener: (ev: BandClickEvent) => void) {
         this.headerClickListeners.push(listener);
         this.reportMutation();
     }
@@ -59,7 +76,7 @@ export abstract class Band extends Drawable {
      * Unregister a previously registered listener to stop receiving
      * header click events.
      */
-    removeHeaderClickListener(listener: (ev: HeaderClickEvent) => void) {
+    removeHeaderClickListener(listener: (ev: BandClickEvent) => void) {
         this.headerClickListeners = this.headerClickListeners.filter(el => (el !== listener));
         this.reportMutation();
     }
@@ -67,7 +84,7 @@ export abstract class Band extends Drawable {
     /**
      * Register a listener that receives updates when the mouse enters a band's header.
      */
-    addHeaderMouseEnterListener(listener: (ev: HeaderMouseEvent) => void) {
+    addHeaderMouseEnterListener(listener: (ev: BandMouseEnterEvent) => void) {
         this.headerMouseEnterListeners.push(listener);
         this.reportMutation();
     }
@@ -76,7 +93,7 @@ export abstract class Band extends Drawable {
      * Unregister a previously registered listener to stop receiving
      * band header mouse-enter events.
      */
-    removeHeaderMouseEnterListener(listener: (ev: HeaderMouseEvent) => void) {
+    removeHeaderMouseEnterListener(listener: (ev: BandMouseEnterEvent) => void) {
         this.headerMouseEnterListeners = this.headerMouseEnterListeners.filter(el => (el !== listener));
         this.reportMutation();
     }
@@ -85,7 +102,7 @@ export abstract class Band extends Drawable {
      * Register a listener that receives updates when the mouse is moving over
      * a band's header.
      */
-    addHeaderMouseMoveListener(listener: (ev: HeaderMouseEvent) => void) {
+    addHeaderMouseMoveListener(listener: (ev: BandMouseMoveEvent) => void) {
         this.headerMouseMoveListeners.push(listener);
         this.reportMutation();
     }
@@ -94,7 +111,7 @@ export abstract class Band extends Drawable {
      * Unregister a previously registered listener to stop receiving
      * band header mouse-move events.
      */
-    removeHeaderMouseMoveListener(listener: (ev: HeaderMouseEvent) => void) {
+    removeHeaderMouseMoveListener(listener: (ev: BandMouseMoveEvent) => void) {
         this.headerMouseMoveListeners = this.headerMouseMoveListeners.filter(el => (el !== listener));
         this.reportMutation();
     }
@@ -103,7 +120,7 @@ export abstract class Band extends Drawable {
      * Register a listener that receives updates when the mouse is moving
      * outside a band's header.
      */
-    addHeaderMouseLeaveListener(listener: (ev: HeaderMouseEvent) => void) {
+    addHeaderMouseLeaveListener(listener: (ev: BandMouseLeaveEvent) => void) {
         this.headerMouseLeaveListeners.push(listener);
         this.reportMutation();
     }
@@ -112,8 +129,62 @@ export abstract class Band extends Drawable {
      * Unregister a previously registered listener to stop receiving
      * band header mouse-leave events.
      */
-    removeHeaderMouseLeaveListener(listener: (ev: HeaderMouseEvent) => void) {
+    removeHeaderMouseLeaveListener(listener: (ev: BandMouseLeaveEvent) => void) {
         this.headerMouseLeaveListeners = this.headerMouseLeaveListeners.filter(el => (el !== listener));
+        this.reportMutation();
+    }
+
+    /**
+     * Register a listener that receives updates when the mouse enters a band.
+     */
+    addMouseEnterListener(listener: (ev: BandMouseEnterEvent) => void) {
+        console.log('addmouseenter');
+        this.mouseEnterListeners.push(listener);
+        this.reportMutation();
+    }
+
+    /**
+     * Unregister a previously registered listener to stop receiving
+     * band mouse-enter events.
+     */
+    removeMouseEnterListener(listener: (ev: BandMouseEnterEvent) => void) {
+        this.mouseEnterListeners = this.mouseEnterListeners.filter(el => (el !== listener));
+        this.reportMutation();
+    }
+
+    /**
+     * Register a listener that receives updates when the mouse is moving over
+     * a band.
+     */
+    addMouseMoveListener(listener: (ev: BandMouseMoveEvent) => void) {
+        this.mouseMoveListeners.push(listener);
+        this.reportMutation();
+    }
+
+    /**
+     * Unregister a previously registered listener to stop receiving
+     * band mouse-move events.
+     */
+    removeMouseMoveListener(listener: (ev: BandMouseMoveEvent) => void) {
+        this.mouseMoveListeners = this.mouseMoveListeners.filter(el => (el !== listener));
+        this.reportMutation();
+    }
+
+    /**
+     * Register a listener that receives updates when the mouse is moving
+     * outside a band.
+     */
+    addMouseLeaveListener(listener: (ev: BandMouseLeaveEvent) => void) {
+        this.mouseLeaveListeners.push(listener);
+        this.reportMutation();
+    }
+
+    /**
+     * Unregister a previously registered listener to stop receiving
+     * band mouse-leave events.
+     */
+    removeMouseLeaveListener(listener: (ev: BandMouseLeaveEvent) => void) {
+        this.mouseLeaveListeners = this.mouseLeaveListeners.filter(el => (el !== listener));
         this.reportMutation();
     }
 
@@ -202,6 +273,33 @@ export abstract class Band extends Drawable {
     beforeDraw(g: Graphics) {
         const contentHeight = this.calculateContentHeight(g);
         this.offscreen = g.createChild(this.timeline.mainWidth, contentHeight);
+
+        const hitRegion = this.offscreen.addHitRegion({
+            id: this.bandRegionId,
+            parentId: REGION_ID_VIEWPORT,
+            mouseEnter: evt => {
+                const mouseEvent: BandMouseEnterEvent = {
+                    clientX: evt.clientX,
+                    clientY: evt.clientY,
+                    band: this,
+                };
+                this.mouseEnterListeners.forEach(l => l(mouseEvent));
+            },
+            mouseMove: evt => {
+                const mouseEvent = this.createMouseMoveEvent(evt);
+                this.mouseMoveListeners.forEach(l => l(mouseEvent));
+            },
+            mouseLeave: evt => {
+                const mouseEvent: BandMouseLeaveEvent = {
+                    clientX: evt.clientX,
+                    clientY: evt.clientY,
+                    band: this,
+                };
+                this.mouseLeaveListeners.forEach(l => l(mouseEvent));
+            },
+        });
+        hitRegion.addRect(0, 0, this.timeline.mainWidth, contentHeight);
+
         this.drawBandContent(this.offscreen);
     }
 
@@ -217,6 +315,16 @@ export abstract class Band extends Drawable {
         if (this.offscreen) {
             g.copy(this.offscreen, this.x, this.y + this.paddingTop);
         }
+    }
+
+    protected createMouseMoveEvent(evt: MouseHitEvent): BandMouseMoveEvent {
+        const time = this.timeline.timeForCanvasPosition(evt.x);
+        return {
+            clientX: evt.clientX,
+            clientY: evt.clientY,
+            band: this,
+            time,
+        };
     }
 
     /**

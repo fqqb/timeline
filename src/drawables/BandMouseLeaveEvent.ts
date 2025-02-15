@@ -1,9 +1,10 @@
-import { TimelineEvent } from '../../TimelineEvent';
+import { TimelineEvent } from '../TimelineEvent';
+import { Band } from './Band';
 
 /**
- * Event generated when the mouse is moving outside a LinePlot.
+ * Event generated when the mouse is leaving a band.
  */
-export interface LinePlotMouseLeaveEvent extends TimelineEvent {
+export interface BandMouseLeaveEvent extends TimelineEvent {
     /**
      * Horizontal coordinate of the mouse pointer, relative to
      * the browser page.
@@ -15,4 +16,9 @@ export interface LinePlotMouseLeaveEvent extends TimelineEvent {
      * browser page.
      */
     clientY: number;
+
+    /**
+     * The applicable band.
+     */
+    band: Band;
 }

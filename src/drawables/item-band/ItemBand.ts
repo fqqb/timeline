@@ -2,7 +2,6 @@ import { Bounds } from '../../graphics/Bounds';
 import { FillStyle } from '../../graphics/FillStyle';
 import { Graphics } from '../../graphics/Graphics';
 import { HitRegionSpecification } from '../../graphics/HitRegionSpecification';
-import { REGION_ID_VIEWPORT } from '../../Timeline';
 import { Band } from '../Band';
 import { TextOverflow } from '../TextOverflow';
 import { Item } from './Item';
@@ -148,7 +147,7 @@ export class ItemBand extends Band {
                 hovered: false,
                 region: {
                     id,
-                    parentId: REGION_ID_VIEWPORT,
+                    parentId: this.bandRegionId,
                     cursor: this.itemCursor,
                     click: () => {
                         this.itemClickListeners.forEach(listener => listener({

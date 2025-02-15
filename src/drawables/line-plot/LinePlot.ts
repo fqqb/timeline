@@ -1,11 +1,9 @@
 import { FillStyle } from '../../graphics/FillStyle';
 import { Graphics } from '../../graphics/Graphics';
+import { MouseHitEvent } from '../../graphics/MouseHitEvent';
 import { Path } from '../../graphics/Path';
-import { REGION_ID_VIEWPORT } from '../../Timeline';
 import { Band } from '../Band';
 import { Line } from './Line';
-import { LinePlotClickEvent } from './LinePlotClickEvent';
-import { LinePlotMouseLeaveEvent } from './LinePlotMouseLeaveEvent';
 import { LinePlotMouseMoveEvent } from './LinePlotMouseMoveEvent';
 import { LinePlotPoint } from './LinePlotPoint';
 
@@ -35,7 +33,6 @@ interface AnnotatedPoint {
     drawInfo?: DrawInfo;
 }
 
-let plotSequence = 1;
 let lineSequence = 1;
 
 /**
@@ -66,32 +63,12 @@ export class LinePlot extends Band {
 
     private annotatedLines: AnnotatedLine[] = [];
 
-    private linePlotRegionId = 'line_plot_' + plotSequence++;
-    private clickListeners: Array<(ev: LinePlotClickEvent) => void> = [];
-    private mouseMoveListeners: Array<(ev: LinePlotMouseMoveEvent) => void> = [];
-    private mouseLeaveListeners: Array<(ev: LinePlotMouseLeaveEvent) => void> = [];
-
-    /**
-     * Register a listener that receives an update when the plot is clicked.
-     */
-    addClickListener(listener: (ev: LinePlotClickEvent) => void) {
-        this.clickListeners.push(listener);
-    }
-
-    /**
-     * Unregister a previously registered listener to stop receiving
-     * click events.
-     */
-    removeClickListener(listener: (ev: LinePlotClickEvent) => void) {
-        this.clickListeners = this.clickListeners.filter(el => (el !== listener));
-    }
-
     /**
      * Register a listener that receives updates whenever the mouse is moving over
      * this plot.
      */
     addMouseMoveListener(listener: (ev: LinePlotMouseMoveEvent) => void) {
-        this.mouseMoveListeners.push(listener);
+        super.addMouseMoveListener(listener as any);
     }
 
     /**
@@ -99,23 +76,7 @@ export class LinePlot extends Band {
      * plot mouse-move events.
      */
     removeMouseMoveListener(listener: (ev: LinePlotMouseMoveEvent) => void) {
-        this.mouseMoveListeners = this.mouseMoveListeners.filter(el => (el !== listener));
-    }
-
-    /**
-     * Register a listener that receives updates whenever the mouse is moving outside
-     * this plot.
-     */
-    addMouseLeaveListener(listener: (ev: LinePlotMouseLeaveEvent) => void) {
-        this.mouseLeaveListeners.push(listener);
-    }
-
-    /**
-     * Unregister a previously registered listener to stop receiving
-     * plot mouse-leave events.
-     */
-    removeMouseLeaveListener(listener: (ev: LinePlotMouseLeaveEvent) => void) {
-        this.mouseLeaveListeners = this.mouseLeaveListeners.filter(el => (el !== listener));
+        super.removeMouseMoveListener(listener as any);
     }
 
     // Convert user input to internal data structure
@@ -194,44 +155,6 @@ export class LinePlot extends Band {
         const positionForValueFn = (value: number) => {
             return contentHeight - ((value - min) / (max - min) * (contentHeight - 0));
         };
-        const valueForPositionFn = (y: number) => {
-            return ((contentHeight - y) / (contentHeight - 0)) * (max - min) + min;
-        };
-
-        const hitRegion = g.addHitRegion({
-            id: this.linePlotRegionId,
-            parentId: REGION_ID_VIEWPORT,
-            mouseMove: evt => {
-                const time = this.timeline.timeForCanvasPosition(evt.x);
-                const mouseEvent: LinePlotMouseMoveEvent = {
-                    clientX: evt.clientX,
-                    clientY: evt.clientY,
-                    time,
-                    value: valueForPositionFn(evt.y),
-                    points: this.findClosestByTime(time),
-                };
-                this.mouseMoveListeners.forEach(l => l(mouseEvent));
-            },
-            mouseLeave: evt => {
-                const mouseEvent: LinePlotMouseLeaveEvent = {
-                    clientX: evt.clientX,
-                    clientY: evt.clientY,
-                };
-                this.mouseLeaveListeners.forEach(l => l(mouseEvent));
-            },
-            click: evt => {
-                const time = this.timeline.timeForCanvasPosition(evt.x);
-                const clickEvent: LinePlotClickEvent = {
-                    clientX: evt.clientX,
-                    clientY: evt.clientY,
-                    time,
-                    value: valueForPositionFn(evt.y),
-                    points: this.findClosestByTime(time),
-                };
-                this.clickListeners.forEach(l => l(clickEvent));
-            },
-        });
-        hitRegion.addRect(0, 0, this.timeline.mainWidth, this.contentHeight);
 
         // Draw order:
         // 1/ area fill (per line)
@@ -449,6 +372,14 @@ export class LinePlot extends Band {
         }
 
         return closestPoints;
+    }
+
+    protected override createMouseMoveEvent(evt: MouseHitEvent): LinePlotMouseMoveEvent {
+        const mouseEvent = super.createMouseMoveEvent(evt);
+        return {
+            ...mouseEvent,
+            points: this.findClosestByTime(mouseEvent.time),
+        };
     }
 
     /**

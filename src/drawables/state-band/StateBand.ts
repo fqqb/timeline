@@ -3,7 +3,6 @@ import { FillStyle } from '../../graphics/FillStyle';
 import { Graphics } from '../../graphics/Graphics';
 import { HitRegionSpecification } from '../../graphics/HitRegionSpecification';
 import { Path } from '../../graphics/Path';
-import { REGION_ID_VIEWPORT } from '../../Timeline';
 import { Band } from '../Band';
 import { State } from './State';
 import { StateClickEvent } from './StateClickEvent';
@@ -143,7 +142,7 @@ export class StateBand extends Band {
                 hovered: false,
                 region: {
                     id,
-                    parentId: REGION_ID_VIEWPORT,
+                    parentId: this.bandRegionId,
                     cursor: this.stateCursor,
                     click: () => {
                         this.stateClickListeners.forEach(listener => listener({

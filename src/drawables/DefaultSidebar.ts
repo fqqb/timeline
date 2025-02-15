@@ -123,6 +123,7 @@ export class DefaultSidebar extends Sidebar {
                         clientX: mouseEvent.clientX,
                         clientY: mouseEvent.clientY,
                         band,
+                        time: 0,
                     }));
                 },
                 mouseLeave: mouseEvent => {
