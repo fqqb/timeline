@@ -48,6 +48,7 @@ export class ItemBand extends Band {
     private _itemFontFamily = 'Verdana, Geneva, sans-serif';
     private _itemHeight = 30;
     private _itemHoverBackground: FillStyle = 'rgba(255, 255, 255, 0.2)';
+    private _itemHoverBorderWidth: number = 0;
     private _itemPaddingLeft = 5;
     private _itemTextColor = '#333333';
     private _itemTextOverflow: TextOverflow = 'show';
@@ -317,6 +318,7 @@ export class ItemBand extends Band {
         const hitRegion = g.addHitRegion(item.region);
         hitRegion.addRect(renderStartX, y, renderStopX - renderStartX, this.itemHeight);
 
+
         const borderWidth = item.borderWidth ?? this.itemBorderWidth;
         borderWidth && g.strokeRect({
             ...box,
@@ -327,6 +329,18 @@ export class ItemBand extends Band {
             dash: item.borderDash ?? this.itemBorderDash,
             crispen: true,
         });
+
+        if (item.hovered && this.itemHoverBorderWidth) {
+            g.strokeRect({
+                ...box,
+                rx: r,
+                ry: r,
+                color: item.borderColor ?? this.itemBorderColor,
+                lineWidth: this.itemHoverBorderWidth,
+                dash: item.borderDash ?? this.itemBorderDash,
+                crispen: true,
+            });
+        }
 
         if (label) {
             let textX = box.x + paddingLeft;
@@ -646,6 +660,17 @@ export class ItemBand extends Band {
     get itemHoverBackground() { return this._itemHoverBackground; }
     set itemHoverBackground(itemHoverBackground: FillStyle) {
         this._itemHoverBackground = itemHoverBackground;
+        this.reportMutation();
+    }
+
+    /**
+     * Item border width when hovering.
+     *
+     * This is drawn on top of the actual item border (if any).
+     */
+    get itemHoverBorderWidth() { return this._itemHoverBorderWidth; }
+    set itemHoverBorderWidth(itemHoverBorderWidth: number) {
+        this._itemHoverBorderWidth = itemHoverBorderWidth;
         this.reportMutation();
     }
 
