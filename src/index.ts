@@ -7,6 +7,7 @@ export { BandMouseMoveEvent } from './drawables/BandMouseMoveEvent';
 export { Banner } from './drawables/Banner';
 export { DefaultSidebar } from './drawables/DefaultSidebar';
 export { Drawable } from './drawables/Drawable';
+export { Connection } from './drawables/item-band/Connection';
 export { Item } from './drawables/item-band/Item';
 export { ItemBand } from './drawables/item-band/ItemBand';
 export { ItemClickEvent } from './drawables/item-band/ItemClickEvent';

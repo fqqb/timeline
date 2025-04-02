@@ -1,36 +1,20 @@
 import { Bounds } from '../../graphics/Bounds';
 import { FillStyle } from '../../graphics/FillStyle';
 import { Graphics } from '../../graphics/Graphics';
-import { HitRegionSpecification } from '../../graphics/HitRegionSpecification';
+import { Path } from '../../graphics/Path';
 import { Band } from '../Band';
 import { TextOverflow } from '../TextOverflow';
+import { AnnotatedItem } from './AnnotatedItem';
+import { ClusterLayoutStrategy } from './ClusterLayoutStrategy';
+import { Connection } from './Connection';
 import { Item } from './Item';
 import { ItemClickEvent } from './ItemClickEvent';
 import { ItemMouseEvent } from './ItemMouseEvent';
 import { MilestoneShape } from './MilestoneShape';
+import { MultilineLayoutStrategy } from './MultilineLayoutStrategy';
+import { OnelineLayoutStrategy } from './OnelineLayoutStrategy';
 import { drawCircle, drawDiamond, drawDot, drawReverseTriangle, drawTriangle } from './shapes';
 import { ShapeStyle } from './ShapeStyle';
-
-
-interface DrawInfo {
-    label: string; // Actual text to be shown on an item (may include extra decoration: ◀)
-    startX: number; // Left of bbox (item only, not label)
-    stopX: number; // Right of bbox (item only, not label)
-    renderStartX: number; // Left of bbox containing item and maybe outside label
-    renderStopX: number; // Right of bbox containing item and maybe outside label
-    offscreenStart: boolean; // True if the item starts before the visible range
-    paddingLeft: number; // Padding specific to the item, or else inherited from its band
-    labelFitsBox: boolean; // True if the label fits in the actual item box
-    labelFitsVisibleBox: boolean; // True if the label fits in the visible box (excluding offscreen portion)
-    font: string; // Font specific to the item, or else inherited from its band
-    milestone: boolean; // True if this item must be rendered as a milestone
-}
-
-interface AnnotatedItem extends Item {
-    region: HitRegionSpecification;
-    hovered: boolean;
-    drawInfo?: DrawInfo;
-}
 
 let itemSequence = 1;
 
@@ -54,10 +38,21 @@ export class ItemBand extends Band {
     private _itemTextOverflow: TextOverflow = 'show';
     private _itemTextSize = 10;
     private _items: Item[] = [];
+    private _connectionLineColor = '#000000';
+    private _connectionStartRadius = 6;
+    private _connectionEndRadius = 6;
+    private _connectionStartColor = '#000000';
+    private _connectionEndColor = '#000000';
+    private _connectionLineWidth = 1;
+    private _connections: Connection[] = [];
     private _lineSpacing = 0;
     private _spaceBetween = 0;
     private _multiline = true;
     private _milestoneShape: MilestoneShape = 'diamond';
+
+    private _onelineLayoutStrategy = new OnelineLayoutStrategy(this);
+    private _multilineLayoutStrategy = new MultilineLayoutStrategy(this);
+    private _clusterLayoutStrategy = new ClusterLayoutStrategy(this);
 
     private itemsById = new Map<Item, string>();
     private annotatedItems: AnnotatedItem[] = [];
@@ -195,7 +190,16 @@ export class ItemBand extends Band {
     calculateContentHeight(g: Graphics) {
         this.measureItems(g);
         const visibleItems = this.annotatedItems.filter(item => !!item.drawInfo);
-        this.lines = this.multiline ? this.wrapItems(visibleItems) : [visibleItems];
+
+        if (this.multiline) {
+            if (this.connections.length) {
+                this.lines = this._clusterLayoutStrategy.wrapItems(visibleItems);
+            } else {
+                this.lines = this._multilineLayoutStrategy.wrapItems(visibleItems);
+            }
+        } else {
+            this.lines = this._onelineLayoutStrategy.wrapItems(visibleItems);
+        }
 
         let newHeight;
         if (this.lines.length > 1) {
@@ -208,14 +212,199 @@ export class ItemBand extends Band {
     }
 
     drawBandContent(g: Graphics) {
+        const itemById = new Map<string | number, AnnotatedItem>();
+        const offsetYById = new Map<string | number, number>();
+
+        for (let i = 0; i < this.lines.length; i++) {
+            const line = this.lines[i];
+            const offsetY = i * (this.lineSpacing + this.itemHeight);
+            for (const item of line) {
+                if (item.id) {
+                    itemById.set(item.id, item);
+                    offsetYById.set(item.id, offsetY);
+                }
+
+                if (item.drawInfo!.milestone) {
+                    this.drawMilestone(g, item, offsetY);
+                } else {
+                    this.drawItem(g, item, offsetY);
+                }
+            }
+        }
+
+        if (this.multiline) {
+            for (const connection of this.connections) {
+                const from = itemById.get(connection.from);
+                const to = itemById.get(connection.to);
+                if (!from || !to) {
+                    continue;
+                }
+
+                const lineColor = connection.lineColor ?? this.connectionLineColor;
+                const lineWidth = connection.lineWidth ?? this.connectionLineWidth;
+                const startRadius = connection.startRadius ?? this.connectionStartRadius;
+                const endRadius = connection.endRadius ?? this.connectionEndRadius;
+                const startColor = connection.startColor ?? this.connectionStartColor;
+                const endColor = connection.endColor ?? this.connectionEndColor;
+
+                // "from" point
+                const x1 = from!.drawInfo!.stopX;
+                const y1 = offsetYById.get(connection.from)! + (this.itemHeight / 2);
+
+                // "to" point
+                let x2 = to!.drawInfo!.startX + (this.itemHeight / 2);
+                let y2 = offsetYById.get(connection.to)!;
+                if (to!.drawInfo!.stopX < x2) {
+                    x2 = to!.drawInfo!.startX;
+                }
+
+                const fromItemWidth = from!.drawInfo!.stopX - from!.drawInfo!.startX;
+                const toItemWidth = to!.drawInfo!.stopX - to!.drawInfo!.startX;
+
+                let px1 = Math.round(x1);
+                let py1 = Math.round(y1);
+                let px2 = Math.round(x2);
+                let py2 = Math.round(y2);
+                if (lineWidth % 2 !== 0) {
+                    px1 = Math.round(x1) + 0.5;
+                    py1 = Math.round(y1) + 0.5;
+                    px2 = Math.round(x2) + 0.5;
+                    py2 = Math.round(y2) + 0.5;
+                }
+
+                g.strokePath({
+                    color: lineColor,
+                    path: new Path(px1, py1)
+                        .lineTo(px2, py1)
+                        .lineTo(px2, py2),
+                    lineWidth,
+                    lineJoin: 'round',
+                });
+
+                if (fromItemWidth > startRadius * 2) {
+                    g.fillEllipse({
+                        cx: x1,
+                        cy: y1,
+                        rx: startRadius,
+                        ry: startRadius,
+                        fill: from.background ?? this.itemBackground,
+                    });
+                    if (from.hovered) {
+                        g.fillEllipse({
+                            cx: x1,
+                            cy: y1,
+                            rx: startRadius,
+                            ry: startRadius,
+                            fill: from.hoverBackground ?? this.itemHoverBackground,
+                        });
+                    }
+
+                    // Render the "from" bullet, but only if the label
+                    // won't be drawn over it.
+                    if (from.drawInfo!.labelFitsBox
+                        || from.drawInfo!.labelFitsVisibleBox
+                        || this.itemTextOverflow === 'show') {
+                        if (from.drawInfo!.labelFitsVisibleBox) {
+                            g.fillEllipse({
+                                cx: x1,
+                                cy: y1,
+                                rx: startRadius / 2,
+                                ry: startRadius / 2,
+                                fill: startColor,
+                            });
+                        }
+                    }
+
+                    const fromBorderWidth = from.borderWidth ?? this.itemBorderWidth;
+                    if (fromBorderWidth) {
+                        g.strokeEllipse({
+                            cx: x1,
+                            cy: y1,
+                            rx: startRadius,
+                            ry: startRadius,
+                            color: from.borderColor ?? this.itemBorderColor,
+                            lineWidth: fromBorderWidth,
+                            startAngle: Math.PI / 2 + Math.PI,
+                            endAngle: Math.PI / 2,
+                        });
+                    }
+                    if (from.hovered && this.itemHoverBorderWidth) {
+                        g.strokeEllipse({
+                            cx: x1,
+                            cy: y1,
+                            rx: endRadius,
+                            ry: endRadius,
+                            color: from.borderColor ?? this.itemBorderColor,
+                            lineWidth: fromBorderWidth,
+                            startAngle: Math.PI / 2 + Math.PI,
+                            endAngle: Math.PI / 2,
+                        });
+                    }
+                }
+
+                if (toItemWidth > endRadius * 2) {
+                    g.fillEllipse({
+                        cx: x2,
+                        cy: y2,
+                        rx: endRadius,
+                        ry: endRadius,
+                        fill: to.background ?? this.itemBackground,
+                    });
+                    if (to.hovered) {
+                        g.fillEllipse({
+                            cx: x2,
+                            cy: y2,
+                            rx: endRadius,
+                            ry: endRadius,
+                            fill: to.hoverBackground ?? this.itemHoverBackground,
+                        });
+                    }
+
+                    g.fillEllipse({
+                        cx: x2,
+                        cy: y2,
+                        rx: endRadius / 2,
+                        ry: endRadius / 2,
+                        fill: endColor,
+                    });
+
+                    const toBorderWidth = to.borderWidth ?? this.itemBorderWidth;
+                    if (toBorderWidth) {
+                        g.strokeEllipse({
+                            cx: x2,
+                            cy: y2,
+                            rx: endRadius,
+                            ry: endRadius,
+                            color: to.borderColor ?? this.itemBorderColor,
+                            lineWidth: toBorderWidth,
+                            startAngle: Math.PI,
+                            endAngle: 0,
+                        });
+                    }
+                    if (to.hovered && this.itemHoverBorderWidth) {
+                        g.strokeEllipse({
+                            cx: x2,
+                            cy: y2,
+                            rx: endRadius,
+                            ry: endRadius,
+                            color: to.borderColor ?? this.itemBorderColor,
+                            lineWidth: toBorderWidth,
+                            startAngle: Math.PI,
+                            endAngle: 0,
+                        });
+                    }
+                }
+            }
+        }
+
         for (let i = 0; i < this.lines.length; i++) {
             const line = this.lines[i];
             const offsetY = i * (this.lineSpacing + this.itemHeight);
             for (const item of line) {
                 if (item.drawInfo!.milestone) {
-                    this.drawMilestone(g, item, offsetY);
+
                 } else {
-                    this.drawItem(g, item, offsetY);
+                    this.drawItemOverlay(g, item, offsetY);
                 }
             }
         }
@@ -285,11 +474,7 @@ export class ItemBand extends Band {
     }
 
     private drawItem(g: Graphics, item: AnnotatedItem, y: number) {
-        const {
-            startX, stopX, label, renderStartX, renderStopX,
-            paddingLeft, offscreenStart, labelFitsBox, labelFitsVisibleBox,
-            font,
-        } = item.drawInfo!;
+        const { startX, stopX, renderStartX, renderStopX } = item.drawInfo!;
 
         const box: Bounds = {
             x: Math.round(startX),
@@ -341,6 +526,20 @@ export class ItemBand extends Band {
                 crispen: true,
             });
         }
+    }
+
+    private drawItemOverlay(g: Graphics, item: AnnotatedItem, y: number) {
+        const {
+            startX, stopX, label, paddingLeft, offscreenStart, labelFitsBox,
+            labelFitsVisibleBox, font, renderStopX,
+        } = item.drawInfo!;
+
+        const box: Bounds = {
+            x: Math.round(startX),
+            y,
+            width: Math.round(stopX - Math.round(startX)),
+            height: this.itemHeight,
+        };
 
         if (label) {
             let textX = box.x + paddingLeft;
@@ -349,6 +548,16 @@ export class ItemBand extends Band {
                 textX = this.timeline.positionTime(this.timeline.start);
             }
             if (labelFitsBox || labelFitsVisibleBox || this.itemTextOverflow === 'show') {
+                if (!labelFitsVisibleBox) {
+                    const fm = g.measureText(label, font);
+                    g.fillRect({
+                        x: stopX,
+                        y: textY - (fm.height / 2),
+                        fill: 'rgba(255, 255, 255, 0.75)',
+                        width: fm.width - (stopX - textX),
+                        height: fm.height,
+                    });
+                }
                 g.fillText({
                     x: textX,
                     y: textY,
@@ -359,16 +568,18 @@ export class ItemBand extends Band {
                     color: item.textColor ?? this.itemTextColor,
                 });
             } else if (this.itemTextOverflow === 'clip') {
-                const tmpCanvas = document.createElement('canvas');
-                tmpCanvas.width = box.width;
-                tmpCanvas.height = box.height;
-                const offscreenCtx = tmpCanvas.getContext('2d')!;
-                offscreenCtx.fillStyle = item.textColor ?? this.itemTextColor;
-                offscreenCtx.font = font;
-                offscreenCtx.textBaseline = 'middle';
-                offscreenCtx.textAlign = 'left';
-                offscreenCtx.fillText(label, paddingLeft, box.height / 2);
-                g.ctx.drawImage(tmpCanvas, box.x, box.y);
+                if (box.x > 0 && box.y > 0) {
+                    const tmpCanvas = document.createElement('canvas');
+                    tmpCanvas.width = box.width;
+                    tmpCanvas.height = box.height;
+                    const offscreenCtx = tmpCanvas.getContext('2d')!;
+                    offscreenCtx.fillStyle = item.textColor ?? this.itemTextColor;
+                    offscreenCtx.font = font;
+                    offscreenCtx.textBaseline = 'middle';
+                    offscreenCtx.textAlign = 'left';
+                    offscreenCtx.fillText(label, paddingLeft, box.height / 2);
+                    g.ctx.drawImage(tmpCanvas, box.x, box.y);
+                }
             }
         }
     }
@@ -458,50 +669,26 @@ export class ItemBand extends Band {
         }
     }
 
-    private wrapItems(items: AnnotatedItem[]) {
-        const lines: AnnotatedItem[][] = [];
-        for (const item of items) {
-            const { renderStartX, renderStopX } = item.drawInfo!;
-            let inserted = false;
-            for (const line of lines) {
-                let min = 0;
-                let max = line.length - 1;
-                while (min <= max) {
-                    const mid = Math.floor((min + max) / 2);
-                    const midStartX = line[mid].drawInfo!.renderStartX;
-                    const midStopX = line[mid].drawInfo!.renderStopX;
-                    if ((renderStopX + this.spaceBetween) <= midStartX) {
-                        max = mid - 1; // Put cursor before mid
-                    } else if (renderStartX >= (midStopX + this.spaceBetween)) {
-                        min = mid + 1; // Put cursor after mid
-                    } else {
-                        break; // Overlap
-                    }
-                }
-                if (min > max) {
-                    line.splice(min, 0, item);
-                    inserted = true;
-                    break;
-                }
-            }
-            if (!inserted) {
-                lines.push([item]); // A new line
-            }
-        }
-        return lines;
-    }
-
     /**
      * List of items to be drawn on this band.
      *
      * An item is allowed to fall outside of the visible
-     * time range, and in fact this can be used
-     * to preload data prior to an anticipated pan
-     * operation.
+     * time range. This can be used to preload data prior
+     * to an anticipated pan operation.
      */
     get items() { return this._items; }
     set items(items: Item[]) {
         this._items = items;
+        this.processData();
+        this.reportMutation();
+    }
+
+    /**
+     * List of connections to be drawn on this band.
+     */
+    get connections() { return this._connections; }
+    set connections(connections: Connection[]) {
+        this._connections = connections;
         this.processData();
         this.reportMutation();
     }
@@ -599,6 +786,60 @@ export class ItemBand extends Band {
     get itemCornerRadius() { return this._itemCornerRadius; }
     set itemCornerRadius(itemCornerRadius: number) {
         this._itemCornerRadius = itemCornerRadius;
+        this.reportMutation();
+    }
+
+    /**
+     * Color of the connection line
+     */
+    get connectionLineColor() { return this._connectionLineColor; }
+    set connectionLineColor(connectionLineColor: string) {
+        this._connectionLineColor = connectionLineColor;
+        this.reportMutation();
+    }
+
+    /**
+     * Radius of connection's start
+     */
+    get connectionStartRadius() { return this._connectionStartRadius; }
+    set connectionStartRadius(connectionStartRadius: number) {
+        this._connectionStartRadius = connectionStartRadius;
+        this.reportMutation();
+    }
+
+    /**
+     * Radius of connection's end
+     */
+    get connectionEndRadius() { return this._connectionEndRadius; }
+    set connectionEndRadius(connectionEndRadius: number) {
+        this._connectionEndRadius = connectionEndRadius;
+        this.reportMutation();
+    }
+
+    /**
+     * Color of connection's start
+     */
+    get connectionStartColor() { return this._connectionStartColor; }
+    set connectionStartColor(connectionStartColor: string) {
+        this._connectionStartColor = connectionStartColor;
+        this.reportMutation();
+    }
+
+    /**
+     * Color of connection's end
+     */
+    get connectionEndColor() { return this._connectionEndColor; }
+    set connectionEndColor(connectionEndColor: string) {
+        this._connectionEndColor = connectionEndColor;
+        this.reportMutation();
+    }
+
+    /**
+     * Thickness of connection line
+     */
+    get connectionLineWidth() { return this._connectionLineWidth; }
+    set connectionLineWidth(connectionLineWidth: number) {
+        this._connectionLineWidth = connectionLineWidth;
         this.reportMutation();
     }
 

@@ -146,7 +146,10 @@ export class Graphics {
     measureText(text: string, font: string): TextMetrics {
         this.ctx.font = font;
         const fm = this.ctx.measureText(text);
-        return { width: fm.width };
+        return {
+            width: fm.width,
+            height: fm.fontBoundingBoxAscent + fm.fontBoundingBoxDescent,
+        };
     }
 
     strokeRect(stroke: RectStroke) {

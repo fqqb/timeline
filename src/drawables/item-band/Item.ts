@@ -9,6 +9,12 @@ import { FillStyle } from '../../graphics/FillStyle';
 export interface Item {
 
     /**
+     * Optional identifier. This may be used to identify items
+     * in event callbacks, or when drawing connections.
+     */
+    id?: string | number;
+
+    /**
      * Start time
      */
     start: number;
@@ -78,7 +84,7 @@ export interface Item {
 
     /**
      * Arbitrary data associated with this item. For example
-     * an identifier of a backend system.
+     * an identifier from a backend system.
      */
     data?: any;
 }
