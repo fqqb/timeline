@@ -54,7 +54,7 @@ export class ItemBand extends Band {
     private _multilineLayoutStrategy = new MultilineLayoutStrategy(this);
     private _clusterLayoutStrategy = new ClusterLayoutStrategy(this);
 
-    private itemsById = new Map<Item, string>();
+    private idByItem = new Map<Item, string>();
     private annotatedItems: AnnotatedItem[] = [];
     private lines: AnnotatedItem[][] = [];
 
@@ -133,21 +133,21 @@ export class ItemBand extends Band {
     // equality check, instead of only by-reference.
     private processData() {
         this.annotatedItems.length = 0;
-        for (const item of (this.items || [])) {
-            let id = this.itemsById.get(item);
+        for (const userItem of (this.items || [])) {
+            let id = this.idByItem.get(userItem);
             if (id === undefined) {
                 id = 'item_band_' + itemSequence++;
             }
-            const annotatedItem: AnnotatedItem = {
-                ...item,
-                hovered: false,
-                region: {
+            const annotatedItem = new AnnotatedItem(
+                userItem,
+                false,
+                {
                     id,
                     parentId: this.bandRegionId,
                     cursor: this.itemCursor,
                     click: () => {
                         this.itemClickListeners.forEach(listener => listener({
-                            item,
+                            item: userItem,
                         }));
                     },
                     mouseEnter: mouseEvent => {
@@ -156,14 +156,14 @@ export class ItemBand extends Band {
                         this.itemMouseEnterListeners.forEach(listener => listener({
                             clientX: mouseEvent.clientX,
                             clientY: mouseEvent.clientY,
-                            item,
+                            item: userItem,
                         }));
                     },
                     mouseMove: mouseEvent => {
                         this.itemMouseMoveListeners.forEach(listener => listener({
                             clientX: mouseEvent.clientX,
                             clientY: mouseEvent.clientY,
-                            item,
+                            item: userItem,
                         }));
                     },
                     mouseLeave: mouseEvent => {
@@ -172,18 +172,18 @@ export class ItemBand extends Band {
                         this.itemMouseLeaveListeners.forEach(listener => listener({
                             clientX: mouseEvent.clientX,
                             clientY: mouseEvent.clientY,
-                            item,
+                            item: userItem,
                         }));
                     }
-                },
-            };
+                });
 
             this.annotatedItems.push(annotatedItem);
         }
 
-        this.itemsById.clear();
-        for (const item of this.annotatedItems) {
-            this.itemsById.set(item, item.region.id);
+        this.idByItem.clear();
+        for (const annotatedItem of this.annotatedItems) {
+            const { userItem } = annotatedItem;
+            this.idByItem.set(userItem, annotatedItem.region.id);
         }
     }
 
@@ -528,7 +528,7 @@ export class ItemBand extends Band {
         }
     }
 
-    private drawItemOverlay(g: Graphics, item: AnnotatedItem, y: number) {
+    protected drawItemOverlay(g: Graphics, item: AnnotatedItem, y: number) {
         const {
             startX, stopX, label, paddingLeft, offscreenStart, labelFitsBox,
             labelFitsVisibleBox, font, renderStopX,
