@@ -6,6 +6,7 @@ import { Band } from '../Band';
 import { Line } from './Line';
 import { LinePlotMouseMoveEvent } from './LinePlotMouseMoveEvent';
 import { LinePlotPoint } from './LinePlotPoint';
+import { LineStyle } from './LineStyle';
 
 
 interface AnnotatedLine {
@@ -13,6 +14,7 @@ interface AnnotatedLine {
     visible: boolean;
     lineColor?: string;
     lineWidth?: number;
+    lineStyle?: LineStyle;
     fill?: FillStyle;
     pointRadius?: number;
     pointColor?: string;
@@ -43,6 +45,7 @@ export class LinePlot extends Band {
     private _fill: FillStyle = 'transparent';
     private _lineColor = '#4f9146';
     private _lineWidth = 1;
+    private _lineStyle: LineStyle = 'straight';
     private _labelFontFamily = 'Verdana, Geneva, sans-serif';
     private _labelBackground: FillStyle = 'transparent';
     private _labelTextColor = '#333333';
@@ -102,6 +105,7 @@ export class LinePlot extends Band {
                     visible: line.visible ?? true,
                     lineColor: line.lineColor,
                     lineWidth: line.lineWidth,
+                    lineStyle: line.lineStyle,
                     fill: line.fill,
                     pointRadius: line.pointRadius,
                     pointColor: line.pointColor,
@@ -269,19 +273,40 @@ export class LinePlot extends Band {
 
     private drawArea(g: Graphics, line: AnnotatedLine, positionValueFn: (value: number) => number) {
         const fill = line.fill ?? this.fill;
-
+        const lineWidth = line.lineWidth ?? this.lineWidth;
         const originY = Math.round(positionValueFn(0)) + 0.5;
-        for (let i = 1; i < line.points.length; i++) {
-            const prev = line.points[i - 1].drawInfo!;
-            const point = line.points[i].drawInfo!;
-            if (prev.renderY !== undefined && point.renderY !== undefined) {
-                g.fillPath({
-                    path: new Path(prev.renderX, prev.renderY)
-                        .lineTo(prev.renderX, originY)
-                        .lineTo(point.renderX, originY)
-                        .lineTo(point.renderX, point.renderY),
-                    fill,
-                });
+
+        if (line.lineStyle === 'straight') {
+            for (let i = 1; i < line.points.length; i++) {
+                const prev = line.points[i - 1].drawInfo!;
+                const point = line.points[i].drawInfo!;
+                if (prev.renderY !== undefined && point.renderY !== undefined) {
+                    g.fillPath({
+                        path: new Path(prev.renderX, prev.renderY)
+                            .lineTo(prev.renderX, originY)
+                            .lineTo(point.renderX, originY)
+                            .lineTo(point.renderX, point.renderY),
+                        fill,
+                    });
+                }
+            }
+        } else {
+            const offset = lineWidth === 1 ? 0.5 : 0;
+            for (let i = 1; i < line.points.length; i++) {
+                const prev = line.points[i - 1].drawInfo!;
+                const point = line.points[i].drawInfo!;
+                if (prev.renderY !== undefined && point.renderY !== undefined) {
+                    const prevX = Math.round(prev.renderX) + offset;
+                    const prevY = Math.round(prev.renderY) + offset;
+                    const pointX = Math.round(point.renderX) + offset;
+                    g.fillPath({
+                        path: new Path(prevX, prevY)
+                            .lineTo(prevX, originY)
+                            .lineTo(pointX, originY)
+                            .lineTo(pointX, prevY),
+                        fill,
+                    });
+                }
             }
         }
     }
@@ -289,6 +314,7 @@ export class LinePlot extends Band {
     private drawLine(g: Graphics, line: AnnotatedLine) {
         const lineColor = line.lineColor ?? this.lineColor;
         const lineWidth = line.lineWidth ?? this.lineWidth;
+        const lineStyle = line.lineStyle ?? this.lineStyle;
         const pointColor = line.pointColor ?? this.pointColor;
         const pointRadius = line.pointRadius ?? this.pointRadius;
 
@@ -296,13 +322,33 @@ export class LinePlot extends Band {
 
         // Draw trace
         const path = new Path(points[0].drawInfo!.renderX, points[0].drawInfo!.renderY ?? 0);
-        for (let i = 1; i < points.length; i++) {
-            const prev = points[i - 1].drawInfo!;
-            const point = points[i].drawInfo!;
-            if (prev.renderY !== undefined && point.renderY !== undefined) {
-                path.lineTo(point.renderX, point.renderY);
-            } else if (point.renderY !== undefined) {
-                path.moveTo(point.renderX, point.renderY);
+
+        if (lineStyle === 'straight') {
+            for (let i = 1; i < points.length; i++) {
+                const prev = points[i - 1].drawInfo!;
+                const point = points[i].drawInfo!;
+                if (prev.renderY !== undefined && point.renderY !== undefined) {
+                    path.lineTo(point.renderX, point.renderY);
+                } else if (point.renderY !== undefined) {
+                    path.moveTo(point.renderX, point.renderY);
+                }
+            }
+        } else {
+            const offset = lineWidth === 1 ? 0.5 : 0;
+            for (let i = 1; i < points.length; i++) {
+                const prev = points[i - 1].drawInfo!;
+                const point = points[i].drawInfo!;
+                if (prev.renderY !== undefined && point.renderY !== undefined) {
+                    const x = Math.round(point.renderX) + offset;
+                    let y = Math.round(prev.renderY) + offset;
+                    path.lineTo(x, y);
+                    y = Math.round(point.renderY) + offset;
+                    path.lineTo(x, y);
+                } else if (point.renderY !== undefined) {
+                    const x = Math.round(point.renderX) + offset;
+                    const y = Math.round(point.renderY) + offset;
+                    path.moveTo(x, y);
+                }
             }
         }
 
@@ -406,6 +452,15 @@ export class LinePlot extends Band {
     get lineWidth() { return this._lineWidth; }
     set lineWidth(lineWidth: number) {
         this._lineWidth = lineWidth;
+        this.reportMutation();
+    }
+
+    /**
+     * Plot line style (straight or step).
+     */
+    get lineStyle() { return this._lineStyle; }
+    set lineStyle(lineStyle: LineStyle) {
+        this._lineStyle = lineStyle;
         this.reportMutation();
     }
 

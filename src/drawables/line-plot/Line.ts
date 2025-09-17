@@ -1,4 +1,5 @@
 import { FillStyle } from '../../graphics/FillStyle';
+import { LineStyle } from './LineStyle';
 
 /**
  * Line-specific properties.
@@ -17,6 +18,11 @@ export interface Line {
      * Thickness of this plot line.
      */
     lineWidth?: number;
+
+    /**
+     * Line style (defaults to 'straight').
+     */
+    lineStyle?: LineStyle;
 
     /**
      * Area fill for this line.

@@ -1,4 +1,4 @@
-<div id="timeline" style="height: 31px"></div>
+<div id="timeline" style="height: 62px"></div>
 <script type="module">
     import { Timeline, LinePlot } from 'https://esm.run/@fqqb/timeline';
     window.addEventListener('load', () => {
@@ -6,18 +6,33 @@
         const timeline = new Timeline(targetEl);
 
         // BEGIN excerpt-1
-        const band = new LinePlot(timeline);
-        band.label = 'Plot';
-        band.fill = 'lime';
+        const band1 = new LinePlot(timeline);
+        band1.label = 'Plot';
+        band1.fill = 'lime';
 
-        const points = new Map();
+        const points1 = new Map();
         for (let i = 0; i < 100; i += 0.01) {
-            points.set(i, Math.sin(i));
+            points1.set(i, Math.sin(i));
         }
 
-        band.lines = [{
-            points,
+        band1.lines = [{
+            points: points1,
             pointRadius: 0,
+        }];
+
+        const band2 = new LinePlot(timeline);
+        band2.label = 'Step plot';
+        band2.fill = 'cyan';
+
+        const points2 = new Map();
+        for (let i = 0; i < 100; i += 0.5) {
+            points2.set(i, Math.sin(i));
+        }
+
+        band2.lines = [{
+            points: points2,
+            pointRadius: 0,
+            lineStyle: 'step',
         }];
         // END excerpt-1
     });
