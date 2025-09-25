@@ -8,6 +8,7 @@ import { EventHandler } from './graphics/EventHandler';
 import { FillStyle } from './graphics/FillStyle';
 import { Graphics } from './graphics/Graphics';
 import { Path } from './graphics/Path';
+import { Overflow } from './Overflow';
 import { TimeRange } from './TimeRange';
 import { Tool } from './Tool';
 import { ViewportChangeEvent } from './ViewportChangeEvent';
@@ -36,6 +37,7 @@ export class Timeline {
     private _minRange?: number;
     private _maxRange?: number;
     private _tool?: Tool = 'hand';
+    private _yOverflow: Overflow = 'auto';
     private selection?: TimeRange;
 
     /** @hidden */
@@ -644,6 +646,16 @@ export class Timeline {
         this.requestRepaint();
     }
 
+    /**
+     * How to handle content overflowing the target
+     * element.
+     */
+    get yOverflow() { return this._yOverflow; }
+    set yOverflow(yOverflow: Overflow) {
+        this._yOverflow = yOverflow;
+        this.requestRepaint();
+    }
+
     get bandBorderColor() { return this._bandBorderColor; }
     set bandBorderColor(bandBorderColor: string) {
         this._bandBorderColor = bandBorderColor;
@@ -677,7 +689,9 @@ export class Timeline {
 
         this.rootPanel.style.height = this.targetElement.clientHeight + 'px';
 
-        if (y > this.scrollPanel.clientHeight) {
+        if (this.yOverflow === 'scroll') {
+            this.scrollPanel.style.overflowY = 'scroll';
+        } else if (this.yOverflow === 'auto' && y > this.scrollPanel.clientHeight) {
             this.scrollPanel.style.overflowY = 'scroll';
         } else {
             this.scrollPanel.style.overflowY = 'hidden';

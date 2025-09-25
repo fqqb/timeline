@@ -56,6 +56,7 @@ export { TextMetrics } from './graphics/TextMetrics';
 export { TouchHit } from './graphics/TouchHit';
 export { TouchHitEvent } from './graphics/TouchHitEvent';
 export { WheelHitEvent } from './graphics/WheelHitEvent';
+export { Overflow } from './Overflow';
 export { Timeline } from './Timeline';
 export { TimelineEvent } from './TimelineEvent';
 export { TimeRange } from './TimeRange';
