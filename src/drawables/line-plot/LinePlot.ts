@@ -274,9 +274,10 @@ export class LinePlot extends Band {
     private drawArea(g: Graphics, line: AnnotatedLine, positionValueFn: (value: number) => number) {
         const fill = line.fill ?? this.fill;
         const lineWidth = line.lineWidth ?? this.lineWidth;
+        const lineStyle = line.lineStyle ?? this.lineStyle;
         const originY = Math.round(positionValueFn(0)) + 0.5;
 
-        if (line.lineStyle === 'straight') {
+        if (lineStyle === 'straight') {
             for (let i = 1; i < line.points.length; i++) {
                 const prev = line.points[i - 1].drawInfo!;
                 const point = line.points[i].drawInfo!;
