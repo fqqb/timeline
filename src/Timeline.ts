@@ -318,6 +318,13 @@ export class Timeline {
     }
 
     /**
+     * The pixel height of this Timeline
+     */
+    get height() {
+        return this.targetElement.clientHeight;
+    }
+
+    /**
      * Optional sidebar. If set, this is positioned left of
      * the main area.
      */
