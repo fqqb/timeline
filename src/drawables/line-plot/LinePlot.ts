@@ -52,6 +52,7 @@ export class LinePlot extends Band {
     private _labelTextSize = 8;
     private _minimum?: number;
     private _maximum?: number;
+    private _yPadding = 0;
     private _pointRadius = 1.5;
     private _pointColor = '#4f9146';
     private _lohiColor = '#5555552b';
@@ -154,6 +155,14 @@ export class LinePlot extends Band {
         }
         if (max < min) { // Edge case in case only one of minimum/maximum was configured
             [min, max] = [max, min];
+        }
+
+        // Add range padding unless an explicit value was defined
+        if (this.minimum === undefined) {
+            min -= (max - min) * this.yPadding;
+        }
+        if (this.maximum === undefined) {
+            max += (max - min) * this.yPadding;
         }
 
         const positionForValueFn = (value: number) => {
@@ -595,6 +604,23 @@ export class LinePlot extends Band {
     set maximum(maximum: number | undefined) {
         this._maximum = maximum;
         this.processData();
+        this.reportMutation();
+    }
+
+    /**
+     * Add y-axis padding around the data. When autoscaling, additional space
+     * is added both to the top and the bottom using the formula:
+     * `yPadding * data_range`.
+     *
+     * For example, if the data ranges from 0 to 10, the y-axis will show
+     * 0 to 10 with an yPadding of 0, and -1 to 11 with an yPadding of 0.1.
+     *
+     * This property is ignored at the bottom when `minimum` is explicitly
+     * set, and it is ignored at the top when `maximum` is explicitly set.
+     */
+    get yPadding() { return this._yPadding; }
+    set yPadding(yPadding: number) {
+        this._yPadding = yPadding;
         this.reportMutation();
     }
 
