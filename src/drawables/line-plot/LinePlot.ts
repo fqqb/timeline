@@ -7,6 +7,7 @@ import { Line } from './Line';
 import { LinePlotMouseMoveEvent } from './LinePlotMouseMoveEvent';
 import { LinePlotPoint } from './LinePlotPoint';
 import { LineStyle } from './LineStyle';
+import { generateTicksForHeight } from './tickgen';
 
 
 interface AnnotatedLine {
@@ -35,6 +36,11 @@ interface AnnotatedPoint {
     drawInfo?: DrawInfo;
 }
 
+interface AnnotatedTick {
+    y: number;
+    value: number;
+}
+
 let lineSequence = 1;
 
 /**
@@ -47,12 +53,13 @@ export class LinePlot extends Band {
     private _lineWidth = 1;
     private _lineStyle: LineStyle = 'straight';
     private _labelFontFamily = 'Verdana, Geneva, sans-serif';
-    private _labelBackground: FillStyle = 'transparent';
     private _labelTextColor = '#333333';
     private _labelTextSize = 8;
+    private _axisBackground: FillStyle = 'transparent';
+    private _axisWidth?: number;
     private _minimum?: number;
     private _maximum?: number;
-    private _yPadding = 0;
+    private _yPadding = 0.1;
     private _pointRadius = 1.5;
     private _pointColor = '#4f9146';
     private _lohiColor = '#5555552b';
@@ -65,7 +72,10 @@ export class LinePlot extends Band {
         return value.toFixed(2);
     };
 
+    private annotatedTicks: AnnotatedTick[] = [];
     private annotatedLines: AnnotatedLine[] = [];
+    private minTick?: AnnotatedTick;
+    private maxTick?: AnnotatedTick;
 
     /**
      * Register a listener that receives updates whenever the mouse is moving over
@@ -157,6 +167,12 @@ export class LinePlot extends Band {
             [min, max] = [max, min];
         }
 
+        // Calculate ticks for the available content height.
+        // Don't consider range padding for this to avoid labels getting clipped.
+        const calculatedTicks = generateTicksForHeight(min, max, contentHeight, this.labelTextSize, 2);
+        const dataMin = min;
+        const dataMax = max;
+
         // Add range padding unless an explicit value was defined
         if (this.minimum === undefined) {
             min -= (max - min) * this.yPadding;
@@ -168,6 +184,13 @@ export class LinePlot extends Band {
         const positionForValueFn = (value: number) => {
             return contentHeight - ((value - min) / (max - min) * (contentHeight - 0));
         };
+
+        this.annotatedTicks.length = 0;
+        for (const tick of calculatedTicks) {
+            this.annotatedTicks.push({ y: positionForValueFn(tick), value: tick });
+        }
+        this.minTick = { y: positionForValueFn(dataMin), value: dataMin };
+        this.maxTick = { y: positionForValueFn(dataMax), value: dataMax };
 
         // Draw order:
         // 1/ area fill (per line)
@@ -207,47 +230,88 @@ export class LinePlot extends Band {
                 this.drawLine(g, visibleLine);
             }
         }
-
-        const rightMargin = 4;
-        const font = `${this.labelTextSize}px ${this.labelFontFamily}`;
-        const minText = this.labelFormatter(min);
-        let fm = g.measureText(minText, font);
-        g.fillRect({
-            x: this.timeline.mainWidth - fm.width - rightMargin,
-            y: contentHeight - this.labelTextSize - 0.5,
-            width: fm.width,
-            height: this.labelTextSize,
-            fill: this.labelBackground,
-        });
-        const maxText = this.labelFormatter(max);
-        fm = g.measureText(maxText, font);
-        g.fillRect({
-            x: this.timeline.mainWidth - fm.width - rightMargin,
-            y: 0.5,
-            width: fm.width,
-            height: this.labelTextSize,
-            fill: this.labelBackground,
-        });
-
-        g.fillText({
-            text: minText,
-            align: 'right',
-            baseline: 'bottom',
-            color: this.labelTextColor,
-            font,
-            x: this.timeline.mainWidth - rightMargin,
-            y: contentHeight,
-        });
-        g.fillText({
-            text: maxText,
-            align: 'right',
-            baseline: 'top',
-            color: this.labelTextColor,
-            font,
-            x: this.timeline.mainWidth - rightMargin,
-            y: 0.5,
-        });
     }
+
+    override drawSidebarContent(g: Graphics, width: number) {
+        const textMargin = 6; // Space between value and axis edge (left/right)
+        const spacing = 2; // Space between tick and value
+        const font = `${this.labelTextSize}px ${this.labelFontFamily}`;
+
+        const tickTextIsFullyVisible = (tick: AnnotatedTick) => {
+            const y1 = this.y + tick.y - (this.labelTextSize / 2);
+            const y2 = this.y + tick.y + (this.labelTextSize / 2);
+            return y1 >= this.y && y2 <= (this.y + this.contentHeight);
+        };
+
+        let visibleTicks = this.annotatedTicks.filter(tickTextIsFullyVisible);
+        if (visibleTicks.length < 2) {
+            visibleTicks = [this.minTick!, this.maxTick!];
+        }
+
+        let axisWidth = this.axisWidth;
+        if (axisWidth === undefined) {
+            for (const tick of visibleTicks) {
+                const text = this.labelFormatter(tick.value);
+                const fm = g.measureText(text, font);
+                if (axisWidth === undefined || axisWidth < textMargin + fm.width + textMargin) {
+                    axisWidth = textMargin + fm.width + textMargin;
+                }
+            }
+        }
+        if (axisWidth === undefined) {
+            axisWidth = 30;
+        }
+
+        g.fillRect({
+            x: width - axisWidth,
+            y: this.y,
+            width: axisWidth,
+            height: this.contentHeight,
+            fill: this.axisBackground,
+        });
+
+        for (const tick of visibleTicks) {
+            const y = Math.round(this.y + tick.y) + 0.5;
+
+            g.strokePath({
+                color: this.labelTextColor,
+                lineWidth: 1,
+                path: new Path(width - textMargin + spacing, y).lineTo(width, y),
+            });
+
+            if (tickTextIsFullyVisible(tick)) {
+                g.fillText({
+                    text: this.labelFormatter(tick.value),
+                    align: 'right',
+                    baseline: 'middle',
+                    color: this.labelTextColor,
+                    font,
+                    x: width - textMargin,
+                    y,
+                });
+            } else if (tick === this.minTick) {
+                g.fillText({
+                    text: this.labelFormatter(tick.value),
+                    align: 'right',
+                    baseline: 'bottom',
+                    color: this.labelTextColor,
+                    font,
+                    x: width - textMargin,
+                    y: this.y + this.contentHeight + 0.5,
+                });
+            } else if (tick === this.maxTick) {
+                g.fillText({
+                    text: this.labelFormatter(tick.value),
+                    align: 'right',
+                    baseline: 'top',
+                    color: this.labelTextColor,
+                    font,
+                    x: width - textMargin,
+                    y: this.y + 0.5,
+                });
+            }
+        }
+    };
 
     private drawLohi(g: Graphics, line: AnnotatedLine, positionValueFn: (value: number) => number) {
         const fill = line.lohiColor ?? this.lohiColor;
@@ -520,15 +584,6 @@ export class LinePlot extends Band {
     }
 
     /**
-     * Background color of any value labels.
-     */
-    get labelBackground() { return this._labelBackground; }
-    set labelBackground(labelBackground: FillStyle) {
-        this._labelBackground = labelBackground;
-        this.reportMutation();
-    }
-
-    /**
      * Text color of any value labels.
      */
     get labelTextColor() { return this._labelTextColor; }
@@ -549,12 +604,33 @@ export class LinePlot extends Band {
     /**
      * Function that formats a point value to string.
      *
-     * The default behaviour is to format with 2 digits after the
+     * The default behavior is to format with 2 digits after the
      * decimal point.
      */
     get labelFormatter() { return this._labelFormatter; }
     set labelFormatter(labelFormatter: (value: number) => string) {
         this._labelFormatter = labelFormatter;
+        this.reportMutation();
+    }
+
+    /**
+     * Background color of the axis.
+     */
+    get axisBackground() { return this._axisBackground; }
+    set axisBackground(axisBackground: FillStyle) {
+        this._axisBackground = axisBackground;
+        this.reportMutation();
+    }
+
+    /**
+     * Axis width on the sidebar.
+     *
+     * If undefined, the width takes the space of the actual tick
+     * label width.
+     */
+    get axisWidth() { return this._axisWidth; }
+    set axisWidth(axisWidth: number | undefined) {
+        this._axisWidth = axisWidth;
         this.reportMutation();
     }
 

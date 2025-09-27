@@ -64,6 +64,7 @@ export class DefaultSidebar extends Sidebar {
                     text: band.label,
                 });
             }
+            band.drawSidebarContent(g, this.width);
         }
 
         // Right vertical divider

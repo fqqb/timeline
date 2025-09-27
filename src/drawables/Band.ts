@@ -138,7 +138,6 @@ export abstract class Band extends Drawable {
      * Register a listener that receives updates when the mouse enters a band.
      */
     addMouseEnterListener(listener: (ev: BandMouseEnterEvent) => void) {
-        console.log('addmouseenter');
         this.mouseEnterListeners.push(listener);
         this.reportMutation();
     }
@@ -315,6 +314,14 @@ export abstract class Band extends Drawable {
         if (this.offscreen) {
             g.copy(this.offscreen, this.x, this.y + this.paddingTop);
         }
+    }
+
+    /**
+     * Override this if you want to draw something band-specific inside the sidebar.
+
+     * @param width Available sidebar width
+     */
+    drawSidebarContent(g: Graphics, width: number): void {
     }
 
     protected createMouseMoveEvent(evt: MouseHitEvent): BandMouseMoveEvent {
