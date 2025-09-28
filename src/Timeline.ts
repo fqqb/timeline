@@ -73,8 +73,10 @@ export class Timeline {
     private mediaQueryListEventListener: () => void;
     private animationFrameRequest?: number;
 
-    private viewportRegion = new ViewportRegion(REGION_ID_VIEWPORT, this);
-    private dividerRegion = new DividerRegion(REGION_ID_DIVIDER, this);
+    /** @hidden */
+    viewportRegion = new ViewportRegion(REGION_ID_VIEWPORT, this);
+    /** @hidden */
+    dividerRegion = new DividerRegion(REGION_ID_DIVIDER, this);
 
     constructor(private readonly targetElement: HTMLElement) {
 

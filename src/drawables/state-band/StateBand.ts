@@ -142,7 +142,7 @@ export class StateBand extends Band {
                 hovered: false,
                 region: {
                     id,
-                    parentId: this.bandRegionId,
+                    parentId: this.bandRegion.id,
                     cursor: this.stateCursor,
                     click: () => {
                         this.stateClickListeners.forEach(listener => listener({

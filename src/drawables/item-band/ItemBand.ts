@@ -143,7 +143,7 @@ export class ItemBand extends Band {
                 false,
                 {
                     id,
-                    parentId: this.bandRegionId,
+                    parentId: this.bandRegion.id,
                     cursor: this.itemCursor,
                     click: () => {
                         this.itemClickListeners.forEach(listener => listener({

@@ -2,10 +2,13 @@ import { FillStyle } from '../../graphics/FillStyle';
 import { Graphics } from '../../graphics/Graphics';
 import { MouseHitEvent } from '../../graphics/MouseHitEvent';
 import { Path } from '../../graphics/Path';
+import { Timeline } from '../../Timeline';
 import { Band } from '../Band';
+import { AxisRegion } from './AxisRegion';
 import { Line } from './Line';
 import { LinePlotMouseMoveEvent } from './LinePlotMouseMoveEvent';
 import { LinePlotPoint } from './LinePlotPoint';
+import { LinePlotRegion } from './LinePlotRegion';
 import { LineStyle } from './LineStyle';
 import { generateTicksForHeight } from './tickgen';
 
@@ -59,7 +62,8 @@ export class LinePlot extends Band {
     private _axisWidth?: number;
     private _minimum?: number;
     private _maximum?: number;
-    private _yPadding = 0.1;
+    private _axisPadding = 0.1;
+    private _zoomMultiplier = 0.05;
     private _pointRadius = 1.5;
     private _pointColor = '#4f9146';
     private _lohiColor = '#5555552b';
@@ -76,6 +80,20 @@ export class LinePlot extends Band {
     private annotatedLines: AnnotatedLine[] = [];
     private minTick?: AnnotatedTick;
     private maxTick?: AnnotatedTick;
+
+    private axisRegion?: AxisRegion;
+    private customMinimum?: number;
+    private customMaximum?: number;
+
+    /** @hidden */
+    valueForPositionFn?: (position: number) => number;
+
+    private linePlotRegion: LinePlotRegion;
+
+    constructor(timeline: Timeline) {
+        super(timeline);
+        this.linePlotRegion = new LinePlotRegion(this.bandRegion, this);
+    }
 
     /**
      * Register a listener that receives updates whenever the mouse is moving over
@@ -96,9 +114,9 @@ export class LinePlot extends Band {
     // Convert user input to internal data structure
     private processData() {
         this.annotatedLines.length = 0;
+        const lineId = 'line_plot_' + lineSequence++;
         if (this.lines.length) {
             for (const line of this.lines) {
-                const lineId = 'line_plot_' + lineSequence++;
                 const annotatedPoints = [];
                 for (const [x, y] of line.points) {
                     let low = null;
@@ -125,6 +143,8 @@ export class LinePlot extends Band {
                 });
             }
         }
+
+        this.axisRegion = new AxisRegion(lineId + '_axis', this.bandRegion.id, this);
     }
 
     calculateContentHeight(g: Graphics) {
@@ -134,26 +154,35 @@ export class LinePlot extends Band {
     drawBandContent(g: Graphics) {
         const { contentHeight } = this;
 
+        const hitRegion = this.offscreen!.addHitRegion(this.linePlotRegion);
+        hitRegion.addRect(0, 0, this.timeline.mainWidth, contentHeight);
+
+        // Prioritize custom range when applicable
+        let min = this.customMinimum;
+        let max = this.customMaximum;
+
         // Determine min/max, either through configuration or from the data
         // However, ignore data outside of viewport.
-        let min = this.minimum;
-        let max = this.maximum;
-        if (min == undefined || max == undefined) {
-            for (const line of this.visibleLines) {
-                for (const pt of line.points) {
-                    if (pt.x < this.timeline.start || pt.x > this.timeline.stop) {
-                        continue;
-                    }
-                    if (this.minimum === undefined && pt.y !== null) {
-                        const viewLow = pt.low !== null ? Math.min(pt.low, pt.y) : pt.y;
-                        if (min === undefined || viewLow < min) {
-                            min = viewLow;
+        if (min === undefined || max === undefined) {
+            min = this.minimum;
+            max = this.maximum;
+            if (min == undefined || max == undefined) {
+                for (const line of this.visibleLines) {
+                    for (const pt of line.points) {
+                        if (pt.x < this.timeline.start || pt.x > this.timeline.stop) {
+                            continue;
                         }
-                    }
-                    if (this.maximum === undefined && pt.y !== null) {
-                        const viewHigh = pt.high !== null ? Math.max(pt.high, pt.y) : pt.y;
-                        if (max === undefined || viewHigh > max) {
-                            max = viewHigh;
+                        if (this.minimum === undefined && pt.y !== null) {
+                            const viewLow = pt.low !== null ? Math.min(pt.low, pt.y) : pt.y;
+                            if (min === undefined || viewLow < min) {
+                                min = viewLow;
+                            }
+                        }
+                        if (this.maximum === undefined && pt.y !== null) {
+                            const viewHigh = pt.high !== null ? Math.max(pt.high, pt.y) : pt.y;
+                            if (max === undefined || viewHigh > max) {
+                                max = viewHigh;
+                            }
                         }
                     }
                 }
@@ -174,15 +203,18 @@ export class LinePlot extends Band {
         const dataMax = max;
 
         // Add range padding unless an explicit value was defined
-        if (this.minimum === undefined) {
-            min -= (max - min) * this.yPadding;
+        if (this.minimum === undefined && this.customMinimum === undefined) {
+            min -= (max - min) * this.axisPadding;
         }
-        if (this.maximum === undefined) {
-            max += (max - min) * this.yPadding;
+        if (this.maximum === undefined && this.customMaximum === undefined) {
+            max += (max - min) * this.axisPadding;
         }
 
         const positionForValueFn = (value: number) => {
             return contentHeight - ((value - min) / (max - min) * (contentHeight - 0));
+        };
+        this.valueForPositionFn = (position: number) => {
+            return min + (contentHeight - position) * (max - min) / contentHeight;
         };
 
         this.annotatedTicks.length = 0;
@@ -270,6 +302,11 @@ export class LinePlot extends Band {
             fill: this.axisBackground,
         });
 
+        if (this.axisRegion) {
+            const hitRegion = g.addHitRegion(this.axisRegion);
+            hitRegion.addRect(width - axisWidth, this.y, axisWidth, this.contentHeight);
+        }
+
         for (const tick of visibleTicks) {
             const y = Math.round(this.y + tick.y) + 0.5;
 
@@ -313,7 +350,7 @@ export class LinePlot extends Band {
         }
     };
 
-    private drawLohi(g: Graphics, line: AnnotatedLine, positionValueFn: (value: number) => number) {
+    private drawLohi(g: Graphics, line: AnnotatedLine, positionForValueFn: (value: number) => number) {
         const fill = line.lohiColor ?? this.lohiColor;
 
         for (let i = 1; i < line.points.length; i++) {
@@ -329,10 +366,10 @@ export class LinePlot extends Band {
                 && prevHigh != null
                 && pointLow !== null
                 && pointHigh !== null) {
-                const prevLowY = positionValueFn(prevLow);
-                const prevHighY = positionValueFn(prevHigh);
-                const pointLowY = positionValueFn(pointLow);
-                const pointHighY = positionValueFn(pointHigh);
+                const prevLowY = positionForValueFn(prevLow);
+                const prevHighY = positionForValueFn(prevHigh);
+                const pointLowY = positionForValueFn(pointLow);
+                const pointHighY = positionForValueFn(pointHigh);
                 g.fillPath({
                     path: new Path(prev.renderX, prevHighY)
                         .lineTo(prev.renderX, prevLowY)
@@ -344,11 +381,11 @@ export class LinePlot extends Band {
         }
     }
 
-    private drawArea(g: Graphics, line: AnnotatedLine, positionValueFn: (value: number) => number) {
+    private drawArea(g: Graphics, line: AnnotatedLine, positionForValueFn: (value: number) => number) {
         const fill = line.fill ?? this.fill;
         const lineWidth = line.lineWidth ?? this.lineWidth;
         const lineStyle = line.lineStyle ?? this.lineStyle;
-        const originY = Math.round(positionValueFn(0)) + 0.5;
+        const originY = Math.round(positionForValueFn(0)) + 0.5;
 
         if (lineStyle === 'straight') {
             for (let i = 1; i < line.points.length; i++) {
@@ -494,12 +531,32 @@ export class LinePlot extends Band {
         return closestPoints;
     }
 
-    protected override createMouseMoveEvent(evt: MouseHitEvent): LinePlotMouseMoveEvent {
+    override createMouseMoveEvent(evt: MouseHitEvent): LinePlotMouseMoveEvent {
         const mouseEvent = super.createMouseMoveEvent(evt);
         return {
             ...mouseEvent,
             points: this.findClosestByTime(mouseEvent.time),
         };
+    }
+
+    /**
+     * Specify a custom data range for the Y-axis.
+     *
+     * If the `axisPadding` property is set, it will have no effect.
+     */
+    setAxisRange(min: number, max: number) {
+        this.customMinimum = min;
+        this.customMaximum = max;
+        this.reportMutation();
+    }
+
+    /**
+     * Reset any custom data range for the Y-axis.
+     */
+    resetAxisRange() {
+        this.customMinimum = undefined;
+        this.customMaximum = undefined;
+        this.reportMutation();
     }
 
     /**
@@ -673,6 +730,14 @@ export class LinePlot extends Band {
     }
 
     /**
+     * Returns the smallest visible value on the axis. This accounts for axisPadding
+     * where applicable.
+     */
+    get visibleMinimum() {
+        return this.valueForPositionFn!(this.contentHeight);
+    }
+
+    /**
      * Value that corresponds with the maximum value on the curve. If undefined,
      * the value is automatically derived from the plot data.
      */
@@ -684,20 +749,38 @@ export class LinePlot extends Band {
     }
 
     /**
+     * Returns the largest visible value on the axis. This accounts for axisPadding
+     * where applicable.
+     */
+    get visibleMaximum() {
+        return this.valueForPositionFn!(0);
+    }
+
+    /**
      * Add y-axis padding around the data. When autoscaling, additional space
      * is added both to the top and the bottom using the formula:
-     * `yPadding * data_range`.
+     * `axisPadding * data_range`.
      *
      * For example, if the data ranges from 0 to 10, the y-axis will show
-     * 0 to 10 with an yPadding of 0, and -1 to 11 with an yPadding of 0.1.
+     * 0 to 10 with an axisPadding of 0, and -1 to 11 with an axisPadding
+     * of 0.1.
      *
      * This property is ignored at the bottom when `minimum` is explicitly
      * set, and it is ignored at the top when `maximum` is explicitly set.
      */
-    get yPadding() { return this._yPadding; }
-    set yPadding(yPadding: number) {
-        this._yPadding = yPadding;
+    get axisPadding() { return this._axisPadding; }
+    set axisPadding(axisPadding: number) {
+        this._axisPadding = axisPadding;
         this.reportMutation();
+    }
+
+    /**
+     * The larger this number, the faster to zoom in/out
+     * A multiplier of 1 allows for a max zoom-in of twice the data range.
+     */
+    get zoomMultiplier() { return this._zoomMultiplier; }
+    set zoomMultiplier(zoomMultiplier: number) {
+        this._zoomMultiplier = zoomMultiplier;
     }
 
     get lines() { return this._lines; }

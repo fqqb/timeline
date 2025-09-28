@@ -1,11 +1,12 @@
 import { FillStyle } from '../graphics/FillStyle';
 import { Graphics } from '../graphics/Graphics';
 import { MouseHitEvent } from '../graphics/MouseHitEvent';
-import { REGION_ID_VIEWPORT } from '../Timeline';
+import { Timeline } from '../Timeline';
 import { BandClickEvent } from './BandClickEvent';
 import { BandMouseEnterEvent } from './BandMouseEnterEvent';
 import { BandMouseLeaveEvent } from './BandMouseLeaveEvent';
 import { BandMouseMoveEvent } from './BandMouseMoveEvent';
+import { BandRegion } from './BandRegion';
 import { Drawable } from './Drawable';
 
 export interface DrawCoordinates {
@@ -31,7 +32,7 @@ export abstract class Band extends Drawable {
     private _paddingBottom = 0;
     private _paddingTop = 0;
 
-    private offscreen?: Graphics;
+    protected offscreen?: Graphics;
 
     /** @hidden */
     coords: DrawCoordinates = {
@@ -62,7 +63,12 @@ export abstract class Band extends Drawable {
     /** @hidden */
     mouseLeaveListeners: Array<(ev: BandMouseLeaveEvent) => void> = [];
 
-    protected bandRegionId = 'band_' + bandSequence++;
+    protected bandRegion: BandRegion;
+
+    constructor(timeline: Timeline) {
+        super(timeline);
+        this.bandRegion = new BandRegion('band_' + bandSequence++, this);
+    }
 
     /**
      * Register a listener that receives updates when a line header is clicked.
@@ -273,30 +279,7 @@ export abstract class Band extends Drawable {
         const contentHeight = this.calculateContentHeight(g);
         this.offscreen = g.createChild(this.timeline.mainWidth, contentHeight);
 
-        const hitRegion = this.offscreen.addHitRegion({
-            id: this.bandRegionId,
-            parentId: REGION_ID_VIEWPORT,
-            mouseEnter: evt => {
-                const mouseEvent: BandMouseEnterEvent = {
-                    clientX: evt.clientX,
-                    clientY: evt.clientY,
-                    band: this,
-                };
-                this.mouseEnterListeners.forEach(l => l(mouseEvent));
-            },
-            mouseMove: evt => {
-                const mouseEvent = this.createMouseMoveEvent(evt);
-                this.mouseMoveListeners.forEach(l => l(mouseEvent));
-            },
-            mouseLeave: evt => {
-                const mouseEvent: BandMouseLeaveEvent = {
-                    clientX: evt.clientX,
-                    clientY: evt.clientY,
-                    band: this,
-                };
-                this.mouseLeaveListeners.forEach(l => l(mouseEvent));
-            },
-        });
+        const hitRegion = this.offscreen.addHitRegion(this.bandRegion);
         hitRegion.addRect(0, 0, this.timeline.mainWidth, contentHeight);
 
         this.drawBandContent(this.offscreen);
@@ -324,7 +307,7 @@ export abstract class Band extends Drawable {
     drawSidebarContent(g: Graphics, width: number): void {
     }
 
-    protected createMouseMoveEvent(evt: MouseHitEvent): BandMouseMoveEvent {
+    createMouseMoveEvent(evt: MouseHitEvent): BandMouseMoveEvent {
         const time = this.timeline.timeForCanvasPosition(evt.x);
         return {
             clientX: evt.clientX,
