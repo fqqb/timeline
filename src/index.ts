@@ -15,6 +15,7 @@ export { ItemMouseEvent } from './drawables/item-band/ItemMouseEvent';
 export { MilestoneShape } from './drawables/item-band/MilestoneShape';
 export { ShapeRenderer } from './drawables/item-band/ShapeRenderer';
 export { ShapeStyle } from './drawables/item-band/ShapeStyle';
+export { HLine } from './drawables/line-plot/HLine';
 export { Line } from './drawables/line-plot/Line';
 export { LinePlot } from './drawables/line-plot/LinePlot';
 export { LinePlotMouseMoveEvent } from './drawables/line-plot/LinePlotMouseMoveEvent';

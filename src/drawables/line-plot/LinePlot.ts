@@ -5,6 +5,7 @@ import { Path } from '../../graphics/Path';
 import { Timeline } from '../../Timeline';
 import { Band } from '../Band';
 import { AxisRegion } from './AxisRegion';
+import { HLine } from './HLine';
 import { Line } from './Line';
 import { LinePlotMouseMoveEvent } from './LinePlotMouseMoveEvent';
 import { LinePlotPoint } from './LinePlotPoint';
@@ -68,10 +69,8 @@ export class LinePlot extends Band {
     private _pointColor = '#4f9146';
     private _lohiColor = '#5555552b';
     private _lines: Line[] = [];
+    private _hlines: HLine[] = [];
     private _contentHeight = 30;
-    private _zeroLineColor = '#e8e8e8';
-    private _zeroLineWidth = 0;
-    private _zeroLineDash: number[] = [4, 3];
     private _labelFormatter: (value: number) => string = value => {
         return value.toFixed(2);
     };
@@ -186,6 +185,16 @@ export class LinePlot extends Band {
                         }
                     }
                 }
+                for (const hline of this.hlines) {
+                    if (hline.extendAxisRange ?? true) {
+                        if (min === undefined || hline.value < min) {
+                            min = hline.value;
+                        }
+                        if (max === undefined || hline.value > max) {
+                            max = hline.value;
+                        }
+                    }
+                }
             }
         }
 
@@ -245,22 +254,16 @@ export class LinePlot extends Band {
             }
         }
 
-        if (this.zeroLineWidth > 0) {
-            const originY = Math.round(positionForValueFn(0)) - 0.5;
-            g.strokePath({
-                path: new Path(0, originY).lineTo(this.timeline.mainWidth, originY),
-                color: this.zeroLineColor,
-                dash: this.zeroLineDash,
-                lineWidth: this.zeroLineWidth,
-            });
-        }
-
         for (let i = 0; i < this.visibleLines.length; i++) {
             if (this.visibleLines[i].points.length) {
                 const visibleLine = this.visibleLines[i];
                 this.drawLohi(g, visibleLine, positionForValueFn);
                 this.drawLine(g, visibleLine);
             }
+        }
+
+        for (const hline of this.hlines) {
+            this.drawHLine(g, hline, positionForValueFn);
         }
     }
 
@@ -419,6 +422,39 @@ export class LinePlot extends Band {
                     });
                 }
             }
+        }
+    }
+
+    private drawHLine(g: Graphics, hline: HLine, positionForValueFn: (value: number) => number) {
+        const y = Math.round(positionForValueFn(hline.value)) + 0.5;
+        g.strokePath({
+            path: new Path(0, y).lineTo(this.timeline.mainWidth, y),
+            color: hline.lineColor,
+            dash: hline.lineDash,
+            lineWidth: hline.lineWidth ?? 1,
+        });
+        const label = hline.label;
+        if (label) {
+            const labelTextSize = hline.labelTextSize ?? this.labelTextSize;
+            const labelFontFamily = hline.labelFontFamily ?? this.labelFontFamily;
+            const font = `${labelTextSize}px ${labelFontFamily}`;
+            const fm = g.measureText(label, font);
+            g.fillRect({
+                x: 0,
+                y: y - fm.height,
+                width: fm.width,
+                height: fm.height,
+                fill: hline.lineColor,
+            });
+            g.fillText({
+                x: 0,
+                y: y,
+                align: 'left',
+                baseline: 'bottom',
+                color: hline.labelTextColor ?? this.labelTextColor,
+                text: label,
+                font,
+            });
         }
     }
 
@@ -692,33 +728,6 @@ export class LinePlot extends Band {
     }
 
     /**
-     * Color of the line at value zero.
-     */
-    get zeroLineColor() { return this._zeroLineColor; }
-    set zeroLineColor(zeroLineColor: string) {
-        this._zeroLineColor = zeroLineColor;
-        this.reportMutation();
-    }
-
-    /**
-     * Width of the line at value zero.
-     */
-    get zeroLineWidth() { return this._zeroLineWidth; }
-    set zeroLineWidth(zeroLineWidth: number) {
-        this._zeroLineWidth = zeroLineWidth;
-        this.reportMutation();
-    }
-
-    /**
-     * Dash pattern of the line at value zero.
-     */
-    get zeroLineDash() { return this._zeroLineDash; }
-    set zeroLineDash(zeroLineDash: number[]) {
-        this._zeroLineDash = zeroLineDash;
-        this.reportMutation();
-    }
-
-    /**
      * Value that corresponds with the minimum value on the curve. If undefined,
      * the value is automatically derived from the plot data.
      */
@@ -787,6 +796,12 @@ export class LinePlot extends Band {
     set lines(lines: Line[]) {
         this._lines = lines;
         this.processData();
+        this.reportMutation();
+    }
+
+    get hlines() { return this._hlines; }
+    set hlines(hlines: HLine[]) {
+        this._hlines = hlines;
         this.reportMutation();
     }
 }
