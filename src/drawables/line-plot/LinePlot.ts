@@ -439,18 +439,19 @@ export class LinePlot extends Band {
             const labelFontFamily = hline.labelFontFamily ?? this.labelFontFamily;
             const font = `${labelTextSize}px ${labelFontFamily}`;
             const fm = g.measureText(label, font);
+            const lrMargin = 4;
             g.fillRect({
                 x: 0,
-                y: y - fm.height,
-                width: fm.width,
+                y: y - fm.height / 2,
+                width: lrMargin + fm.width + lrMargin,
                 height: fm.height,
                 fill: hline.lineColor,
             });
             g.fillText({
-                x: 0,
+                x: 0 + lrMargin,
                 y: y,
                 align: 'left',
-                baseline: 'bottom',
+                baseline: 'middle',
                 color: hline.labelTextColor ?? this.labelTextColor,
                 text: label,
                 font,
