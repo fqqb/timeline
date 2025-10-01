@@ -41,7 +41,7 @@ export interface Line {
     pointColor?: string;
 
     /**
-     * Color of the low/area color.
+     * Color of the low/high area.
      */
     lohiColor?: string;
 

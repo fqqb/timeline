@@ -37,7 +37,10 @@ interface AnnotatedPoint {
     y: number | null;
     low?: number;
     high?: number;
+    pointRadius?: number;
+    pointColor?: string;
     drawInfo?: DrawInfo;
+    originalPoint: LinePoint; // Immutable copy of what the user provides
 }
 
 interface AnnotatedTick {
@@ -57,9 +60,10 @@ export class LinePlot extends Band {
     private _lineWidth = 1;
     private _lineStyle: LineStyle = 'straight';
     private _labelFontFamily = 'Verdana, Geneva, sans-serif';
-    private _labelTextColor = '#333333';
+    private _labelTextColor = 'grey';
     private _labelTextSize = 8;
     private _axisBackground: FillStyle = 'transparent';
+    private _axisTickColor: string = '#888888';
     private _axisWidth?: number;
     private _minimum?: number;
     private _maximum?: number;
@@ -110,15 +114,21 @@ export class LinePlot extends Band {
         super.removeMouseMoveListener(listener as any);
     }
 
-    // Convert user input to internal data structure
-    private processData() {
+    /**
+     * Reprocess plot data, then repaint.
+     */
+    updatePlot() {
+        // Convert user input to internal data structure
         this.annotatedLines.length = 0;
         const lineId = 'line_plot_' + lineSequence++;
         if (this.lines.length) {
             for (const line of this.lines) {
                 const annotatedPoints = [];
                 for (const point of line.points) {
-                    annotatedPoints.push({ x: point.x, y: point.y, low: point.low, high: point.high, });
+                    annotatedPoints.push({
+                        ...point,
+                        originalPoint: point,
+                    });
                 }
                 annotatedPoints.sort((a, b) => a.x - b.x);
                 this.annotatedLines.push({
@@ -261,7 +271,7 @@ export class LinePlot extends Band {
     }
 
     override drawSidebarContent(g: Graphics, width: number) {
-        const textMargin = 6; // Space between value and axis edge (left/right)
+        const textMargin = 8; // Space between value and axis edge (left/right)
         const spacing = 2; // Space between tick and value
         const font = `${this.labelTextSize}px ${this.labelFontFamily}`;
 
@@ -307,7 +317,7 @@ export class LinePlot extends Band {
             const y = Math.round(this.y + tick.y) + 0.5;
 
             g.strokePath({
-                color: this.labelTextColor,
+                color: this.axisTickColor,
                 lineWidth: 1,
                 path: new Path(width - textMargin + spacing, y).lineTo(width, y),
             });
@@ -508,9 +518,9 @@ export class LinePlot extends Band {
                 g.fillEllipse({
                     cx: renderX,
                     cy: renderY,
-                    rx: pointRadius,
-                    ry: pointRadius,
-                    fill: pointColor,
+                    rx: point.pointRadius ?? pointRadius,
+                    ry: point.pointRadius ?? pointRadius,
+                    fill: point.pointColor ?? pointColor,
                 });
             }
         }
@@ -527,7 +537,7 @@ export class LinePlot extends Band {
         for (const line of this.visibleLines) {
             let currIdx: number | null = null;
             let currX: number | null = null;
-            let currPoint: LinePoint | null = null;
+            let currPoint: AnnotatedPoint | null = null;
             let tdelta = Infinity;
             for (let i = 0; i < line.points.length; i++) {
                 const point = line.points[i];
@@ -543,7 +553,7 @@ export class LinePlot extends Band {
             // Avoiding show value for trailing gap
             const ignorePoint = (currIdx === line.points.length - 1) && currX !== t;
             if (currPoint !== null && !ignorePoint) {
-                closestPoints.push(currPoint);
+                closestPoints.push(currPoint.originalPoint);
             } else {
                 closestPoints.push(null);
             }
@@ -700,6 +710,12 @@ export class LinePlot extends Band {
         this.reportMutation();
     }
 
+    get axisTickColor() { return this._axisTickColor; }
+    set axisTickColor(axisTickColor: string) {
+        this._axisTickColor = axisTickColor;
+        this.reportMutation();
+    }
+
     /**
      * Axis width on the sidebar.
      *
@@ -719,7 +735,7 @@ export class LinePlot extends Band {
     get minimum() { return this._minimum; }
     set minimum(minimum: number | undefined) {
         this._minimum = minimum;
-        this.processData();
+        this.updatePlot();
         this.reportMutation();
     }
 
@@ -738,7 +754,7 @@ export class LinePlot extends Band {
     get maximum() { return this._maximum; }
     set maximum(maximum: number | undefined) {
         this._maximum = maximum;
-        this.processData();
+        this.updatePlot();
         this.reportMutation();
     }
 
@@ -780,7 +796,7 @@ export class LinePlot extends Band {
     get lines() { return this._lines; }
     set lines(lines: Line[]) {
         this._lines = lines;
-        this.processData();
+        this.updatePlot();
         this.reportMutation();
     }
 
