@@ -8,8 +8,8 @@ import { AxisRegion } from './AxisRegion';
 import { HLine } from './HLine';
 import { Line } from './Line';
 import { LinePlotMouseMoveEvent } from './LinePlotMouseMoveEvent';
-import { LinePlotPoint } from './LinePlotPoint';
 import { LinePlotRegion } from './LinePlotRegion';
+import { LinePoint } from './LinePoint';
 import { LineStyle } from './LineStyle';
 import { generateTicksForHeight } from './tickgen';
 
@@ -35,8 +35,8 @@ interface DrawInfo {
 interface AnnotatedPoint {
     x: number;
     y: number | null;
-    low: number | null;
-    high: number | null;
+    low?: number;
+    high?: number;
     drawInfo?: DrawInfo;
 }
 
@@ -117,15 +117,8 @@ export class LinePlot extends Band {
         if (this.lines.length) {
             for (const line of this.lines) {
                 const annotatedPoints = [];
-                for (const [x, y] of line.points) {
-                    let low = null;
-                    let high = null;
-                    if (line.lohi) {
-                        const lohi = line.lohi.get(x);
-                        low = lohi ? lohi[0] ?? null : null;
-                        high = lohi ? lohi[1] ?? null : null;
-                    }
-                    annotatedPoints.push({ x, y, low, high });
+                for (const point of line.points) {
+                    annotatedPoints.push({ x: point.x, y: point.y, low: point.low, high: point.high, });
                 }
                 annotatedPoints.sort((a, b) => a.x - b.x);
                 this.annotatedLines.push({
@@ -172,13 +165,13 @@ export class LinePlot extends Band {
                             continue;
                         }
                         if (this.minimum === undefined && pt.y !== null) {
-                            const viewLow = pt.low !== null ? Math.min(pt.low, pt.y) : pt.y;
+                            const viewLow = pt.low !== undefined ? Math.min(pt.low, pt.y) : pt.y;
                             if (min === undefined || viewLow < min) {
                                 min = viewLow;
                             }
                         }
                         if (this.maximum === undefined && pt.y !== null) {
-                            const viewHigh = pt.high !== null ? Math.max(pt.high, pt.y) : pt.y;
+                            const viewHigh = pt.high !== undefined ? Math.max(pt.high, pt.y) : pt.y;
                             if (max === undefined || viewHigh > max) {
                                 max = viewHigh;
                             }
@@ -365,10 +358,10 @@ export class LinePlot extends Band {
             const pointHigh = line.points[i].high;
             if (prev.renderY !== undefined
                 && point.renderY !== undefined
-                && prevLow !== null
-                && prevHigh != null
-                && pointLow !== null
-                && pointHigh !== null) {
+                && prevLow !== undefined
+                && prevHigh !== undefined
+                && pointLow !== undefined
+                && pointHigh !== undefined) {
                 const prevLowY = positionForValueFn(prevLow);
                 const prevHighY = positionForValueFn(prevHigh);
                 const pointLowY = positionForValueFn(pointLow);
@@ -527,39 +520,30 @@ export class LinePlot extends Band {
         return this.annotatedLines.filter(line => line.visible);
     }
 
-    private findClosestByTime(t: number): Array<LinePlotPoint | null> {
+    private findClosestByTime(t: number): Array<LinePoint | null> {
         // Note: closest may also be a gap
-        const closestPoints: Array<LinePlotPoint | null> = [];
+        const closestPoints: Array<LinePoint | null> = [];
 
         for (const line of this.visibleLines) {
             let currIdx: number | null = null;
             let currX: number | null = null;
-            let currY: number | null = null;
-            let currLow: number | null = null;
-            let currHigh: number | null = null;
+            let currPoint: LinePoint | null = null;
             let tdelta = Infinity;
             for (let i = 0; i < line.points.length; i++) {
-                const { x, y, low, high } = line.points[i];
-                if (Math.abs(x - t) < tdelta) {
+                const point = line.points[i];
+                if (Math.abs(point.x - t) < tdelta) {
                     currIdx = i;
-                    currX = x;
-                    currY = y;
-                    currLow = low;
-                    currHigh = high;
+                    currX = point.x;
+                    currPoint = line.points[i];
 
-                    tdelta = Math.abs(x - t);
+                    tdelta = Math.abs(point.x - t);
                 }
             }
 
             // Avoiding show value for trailing gap
             const ignorePoint = (currIdx === line.points.length - 1) && currX !== t;
-            if (currX !== null && !ignorePoint) {
-                closestPoints.push({
-                    time: currX,
-                    value: currY,
-                    low: currLow,
-                    high: currHigh,
-                });
+            if (currPoint !== null && !ignorePoint) {
+                closestPoints.push(currPoint);
             } else {
                 closestPoints.push(null);
             }

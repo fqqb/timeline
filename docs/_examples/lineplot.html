@@ -10,9 +10,9 @@
         band1.label = 'Plot';
         band1.fill = 'lime';
 
-        const points1 = new Map();
-        for (let i = 0; i < 100; i += 0.01) {
-            points1.set(i, Math.sin(i));
+        const points1 = [];
+        for (let x = 0; x < 100; x += 0.01) {
+            points1.push({ x, y: Math.sin(x)});
         }
 
         band1.lines = [{
@@ -24,9 +24,9 @@
         band2.label = 'Step plot';
         band2.fill = 'cyan';
 
-        const points2 = new Map();
-        for (let i = 0; i < 100; i += 0.5) {
-            points2.set(i, Math.sin(i));
+        const points2 = [];
+        for (let x = 0; x < 100; x += 0.5) {
+            points2.push({x, y: Math.sin(x)});
         }
 
         band2.lines = [{

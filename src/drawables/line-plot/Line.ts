@@ -1,4 +1,5 @@
 import { FillStyle } from '../../graphics/FillStyle';
+import { LinePoint } from './LinePoint';
 import { LineStyle } from './LineStyle';
 
 /**
@@ -48,13 +49,7 @@ export interface Line {
      * Data points (time to value). The value null may be used
      * to indicate a gap.
      */
-    points: Map<number, number | null>;
-
-    /**
-     * Low/high values by time. Timestamps should match the provided
-     * points array.
-     */
-    lohi?: Map<number, [number, number] | null>;
+    points: LinePoint[];
 
     /**
      * Whether this plot line is visible.

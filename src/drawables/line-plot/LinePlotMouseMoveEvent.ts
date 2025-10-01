@@ -1,5 +1,5 @@
 import { BandMouseMoveEvent } from '../BandMouseMoveEvent';
-import { LinePlotPoint } from './LinePlotPoint';
+import { LinePoint } from './LinePoint';
 
 /**
  * Event generated when the mouse is moving over a LinePlot.
@@ -13,5 +13,5 @@ export interface LinePlotMouseMoveEvent extends BandMouseMoveEvent {
     /**
      * For each line in index order, the closest point by time.
      */
-    points: Array<LinePlotPoint | null>;
+    points: Array<LinePoint | null>;
 }

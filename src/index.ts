@@ -19,7 +19,7 @@ export { HLine } from './drawables/line-plot/HLine';
 export { Line } from './drawables/line-plot/Line';
 export { LinePlot } from './drawables/line-plot/LinePlot';
 export { LinePlotMouseMoveEvent } from './drawables/line-plot/LinePlotMouseMoveEvent';
-export { LinePlotPoint } from './drawables/line-plot/LinePlotPoint';
+export { LinePoint } from './drawables/line-plot/LinePoint';
 export { LineStyle } from './drawables/line-plot/LineStyle';
 export { MouseTracker } from './drawables/MouseTracker';
 export { Sidebar } from './drawables/Sidebar';
