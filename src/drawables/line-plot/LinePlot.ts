@@ -279,8 +279,8 @@ export class LinePlot extends Band {
         };
 
         let visibleTicks = this.annotatedTicks.filter(tickTextIsFullyVisible);
-        if (visibleTicks.length < 2) {
-            visibleTicks = [this.minTick!, this.maxTick!];
+        if (visibleTicks.length < 2 && this.minTick && this.maxTick) {
+            visibleTicks = [this.minTick, this.maxTick];
         }
 
         let axisWidth = this.axisWidth;
