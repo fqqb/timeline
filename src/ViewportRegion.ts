@@ -79,6 +79,8 @@ export class ViewportRegion implements HitRegionSpecification {
         const vpEvent: ViewportDoubleClickEvent = {
             clientX: mouseEvent.clientX,
             clientY: mouseEvent.clientY,
+            x: mouseEvent.x,
+            y: mouseEvent.y,
             time: this.timeline.timeForCanvasPosition(mouseEvent.x),
         };
         this.doubleClickListeners.forEach(l => l(vpEvent));
@@ -131,6 +133,8 @@ export class ViewportRegion implements HitRegionSpecification {
         const vpEvent: ViewportMouseMoveEvent = {
             clientX: mouseEvent.clientX,
             clientY: mouseEvent.clientY,
+            x: mouseEvent.x,
+            y: mouseEvent.y,
             time: this.timeline.timeForCanvasPosition(mouseEvent.x),
         };
         this.mouseMoveListeners.forEach(l => l(vpEvent));

@@ -7,16 +7,26 @@ import { TimelineEvent } from './TimelineEvent';
 export interface ViewportMouseMoveEvent extends TimelineEvent {
 
     /**
-     * Horizontal coordinate of the mouse pointer, relative to
-     * the browser page.
+     * X-axis coordinate of the mouse pointer (relative to
+     * the client area).
      */
     clientX: number;
 
     /**
-     * Vertical coordinate of the mouse pointer, relative to the
-     * browser page.
+     * Y-axis coordinate of the mouse pointer (relative to the
+     * client area).
      */
     clientY: number;
+
+    /**
+     * X-axis coordinate relative to the Canvas.
+     */
+    x: number;
+
+    /**
+     * Y-axis coordinate relative to the Canvas.
+     */
+    y: number;
 
     /**
      * Time matching with the coordinates of the mouse pointer.
