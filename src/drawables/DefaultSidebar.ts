@@ -3,6 +3,7 @@ import { HitRegionSpecification } from '../graphics/HitRegionSpecification';
 import { Path } from '../graphics/Path';
 import { Band } from './Band';
 import { Sidebar } from './Sidebar';
+import { TextAlignment } from './TextAlignment';
 
 /**
  * Default sidebar implementation.
@@ -13,6 +14,7 @@ export class DefaultSidebar extends Sidebar {
     private _foregroundColor = '#333333';
     private _fontFamily = 'Verdana, Geneva, sans-serif';
     private _textSize = 10;
+    private _textAlignment: TextAlignment = 'left';
     private _overlayColor = 'transparent';
     private _hoverOverlayColor = 'rgba(170, 170, 170, 0.3)';
 
@@ -54,15 +56,38 @@ export class DefaultSidebar extends Sidebar {
         for (const band of bands) {
             if (band.label) {
                 const contentHeight = band.height - band.paddingTop - band.paddingBottom;
-                g.fillText({
-                    x: 5,
-                    y: band.y + band.paddingTop + (contentHeight / 2),
-                    align: 'left',
-                    baseline: 'middle',
-                    color: this.foregroundColor,
-                    font: `${this.textSize}px ${this.fontFamily}`,
-                    text: band.label,
-                });
+                const lrMargin = 5;
+                if (this.textAlignment === 'left') {
+                    g.fillText({
+                        x: lrMargin,
+                        y: band.y + band.paddingTop + (contentHeight / 2),
+                        align: 'left',
+                        baseline: 'middle',
+                        color: this.foregroundColor,
+                        font: `${this.textSize}px ${this.fontFamily}`,
+                        text: band.label,
+                    });
+                } else if (this.textAlignment === 'middle') {
+                    g.fillText({
+                        x: this.width / 2,
+                        y: band.y + band.paddingTop + (contentHeight / 2),
+                        align: 'center',
+                        baseline: 'middle',
+                        color: this.foregroundColor,
+                        font: `${this.textSize}px ${this.fontFamily}`,
+                        text: band.label,
+                    });
+                } else if (this.textAlignment === 'right') {
+                    g.fillText({
+                        x: this.width - lrMargin,
+                        y: band.y + band.paddingTop + (contentHeight / 2),
+                        align: 'right',
+                        baseline: 'middle',
+                        color: this.foregroundColor,
+                        font: `${this.textSize}px ${this.fontFamily}`,
+                        text: band.label,
+                    });
+                }
             }
             band.drawSidebarContent(g, this.width);
         }
@@ -182,6 +207,12 @@ export class DefaultSidebar extends Sidebar {
     get textSize() { return this._textSize; }
     set textSize(textSize: number) {
         this._textSize = textSize;
+        this.reportMutation();
+    }
+
+    get textAlignment() { return this._textAlignment; }
+    set textAlignment(textAlignment: TextAlignment) {
+        this._textAlignment = textAlignment;
         this.reportMutation();
     }
 
