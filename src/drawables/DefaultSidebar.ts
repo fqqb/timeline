@@ -148,6 +148,8 @@ export class DefaultSidebar extends Sidebar {
                     band.headerMouseMoveListeners.forEach(listener => listener({
                         clientX: mouseEvent.clientX,
                         clientY: mouseEvent.clientY,
+                        x: mouseEvent.x,
+                        y: mouseEvent.y,
                         band,
                         time: 0,
                     }));

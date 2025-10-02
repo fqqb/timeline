@@ -19,6 +19,16 @@ export interface BandMouseMoveEvent extends TimelineEvent {
     clientY: number;
 
     /**
+     * X-axis coordinate relative to the Canvas.
+     */
+    x: number;
+
+    /**
+     * Y-axis coordinate relative to the Canvas.
+     */
+    y: number;
+
+    /**
      * The applicable band.
      */
     band: Band;

@@ -312,6 +312,8 @@ export abstract class Band extends Drawable {
         return {
             clientX: evt.clientX,
             clientY: evt.clientY,
+            x: evt.x,
+            y: evt.y,
             band: this,
             time,
         };

@@ -1,9 +1,11 @@
+import { Bounds } from '../../graphics/Bounds';
 import { FillStyle } from '../../graphics/FillStyle';
 import { Graphics } from '../../graphics/Graphics';
 import { MouseHitEvent } from '../../graphics/MouseHitEvent';
 import { Path } from '../../graphics/Path';
 import { Timeline } from '../../Timeline';
 import { Band } from '../Band';
+import { BandMouseMoveEvent } from '../BandMouseMoveEvent';
 import { AxisRegion } from './AxisRegion';
 import { HLine } from './HLine';
 import { Line } from './Line';
@@ -88,6 +90,11 @@ export class LinePlot extends Band {
     private customMinimum?: number;
     private customMaximum?: number;
 
+    private mouseMoveListener: (evt: BandMouseMoveEvent) => void;
+    private mouseLeaveListener: () => void;
+
+    private hoveredY?: number;
+
     /** @hidden */
     valueForPositionFn?: (position: number) => number;
 
@@ -96,6 +103,22 @@ export class LinePlot extends Band {
     constructor(timeline: Timeline) {
         super(timeline);
         this.linePlotRegion = new LinePlotRegion(this.bandRegion, this);
+
+        this.mouseMoveListener = (evt: BandMouseMoveEvent) => {
+            if (evt.y !== this.hoveredY) {
+                this.hoveredY = evt.y;
+                this.reportMutation();
+            }
+        };
+        this.addMouseMoveListener(this.mouseMoveListener);
+
+        this.mouseLeaveListener = () => {
+            if (this.hoveredY !== undefined) {
+                this.hoveredY = undefined;
+                this.reportMutation();
+            }
+        };
+        this.addMouseLeaveListener(this.mouseLeaveListener);
     }
 
     /**
@@ -354,7 +377,47 @@ export class LinePlot extends Band {
                 });
             }
         }
-    };
+
+        if (this.hoveredY !== undefined && this.valueForPositionFn) {
+            const value = this.valueForPositionFn(this.hoveredY - this.y);
+            const label = this.labelFormatter(value);
+
+            const font = `${this.labelTextSize}px ${this.labelFontFamily}`;
+            const padding = 4;
+
+            const fm = g.measureText(label, font);
+
+            const textBounds: Bounds = {
+                x: width - padding - fm.width - padding,
+                y: this.hoveredY - padding - fm.height / 2,
+                width: padding + fm.width + padding,
+                height: padding + fm.height + padding,
+            };
+
+            // Stay within the band's bounds
+            if (textBounds.y < this.y) {
+                textBounds.y = this.y;
+            } else if (textBounds.y + textBounds.height > this.y + this.contentHeight) {
+                textBounds.y = this.y + this.contentHeight - textBounds.height;
+            }
+
+            g.fillRect({
+                ...textBounds,
+                fill: 'rgba(97, 97, 97, 0.9)',
+                rx: 2,
+                ry: 2,
+            });
+            g.fillText({
+                x: textBounds.x + padding,
+                y: textBounds.y + textBounds.height / 2,
+                align: 'left',
+                baseline: 'middle',
+                color: 'white',
+                font,
+                text: label,
+            });
+        }
+    }
 
     private drawLohi(g: Graphics, line: AnnotatedLine, positionForValueFn: (value: number) => number) {
         const fill = line.lohiColor ?? this.lohiColor;
@@ -804,5 +867,12 @@ export class LinePlot extends Band {
     set hlines(hlines: HLine[]) {
         this._hlines = hlines;
         this.reportMutation();
+    }
+
+    disconnectedCallback(): void {
+        super.disconnectedCallback();
+
+        this.removeMouseMoveListener(this.mouseMoveListener);
+        this.removeMouseLeaveListener(this.mouseLeaveListener);
     }
 }
