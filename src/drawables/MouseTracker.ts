@@ -1,3 +1,6 @@
+import { Graphics } from '../graphics/Graphics';
+import { Path } from '../graphics/Path';
+import { Point } from '../graphics/Point';
 import { Timeline } from '../Timeline';
 import { ViewportMouseMoveEvent } from '../ViewportMouseMoveEvent';
 import { TimeLocator } from './TimeLocator';
@@ -8,15 +11,30 @@ import { TimeLocator } from './TimeLocator';
  */
 export class MouseTracker extends TimeLocator {
 
+    private _trackX: boolean = true;
+    private _trackY: boolean = false;
+
+    private hoveredY?: number;
+
     private mouseMoveListener = (evt: ViewportMouseMoveEvent) => {
         if (evt.time !== this.time) {
             this.time = evt.time;
             this.reportMutation();
         }
+        if (evt.y !== this.hoveredY) {
+            this.hoveredY = evt.y;
+            this.reportMutation();
+        }
     };
     private mouseLeaveListener = () => {
-        this.time = undefined;
-        this.reportMutation();
+        if (this.time !== undefined) {
+            this.time = undefined;
+            this.reportMutation();
+        }
+        if (this.hoveredY !== undefined) {
+            this.hoveredY = undefined;
+            this.reportMutation();
+        }
     };
 
     /**
@@ -32,6 +50,39 @@ export class MouseTracker extends TimeLocator {
 
         timeline.addViewportMouseMoveListener(this.mouseMoveListener);
         timeline.addViewportMouseLeaveListener(this.mouseLeaveListener);
+    }
+
+    override drawOverlay(g: Graphics): void {
+        if (this.trackX) {
+            super.drawOverlay(g);
+        }
+        if (this.trackY && this.hoveredY !== undefined) {
+            const y = Math.round(this.hoveredY);
+            const left: Point = { x: 0, y };
+            const right: Point = { x: g.width, y };
+            g.strokePath({
+                color: this.lineColor,
+                lineWidth: this.lineWidth,
+                dash: this.lineDash,
+                path: new Path(left.x, left.y + 0.5).lineTo(right.x, right.y + 0.5),
+            });
+        }
+    }
+
+    /**
+     * Whether to track position on the X-axis (time)
+     */
+    get trackX() { return this._trackX; }
+    set trackX(trackX: boolean) {
+        this._trackX = trackX;
+    }
+
+    /**
+     * Whether to track position on the Y-axis
+     */
+    get trackY() { return this._trackY; }
+    set trackY(trackY: boolean) {
+        this._trackY = trackY;
     }
 
     disconnectedCallback() {
