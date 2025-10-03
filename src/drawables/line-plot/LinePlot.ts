@@ -69,6 +69,7 @@ export class LinePlot extends Band {
     private _axisWidth?: number;
     private _minimum?: number;
     private _maximum?: number;
+    private _centerZero = false;
     private _axisPadding = 0.1;
     private _zoomMultiplier = 0.05;
     private _pointRadius = 1.5;
@@ -229,6 +230,14 @@ export class LinePlot extends Band {
         }
         if (max < min) { // Edge case in case only one of minimum/maximum was configured
             [min, max] = [max, min];
+        }
+
+        if (this.centerZero) {
+            if (min >= 0) {
+                min = Math.min(-max, min);
+            } else if (min < 0) {
+                max = Math.max(-min, max);
+            }
         }
 
         // Calculate ticks for the available content height.
@@ -827,6 +836,17 @@ export class LinePlot extends Band {
      */
     get visibleMaximum() {
         return this.valueForPositionFn!(0);
+    }
+
+    /**
+     * If true, ensure the 0 value is in the middle of the Y-axis.
+     *
+     * This property is ignored when `minimum` or `maximum` are explicitly set.
+     */
+    get centerZero() { return this._centerZero; }
+    set centerZero(centerZero: boolean) {
+        this._centerZero = centerZero;
+        this.reportMutation();
     }
 
     /**
