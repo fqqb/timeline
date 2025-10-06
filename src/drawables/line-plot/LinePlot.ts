@@ -406,12 +406,13 @@ export class LinePlot extends Band {
             const label = this.labelFormatter(value);
 
             const font = `${this.labelTextSize}px ${this.labelFontFamily}`;
-            const padding = 4;
+            const padding = spacing;
 
             const fm = g.measureText(label, font);
 
+            const rMargin = textMargin - spacing;
             const textBounds: Bounds = {
-                x: width - padding - fm.width - padding,
+                x: width - rMargin - padding - fm.width - padding,
                 y: this.hoveredY - padding - fm.height / 2,
                 width: padding + fm.width + padding,
                 height: padding + fm.height + padding,
