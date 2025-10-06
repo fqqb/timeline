@@ -30,13 +30,26 @@ interface AnnotatedLine {
 }
 
 interface DrawInfo {
+    /** @deprecated */
     renderX: number;
+    /**
+     * X-coordinate on band, relative to time=0.
+     *
+     * Represents a point in a pixel canvas, so always a whole integer. This property
+     * can be used to avoid jitter coming from rounding errors when calculating positions
+     * on the fly relative to the viewport:
+     *
+     * renderX = renderX0 - start0
+     *
+     * where start0 = distance in whole pixels between t0 and actual start.
+     */
+    renderX0: number;
     renderY?: number;
 }
 
 interface AnnotatedPoint {
-    x: number;
-    y: number | null;
+    x: number; // Time
+    y: number | null; // Value
     low?: number;
     high?: number;
     pointRadius?: number;
@@ -281,6 +294,7 @@ export class LinePlot extends Band {
                 for (const point of visibleLine.points) {
                     point.drawInfo = {
                         renderX: Math.round(this.timeline.positionTime(point.x)),
+                        renderX0: Math.round(this.timeline.distanceBetween(0, point.x)),
                         renderY: point.y !== null ? positionForValueFn(point.y) : undefined,
                     };
                 }
@@ -430,6 +444,7 @@ export class LinePlot extends Band {
 
     private drawLohi(g: Graphics, line: AnnotatedLine, positionForValueFn: (value: number) => number) {
         const fill = line.lohiColor ?? this.lohiColor;
+        const start0 = Math.round(this.timeline.distanceBetween(0, this.timeline.start));
 
         for (let i = 1; i < line.points.length; i++) {
             const prev = line.points[i - 1].drawInfo!;
@@ -444,15 +459,17 @@ export class LinePlot extends Band {
                 && prevHigh !== undefined
                 && pointLow !== undefined
                 && pointHigh !== undefined) {
+                const prevX = prev.renderX0 - start0;
+                const pointX = point.renderX0 - start0;
                 const prevLowY = positionForValueFn(prevLow);
                 const prevHighY = positionForValueFn(prevHigh);
                 const pointLowY = positionForValueFn(pointLow);
                 const pointHighY = positionForValueFn(pointHigh);
                 g.fillPath({
-                    path: new Path(prev.renderX, prevHighY)
-                        .lineTo(prev.renderX, prevLowY)
-                        .lineTo(point.renderX, pointLowY)
-                        .lineTo(point.renderX, pointHighY),
+                    path: new Path(prevX, prevHighY)
+                        .lineTo(prevX, prevLowY)
+                        .lineTo(pointX, pointLowY)
+                        .lineTo(pointX, pointHighY),
                     fill,
                 });
             }
@@ -463,6 +480,7 @@ export class LinePlot extends Band {
         const fill = line.fill ?? this.fill;
         const lineWidth = line.lineWidth ?? this.lineWidth;
         const lineStyle = line.lineStyle ?? this.lineStyle;
+        const start0 = Math.round(this.timeline.distanceBetween(0, this.timeline.start));
         const originY = Math.round(positionForValueFn(0)) + 0.5;
 
         if (lineStyle === 'straight') {
@@ -471,10 +489,10 @@ export class LinePlot extends Band {
                 const point = line.points[i].drawInfo!;
                 if (prev.renderY !== undefined && point.renderY !== undefined) {
                     g.fillPath({
-                        path: new Path(prev.renderX, prev.renderY)
-                            .lineTo(prev.renderX, originY)
-                            .lineTo(point.renderX, originY)
-                            .lineTo(point.renderX, point.renderY),
+                        path: new Path(prev.renderX0 - start0, prev.renderY)
+                            .lineTo(prev.renderX0 - start0, originY)
+                            .lineTo(point.renderX0 - start0, originY)
+                            .lineTo(point.renderX0 - start0, point.renderY),
                         fill,
                     });
                 }
@@ -485,9 +503,9 @@ export class LinePlot extends Band {
                 const prev = line.points[i - 1].drawInfo!;
                 const point = line.points[i].drawInfo!;
                 if (prev.renderY !== undefined && point.renderY !== undefined) {
-                    const prevX = Math.round(prev.renderX) + offset;
+                    const prevX = prev.renderX0 - start0 + offset;
                     const prevY = Math.round(prev.renderY) + offset;
-                    const pointX = Math.round(point.renderX) + offset;
+                    const pointX = point.renderX0 - start0 + offset;
                     g.fillPath({
                         path: new Path(prevX, prevY)
                             .lineTo(prevX, originY)
@@ -543,17 +561,19 @@ export class LinePlot extends Band {
 
         const { points } = line;
 
+        const start0 = Math.round(this.timeline.distanceBetween(0, this.timeline.start));
+
         // Draw trace
-        const path = new Path(points[0].drawInfo!.renderX, points[0].drawInfo!.renderY ?? 0);
+        const path = new Path(points[0].drawInfo!.renderX0 - start0, points[0].drawInfo!.renderY ?? 0);
 
         if (lineStyle === 'straight') {
             for (let i = 1; i < points.length; i++) {
                 const prev = points[i - 1].drawInfo!;
                 const point = points[i].drawInfo!;
                 if (prev.renderY !== undefined && point.renderY !== undefined) {
-                    path.lineTo(point.renderX, point.renderY);
+                    path.lineTo(point.renderX0 - start0, point.renderY);
                 } else if (point.renderY !== undefined) {
-                    path.moveTo(point.renderX, point.renderY);
+                    path.moveTo(point.renderX0 - start0, point.renderY);
                 }
             }
         } else {
@@ -562,13 +582,13 @@ export class LinePlot extends Band {
                 const prev = points[i - 1].drawInfo!;
                 const point = points[i].drawInfo!;
                 if (prev.renderY !== undefined && point.renderY !== undefined) {
-                    const x = Math.round(point.renderX) + offset;
+                    const x = point.renderX0 - start0 + offset;
                     let y = Math.round(prev.renderY) + offset;
                     path.lineTo(x, y);
                     y = Math.round(point.renderY) + offset;
                     path.lineTo(x, y);
                 } else if (point.renderY !== undefined) {
-                    const x = Math.round(point.renderX) + offset;
+                    const x = point.renderX0 - start0 + offset;
                     const y = Math.round(point.renderY) + offset;
                     path.moveTo(x, y);
                 }
@@ -585,10 +605,10 @@ export class LinePlot extends Band {
 
         // Draw point symbols
         for (const point of points) {
-            const { renderX, renderY } = point.drawInfo!;
+            const { renderX0, renderY } = point.drawInfo!;
             if (renderY !== undefined) {
                 g.fillEllipse({
-                    cx: renderX,
+                    cx: renderX0 - start0,
                     cy: renderY,
                     rx: point.pointRadius ?? pointRadius,
                     ry: point.pointRadius ?? pointRadius,
