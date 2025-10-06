@@ -79,6 +79,12 @@ export class EventHandler {
     }
 
     private onCanvasDoubleClick(domEvent: MouseEvent) {
+        // Unsure why, but there are sometimes unwanted dblclick events while
+        // a grab is underway.
+        if (this.grabbing) {
+            return;
+        }
+
         const hitEvent = this.toMouseHitEvent(domEvent);
         const region = this.hitCanvas.getActiveRegion(hitEvent.x, hitEvent.y, 'doubleClick');
         if (region) {
