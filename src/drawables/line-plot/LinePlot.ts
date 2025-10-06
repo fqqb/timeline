@@ -600,7 +600,7 @@ export class LinePlot extends Band {
             path,
             color: lineColor,
             lineWidth,
-            lineCap: 'round',
+            lineCap: 'butt',
             lineJoin: 'round',
         });
 
