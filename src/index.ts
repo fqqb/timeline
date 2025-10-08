@@ -24,6 +24,7 @@ export { LinePoint } from './drawables/line-plot/LinePoint';
 export { LineStyle } from './drawables/line-plot/LineStyle';
 export { MouseTracker } from './drawables/MouseTracker';
 export { Sidebar } from './drawables/Sidebar';
+export { SidebarResizeEvent } from './drawables/SidebarResizeEvent';
 export { State } from './drawables/state-band/State';
 export { StateBand } from './drawables/state-band/StateBand';
 export { StateClickEvent } from './drawables/state-band/StateClickEvent';
