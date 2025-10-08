@@ -4,7 +4,7 @@ import { enUS } from 'date-fns/locale';
 import { Graphics } from '../../graphics/Graphics';
 import { Path } from '../../graphics/Path';
 import { Band } from '../Band';
-import { FullHeightKind } from './FullHeightKind';
+import { GridLayer } from '../GridLayer';
 import { ScaleKind } from './ScaleKind';
 
 /**
@@ -133,7 +133,7 @@ export class TimeRuler extends Band {
     private _contentHeight = 30;
     private _textColor = 'grey';
     private _tickColor = '#888888';
-    private _fullHeight?: FullHeightKind;
+    private _grid?: GridLayer;
     private _timezone?: string;
     private _scale: ScaleKind = 'auto';
 
@@ -189,14 +189,14 @@ export class TimeRuler extends Band {
     }
 
     override drawUnderlay(g: Graphics) {
-        if (this.fullHeight === 'underlay' && this.scaleRenderer?.drawFullHeightTicks) {
-            this.scaleRenderer.drawFullHeightTicks(g, this);
+        if (this.grid === 'underlay' && this.scaleRenderer?.drawGrid) {
+            this.scaleRenderer.drawGrid(g, this);
         }
     }
 
-    override drawOverlay(g: Graphics): void {
-        if (this.fullHeight === 'overlay' && this.scaleRenderer?.drawFullHeightTicks) {
-            this.scaleRenderer.drawFullHeightTicks(g, this);
+    override drawOverlay(g: Graphics) {
+        if (this.grid === 'overlay' && this.scaleRenderer?.drawGrid) {
+            this.scaleRenderer.drawGrid(g, this);
         }
     }
 
@@ -209,9 +209,12 @@ export class TimeRuler extends Band {
         this.reportMutation();
     }
 
-    get fullHeight() { return this._fullHeight; }
-    set fullHeight(fullHeight: FullHeightKind | undefined) {
-        this._fullHeight = fullHeight;
+    /**
+     * Whether to extend major ticks over the entire canvas height
+     */
+    get grid() { return this._grid; }
+    set grid(grid: GridLayer | undefined) {
+        this._grid = grid;
         this.reportMutation();
     }
 
@@ -308,7 +311,7 @@ interface Scale {
     getPreferredUnitWidth(): number;
     measureUnitWidth(ruler: TimeRuler): number;
     drawBandContent(g: Graphics, ruler: TimeRuler): void;
-    drawFullHeightTicks?(g: Graphics, ruler: TimeRuler): void;
+    drawGrid?(g: Graphics, ruler: TimeRuler): void;
 }
 
 /**
@@ -316,7 +319,7 @@ interface Scale {
  */
 class TenMillisecondsScale implements Scale {
 
-    private fullHeightTicks: number[] = [];
+    private gridTicks: number[] = [];
 
     getPreferredUnitWidth(): number {
         return 110;
@@ -336,14 +339,14 @@ class TenMillisecondsScale implements Scale {
 
         t = startOfTZMinute(t, timezone);
 
-        this.fullHeightTicks.length = 0;
+        this.gridTicks.length = 0;
 
         const height = g.height;
         const font = `${ruler.timeline.textSize}px ${ruler.timeline.fontFamily}`;
 
         while (t.getTime() <= ruler.timeline.stop) {
             const pos = ruler.timeline.positionTime(t.getTime());
-            this.fullHeightTicks.push(pos);
+            this.gridTicks.push(pos);
             g.strokePath({
                 color: ruler.tickColor,
                 path: new Path(0, 0)
@@ -366,9 +369,9 @@ class TenMillisecondsScale implements Scale {
         }
     }
 
-    drawFullHeightTicks(g: Graphics, ruler: TimeRuler): void {
+    drawGrid(g: Graphics, ruler: TimeRuler): void {
         const path = new Path(0, 0);
-        for (const x of this.fullHeightTicks) {
+        for (const x of this.gridTicks) {
             if (ruler.y > 0) {
                 path.moveTo(Math.round(x) + 0.5, 0);
                 path.lineTo(Math.round(x) + 0.5, ruler.y);
@@ -388,7 +391,7 @@ class TenMillisecondsScale implements Scale {
  */
 class HundredMillisecondsScale implements Scale {
 
-    private fullHeightTicks: number[] = [];
+    private gridTicks: number[] = [];
 
     getPreferredUnitWidth(): number {
         return 100;
@@ -408,14 +411,14 @@ class HundredMillisecondsScale implements Scale {
 
         t = startOfTZMinute(t, timezone);
 
-        this.fullHeightTicks.length = 0;
+        this.gridTicks.length = 0;
 
         const height = g.height;
         const font = `${ruler.timeline.textSize}px ${ruler.timeline.fontFamily}`;
 
         while (t.getTime() <= ruler.timeline.stop) {
             const pos = ruler.timeline.positionTime(t.getTime());
-            this.fullHeightTicks.push(pos);
+            this.gridTicks.push(pos);
             g.strokePath({
                 color: ruler.tickColor,
                 path: new Path(0, 0)
@@ -438,9 +441,9 @@ class HundredMillisecondsScale implements Scale {
         }
     }
 
-    drawFullHeightTicks(g: Graphics, ruler: TimeRuler): void {
+    drawGrid(g: Graphics, ruler: TimeRuler): void {
         const path = new Path(0, 0);
-        for (const x of this.fullHeightTicks) {
+        for (const x of this.gridTicks) {
             if (ruler.y > 0) {
                 path.moveTo(Math.round(x) + 0.5, 0);
                 path.lineTo(Math.round(x) + 0.5, ruler.y);
@@ -460,7 +463,7 @@ class HundredMillisecondsScale implements Scale {
  */
 class TwoHundredMillisecondsScale implements Scale {
 
-    private fullHeightTicks: number[] = [];
+    private gridTicks: number[] = [];
 
     getPreferredUnitWidth(): number {
         return 97;
@@ -480,14 +483,14 @@ class TwoHundredMillisecondsScale implements Scale {
 
         t = startOfTZMinute(t, timezone);
 
-        this.fullHeightTicks.length = 0;
+        this.gridTicks.length = 0;
 
         const height = g.height;
         const font = `${ruler.timeline.textSize}px ${ruler.timeline.fontFamily}`;
 
         while (t.getTime() <= ruler.timeline.stop) {
             const pos = ruler.timeline.positionTime(t.getTime());
-            this.fullHeightTicks.push(pos);
+            this.gridTicks.push(pos);
             g.strokePath({
                 color: ruler.tickColor,
                 path: new Path(0, 0)
@@ -510,9 +513,9 @@ class TwoHundredMillisecondsScale implements Scale {
         }
     }
 
-    drawFullHeightTicks(g: Graphics, ruler: TimeRuler): void {
+    drawGrid(g: Graphics, ruler: TimeRuler): void {
         const path = new Path(0, 0);
-        for (const x of this.fullHeightTicks) {
+        for (const x of this.gridTicks) {
             if (ruler.y > 0) {
                 path.moveTo(Math.round(x) + 0.5, 0);
                 path.lineTo(Math.round(x) + 0.5, ruler.y);
@@ -532,7 +535,7 @@ class TwoHundredMillisecondsScale implements Scale {
  */
 class SecondScale implements Scale {
 
-    private fullHeightTicks: number[] = [];
+    private gridTicks: number[] = [];
 
     getPreferredUnitWidth(): number {
         return 95;
@@ -552,14 +555,14 @@ class SecondScale implements Scale {
 
         t = startOfTZMinute(t, timezone);
 
-        this.fullHeightTicks.length = 0;
+        this.gridTicks.length = 0;
 
         const height = g.height;
         const font = `${ruler.timeline.textSize}px ${ruler.timeline.fontFamily}`;
 
         while (t.getTime() <= ruler.timeline.stop) {
             const pos = ruler.timeline.positionTime(t.getTime());
-            this.fullHeightTicks.push(pos);
+            this.gridTicks.push(pos);
             g.strokePath({
                 color: ruler.tickColor,
                 path: new Path(0, 0)
@@ -582,9 +585,9 @@ class SecondScale implements Scale {
         }
     }
 
-    drawFullHeightTicks(g: Graphics, ruler: TimeRuler): void {
+    drawGrid(g: Graphics, ruler: TimeRuler): void {
         const path = new Path(0, 0);
-        for (const x of this.fullHeightTicks) {
+        for (const x of this.gridTicks) {
             if (ruler.y > 0) {
                 path.moveTo(Math.round(x) + 0.5, 0);
                 path.lineTo(Math.round(x) + 0.5, ruler.y);
@@ -604,7 +607,7 @@ class SecondScale implements Scale {
  */
 class FiveSecondsScale implements Scale {
 
-    private fullHeightTicks: number[] = [];
+    private gridTicks: number[] = [];
 
     getPreferredUnitWidth(): number {
         return 92;
@@ -622,14 +625,14 @@ class FiveSecondsScale implements Scale {
 
         t = startOfTZMinute(t, timezone);
 
-        this.fullHeightTicks.length = 0;
+        this.gridTicks.length = 0;
 
         const height = g.height;
         const font = `${ruler.timeline.textSize}px ${ruler.timeline.fontFamily}`;
 
         while (t.getTime() <= ruler.timeline.stop) {
             const pos = ruler.timeline.positionTime(t.getTime());
-            this.fullHeightTicks.push(pos);
+            this.gridTicks.push(pos);
             g.strokePath({
                 color: ruler.tickColor,
                 path: new Path(0, 0)
@@ -652,9 +655,9 @@ class FiveSecondsScale implements Scale {
         }
     }
 
-    drawFullHeightTicks(g: Graphics, ruler: TimeRuler): void {
+    drawGrid(g: Graphics, ruler: TimeRuler): void {
         const path = new Path(0, 0);
-        for (const x of this.fullHeightTicks) {
+        for (const x of this.gridTicks) {
             if (ruler.y > 0) {
                 path.moveTo(Math.round(x) + 0.5, 0);
                 path.lineTo(Math.round(x) + 0.5, ruler.y);
@@ -674,7 +677,7 @@ class FiveSecondsScale implements Scale {
  */
 class TenSecondsScale implements Scale {
 
-    private fullHeightTicks: number[] = [];
+    private gridTicks: number[] = [];
 
     getPreferredUnitWidth(): number {
         return 90;
@@ -692,14 +695,14 @@ class TenSecondsScale implements Scale {
 
         t = startOfTZMinute(t, timezone);
 
-        this.fullHeightTicks.length = 0;
+        this.gridTicks.length = 0;
 
         const height = g.height;
         const font = `${ruler.timeline.textSize}px ${ruler.timeline.fontFamily}`;
 
         while (t.getTime() <= ruler.timeline.stop) {
             const pos = ruler.timeline.positionTime(t.getTime());
-            this.fullHeightTicks.push(pos);
+            this.gridTicks.push(pos);
             g.strokePath({
                 color: ruler.tickColor,
                 path: new Path(0, 0)
@@ -722,9 +725,9 @@ class TenSecondsScale implements Scale {
         }
     }
 
-    drawFullHeightTicks(g: Graphics, ruler: TimeRuler): void {
+    drawGrid(g: Graphics, ruler: TimeRuler): void {
         const path = new Path(0, 0);
-        for (const x of this.fullHeightTicks) {
+        for (const x of this.gridTicks) {
             if (ruler.y > 0) {
                 path.moveTo(Math.round(x) + 0.5, 0);
                 path.lineTo(Math.round(x) + 0.5, ruler.y);
@@ -744,7 +747,7 @@ class TenSecondsScale implements Scale {
  */
 class HalfMinuteScale implements Scale {
 
-    private fullHeightTicks: number[] = [];
+    private gridTicks: number[] = [];
 
     getPreferredUnitWidth(): number {
         return 85;
@@ -762,14 +765,14 @@ class HalfMinuteScale implements Scale {
 
         t = startOfTZHour(t, timezone);
 
-        this.fullHeightTicks.length = 0;
+        this.gridTicks.length = 0;
 
         const height = g.height;
         const font = `${ruler.timeline.textSize}px ${ruler.timeline.fontFamily}`;
 
         while (t.getTime() <= ruler.timeline.stop) {
             const pos = ruler.timeline.positionTime(t.getTime());
-            this.fullHeightTicks.push(pos);
+            this.gridTicks.push(pos);
             g.strokePath({
                 color: ruler.tickColor,
                 path: new Path(0, 0)
@@ -792,9 +795,9 @@ class HalfMinuteScale implements Scale {
         }
     }
 
-    drawFullHeightTicks(g: Graphics, ruler: TimeRuler): void {
+    drawGrid(g: Graphics, ruler: TimeRuler): void {
         const path = new Path(0, 0);
-        for (const x of this.fullHeightTicks) {
+        for (const x of this.gridTicks) {
             if (ruler.y > 0) {
                 path.moveTo(Math.round(x) + 0.5, 0);
                 path.lineTo(Math.round(x) + 0.5, ruler.y);
@@ -814,7 +817,7 @@ class HalfMinuteScale implements Scale {
  */
 class MinuteScale implements Scale {
 
-    private fullHeightTicks: number[] = [];
+    private gridTicks: number[] = [];
 
     getPreferredUnitWidth(): number {
         return 80;
@@ -832,14 +835,14 @@ class MinuteScale implements Scale {
 
         t = startOfTZHour(t, timezone);
 
-        this.fullHeightTicks.length = 0;
+        this.gridTicks.length = 0;
 
         const height = g.height;
         const font = `${ruler.timeline.textSize}px ${ruler.timeline.fontFamily}`;
 
         while (t.getTime() <= ruler.timeline.stop) {
             const pos = ruler.timeline.positionTime(t.getTime());
-            this.fullHeightTicks.push(pos);
+            this.gridTicks.push(pos);
             g.strokePath({
                 color: ruler.tickColor,
                 path: new Path(0, 0)
@@ -862,9 +865,9 @@ class MinuteScale implements Scale {
         }
     }
 
-    drawFullHeightTicks(g: Graphics, ruler: TimeRuler): void {
+    drawGrid(g: Graphics, ruler: TimeRuler): void {
         const path = new Path(0, 0);
-        for (const x of this.fullHeightTicks) {
+        for (const x of this.gridTicks) {
             if (ruler.y > 0) {
                 path.moveTo(Math.round(x) + 0.5, 0);
                 path.lineTo(Math.round(x) + 0.5, ruler.y);
@@ -884,7 +887,7 @@ class MinuteScale implements Scale {
  */
 class FiveMinutesScale implements Scale {
 
-    private fullHeightTicks: number[] = [];
+    private gridTicks: number[] = [];
 
     getPreferredUnitWidth(): number {
         return 65;
@@ -902,14 +905,14 @@ class FiveMinutesScale implements Scale {
 
         t = startOfTZDay(t, timezone);
 
-        this.fullHeightTicks.length = 0;
+        this.gridTicks.length = 0;
 
         const height = g.height;
         const font = `${ruler.timeline.textSize}px ${ruler.timeline.fontFamily}`;
 
         while (t.getTime() <= ruler.timeline.stop) {
             const x = ruler.timeline.positionTime(t.getTime());
-            this.fullHeightTicks.push(x);
+            this.gridTicks.push(x);
 
             g.strokePath({
                 color: ruler.tickColor,
@@ -934,7 +937,7 @@ class FiveMinutesScale implements Scale {
                 }
                 if (i !== 0) {
                     const subX = ruler.timeline.positionTime(sub.getTime());
-                    this.fullHeightTicks.push(subX);
+                    this.gridTicks.push(subX);
                     g.strokePath({
                         color: ruler.tickColor,
                         path: new Path(0, 0)
@@ -958,9 +961,9 @@ class FiveMinutesScale implements Scale {
         }
     }
 
-    drawFullHeightTicks(g: Graphics, ruler: TimeRuler): void {
+    drawGrid(g: Graphics, ruler: TimeRuler): void {
         const path = new Path(0, 0);
-        for (const x of this.fullHeightTicks) {
+        for (const x of this.gridTicks) {
             if (ruler.y > 0) {
                 path.moveTo(Math.round(x) + 0.5, 0);
                 path.lineTo(Math.round(x) + 0.5, ruler.y);
@@ -980,7 +983,7 @@ class FiveMinutesScale implements Scale {
  */
 class TenMinutesScale implements Scale {
 
-    private fullHeightTicks: number[] = [];
+    private gridTicks: number[] = [];
 
     getPreferredUnitWidth(): number {
         return 60;
@@ -998,14 +1001,14 @@ class TenMinutesScale implements Scale {
 
         t = startOfTZDay(t, timezone);
 
-        this.fullHeightTicks.length = 0;
+        this.gridTicks.length = 0;
 
         const height = g.height;
         const font = `${ruler.timeline.textSize}px ${ruler.timeline.fontFamily}`;
 
         while (t.getTime() <= ruler.timeline.stop) {
             const x = ruler.timeline.positionTime(t.getTime());
-            this.fullHeightTicks.push(x);
+            this.gridTicks.push(x);
 
             g.strokePath({
                 color: ruler.tickColor,
@@ -1030,7 +1033,7 @@ class TenMinutesScale implements Scale {
                 }
                 if (i !== 0) {
                     const subX = ruler.timeline.positionTime(sub.getTime());
-                    this.fullHeightTicks.push(subX);
+                    this.gridTicks.push(subX);
                     g.strokePath({
                         color: ruler.tickColor,
                         path: new Path(0, 0)
@@ -1054,9 +1057,9 @@ class TenMinutesScale implements Scale {
         }
     }
 
-    drawFullHeightTicks(g: Graphics, ruler: TimeRuler): void {
+    drawGrid(g: Graphics, ruler: TimeRuler): void {
         const path = new Path(0, 0);
-        for (const x of this.fullHeightTicks) {
+        for (const x of this.gridTicks) {
             if (ruler.y > 0) {
                 path.moveTo(Math.round(x) + 0.5, 0);
                 path.lineTo(Math.round(x) + 0.5, ruler.y);
@@ -1076,7 +1079,7 @@ class TenMinutesScale implements Scale {
  */
 class HalfHourScale implements Scale {
 
-    private fullHeightTicks: number[] = [];
+    private gridTicks: number[] = [];
 
     getPreferredUnitWidth(): number {
         return 50;
@@ -1094,14 +1097,14 @@ class HalfHourScale implements Scale {
 
         t = startOfTZDay(t, timezone);
 
-        this.fullHeightTicks.length = 0;
+        this.gridTicks.length = 0;
 
         const height = g.height;
         const font = `${ruler.timeline.textSize}px ${ruler.timeline.fontFamily}`;
 
         while (t.getTime() <= ruler.timeline.stop) {
             const x = ruler.timeline.positionTime(t.getTime());
-            this.fullHeightTicks.push(x);
+            this.gridTicks.push(x);
 
             g.strokePath({
                 color: ruler.tickColor,
@@ -1123,7 +1126,7 @@ class HalfHourScale implements Scale {
                 const sub = setTZMinutes(t, i * 30, timezone);
                 if (i !== 0) {
                     const subX = ruler.timeline.positionTime(sub.getTime());
-                    this.fullHeightTicks.push(subX);
+                    this.gridTicks.push(subX);
                     g.strokePath({
                         color: ruler.tickColor,
                         path: new Path(0, 0)
@@ -1146,9 +1149,9 @@ class HalfHourScale implements Scale {
             t = addDays(t, 1); // This accounts for DST (adding hours does not)
         }
     }
-    drawFullHeightTicks(g: Graphics, ruler: TimeRuler): void {
+    drawGrid(g: Graphics, ruler: TimeRuler): void {
         const path = new Path(0, 0);
-        for (const x of this.fullHeightTicks) {
+        for (const x of this.gridTicks) {
             if (ruler.y > 0) {
                 path.moveTo(Math.round(x) + 0.5, 0);
                 path.lineTo(Math.round(x) + 0.5, ruler.y);
@@ -1272,7 +1275,7 @@ class HourScale implements Scale {
         }
     }
 
-    drawFullHeightTicks(g: Graphics, ruler: TimeRuler) {
+    drawGrid(g: Graphics, ruler: TimeRuler) {
         const path = new Path(0, 0);
         for (const x of this.majorX) {
             if (ruler.y > 0) {
@@ -1366,7 +1369,7 @@ class QuarterDayScale implements Scale {
         }
     }
 
-    drawFullHeightTicks(g: Graphics, ruler: TimeRuler) {
+    drawGrid(g: Graphics, ruler: TimeRuler) {
         const path = new Path(0, 0);
         for (const x of this.majorX) {
             if (ruler.y > 0) {
@@ -1460,7 +1463,7 @@ class WeekDayScale implements Scale {
         }
     }
 
-    drawFullHeightTicks(g: Graphics, ruler: TimeRuler) {
+    drawGrid(g: Graphics, ruler: TimeRuler) {
         const path = new Path(0, 0);
         for (const x of this.majorX) {
             if (ruler.y > 0) {
@@ -1558,7 +1561,7 @@ class WeekScale implements Scale {
         }
     }
 
-    drawFullHeightTicks(g: Graphics, ruler: TimeRuler) {
+    drawGrid(g: Graphics, ruler: TimeRuler) {
         const path = new Path(0, 0);
         for (const x of this.majorX) {
             if (ruler.y > 0) {
@@ -1649,7 +1652,7 @@ class MonthScale implements Scale {
         }
     }
 
-    drawFullHeightTicks(g: Graphics, ruler: TimeRuler) {
+    drawGrid(g: Graphics, ruler: TimeRuler) {
         const path = new Path(0, 0);
         for (const x of this.majorX) {
             if (ruler.y > 0) {
@@ -1671,7 +1674,7 @@ class MonthScale implements Scale {
  */
 class YearScale implements Scale {
 
-    private fullHeightTicks: number[] = [];
+    private gridTicks: number[] = [];
 
     getPreferredUnitWidth() {
         return 49;
@@ -1691,7 +1694,7 @@ class YearScale implements Scale {
 
         t = startOfTZYear(t, timezone);
 
-        this.fullHeightTicks.length = 0;
+        this.gridTicks.length = 0;
 
         const height = g.height;
         const font = `${ruler.timeline.textSize}px ${ruler.timeline.fontFamily}`;
@@ -1699,7 +1702,7 @@ class YearScale implements Scale {
         while (t.getTime() <= ruler.timeline.stop) {
             const x = ruler.timeline.positionTime(t.getTime());
 
-            this.fullHeightTicks.push(x);
+            this.gridTicks.push(x);
             g.strokePath({
                 color: ruler.tickColor,
                 path: new Path(0, 0)
@@ -1720,9 +1723,9 @@ class YearScale implements Scale {
         }
     }
 
-    drawFullHeightTicks(g: Graphics, ruler: TimeRuler) {
+    drawGrid(g: Graphics, ruler: TimeRuler) {
         const path = new Path(0, 0);
-        for (const x of this.fullHeightTicks) {
+        for (const x of this.gridTicks) {
             if (ruler.y > 0) {
                 path.moveTo(Math.round(x) + 0.5, 0);
                 path.lineTo(Math.round(x) + 0.5, ruler.y);
@@ -1742,7 +1745,7 @@ class YearScale implements Scale {
  */
 class DecadeScale implements Scale {
 
-    private fullHeightTicks: number[] = [];
+    private gridTicks: number[] = [];
 
     getPreferredUnitWidth() {
         return 49;
@@ -1762,7 +1765,7 @@ class DecadeScale implements Scale {
 
         t = startOfTZDecade(t, timezone);
 
-        this.fullHeightTicks.length = 0;
+        this.gridTicks.length = 0;
 
         const height = g.height;
         const font = `${ruler.timeline.textSize}px ${ruler.timeline.fontFamily}`;
@@ -1770,7 +1773,7 @@ class DecadeScale implements Scale {
         while (t.getTime() <= ruler.timeline.stop) {
             const x = ruler.timeline.positionTime(t.getTime());
 
-            this.fullHeightTicks.push(x);
+            this.gridTicks.push(x);
             g.strokePath({
                 color: ruler.tickColor,
                 path: new Path(0, 0)
@@ -1791,9 +1794,9 @@ class DecadeScale implements Scale {
         }
     }
 
-    drawFullHeightTicks(g: Graphics, ruler: TimeRuler) {
+    drawGrid(g: Graphics, ruler: TimeRuler) {
         const path = new Path(0, 0);
-        for (const x of this.fullHeightTicks) {
+        for (const x of this.gridTicks) {
             if (ruler.y > 0) {
                 path.moveTo(Math.round(x) + 0.5, 0);
                 path.lineTo(Math.round(x) + 0.5, ruler.y);

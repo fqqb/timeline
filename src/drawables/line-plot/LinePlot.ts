@@ -6,6 +6,7 @@ import { Path } from '../../graphics/Path';
 import { Timeline } from '../../Timeline';
 import { Band } from '../Band';
 import { BandMouseMoveEvent } from '../BandMouseMoveEvent';
+import { GridLayer } from '../GridLayer';
 import { AxisRegion } from './AxisRegion';
 import { HLine } from './HLine';
 import { Line } from './Line';
@@ -80,14 +81,15 @@ export class LinePlot extends Band {
     private _axisBackground: FillStyle = 'transparent';
     private _axisTickColor: string = '#888888';
     private _axisWidth?: number;
+    private _axisPadding = 0.1;
     private _minimum?: number;
     private _maximum?: number;
     private _centerZero = false;
-    private _axisPadding = 0.1;
     private _zoomMultiplier = 0.05;
     private _pointRadius = 1.5;
     private _pointColor = '#4f9146';
     private _lohiColor = '#5555552b';
+    private _grid?: GridLayer;
     private _lines: Line[] = [];
     private _hlines: HLine[] = [];
     private _contentHeight = 30;
@@ -623,6 +625,31 @@ export class LinePlot extends Band {
         }
     }
 
+    override drawUnderlay(g: Graphics) {
+        if (this.grid === 'underlay') {
+            this.drawGrid(g);
+        }
+    }
+
+    override drawOverlay(g: Graphics) {
+        if (this.grid === 'overlay') {
+            this.drawGrid(g);
+        }
+    }
+
+    private drawGrid(g: Graphics) {
+        const path = new Path(0, 0);
+        for (const tick of this.annotatedTicks) {
+            const y = Math.round(tick.y) + 0.5;
+            path.moveTo(0, y);
+            path.lineTo(g.width, y);
+        }
+        g.strokePath({
+            color: this.timeline.bandBorderColor,
+            path,
+        });
+    }
+
     private get visibleLines(): AnnotatedLine[] {
         return this.annotatedLines.filter(line => line.visible);
     }
@@ -751,6 +778,15 @@ export class LinePlot extends Band {
     }
 
     /**
+     * Whether to extend ticks over the entire canvas width
+     */
+    get grid() { return this._grid; }
+    set grid(grid: GridLayer | undefined) {
+        this._grid = grid;
+        this.reportMutation();
+    }
+
+    /**
      * Radius of the point symbol.
      */
     get pointRadius() { return this._pointRadius; }
@@ -807,6 +843,9 @@ export class LinePlot extends Band {
         this.reportMutation();
     }
 
+    /**
+     * Color of axis ticks
+     */
     get axisTickColor() { return this._axisTickColor; }
     set axisTickColor(axisTickColor: string) {
         this._axisTickColor = axisTickColor;
