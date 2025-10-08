@@ -90,6 +90,7 @@ export class LinePlot extends Band {
     private _pointColor = '#4f9146';
     private _lohiColor = '#5555552b';
     private _grid?: GridLayer;
+    private _gridColor: string = '#e8e8e8';
     private _lines: Line[] = [];
     private _hlines: HLine[] = [];
     private _contentHeight = 30;
@@ -645,7 +646,7 @@ export class LinePlot extends Band {
             path.lineTo(g.width, y);
         }
         g.strokePath({
-            color: this.timeline.bandBorderColor,
+            color: this.gridColor,
             path,
         });
     }
@@ -783,6 +784,15 @@ export class LinePlot extends Band {
     get grid() { return this._grid; }
     set grid(grid: GridLayer | undefined) {
         this._grid = grid;
+        this.reportMutation();
+    }
+
+    /**
+     * Color of the grid
+     */
+    get gridColor() { return this._gridColor; }
+    set gridColor(gridColor: string) {
+        this._gridColor = gridColor;
         this.reportMutation();
     }
 

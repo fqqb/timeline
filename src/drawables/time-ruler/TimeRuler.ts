@@ -134,6 +134,7 @@ export class TimeRuler extends Band {
     private _textColor = 'grey';
     private _tickColor = '#888888';
     private _grid?: GridLayer;
+    private _gridColor: string = '#e8e8e8';
     private _timezone?: string;
     private _scale: ScaleKind = 'auto';
 
@@ -218,12 +219,27 @@ export class TimeRuler extends Band {
         this.reportMutation();
     }
 
+    /**
+     * Color of the grid
+     */
+    get gridColor() { return this._gridColor; }
+    set gridColor(gridColor: string) {
+        this._gridColor = gridColor;
+        this.reportMutation();
+    }
+
+    /**
+     * Color of any text labels
+     */
     get textColor() { return this._textColor; }
     set textColor(textColor: string) {
         this._textColor = textColor;
         this.reportMutation();
     }
 
+    /**
+     * Tick color
+     */
     get tickColor() { return this._tickColor; }
     set tickColor(tickColor: string) {
         this._tickColor = tickColor;
@@ -380,7 +396,7 @@ class TenMillisecondsScale implements Scale {
             path.lineTo(Math.round(x) + 0.5, g.height);
         }
         g.strokePath({
-            color: ruler.timeline.bandBorderColor,
+            color: ruler.gridColor,
             path,
         });
     }
@@ -452,7 +468,7 @@ class HundredMillisecondsScale implements Scale {
             path.lineTo(Math.round(x) + 0.5, g.height);
         }
         g.strokePath({
-            color: ruler.timeline.bandBorderColor,
+            color: ruler.gridColor,
             path,
         });
     }
@@ -524,7 +540,7 @@ class TwoHundredMillisecondsScale implements Scale {
             path.lineTo(Math.round(x) + 0.5, g.height);
         }
         g.strokePath({
-            color: ruler.timeline.bandBorderColor,
+            color: ruler.gridColor,
             path,
         });
     }
@@ -596,7 +612,7 @@ class SecondScale implements Scale {
             path.lineTo(Math.round(x) + 0.5, g.height);
         }
         g.strokePath({
-            color: ruler.timeline.bandBorderColor,
+            color: ruler.gridColor,
             path,
         });
     }
@@ -666,7 +682,7 @@ class FiveSecondsScale implements Scale {
             path.lineTo(Math.round(x) + 0.5, g.height);
         }
         g.strokePath({
-            color: ruler.timeline.bandBorderColor,
+            color: ruler.gridColor,
             path,
         });
     }
@@ -736,7 +752,7 @@ class TenSecondsScale implements Scale {
             path.lineTo(Math.round(x) + 0.5, g.height);
         }
         g.strokePath({
-            color: ruler.timeline.bandBorderColor,
+            color: ruler.gridColor,
             path,
         });
     }
@@ -806,7 +822,7 @@ class HalfMinuteScale implements Scale {
             path.lineTo(Math.round(x) + 0.5, g.height);
         }
         g.strokePath({
-            color: ruler.timeline.bandBorderColor,
+            color: ruler.gridColor,
             path,
         });
     }
@@ -876,7 +892,7 @@ class MinuteScale implements Scale {
             path.lineTo(Math.round(x) + 0.5, g.height);
         }
         g.strokePath({
-            color: ruler.timeline.bandBorderColor,
+            color: ruler.gridColor,
             path,
         });
     }
@@ -972,7 +988,7 @@ class FiveMinutesScale implements Scale {
             path.lineTo(Math.round(x) + 0.5, g.height);
         }
         g.strokePath({
-            color: ruler.timeline.bandBorderColor,
+            color: ruler.gridColor,
             path,
         });
     }
@@ -1068,7 +1084,7 @@ class TenMinutesScale implements Scale {
             path.lineTo(Math.round(x) + 0.5, g.height);
         }
         g.strokePath({
-            color: ruler.timeline.bandBorderColor,
+            color: ruler.gridColor,
             path,
         });
     }
@@ -1160,7 +1176,7 @@ class HalfHourScale implements Scale {
             path.lineTo(Math.round(x) + 0.5, g.height);
         }
         g.strokePath({
-            color: ruler.timeline.bandBorderColor,
+            color: ruler.gridColor,
             path,
         });
     }
@@ -1286,7 +1302,7 @@ class HourScale implements Scale {
             path.lineTo(Math.round(x) + 0.5, g.height);
         }
         g.strokePath({
-            color: ruler.timeline.bandBorderColor,
+            color: ruler.gridColor,
             path,
         });
     }
@@ -1380,7 +1396,7 @@ class QuarterDayScale implements Scale {
             path.lineTo(Math.round(x) + 0.5, g.height);
         }
         g.strokePath({
-            color: ruler.timeline.bandBorderColor,
+            color: ruler.gridColor,
             path,
         });
     }
@@ -1474,7 +1490,7 @@ class WeekDayScale implements Scale {
             path.lineTo(Math.round(x) + 0.5, g.height);
         }
         g.strokePath({
-            color: ruler.timeline.bandBorderColor,
+            color: ruler.gridColor,
             path,
         });
     }
@@ -1572,7 +1588,7 @@ class WeekScale implements Scale {
             path.lineTo(Math.round(x) + 0.5, g.height);
         }
         g.strokePath({
-            color: ruler.timeline.bandBorderColor,
+            color: ruler.gridColor,
             path,
         });
     }
@@ -1663,7 +1679,7 @@ class MonthScale implements Scale {
             path.lineTo(Math.round(x) + 0.5, g.height);
         }
         g.strokePath({
-            color: ruler.timeline.bandBorderColor,
+            color: ruler.gridColor,
             path,
         });
     }
@@ -1734,7 +1750,7 @@ class YearScale implements Scale {
             path.lineTo(Math.round(x) + 0.5, g.height);
         }
         g.strokePath({
-            color: ruler.timeline.bandBorderColor,
+            color: ruler.gridColor,
             path,
         });
     }
@@ -1805,7 +1821,7 @@ class DecadeScale implements Scale {
             path.lineTo(Math.round(x) + 0.5, g.height);
         }
         g.strokePath({
-            color: ruler.timeline.bandBorderColor,
+            color: ruler.gridColor,
             path,
         });
     }
