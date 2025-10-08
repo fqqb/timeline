@@ -245,7 +245,11 @@ export class LinePlot extends Band {
             [min, max] = [max, min];
         }
 
-        if (this.centerZero) {
+        if (this.centerZero
+            && this.minimum === undefined
+            && this.customMinimum === undefined
+            && this.maximum === undefined
+            && this.customMaximum === undefined) {
             if (min >= 0) {
                 min = Math.min(-max, min);
             } else if (min < 0) {
