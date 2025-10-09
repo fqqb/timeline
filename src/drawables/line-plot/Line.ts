@@ -57,4 +57,9 @@ export interface Line {
      * If unset, defaults to true.
      */
     visible?: boolean;
+
+    /**
+     * Arbitrary data associated with this line.
+     */
+    data?: any;
 }
