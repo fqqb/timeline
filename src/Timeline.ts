@@ -12,6 +12,7 @@ import { Overflow } from './Overflow';
 import { TimeRange } from './TimeRange';
 import { Tool } from './Tool';
 import { ViewportChangeEvent } from './ViewportChangeEvent';
+import { ViewportClickEvent } from './ViewportClickEvent';
 import { ViewportDoubleClickEvent } from './ViewportDoubleClickEvent';
 import { ViewportMouseLeaveEvent } from './ViewportMouseLeaveEvent';
 import { ViewportMouseMoveEvent } from './ViewportMouseMoveEvent';
@@ -406,6 +407,22 @@ export class Timeline {
     removeViewportChangeListener(listener: (ev: ViewportChangeEvent) => void) {
         this.viewportChangeListeners = this.viewportChangeListeners
             .filter(el => (el !== listener));
+    }
+
+    /**
+     * Register a listener that recevies updates whenever the viewport
+     * is clicked.
+     */
+    addViewportClickListener(listener: (ev: ViewportClickEvent) => void) {
+        this.viewportRegion.addClickListener(listener);
+    }
+
+    /**
+     * Unregister a previously registered listener to stop receiving
+     * viewport click events.
+     */
+    removeViewportClickListener(listener: (ev: ViewportClickEvent) => void) {
+        this.viewportRegion.removeClickListener(listener);
     }
 
     /**

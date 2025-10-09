@@ -5,6 +5,7 @@ import { MouseHitEvent } from './graphics/MouseHitEvent';
 import { Point } from './graphics/Point';
 import { WheelHitEvent } from './graphics/WheelHitEvent';
 import { Timeline } from './Timeline';
+import { ViewportClickEvent } from './ViewportClickEvent';
 import { ViewportDoubleClickEvent } from './ViewportDoubleClickEvent';
 import { ViewportMouseLeaveEvent } from './ViewportMouseLeaveEvent';
 import { ViewportMouseMoveEvent } from './ViewportMouseMoveEvent';
@@ -16,12 +17,30 @@ export class ViewportRegion implements HitRegionSpecification {
     private grabStartPoint?: Point;
     private grabStartCursor?: string;
 
+    private clickListeners: Array<(ev: ViewportClickEvent) => void> = [];
     private doubleClickListeners: Array<(ev: ViewportDoubleClickEvent) => void> = [];
     private mouseMoveListeners: Array<(ev: ViewportMouseMoveEvent) => void> = [];
     private mouseLeaveListeners: Array<(ev: ViewportMouseLeaveEvent) => void> = [];
 
     constructor(id: string, private timeline: Timeline) {
         this.id = id;
+    }
+
+    /**
+     * Register a listener that recevies updates whenever the viewport
+     * is clicked.
+     */
+    addClickListener(listener: (ev: ViewportClickEvent) => void) {
+        this.clickListeners.push(listener);
+    }
+
+    /**
+     * Unregister a previously registered listener to stop receiving
+     * viewport click events.
+     */
+    removeClickListener(listener: (ev: ViewportClickEvent) => void) {
+        this.clickListeners = this.clickListeners
+            .filter(el => (el !== listener));
     }
 
     /**
@@ -86,8 +105,17 @@ export class ViewportRegion implements HitRegionSpecification {
         this.doubleClickListeners.forEach(l => l(vpEvent));
     }
 
-    click() {
+    click(mouseEvent: MouseHitEvent) {
         this.timeline.clearSelection();
+
+        const vpEvent: ViewportDoubleClickEvent = {
+            clientX: mouseEvent.clientX,
+            clientY: mouseEvent.clientY,
+            x: mouseEvent.x,
+            y: mouseEvent.y,
+            time: this.timeline.timeForCanvasPosition(mouseEvent.x),
+        };
+        this.clickListeners.forEach(l => l(vpEvent));
     }
 
     mouseDown(mouseEvent: MouseHitEvent) {
