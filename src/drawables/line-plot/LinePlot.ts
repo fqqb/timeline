@@ -197,6 +197,7 @@ export class LinePlot extends Band {
         }
 
         this.axisRegion = new AxisRegion(lineId + '_axis', this.bandRegion.id, this);
+        this.reportMutation();
     }
 
     calculateContentHeight(g: Graphics) {
@@ -341,17 +342,13 @@ export class LinePlot extends Band {
         }
     }
 
-    override drawSidebarContent(g: Graphics, width: number) {
+    override drawSidebarContent(g: Graphics) {
         const font = `${this.labelTextSize}px ${this.labelFontFamily}`;
 
-        const yIsVisible = (y: number) => {
-            y = this.y + y;
-            return y >= this.y && y <= (this.y + this.contentHeight);
-        };
         const tickTextIsFullyVisible = (tick: AnnotatedTick) => {
-            const y1 = this.y + tick.y - (this.labelTextSize / 2);
-            const y2 = this.y + tick.y + (this.labelTextSize / 2);
-            return y1 >= this.y && y2 <= (this.y + this.contentHeight);
+            const y1 = tick.y - (this.labelTextSize / 2);
+            const y2 = tick.y + (this.labelTextSize / 2);
+            return y1 >= 0 && y2 <= this.contentHeight;
         };
 
         let visibleTicks = this.annotatedTicks.filter(tickTextIsFullyVisible);
@@ -375,8 +372,8 @@ export class LinePlot extends Band {
         }
 
         g.fillRect({
-            x: width - axisWidth,
-            y: this.y,
+            x: g.width - axisWidth,
+            y: 0,
             width: axisWidth,
             height: this.contentHeight,
             fill: this.axisBackground,
@@ -384,24 +381,22 @@ export class LinePlot extends Band {
 
         if (this.axisRegion) {
             const hitRegion = g.addHitRegion(this.axisRegion);
-            hitRegion.addRect(width - axisWidth, this.y, axisWidth, this.contentHeight);
+            hitRegion.addRect(g.width - axisWidth, 0, axisWidth, this.contentHeight);
         }
 
         // Draw tick regardless of label visibility
         for (const tick of this.annotatedTicks) {
-            if (yIsVisible(tick.y)) {
-                const y = Math.round(this.y + tick.y) + 0.5;
+            const y = Math.round(tick.y) + 0.5;
 
-                g.strokePath({
-                    color: this.axisTickColor,
-                    lineWidth: 1,
-                    path: new Path(width - this.axisTickLength, y).lineTo(width, y),
-                });
-            }
+            g.strokePath({
+                color: this.axisTickColor,
+                lineWidth: 1,
+                path: new Path(g.width - this.axisTickLength, y).lineTo(g.width, y),
+            });
         }
 
         for (const tick of visibleTicks) {
-            const y = Math.round(this.y + tick.y) + 0.5;
+            const y = Math.round(tick.y) + 0.5;
 
             if (tickTextIsFullyVisible(tick)) {
                 g.fillText({
@@ -410,7 +405,7 @@ export class LinePlot extends Band {
                     baseline: 'middle',
                     color: this.labelTextColor,
                     font,
-                    x: width - this.axisTickLength - this.labelPadding,
+                    x: g.width - this.axisTickLength - this.labelPadding,
                     y,
                 });
             } else if (tick === this.minTick) {
@@ -420,8 +415,8 @@ export class LinePlot extends Band {
                     baseline: 'bottom',
                     color: this.labelTextColor,
                     font,
-                    x: width - this.axisTickLength - this.labelPadding,
-                    y: this.y + this.contentHeight + 0.5,
+                    x: g.width - this.axisTickLength - this.labelPadding,
+                    y: this.contentHeight + 0.5,
                 });
             } else if (tick === this.maxTick) {
                 g.fillText({
@@ -430,14 +425,14 @@ export class LinePlot extends Band {
                     baseline: 'top',
                     color: this.labelTextColor,
                     font,
-                    x: width - this.axisTickLength - this.labelPadding,
-                    y: this.y + 0.5,
+                    x: g.width - this.axisTickLength - this.labelPadding,
+                    y: 0.5,
                 });
             }
         }
 
         for (const hline of this.annotatedHLines.filter(l => l.label !== undefined)) {
-            const y = Math.round(this.y + hline.y) + 0.5;
+            const y = Math.round(hline.y) + 0.5;
 
             const label = this.labelFormatter(hline.value);
 
@@ -447,7 +442,7 @@ export class LinePlot extends Band {
             const fm = g.measureText(label, font);
 
             const textBounds: Bounds = {
-                x: width - this.axisTickLength - padding - fm.width - padding,
+                x: g.width - this.axisTickLength - padding - fm.width - padding,
                 y: y - padding - fm.height / 2,
                 width: padding + fm.width + padding + this.axisTickLength + this.labelRadius,
                 height: padding + fm.height + padding,
@@ -462,7 +457,7 @@ export class LinePlot extends Band {
             g.strokePath({
                 color: hline.labelTextColor ?? this.labelTextColor,
                 lineWidth: 1,
-                path: new Path(width - this.axisTickLength, y).lineTo(width, y),
+                path: new Path(g.width - this.axisTickLength, y).lineTo(g.width, y),
             });
             g.fillText({
                 x: textBounds.x + padding,
@@ -476,7 +471,7 @@ export class LinePlot extends Band {
         }
 
         if (this.hoveredY !== undefined && this.valueForPositionFn) {
-            const value = this.valueForPositionFn(this.hoveredY - this.y);
+            const value = this.valueForPositionFn(this.hoveredY);
             const label = this.labelFormatter(value);
 
             const font = `${this.labelTextSize}px ${this.labelFontFamily}`;
@@ -484,18 +479,20 @@ export class LinePlot extends Band {
 
             const fm = g.measureText(label, font);
 
+            // Offset to have radius only on rightside
+            const xOffset = this.labelRadius;
             const textBounds: Bounds = {
-                x: width - this.axisTickLength - padding - fm.width - padding,
+                x: g.width - this.axisTickLength - padding - fm.width - padding,
                 y: this.hoveredY - padding - fm.height / 2,
-                width: padding + fm.width + padding,
+                width: padding + fm.width + padding + xOffset,
                 height: padding + fm.height + padding,
             };
 
             // Stay within the band's bounds
-            if (textBounds.y < this.y) {
-                textBounds.y = this.y;
-            } else if (textBounds.y + textBounds.height > this.y + this.contentHeight) {
-                textBounds.y = this.y + this.contentHeight - textBounds.height;
+            if (textBounds.y < 0) {
+                textBounds.y = 0;
+            } else if (textBounds.y + textBounds.height > this.contentHeight) {
+                textBounds.y = this.contentHeight - textBounds.height;
             }
 
             g.fillRect({

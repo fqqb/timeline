@@ -301,10 +301,11 @@ export abstract class Band extends Drawable {
 
     /**
      * Override this if you want to draw something band-specific inside the sidebar.
-
-     * @param width Available sidebar width
+     *
+     * @param g canvas relative to this band's coordinates. Everything outside will
+     *          get clipped.
      */
-    drawSidebarContent(g: Graphics, width: number): void {
+    drawSidebarContent(g: Graphics): void {
     }
 
     createMouseMoveEvent(evt: MouseHitEvent): BandMouseMoveEvent {

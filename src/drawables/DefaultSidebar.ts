@@ -54,8 +54,8 @@ export class DefaultSidebar extends Sidebar {
         });
 
         for (const band of bands) {
+            const contentHeight = band.height - band.paddingTop - band.paddingBottom;
             if (band.label) {
-                const contentHeight = band.height - band.paddingTop - band.paddingBottom;
                 const lrMargin = 5;
                 if (this.textAlignment === 'left') {
                     g.fillText({
@@ -89,7 +89,10 @@ export class DefaultSidebar extends Sidebar {
                     });
                 }
             }
-            band.drawSidebarContent(g, this.width);
+
+            const offscreen = g.createChild(this.width, contentHeight);
+            band.drawSidebarContent(offscreen);
+            g.copy(offscreen, 0, band.y + band.paddingTop);
         }
 
         // Right vertical divider
