@@ -13,7 +13,7 @@ export class LinePlotRegion implements HitRegionSpecification {
     id: string;
     parentId: string;
 
-    viewportRegion: ViewportRegion;
+    private viewportRegion: ViewportRegion;
 
     constructor(bandRegion: BandRegion, private linePlot: LinePlot) {
         this.id = bandRegion.id + '_lineplot';

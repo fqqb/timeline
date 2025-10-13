@@ -1,8 +1,10 @@
 import { Graphics } from '../../graphics/Graphics';
+import { Timeline } from '../../Timeline';
 import { Band } from '../Band';
 import { GridLayer } from '../GridLayer';
 import { ScaleKind } from './ScaleKind';
 import { DecadeScale, FiveMinutesScale, FiveSecondsScale, HalfHourScale, HalfMinuteScale, HourScale, HundredMillisecondsScale, MinuteScale, MonthScale, QuarterDayScale, Scale, SecondScale, TenMillisecondsScale, TenMinutesScale, TenSecondsScale, TwoHundredMillisecondsScale, WeekDayScale, WeekScale, YearScale } from './scales';
+import { TimeRulerRegion } from './TimeRulerRegion';
 
 /**
  * A ruler that interprets time as milliseconds since January 01, 1970, 00:00:00 UTC.
@@ -17,6 +19,7 @@ export class TimeRuler extends Band {
     private _gridColor: string = '#e8e8e8';
     private _timezone?: string;
     private _scale: ScaleKind = 'auto';
+    private _zoomMultiplier = 10;
 
     private tenMillisecondsScale = new TenMillisecondsScale();
     private hundredMillisecondsScale = new HundredMillisecondsScale();
@@ -60,6 +63,13 @@ export class TimeRuler extends Band {
 
     private scaleRenderer?: Scale;
 
+    private timeRulerRegion: TimeRulerRegion;
+
+    constructor(timeline: Timeline) {
+        super(timeline);
+        this.timeRulerRegion = new TimeRulerRegion(this.bandRegion, this);
+    }
+
     override calculateContentHeight(g: Graphics) {
         return this.contentHeight;
     }
@@ -76,6 +86,14 @@ export class TimeRuler extends Band {
     }
 
     override drawOverlay(g: Graphics) {
+        const hitRegion = g.addHitRegion(this.timeRulerRegion);
+        hitRegion.addRect(
+            this.x,
+            this.y + this.paddingTop,
+            this.timeline.width,
+            this.contentHeight,
+        );
+
         if (this.grid === 'overlay' && this.scaleRenderer?.drawGrid) {
             this.scaleRenderer.drawGrid(g, this);
         }
@@ -144,6 +162,16 @@ export class TimeRuler extends Band {
     get scale() { return this._scale; }
     set scale(scale: ScaleKind) {
         this._scale = scale;
+        this.reportMutation();
+    }
+
+    /**
+     * The larger this number, the faster to zoom in/out
+     * A multiplier of 1 allows for a max zoom-in of twice the start range.
+     */
+    get zoomMultiplier() { return this._zoomMultiplier; }
+    set zoomMultiplier(zoomMultiplier: number) {
+        this._zoomMultiplier = zoomMultiplier;
         this.reportMutation();
     }
 
