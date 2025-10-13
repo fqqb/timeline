@@ -328,6 +328,10 @@ export class LinePlot extends Band {
         const spacing = 2; // Space between tick and value
         const font = `${this.labelTextSize}px ${this.labelFontFamily}`;
 
+        const tickIsVisible = (tick: AnnotatedTick) => {
+            const y = this.y + tick.y;
+            return y >= this.y && y <= (this.y + this.contentHeight);
+        };
         const tickTextIsFullyVisible = (tick: AnnotatedTick) => {
             const y1 = this.y + tick.y - (this.labelTextSize / 2);
             const y2 = this.y + tick.y + (this.labelTextSize / 2);
@@ -366,14 +370,21 @@ export class LinePlot extends Band {
             hitRegion.addRect(width - axisWidth, this.y, axisWidth, this.contentHeight);
         }
 
+        // Draw tick regardless of label visibility
+        for (const tick of this.annotatedTicks) {
+            if (tickIsVisible(tick)) {
+                const y = Math.round(this.y + tick.y) + 0.5;
+
+                g.strokePath({
+                    color: this.axisTickColor,
+                    lineWidth: 1,
+                    path: new Path(width - textMargin + spacing, y).lineTo(width, y),
+                });
+            }
+        }
+
         for (const tick of visibleTicks) {
             const y = Math.round(this.y + tick.y) + 0.5;
-
-            g.strokePath({
-                color: this.axisTickColor,
-                lineWidth: 1,
-                path: new Path(width - textMargin + spacing, y).lineTo(width, y),
-            });
 
             if (tickTextIsFullyVisible(tick)) {
                 g.fillText({
@@ -639,11 +650,18 @@ export class LinePlot extends Band {
     }
 
     private drawGrid(g: Graphics) {
+        const tickIsVisible = (tick: AnnotatedTick) => {
+            const y = this.y + tick.y;
+            return y >= this.y && y <= (this.y + this.contentHeight);
+        };
+
         const path = new Path(0, 0);
         for (const tick of this.annotatedTicks) {
-            const y = Math.round(tick.y) + 0.5;
-            path.moveTo(0, y);
-            path.lineTo(g.width, y);
+            if (tickIsVisible(tick)) {
+                const y = Math.round(tick.y) + 0.5;
+                path.moveTo(0, y);
+                path.lineTo(g.width, y);
+            }
         }
         g.strokePath({
             color: this.gridColor,
