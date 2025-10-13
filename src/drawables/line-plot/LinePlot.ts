@@ -30,6 +30,10 @@ interface AnnotatedLine {
     points: AnnotatedPoint[];
 }
 
+interface AnnotatedHLine extends HLine {
+    y: number;
+}
+
 interface DrawInfo {
     /** @deprecated */
     renderX: number;
@@ -76,12 +80,17 @@ export class LinePlot extends Band {
     private _lineWidth = 1;
     private _lineStyle: LineStyle = 'straight';
     private _labelFontFamily = 'Verdana, Geneva, sans-serif';
+    private _hoveredValueLabelBackground: FillStyle = 'rgba(97, 97, 97, 0.9)';
+    private _hoveredValueLabelTextColor: string = 'white';
     private _labelTextColor = 'grey';
     private _labelTextSize = 8;
+    private _labelPadding = 2;
+    private _labelRadius = 10;
     private _axisBackground: FillStyle = 'transparent';
     private _axisTickColor: string = '#888888';
+    private _axisTickLength = 8;
     private _axisWidth?: number;
-    private _axisPadding = 0.1;
+    private _axisRangePadding = 0.1;
     private _minimum?: number;
     private _maximum?: number;
     private _centerZero = false;
@@ -100,6 +109,7 @@ export class LinePlot extends Band {
 
     private annotatedTicks: AnnotatedTick[] = [];
     private annotatedLines: AnnotatedLine[] = [];
+    private annotatedHLines: AnnotatedHLine[] = [];
     private minTick?: AnnotatedTick;
     private maxTick?: AnnotatedTick;
 
@@ -268,10 +278,10 @@ export class LinePlot extends Band {
 
         // Add range padding unless an explicit value was defined
         if (this.minimum === undefined && this.customMinimum === undefined) {
-            min -= (max - min) * this.axisPadding;
+            min -= (max - min) * this.axisRangePadding;
         }
         if (this.maximum === undefined && this.customMaximum === undefined) {
-            max += (max - min) * this.axisPadding;
+            max += (max - min) * this.axisRangePadding;
         }
 
         const positionForValueFn = (value: number) => {
@@ -287,6 +297,14 @@ export class LinePlot extends Band {
         }
         this.minTick = { y: positionForValueFn(dataMin), value: dataMin };
         this.maxTick = { y: positionForValueFn(dataMax), value: dataMax };
+
+        this.annotatedHLines.length = 0;
+        for (const hline of this.hlines) {
+            this.annotatedHLines.push({
+                ...hline,
+                y: positionForValueFn(hline.value),
+            });
+        }
 
         // Draw order:
         // 1/ area fill (per line)
@@ -318,18 +336,16 @@ export class LinePlot extends Band {
             }
         }
 
-        for (const hline of this.hlines) {
-            this.drawHLine(g, hline, positionForValueFn);
+        for (const hline of this.annotatedHLines) {
+            this.drawHLine(g, hline);
         }
     }
 
     override drawSidebarContent(g: Graphics, width: number) {
-        const textMargin = 8; // Space between value and axis edge (left/right)
-        const spacing = 2; // Space between tick and value
         const font = `${this.labelTextSize}px ${this.labelFontFamily}`;
 
-        const tickIsVisible = (tick: AnnotatedTick) => {
-            const y = this.y + tick.y;
+        const yIsVisible = (y: number) => {
+            y = this.y + y;
             return y >= this.y && y <= (this.y + this.contentHeight);
         };
         const tickTextIsFullyVisible = (tick: AnnotatedTick) => {
@@ -348,8 +364,9 @@ export class LinePlot extends Band {
             for (const tick of visibleTicks) {
                 const text = this.labelFormatter(tick.value);
                 const fm = g.measureText(text, font);
-                if (axisWidth === undefined || axisWidth < textMargin + fm.width + textMargin) {
-                    axisWidth = textMargin + fm.width + textMargin;
+                const requiredWidth = this.labelPadding + fm.width + this.labelPadding + this.axisTickLength;
+                if (axisWidth === undefined || axisWidth < requiredWidth) {
+                    axisWidth = requiredWidth;
                 }
             }
         }
@@ -372,13 +389,13 @@ export class LinePlot extends Band {
 
         // Draw tick regardless of label visibility
         for (const tick of this.annotatedTicks) {
-            if (tickIsVisible(tick)) {
+            if (yIsVisible(tick.y)) {
                 const y = Math.round(this.y + tick.y) + 0.5;
 
                 g.strokePath({
                     color: this.axisTickColor,
                     lineWidth: 1,
-                    path: new Path(width - textMargin + spacing, y).lineTo(width, y),
+                    path: new Path(width - this.axisTickLength, y).lineTo(width, y),
                 });
             }
         }
@@ -393,7 +410,7 @@ export class LinePlot extends Band {
                     baseline: 'middle',
                     color: this.labelTextColor,
                     font,
-                    x: width - textMargin,
+                    x: width - this.axisTickLength - this.labelPadding,
                     y,
                 });
             } else if (tick === this.minTick) {
@@ -403,7 +420,7 @@ export class LinePlot extends Band {
                     baseline: 'bottom',
                     color: this.labelTextColor,
                     font,
-                    x: width - textMargin,
+                    x: width - this.axisTickLength - this.labelPadding,
                     y: this.y + this.contentHeight + 0.5,
                 });
             } else if (tick === this.maxTick) {
@@ -413,10 +430,49 @@ export class LinePlot extends Band {
                     baseline: 'top',
                     color: this.labelTextColor,
                     font,
-                    x: width - textMargin,
+                    x: width - this.axisTickLength - this.labelPadding,
                     y: this.y + 0.5,
                 });
             }
+        }
+
+        for (const hline of this.annotatedHLines.filter(l => l.label !== undefined)) {
+            const y = Math.round(this.y + hline.y) + 0.5;
+
+            const label = this.labelFormatter(hline.value);
+
+            const font = `${this.labelTextSize}px ${this.labelFontFamily}`;
+            const padding = this.labelPadding;
+
+            const fm = g.measureText(label, font);
+
+            const textBounds: Bounds = {
+                x: width - this.axisTickLength - padding - fm.width - padding,
+                y: y - padding - fm.height / 2,
+                width: padding + fm.width + padding + this.axisTickLength + this.labelRadius,
+                height: padding + fm.height + padding,
+            };
+
+            g.fillRect({
+                ...textBounds,
+                fill: hline.labelBackground ?? 'transparent',
+                rx: this.labelRadius,
+                ry: this.labelRadius,
+            });
+            g.strokePath({
+                color: hline.labelTextColor ?? this.labelTextColor,
+                lineWidth: 1,
+                path: new Path(width - this.axisTickLength, y).lineTo(width, y),
+            });
+            g.fillText({
+                x: textBounds.x + padding,
+                y: textBounds.y + textBounds.height / 2,
+                align: 'left',
+                baseline: 'middle',
+                color: hline.labelTextColor ?? this.labelTextColor,
+                font,
+                text: label,
+            });
         }
 
         if (this.hoveredY !== undefined && this.valueForPositionFn) {
@@ -424,13 +480,12 @@ export class LinePlot extends Band {
             const label = this.labelFormatter(value);
 
             const font = `${this.labelTextSize}px ${this.labelFontFamily}`;
-            const padding = spacing;
+            const padding = this.labelPadding;
 
             const fm = g.measureText(label, font);
 
-            const rMargin = textMargin - spacing;
             const textBounds: Bounds = {
-                x: width - rMargin - padding - fm.width - padding,
+                x: width - this.axisTickLength - padding - fm.width - padding,
                 y: this.hoveredY - padding - fm.height / 2,
                 width: padding + fm.width + padding,
                 height: padding + fm.height + padding,
@@ -445,16 +500,16 @@ export class LinePlot extends Band {
 
             g.fillRect({
                 ...textBounds,
-                fill: 'rgba(97, 97, 97, 0.9)',
-                rx: 2,
-                ry: 2,
+                fill: this.hoveredValueLabelBackground,
+                rx: this.labelRadius,
+                ry: this.labelRadius,
             });
             g.fillText({
                 x: textBounds.x + padding,
                 y: textBounds.y + textBounds.height / 2,
                 align: 'left',
                 baseline: 'middle',
-                color: 'white',
+                color: this.hoveredValueLabelTextColor,
                 font,
                 text: label,
             });
@@ -537,8 +592,8 @@ export class LinePlot extends Band {
         }
     }
 
-    private drawHLine(g: Graphics, hline: HLine, positionForValueFn: (value: number) => number) {
-        const y = Math.round(positionForValueFn(hline.value)) + 0.5;
+    private drawHLine(g: Graphics, hline: AnnotatedHLine) {
+        const y = Math.round(hline.y) + 0.5;
         g.strokePath({
             path: new Path(0, y).lineTo(this.timeline.mainWidth, y),
             color: hline.lineColor,
@@ -547,20 +602,23 @@ export class LinePlot extends Band {
         });
         const label = hline.label;
         if (label) {
-            const labelTextSize = hline.labelTextSize ?? this.labelTextSize;
-            const labelFontFamily = hline.labelFontFamily ?? this.labelFontFamily;
+            const labelTextSize = this.labelTextSize;
+            const labelFontFamily = this.labelFontFamily;
             const font = `${labelTextSize}px ${labelFontFamily}`;
             const fm = g.measureText(label, font);
-            const lrMargin = 4;
+            // Offset to have radius only on rightside
+            const xOffset = this.labelRadius;
             g.fillRect({
-                x: 0,
-                y: y - fm.height / 2,
-                width: lrMargin + fm.width + lrMargin,
-                height: fm.height,
+                x: -xOffset,
+                y: y - fm.height / 2 - this.labelPadding,
+                width: xOffset + this.labelPadding + fm.width + this.labelPadding,
+                height: this.labelPadding + fm.height + this.labelPadding,
                 fill: hline.lineColor,
+                rx: this.labelRadius,
+                ry: this.labelRadius,
             });
             g.fillText({
-                x: 0 + lrMargin,
+                x: 0 + this.labelPadding,
                 y: y,
                 align: 'left',
                 baseline: 'middle',
@@ -716,7 +774,7 @@ export class LinePlot extends Band {
     /**
      * Specify a custom data range for the Y-axis.
      *
-     * If the `axisPadding` property is set, it will have no effect.
+     * If the `axisRangePadding` property is set, it will have no effect.
      */
     setAxisRange(min: number, max: number) {
         this.customMinimum = min;
@@ -842,11 +900,47 @@ export class LinePlot extends Band {
     }
 
     /**
+     * Background color of value labels.
+     */
+    get hoveredValueLabelBackground() { return this._hoveredValueLabelBackground; }
+    set hoveredValueLabelBackground(hoveredValueLabelBackground: FillStyle) {
+        this._hoveredValueLabelBackground = hoveredValueLabelBackground;
+        this.reportMutation();
+    }
+
+    /**
+     * Text color of value labels.
+     */
+    get hoveredValueLabelTextColor() { return this._hoveredValueLabelTextColor; }
+    set hoveredValueLabelTextColor(hoveredValueLabelTextColor: string) {
+        this._hoveredValueLabelTextColor = hoveredValueLabelTextColor;
+        this.reportMutation();
+    }
+
+    /**
      * Size of any value labels.
      */
     get labelTextSize() { return this._labelTextSize; }
     set labelTextSize(labelTextSize: number) {
         this._labelTextSize = labelTextSize;
+        this.reportMutation();
+    }
+
+    /**
+     * Padding of value labels.
+     */
+    get labelPadding() { return this._labelPadding; }
+    set labelPadding(labelPadding: number) {
+        this._labelPadding = labelPadding;
+        this.reportMutation();
+    }
+
+    /**
+     * Corner radius of of value labels.
+     */
+    get labelRadius() { return this._labelRadius; }
+    set labelRadius(labelRadius: number) {
+        this._labelRadius = labelRadius;
         this.reportMutation();
     }
 
@@ -881,6 +975,15 @@ export class LinePlot extends Band {
     }
 
     /**
+     * Length of tick line
+     */
+    get axisTickLength() { return this._axisTickLength; }
+    set axisTickLength(axisTickLength: number) {
+        this._axisTickLength = axisTickLength;
+        this.reportMutation();
+    }
+
+    /**
      * Axis width on the sidebar.
      *
      * If undefined, the width takes the space of the actual tick
@@ -904,8 +1007,8 @@ export class LinePlot extends Band {
     }
 
     /**
-     * Returns the smallest visible value on the axis. This accounts for axisPadding
-     * where applicable.
+     * Returns the smallest visible value on the axis. This accounts for
+     * axisRangePadding where applicable.
      */
     get visibleMinimum() {
         return this.valueForPositionFn!(this.contentHeight);
@@ -923,8 +1026,8 @@ export class LinePlot extends Band {
     }
 
     /**
-     * Returns the largest visible value on the axis. This accounts for axisPadding
-     * where applicable.
+     * Returns the largest visible value on the axis. This accounts for
+     * axisRangePadding where applicable.
      */
     get visibleMaximum() {
         return this.valueForPositionFn!(0);
@@ -944,18 +1047,18 @@ export class LinePlot extends Band {
     /**
      * Add y-axis padding around the data. When autoscaling, additional space
      * is added both to the top and the bottom using the formula:
-     * `axisPadding * data_range`.
+     * `axisRangePadding * data_range`.
      *
      * For example, if the data ranges from 0 to 10, the y-axis will show
-     * 0 to 10 with an axisPadding of 0, and -1 to 11 with an axisPadding
-     * of 0.1.
+     * 0 to 10 with an axisRangePadding of 0, and -1 to 11 with an
+     * axisRangePadding of 0.1.
      *
      * This property is ignored at the bottom when `minimum` is explicitly
      * set, and it is ignored at the top when `maximum` is explicitly set.
      */
-    get axisPadding() { return this._axisPadding; }
-    set axisPadding(axisPadding: number) {
-        this._axisPadding = axisPadding;
+    get axisRangePadding() { return this._axisRangePadding; }
+    set axisRangePadding(axisRangePadding: number) {
+        this._axisRangePadding = axisRangePadding;
         this.reportMutation();
     }
 

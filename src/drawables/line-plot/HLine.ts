@@ -1,3 +1,4 @@
+import { FillStyle } from '../../graphics/FillStyle';
 
 /**
  * Fixed-value horizontal line
@@ -30,18 +31,9 @@ export interface HLine {
     label?: string;
 
     /**
-     * Font family of any value labels.
-     *
-     * Defaults to same font family as axis labels.
+     * Background color of tick labels.
      */
-    labelFontFamily?: string;
-
-    /**
-     * Size of any value labels.
-     *
-     * Defaults to same size as axis labels.
-     */
-    labelTextSize?: number;
+    labelBackground?: FillStyle;
 
     /**
      * Text color of this label.
