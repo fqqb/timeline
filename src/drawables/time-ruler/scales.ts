@@ -3,8 +3,10 @@ import { formatInTimeZone } from 'date-fns-tz';
 import { enUS } from 'date-fns/locale';
 import { Graphics } from '../../graphics/Graphics';
 import { Path } from '../../graphics/Path';
-import { TimeRuler } from './TimeRuler';
+import { TextFill } from '../../graphics/TextFill';
+import { Timeline } from '../../Timeline';
 import { setTZHours, setTZMinutes, startOfTZDay, startOfTZDecade, startOfTZHour, startOfTZMinute, startOfTZMonth, startOfTZWeek, startOfTZYear } from './time';
+import { TimeRuler } from './TimeRuler';
 
 export abstract class Scale {
 
@@ -28,6 +30,31 @@ export abstract class Scale {
             color: ruler.gridColor,
             path,
         });
+    }
+
+    protected fillTextIfFullyVisible(g: Graphics, timeline: Timeline, fill: TextFill) {
+        const fm = g.measureText(fill.text, fill.font);
+
+        let x1: number;
+        let x2: number;
+        if (fill.align === 'center') {
+            x1 = fill.x - fm.width / 2;
+            x2 = fill.x + fm.width / 2;
+        } else if (fill.align === 'left') {
+            x1 = fill.x;
+            x2 = fill.x + fm.width;
+        } else if (fill.align === 'right') {
+            x1 = fill.x - fm.width;
+            x2 = fill.x;
+        } else {
+            throw new Error('Unexpected text fill align');
+        }
+
+        const chartStartX = timeline.positionTime(timeline.start);
+        const chartStopX = timeline.positionTime(timeline.stop);
+        if (x1 >= chartStartX && x2 <= chartStopX) {
+            g.fillText(fill);
+        }
     }
 }
 
@@ -70,7 +97,7 @@ export class TenMillisecondsScale extends Scale {
             });
 
             const subLabelX = ruler.timeline.positionTime(t.getTime());
-            g.fillText({
+            this.fillTextIfFullyVisible(g, ruler.timeline, {
                 x: subLabelX,
                 y: height / 2,
                 text: formatInTimeZone(t, timezone, 'HH:mm:ss.SSS', { locale: enUS }),
@@ -124,7 +151,7 @@ export class HundredMillisecondsScale extends Scale {
             });
 
             const subLabelX = ruler.timeline.positionTime(t.getTime());
-            g.fillText({
+            this.fillTextIfFullyVisible(g, ruler.timeline, {
                 x: subLabelX,
                 y: height / 2,
                 text: formatInTimeZone(t, timezone, 'HH:mm:ss.SSS', { locale: enUS }),
@@ -179,7 +206,7 @@ export class TwoHundredMillisecondsScale extends Scale {
             });
 
             const subLabelX = ruler.timeline.positionTime(t.getTime());
-            g.fillText({
+            this.fillTextIfFullyVisible(g, ruler.timeline, {
                 x: subLabelX,
                 y: height / 2,
                 text: formatInTimeZone(t, timezone, 'HH:mm:ss.SSS', { locale: enUS }),
@@ -233,7 +260,7 @@ export class SecondScale extends Scale {
             });
 
             const subLabelX = ruler.timeline.positionTime(t.getTime());
-            g.fillText({
+            this.fillTextIfFullyVisible(g, ruler.timeline, {
                 x: subLabelX,
                 y: height / 2,
                 text: formatInTimeZone(t, timezone, 'HH:mm:ss', { locale: enUS }),
@@ -285,7 +312,7 @@ export class FiveSecondsScale extends Scale {
             });
 
             const subLabelX = ruler.timeline.positionTime(t.getTime());
-            g.fillText({
+            this.fillTextIfFullyVisible(g, ruler.timeline, {
                 x: subLabelX,
                 y: height / 2,
                 text: formatInTimeZone(t, timezone, 'HH:mm:ss', { locale: enUS }),
@@ -339,7 +366,7 @@ export class TenSecondsScale extends Scale {
             });
 
             const subLabelX = ruler.timeline.positionTime(t.getTime());
-            g.fillText({
+            this.fillTextIfFullyVisible(g, ruler.timeline, {
                 x: subLabelX,
                 y: height / 2,
                 text: formatInTimeZone(t, timezone, 'HH:mm:ss', { locale: enUS }),
@@ -393,7 +420,7 @@ export class HalfMinuteScale extends Scale {
             });
 
             const subLabelX = ruler.timeline.positionTime(t.getTime());
-            g.fillText({
+            this.fillTextIfFullyVisible(g, ruler.timeline, {
                 x: subLabelX,
                 y: height / 2,
                 text: formatInTimeZone(t, timezone, 'HH:mm:ss', { locale: enUS }),
@@ -447,7 +474,7 @@ export class MinuteScale extends Scale {
             });
 
             const subLabelX = ruler.timeline.positionTime(t.getTime());
-            g.fillText({
+            this.fillTextIfFullyVisible(g, ruler.timeline, {
                 x: subLabelX,
                 y: height / 2,
                 text: formatInTimeZone(t, timezone, 'HH:mm', { locale: enUS }),
@@ -500,7 +527,7 @@ export class FiveMinutesScale extends Scale {
                     .moveTo(Math.round(x) + 0.5, 0)
                     .lineTo(Math.round(x) + 0.5, height),
             });
-            g.fillText({
+            this.fillTextIfFullyVisible(g, ruler.timeline, {
                 x: x + 2,
                 y: height / 4,
                 text: formatInTimeZone(t, timezone, 'MMM dd', { locale: enUS }),
@@ -526,7 +553,7 @@ export class FiveMinutesScale extends Scale {
                     });
                 }
                 const subLabelX = ruler.timeline.positionTime(sub.getTime());
-                g.fillText({
+                this.fillTextIfFullyVisible(g, ruler.timeline, {
                     x: subLabelX,
                     y: (i === 0) ? height * 0.75 : height / 2,
                     text: formatInTimeZone(sub, timezone, 'HH:mm', { locale: enUS }),
@@ -580,7 +607,7 @@ export class TenMinutesScale extends Scale {
                     .moveTo(Math.round(x) + 0.5, 0)
                     .lineTo(Math.round(x) + 0.5, height),
             });
-            g.fillText({
+            this.fillTextIfFullyVisible(g, ruler.timeline, {
                 x: x + 2,
                 y: height / 4,
                 text: formatInTimeZone(t, timezone, 'MMM dd', { locale: enUS }),
@@ -606,7 +633,7 @@ export class TenMinutesScale extends Scale {
                     });
                 }
                 const subLabelX = ruler.timeline.positionTime(sub.getTime());
-                g.fillText({
+                this.fillTextIfFullyVisible(g, ruler.timeline, {
                     x: subLabelX,
                     y: (i === 0) ? height * 0.75 : height / 2,
                     text: formatInTimeZone(sub, timezone, 'HH:mm', { locale: enUS }),
@@ -660,7 +687,7 @@ export class HalfHourScale extends Scale {
                     .moveTo(Math.round(x) + 0.5, 0)
                     .lineTo(Math.round(x) + 0.5, height),
             });
-            g.fillText({
+            this.fillTextIfFullyVisible(g, ruler.timeline, {
                 x: x + 2,
                 y: height / 4,
                 text: formatInTimeZone(t, timezone, 'MMM dd', { locale: enUS }),
@@ -683,7 +710,7 @@ export class HalfHourScale extends Scale {
                     });
                 }
                 const subLabelX = ruler.timeline.positionTime(sub.getTime());
-                g.fillText({
+                this.fillTextIfFullyVisible(g, ruler.timeline, {
                     x: subLabelX,
                     y: (i === 0) ? height * 0.75 : height / 2,
                     text: formatInTimeZone(sub, timezone, 'HH:mm', { locale: enUS }),
@@ -776,7 +803,7 @@ export class HourScale extends Scale {
             const label = this.majorLabels[i];
             const x = this.majorX[i];
             if (label.length > 2) {
-                g.fillText({
+                this.fillTextIfFullyVisible(g, ruler.timeline, {
                     x: x + 2,
                     y: height * 0.75,
                     text: '00',
@@ -785,7 +812,7 @@ export class HourScale extends Scale {
                     baseline: 'middle',
                     align: 'left',
                 });
-                g.fillText({
+                this.fillTextIfFullyVisible(g, ruler.timeline, {
                     x: x + 2,
                     y: height / 4,
                     text: label,
@@ -795,7 +822,7 @@ export class HourScale extends Scale {
                     align: 'left',
                 });
             } else {
-                g.fillText({
+                this.fillTextIfFullyVisible(g, ruler.timeline, {
                     x: x + 2,
                     y: height / 2,
                     text: label,
@@ -849,7 +876,7 @@ export class QuarterDayScale extends Scale {
                     .moveTo(Math.round(x) + 0.5, 0)
                     .lineTo(Math.round(x) + 0.5, height),
             });
-            g.fillText({
+            this.fillTextIfFullyVisible(g, ruler.timeline, {
                 x: x + 2,
                 y: height / 4,
                 text: formatInTimeZone(t, timezone, 'EEE dd/MM', { locale: enUS }),
@@ -871,7 +898,7 @@ export class QuarterDayScale extends Scale {
                     });
                 }
                 const subLabelX = ruler.timeline.positionTime(addHours(sub, 3).getTime());
-                g.fillText({
+                this.fillTextIfFullyVisible(g, ruler.timeline, {
                     x: subLabelX,
                     y: height * 0.75,
                     text: formatInTimeZone(sub, timezone, 'HH', { locale: enUS }),
@@ -925,7 +952,7 @@ export class WeekDayScale extends Scale {
                     .moveTo(Math.round(x) + 0.5, 0)
                     .lineTo(Math.round(x) + 0.5, height),
             });
-            g.fillText({
+            this.fillTextIfFullyVisible(g, ruler.timeline, {
                 x: x + 2,
                 y: height / 4,
                 text: formatInTimeZone(t, timezone, "dd MMM, yy", { locale: enUS }),
@@ -949,7 +976,7 @@ export class WeekDayScale extends Scale {
                 }
 
                 const subLabelX = ruler.timeline.positionTime(addHours(t, 12).getTime());
-                g.fillText({
+                this.fillTextIfFullyVisible(g, ruler.timeline, {
                     x: subLabelX,
                     y: height * 0.75,
                     text: formatInTimeZone(t, timezone, 'EEEEE', { locale: enUS }),
@@ -1003,7 +1030,7 @@ export class WeekScale extends Scale {
                     .moveTo(Math.round(x) + 0.5, 0)
                     .lineTo(Math.round(x) + 0.5, height / 2),
             });
-            g.fillText({
+            this.fillTextIfFullyVisible(g, ruler.timeline, {
                 x: x + 2,
                 y: height / 4,
                 text: formatInTimeZone(t, timezone, "LLLL", { locale: enUS }),
@@ -1028,7 +1055,7 @@ export class WeekScale extends Scale {
             });
             let subLabelT = addDays(addHours(t, 12), 3);
             const subLabelX = ruler.timeline.positionTime(subLabelT.getTime());
-            g.fillText({
+            this.fillTextIfFullyVisible(g, ruler.timeline, {
                 x: subLabelX,
                 y: height * 0.75,
                 text: formatInTimeZone(t, timezone, 'dd/MM', { locale: enUS }),
@@ -1081,7 +1108,7 @@ export class MonthScale extends Scale {
                     .moveTo(Math.round(x) + 0.5, 0)
                     .lineTo(Math.round(x) + 0.5, height),
             });
-            g.fillText({
+            this.fillTextIfFullyVisible(g, ruler.timeline, {
                 x: x + 2,
                 y: height / 4,
                 text: formatInTimeZone(t, timezone, "yyyy", { locale: enUS }),
@@ -1102,7 +1129,7 @@ export class MonthScale extends Scale {
                 });
                 const x2 = addMonths(t, 1).getTime();
                 const subLabelX = ruler.timeline.positionTime((t.getTime() + x2) / 2);
-                g.fillText({
+                this.fillTextIfFullyVisible(g, ruler.timeline, {
                     x: subLabelX,
                     y: height * 0.75,
                     text: formatInTimeZone(t, timezone, 'LLL', { locale: enUS }),
@@ -1154,7 +1181,7 @@ export class YearScale extends Scale {
                     .moveTo(Math.round(x) + 0.5, 0)
                     .lineTo(Math.round(x) + 0.5, height),
             });
-            g.fillText({
+            this.fillTextIfFullyVisible(g, ruler.timeline, {
                 x: x + 2,
                 y: height / 2,
                 text: formatInTimeZone(t, timezone, "yyyy", { locale: enUS }),
@@ -1207,7 +1234,7 @@ export class DecadeScale extends Scale {
                     .moveTo(Math.round(x) + 0.5, 0)
                     .lineTo(Math.round(x) + 0.5, height),
             });
-            g.fillText({
+            this.fillTextIfFullyVisible(g, ruler.timeline, {
                 x: x + 2,
                 y: height / 2,
                 text: formatInTimeZone(t, timezone, 'yyyy', { locale: enUS }) + 's',
