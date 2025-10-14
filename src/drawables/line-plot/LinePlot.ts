@@ -114,8 +114,8 @@ export class LinePlot extends Band {
     private maxTick?: AnnotatedTick;
 
     private axisRegion?: AxisRegion;
-    private customMinimum?: number;
-    private customMaximum?: number;
+    private _customMinimum?: number;
+    private _customMaximum?: number;
 
     private mouseMoveListener: (evt: BandMouseMoveEvent) => void;
     private mouseLeaveListener: () => void;
@@ -776,8 +776,8 @@ export class LinePlot extends Band {
      * If the `axisRangePadding` property is set, it will have no effect.
      */
     setAxisRange(min: number, max: number) {
-        this.customMinimum = min;
-        this.customMaximum = max;
+        this._customMinimum = min;
+        this._customMaximum = max;
         this.reportMutation();
     }
 
@@ -785,8 +785,8 @@ export class LinePlot extends Band {
      * Reset any custom data range for the Y-axis.
      */
     resetAxisRange() {
-        this.customMinimum = undefined;
-        this.customMaximum = undefined;
+        this._customMinimum = undefined;
+        this._customMaximum = undefined;
         this.reportMutation();
     }
 
@@ -1004,6 +1004,16 @@ export class LinePlot extends Band {
         this.updatePlot();
         this.reportMutation();
     }
+
+    /**
+     * Current minimum value derived from user actions (by using `setAxisRange`).
+     */
+    get customMinimum() { return this._customMinimum; }
+
+    /**
+     * Current maximum value derived from user actions (by using `setAxisRange`).
+     */
+    get customMaximum() { return this._customMaximum; }
 
     /**
      * Returns the smallest visible value on the axis. This accounts for
