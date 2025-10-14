@@ -14,4 +14,12 @@ export interface ViewportChangeEvent extends TimelineEvent {
      * Right bound of the visible time range
      */
     stop: number;
+
+    /**
+     * Indicates the source of this viewport change event.
+     *
+     * A source may be set by users of this library when using
+     * the setViewRange method.
+     */
+    source?: string;
 }

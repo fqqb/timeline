@@ -9,6 +9,7 @@ import { FillStyle } from './graphics/FillStyle';
 import { Graphics } from './graphics/Graphics';
 import { Path } from './graphics/Path';
 import { Overflow } from './Overflow';
+import { SetViewRangeOptions } from './SetViewRangeOptions';
 import { TimeRange } from './TimeRange';
 import { Tool } from './Tool';
 import { ViewportChangeEvent } from './ViewportChangeEvent';
@@ -182,7 +183,7 @@ export class Timeline {
     /**
      * Sets the visible range.
      */
-    setViewRange(start: number, stop: number, animate = true) {
+    setViewRange(start: number, stop: number, options?: SetViewRangeOptions) {
         const { min, max, minRange, maxRange } = this;
         let millisBetween = stop - start;
 
@@ -216,6 +217,7 @@ export class Timeline {
             }
             start = stop - millisBetween;
         }
+        const animate = options?.animate ?? true;
         if (this.animated && animate) {
             this._start.setTransition(this.frameTime, start);
             this._stop.setTransition(this.frameTime, stop);
@@ -223,7 +225,11 @@ export class Timeline {
             this._start.value = start;
             this._stop.value = stop;
         }
-        this.viewportChangeListeners.forEach(l => l({ start, stop }));
+        this.viewportChangeListeners.forEach(l => l({
+            start,
+            stop,
+            source: options?.source,
+        }));
         this.requestRepaint();
     }
 
@@ -282,7 +288,7 @@ export class Timeline {
     set min(min: number | undefined) {
         this._min = min ?? undefined;
         // Enforce new min
-        this.setViewRange(this.start, this.stop, false);
+        this.setViewRange(this.start, this.stop, { animate: false });
     }
 
     /**
@@ -292,7 +298,7 @@ export class Timeline {
     set max(max: number | undefined) {
         this._max = max ?? undefined;
         // Enforce new max
-        this.setViewRange(this.start, this.stop, false);
+        this.setViewRange(this.start, this.stop, { animate: false });
     }
 
     /**
@@ -302,7 +308,7 @@ export class Timeline {
     set minRange(minRange: number | undefined) {
         this._minRange = minRange ?? undefined;
         // Enforce new minRange
-        this.setViewRange(this.start, this.stop, false);
+        this.setViewRange(this.start, this.stop, { animate: false });
     }
 
     /**
@@ -312,7 +318,7 @@ export class Timeline {
     set maxRange(maxRange: number | undefined) {
         this._maxRange = maxRange ?? undefined;
         // Enforce new maxRange
-        this.setViewRange(this.start, this.stop, false);
+        this.setViewRange(this.start, this.stop, { animate: false });
     }
 
     /**
@@ -503,7 +509,7 @@ export class Timeline {
 
         const start = this.start + offsetMillis;
         const stop = this.stop + offsetMillis;
-        this.setViewRange(start, stop, animate);
+        this.setViewRange(start, stop, { animate });
     }
 
     /**
@@ -515,7 +521,7 @@ export class Timeline {
         const delta = (this.stop - this.start) / 2;
         const start = time - delta;
         const stop = time + delta;
-        this.setViewRange(start, stop, animate);
+        this.setViewRange(start, stop, { animate });
     }
 
     /**
@@ -638,7 +644,7 @@ export class Timeline {
 
         const start = relto - (reltoRatio * nextRange);
         const stop = relto + ((1 - reltoRatio) * nextRange);
-        this.setViewRange(start, stop, animate);
+        this.setViewRange(start, stop, { animate });
     }
 
     get background() { return this._background; };

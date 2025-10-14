@@ -70,7 +70,7 @@ export class TimeRulerRegion implements HitRegionSpecification {
 
         const newStart = relto - reltoRatio * nextRange;
         const newStop = relto + (1 - reltoRatio) * nextRange;
-        this.timeline.setViewRange(newStart, newStop, false);
+        this.timeline.setViewRange(newStart, newStop, { animate: false });
     }
 
     grabEnd() {
