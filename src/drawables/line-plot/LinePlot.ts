@@ -85,7 +85,7 @@ export class LinePlot extends Band {
     private _labelTextColor = 'grey';
     private _labelTextSize = 8;
     private _labelPadding = 2;
-    private _labelRadius = 10;
+    private _labelRadius = 4;
     private _axisBackground: FillStyle = 'transparent';
     private _axisTickColor: string = '#888888';
     private _axisTickLength = 8;
@@ -638,44 +638,46 @@ export class LinePlot extends Band {
         const start0 = Math.round(this.timeline.distanceBetween(0, this.timeline.start));
 
         // Draw trace
-        const path = new Path(points[0].drawInfo!.renderX0 - start0, points[0].drawInfo!.renderY ?? 0);
+        if (lineWidth && points.length) {
+            const path = new Path(points[0].drawInfo!.renderX0 - start0, points[0].drawInfo!.renderY ?? 0);
 
-        if (lineStyle === 'straight') {
-            for (let i = 1; i < points.length; i++) {
-                const prev = points[i - 1].drawInfo!;
-                const point = points[i].drawInfo!;
-                if (prev.renderY !== undefined && point.renderY !== undefined) {
-                    path.lineTo(point.renderX0 - start0, point.renderY);
-                } else if (point.renderY !== undefined) {
-                    path.moveTo(point.renderX0 - start0, point.renderY);
+            if (lineStyle === 'straight') {
+                for (let i = 1; i < points.length; i++) {
+                    const prev = points[i - 1].drawInfo!;
+                    const point = points[i].drawInfo!;
+                    if (prev.renderY !== undefined && point.renderY !== undefined) {
+                        path.lineTo(point.renderX0 - start0, point.renderY);
+                    } else if (point.renderY !== undefined) {
+                        path.moveTo(point.renderX0 - start0, point.renderY);
+                    }
+                }
+            } else {
+                const offset = lineWidth === 1 ? 0.5 : 0;
+                for (let i = 1; i < points.length; i++) {
+                    const prev = points[i - 1].drawInfo!;
+                    const point = points[i].drawInfo!;
+                    if (prev.renderY !== undefined && point.renderY !== undefined) {
+                        const x = point.renderX0 - start0 + offset;
+                        let y = Math.round(prev.renderY) + offset;
+                        path.lineTo(x, y);
+                        y = Math.round(point.renderY) + offset;
+                        path.lineTo(x, y);
+                    } else if (point.renderY !== undefined) {
+                        const x = point.renderX0 - start0 + offset;
+                        const y = Math.round(point.renderY) + offset;
+                        path.moveTo(x, y);
+                    }
                 }
             }
-        } else {
-            const offset = lineWidth === 1 ? 0.5 : 0;
-            for (let i = 1; i < points.length; i++) {
-                const prev = points[i - 1].drawInfo!;
-                const point = points[i].drawInfo!;
-                if (prev.renderY !== undefined && point.renderY !== undefined) {
-                    const x = point.renderX0 - start0 + offset;
-                    let y = Math.round(prev.renderY) + offset;
-                    path.lineTo(x, y);
-                    y = Math.round(point.renderY) + offset;
-                    path.lineTo(x, y);
-                } else if (point.renderY !== undefined) {
-                    const x = point.renderX0 - start0 + offset;
-                    const y = Math.round(point.renderY) + offset;
-                    path.moveTo(x, y);
-                }
-            }
+
+            g.strokePath({
+                path,
+                color: lineColor,
+                lineWidth,
+                lineCap: 'butt',
+                lineJoin: 'round',
+            });
         }
-
-        g.strokePath({
-            path,
-            color: lineColor,
-            lineWidth,
-            lineCap: 'butt',
-            lineJoin: 'round',
-        });
 
         // Draw point symbols
         for (const point of points) {
