@@ -257,6 +257,8 @@ export class LinePlot extends Band {
         }
         if (max < min) { // Edge case in case only one of minimum/maximum was configured
             [min, max] = [max, min];
+        } else if (min === max) { // Avoid min===max
+            [min, max] = [min - 1, max + 1];
         }
 
         if (this.centerZero
