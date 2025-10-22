@@ -103,6 +103,7 @@ export class LinePlot extends Band {
     private _lines: Line[] = [];
     private _hlines: HLine[] = [];
     private _contentHeight = 30;
+    private _resetAxisZoomOnDoubleClick = true;
 
     // Formatter for numbers that are more 'predictable'.
     private _axisLabelFormatter: (value: number) => string = value => {
@@ -1090,6 +1091,16 @@ export class LinePlot extends Band {
     get axisRangePadding() { return this._axisRangePadding; }
     set axisRangePadding(axisRangePadding: number) {
         this._axisRangePadding = axisRangePadding;
+        this.reportMutation();
+    }
+
+    /**
+     * If true, double-click on the viewport region will reset any
+     * vertical zoom.
+     */
+    get resetAxisZoomOnDoubleClick() { return this._resetAxisZoomOnDoubleClick; }
+    set resetAxisZoomOnDoubleClick(resetAxisZoomOnDoubleClick: boolean) {
+        this._resetAxisZoomOnDoubleClick = resetAxisZoomOnDoubleClick;
         this.reportMutation();
     }
 

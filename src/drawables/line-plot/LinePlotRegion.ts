@@ -43,7 +43,9 @@ export class LinePlotRegion implements HitRegionSpecification {
     doubleClick(mouseEvent: MouseHitEvent) {
         this.viewportRegion.doubleClick(mouseEvent);
 
-        this.linePlot.resetAxisRange();
+        if (this.linePlot.resetAxisZoomOnDoubleClick) {
+            this.linePlot.resetAxisRange();
+        }
     }
 
     private valueForPosition(position: number) {
