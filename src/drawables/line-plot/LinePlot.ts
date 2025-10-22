@@ -103,7 +103,15 @@ export class LinePlot extends Band {
     private _lines: Line[] = [];
     private _hlines: HLine[] = [];
     private _contentHeight = 30;
-    private _labelFormatter: (value: number) => string = value => {
+
+    // Formatter for numbers that are more 'predictable'.
+    private _axisLabelFormatter: (value: number) => string = value => {
+        return String(value);
+    };
+
+    // Formatter for numbers that are 'unpredictable' (derived from
+    // hover position)
+    private _hoveredValueLabelFormatter: (value: number) => string = value => {
         return value.toFixed(2);
     };
 
@@ -361,7 +369,7 @@ export class LinePlot extends Band {
         let axisWidth = this.axisWidth;
         if (axisWidth === undefined) {
             for (const tick of visibleTicks) {
-                const text = this.labelFormatter(tick.value);
+                const text = this.axisLabelFormatter(tick.value);
                 const fm = g.measureText(text, font);
                 const requiredWidth = this.labelPadding + fm.width + this.labelPadding + this.axisTickLength;
                 if (axisWidth === undefined || axisWidth < requiredWidth) {
@@ -402,7 +410,7 @@ export class LinePlot extends Band {
 
             if (tickTextIsFullyVisible(tick)) {
                 g.fillText({
-                    text: this.labelFormatter(tick.value),
+                    text: this.axisLabelFormatter(tick.value),
                     align: 'right',
                     baseline: 'middle',
                     color: this.labelTextColor,
@@ -412,7 +420,7 @@ export class LinePlot extends Band {
                 });
             } else if (tick === this.minTick) {
                 g.fillText({
-                    text: this.labelFormatter(tick.value),
+                    text: this.axisLabelFormatter(tick.value),
                     align: 'right',
                     baseline: 'bottom',
                     color: this.labelTextColor,
@@ -422,7 +430,7 @@ export class LinePlot extends Band {
                 });
             } else if (tick === this.maxTick) {
                 g.fillText({
-                    text: this.labelFormatter(tick.value),
+                    text: this.axisLabelFormatter(tick.value),
                     align: 'right',
                     baseline: 'top',
                     color: this.labelTextColor,
@@ -436,7 +444,7 @@ export class LinePlot extends Band {
         for (const hline of this.annotatedHLines.filter(l => l.label !== undefined)) {
             const y = Math.round(hline.y) + 0.5;
 
-            const label = this.labelFormatter(hline.value);
+            const label = this.axisLabelFormatter(hline.value);
 
             const font = `${this.labelTextSize}px ${this.labelFontFamily}`;
             const padding = this.labelPadding;
@@ -474,7 +482,7 @@ export class LinePlot extends Band {
 
         if (this.hoveredY !== undefined && this.valueForPositionFn) {
             const value = this.valueForPositionFn(this.hoveredY);
-            const label = this.labelFormatter(value);
+            const label = this.hoveredValueLabelFormatter(value);
 
             const font = `${this.labelTextSize}px ${this.labelFontFamily}`;
             const padding = this.labelPadding;
@@ -946,14 +954,26 @@ export class LinePlot extends Band {
     }
 
     /**
-     * Function that formats a point value to string.
+     * Function that formats an axis tick value to string. It is also
+     * used to format hline values.
+     *
+     * The default behavior is to cast the number to a string.
+     */
+    get axisLabelFormatter() { return this._axisLabelFormatter; }
+    set axisLabelFormatter(axisLabelFormatter: (value: number) => string) {
+        this._axisLabelFormatter = axisLabelFormatter;
+        this.reportMutation();
+    }
+
+    /**
+     * Function that formats the hovered value.
      *
      * The default behavior is to format with 2 digits after the
      * decimal point.
      */
-    get labelFormatter() { return this._labelFormatter; }
-    set labelFormatter(labelFormatter: (value: number) => string) {
-        this._labelFormatter = labelFormatter;
+    get hoveredValueLabelFormatter() { return this._hoveredValueLabelFormatter; }
+    set hoveredValueLabelFormatter(hoveredValueLabelFormatter: (value: number) => string) {
+        this._hoveredValueLabelFormatter = hoveredValueLabelFormatter;
         this.reportMutation();
     }
 
