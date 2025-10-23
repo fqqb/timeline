@@ -3,6 +3,7 @@ import { Path } from '../graphics/Path';
 import { Point } from '../graphics/Point';
 import { Timeline } from '../Timeline';
 import { ViewportMouseMoveEvent } from '../ViewportMouseMoveEvent';
+import { LinePlot } from './line-plot/LinePlot';
 import { TimeLocator } from './TimeLocator';
 
 
@@ -21,8 +22,9 @@ export class MouseTracker extends TimeLocator {
             this.time = evt.time;
             this.reportMutation();
         }
-        if (evt.y !== this.hoveredY) {
-            this.hoveredY = evt.y;
+        const newY = (evt.band instanceof LinePlot) ? evt.y : undefined;
+        if (newY !== this.hoveredY) {
+            this.hoveredY = newY;
             this.reportMutation();
         }
     };

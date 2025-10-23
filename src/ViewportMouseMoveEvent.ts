@@ -1,3 +1,4 @@
+import { Band } from './drawables/Band';
 import { TimelineEvent } from './TimelineEvent';
 
 /**
@@ -32,4 +33,9 @@ export interface ViewportMouseMoveEvent extends TimelineEvent {
      * Time matching with the coordinates of the mouse pointer.
      */
     time: number;
+
+    /**
+     * Band matching the coordinates of the mouse pointer.
+     */
+    band?: Band;
 }

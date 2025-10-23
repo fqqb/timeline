@@ -591,6 +591,18 @@ export class Timeline {
     }
 
     /**
+     * Returns the band matching canvas y coordinate
+     * (relative to full canvas)
+     */
+    bandForCanvasPosition(canvasY: number) {
+        for (const band of this.getBands()) {
+            if (band.y <= canvasY && canvasY <= band.y + band.height) {
+                return band;
+            }
+        }
+    }
+
+    /**
      * Returns pixel count between two times. The sign
      * is negative if time2 comes after time1.
      */

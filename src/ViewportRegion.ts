@@ -164,6 +164,7 @@ export class ViewportRegion implements HitRegionSpecification {
             x: mouseEvent.x,
             y: mouseEvent.y,
             time: this.timeline.timeForCanvasPosition(mouseEvent.x),
+            band: this.timeline.bandForCanvasPosition(mouseEvent.y),
         };
         this.mouseMoveListeners.forEach(l => l(vpEvent));
     }
