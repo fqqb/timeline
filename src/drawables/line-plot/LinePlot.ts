@@ -528,55 +528,81 @@ export class LinePlot extends Band {
         const fill = line.lohiColor ?? this.lohiColor;
         const start0 = Math.round(this.timeline.distanceBetween(0, this.timeline.start));
 
+        let combinedPath: Path | null = null;
+
         for (let i = 1; i < line.points.length; i++) {
             const prev = line.points[i - 1].drawInfo!;
             const prevLow = line.points[i - 1].low;
             const prevHigh = line.points[i - 1].high;
+
             const point = line.points[i].drawInfo!;
             const pointLow = line.points[i].low;
             const pointHigh = line.points[i].high;
+
             if (prev.renderY !== undefined
                 && point.renderY !== undefined
                 && prevLow !== undefined
                 && prevHigh !== undefined
                 && pointLow !== undefined
                 && pointHigh !== undefined) {
+
                 const prevX = prev.renderX0 - start0;
                 const pointX = point.renderX0 - start0;
                 const prevLowY = positionForValueFn(prevLow);
                 const prevHighY = positionForValueFn(prevHigh);
                 const pointLowY = positionForValueFn(pointLow);
                 const pointHighY = positionForValueFn(pointHigh);
-                g.fillPath({
-                    path: new Path(prevX, prevHighY)
-                        .lineTo(prevX, prevLowY)
-                        .lineTo(pointX, pointLowY)
-                        .lineTo(pointX, pointHighY),
-                    fill,
-                });
+
+                if (!combinedPath) {
+                    combinedPath = new Path(prevX, prevHighY);
+                } else {
+                    combinedPath.moveTo(prevX, prevHighY);
+                }
+
+                combinedPath.lineTo(prevX, prevLowY)
+                    .lineTo(pointX, pointLowY)
+                    .lineTo(pointX, pointHighY);
             }
+        }
+
+        if (combinedPath) {
+            g.fillPath({
+                path: combinedPath,
+                fill,
+            });
         }
     }
 
     private drawArea(g: Graphics, line: AnnotatedLine, positionForValueFn: (value: number) => number) {
+        if (line.points.length < 2) {
+            return;
+        }
         const fill = line.fill ?? this.fill;
         const lineWidth = line.lineWidth ?? this.lineWidth;
         const lineStyle = line.lineStyle ?? this.lineStyle;
         const start0 = Math.round(this.timeline.distanceBetween(0, this.timeline.start));
         const originY = Math.round(positionForValueFn(0)) + 0.5;
 
+        let combinedPath: Path | null = null;
+
         if (lineStyle === 'straight') {
             for (let i = 1; i < line.points.length; i++) {
                 const prev = line.points[i - 1].drawInfo!;
                 const point = line.points[i].drawInfo!;
+
                 if (prev.renderY !== undefined && point.renderY !== undefined) {
-                    g.fillPath({
-                        path: new Path(prev.renderX0 - start0, prev.renderY)
-                            .lineTo(prev.renderX0 - start0, originY)
-                            .lineTo(point.renderX0 - start0, originY)
-                            .lineTo(point.renderX0 - start0, point.renderY),
-                        fill,
-                    });
+                    const x0 = prev.renderX0 - start0;
+                    const x1 = point.renderX0 - start0;
+
+                    if (!combinedPath) {
+                        combinedPath = new Path(x0, prev.renderY);
+                    } else {
+                        combinedPath.moveTo(x0, prev.renderY);
+                    }
+
+                    combinedPath.lineTo(x0, originY)
+                        .lineTo(x1, originY)
+                        .lineTo(x1, point.renderY);
                 }
             }
         } else {
@@ -584,19 +610,30 @@ export class LinePlot extends Band {
             for (let i = 1; i < line.points.length; i++) {
                 const prev = line.points[i - 1].drawInfo!;
                 const point = line.points[i].drawInfo!;
+
                 if (prev.renderY !== undefined && point.renderY !== undefined) {
                     const prevX = prev.renderX0 - start0 + offset;
                     const prevY = Math.round(prev.renderY) + offset;
                     const pointX = point.renderX0 - start0 + offset;
-                    g.fillPath({
-                        path: new Path(prevX, prevY)
-                            .lineTo(prevX, originY)
-                            .lineTo(pointX, originY)
-                            .lineTo(pointX, prevY),
-                        fill,
-                    });
+
+                    if (!combinedPath) {
+                        combinedPath = new Path(prevX, prevY);
+                    } else {
+                        combinedPath.moveTo(prevX, prevY);
+                    }
+
+                    combinedPath.lineTo(prevX, originY)
+                        .lineTo(pointX, originY)
+                        .lineTo(pointX, prevY);
                 }
             }
+        }
+
+        if (combinedPath) {
+            g.fillPath({
+                path: combinedPath,
+                fill,
+            });
         }
     }
 
