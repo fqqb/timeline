@@ -824,8 +824,8 @@ export class LinePlot extends Band {
      * If the `axisRangePadding` property is set, it will have no effect.
      */
     setAxisRange(min: number, max: number) {
-        this._customMinimum = min;
-        this._customMaximum = max;
+        this._customMinimum = !isNaN(min) ? min : undefined;
+        this._customMaximum = !isNaN(max) ? max : undefined;
         this.reportMutation();
     }
 
