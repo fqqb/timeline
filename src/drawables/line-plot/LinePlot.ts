@@ -95,6 +95,7 @@ export class LinePlot extends Band {
     private _maximum?: number;
     private _centerZero = false;
     private _zoomMultiplier = 0.05;
+    private _closestPointMaxDistance = 5;
     private _pointRadius = 1.5;
     private _pointColor = '#4f9146';
     private _lohiColor = '#5555552b';
@@ -798,8 +799,17 @@ export class LinePlot extends Band {
                 }
             }
 
-            // Avoiding show value for trailing gap
-            const ignorePoint = (currIdx === line.points.length - 1) && currX !== t;
+            // Avoid showing value for trailing gap
+            let ignorePoint = (currIdx === line.points.length - 1) && currX !== t;
+
+            // Avoid showing value beyond max distance
+            if (currPoint !== null) {
+                const x1 = this.timeline.positionTime(currPoint.x);
+                const x2 = this.timeline.positionTime(t);
+                const distance = Math.abs(x1 - x2);
+                ignorePoint ||= distance > this.closestPointMaxDistance;
+            }
+
             if (currPoint !== null && !ignorePoint) {
                 closestPoints.push(currPoint.originalPoint);
             } else {
@@ -1148,6 +1158,17 @@ export class LinePlot extends Band {
     get zoomMultiplier() { return this._zoomMultiplier; }
     set zoomMultiplier(zoomMultiplier: number) {
         this._zoomMultiplier = zoomMultiplier;
+    }
+
+    /**
+     * Impacts the closest points that are emitted on mouse-move events.
+     * If the mouse is further than max distance away from the actual
+     * closest point, that point is not emitted.
+     */
+    get closestPointMaxDistance() { return this._closestPointMaxDistance; }
+    set closestPointMaxDistance(closestPointMaxDistance: number) {
+        this._closestPointMaxDistance = closestPointMaxDistance;
+        this.reportMutation();
     }
 
     get lines() { return this._lines; }
