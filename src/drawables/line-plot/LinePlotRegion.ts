@@ -24,12 +24,16 @@ export class LinePlotRegion implements HitRegionSpecification {
     grab(grabEvent: GrabHitEvent) {
         this.viewportRegion.grab(grabEvent);
 
+        if (!this.linePlot.valueForPositionFn) {
+            return;
+        }
+
         if (this.linePlot.timeline.tool === 'hand') {
             const panMovement = -grabEvent.movementY;
             const { contentHeight } = this.linePlot;
 
-            let min = this.valueForPosition(contentHeight + panMovement);
-            let max = this.valueForPosition(0 + panMovement);
+            let min = this.linePlot.valueForPositionFn(contentHeight + panMovement);
+            let max = this.linePlot.valueForPositionFn(0 + panMovement);
             if (max < min) {
                 [min, max] = [max, min];
             }
@@ -46,9 +50,5 @@ export class LinePlotRegion implements HitRegionSpecification {
         if (this.linePlot.resetAxisZoomOnDoubleClick) {
             this.linePlot.resetAxisRange();
         }
-    }
-
-    private valueForPosition(position: number) {
-        return this.linePlot.valueForPositionFn!(position);
     }
 }

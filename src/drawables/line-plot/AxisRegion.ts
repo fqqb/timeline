@@ -20,9 +20,13 @@ export class AxisRegion implements HitRegionSpecification {
     }
 
     mouseDown(mouseEvent: MouseHitEvent) {
+        if (!this.linePlot.valueForPositionFn) {
+            return;
+        }
+
         const { linePlot } = this;
         this.startPosition = mouseEvent.y - linePlot.y;
-        this.startValue = this.valueForPosition(this.startPosition);
+        this.startValue = this.linePlot.valueForPositionFn(this.startPosition);
         this.originalMin = linePlot.visibleMinimum;
         this.originalMax = linePlot.visibleMaximum;
     }
@@ -53,10 +57,14 @@ export class AxisRegion implements HitRegionSpecification {
     }
 
     wheel(wheelEvent: WheelHitEvent) {
+        if (!this.linePlot.valueForPositionFn) {
+            return;
+        }
+
         const { linePlot } = this;
         const min = linePlot.visibleMinimum;
         const max = linePlot.visibleMaximum;
-        const relto = this.valueForPosition(wheelEvent.y - linePlot.y);
+        const relto = this.linePlot.valueForPositionFn(wheelEvent.y - linePlot.y);
 
         if (wheelEvent.deltaY > 0) {
             this.zoom(2, min, max, relto);
@@ -67,10 +75,6 @@ export class AxisRegion implements HitRegionSpecification {
 
     doubleClick() {
         this.linePlot.resetAxisRange();
-    }
-
-    private valueForPosition(position: number) {
-        return this.linePlot.valueForPositionFn!(position);
     }
 
     /**
