@@ -59,6 +59,10 @@ export class Graphics {
     }
 
     copy(g: Graphics, dx: number, dy: number) {
+        // Avoid console errors
+        if (g.canvas.width === 0 || g.canvas.height === 0) {
+            return;
+        }
         this.ctx.drawImage(g.canvas, dx, dy, g.width, g.height);
         g.hitCanvas.transferTo(this.hitCtx, dx, dy, g.width, g.height);
     }
