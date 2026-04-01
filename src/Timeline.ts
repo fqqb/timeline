@@ -1,7 +1,6 @@
 import { AnimatableProperty } from './AnimatableProperty';
 import { DividerRegion } from './DividerRegion';
 import { Band } from './drawables/Band';
-import { DefaultSidebar } from './drawables/DefaultSidebar';
 import { Drawable } from './drawables/Drawable';
 import { Sidebar } from './drawables/Sidebar';
 import { EventHandler } from './graphics/EventHandler';
@@ -21,11 +20,13 @@ import { ViewportRegion } from './ViewportRegion';
 import { ViewportSelectionEvent } from './ViewportSelectionEvent';
 
 export const REGION_ID_VIEWPORT = 'viewport';
-export const REGION_ID_DIVIDER = 'divider';
+export const REGION_ID_LEFT_DIVIDER = 'left-divider';
+export const REGION_ID_RIGHT_DIVIDER = 'right-divider';
 
 export class Timeline {
 
-    private _sidebar?: Sidebar;
+    private _leftSidebar?: Sidebar;
+    private _rightSidebar?: Sidebar;
     private _drawables: Drawable[] = [];
 
     private rootPanel: HTMLDivElement;
@@ -78,7 +79,9 @@ export class Timeline {
     /** @hidden */
     viewportRegion = new ViewportRegion(REGION_ID_VIEWPORT, this);
     /** @hidden */
-    dividerRegion = new DividerRegion(REGION_ID_DIVIDER, this);
+    leftDividerRegion = new DividerRegion(REGION_ID_LEFT_DIVIDER, this, 'left');
+    /** @hidden */
+    rightDividerRegion = new DividerRegion(REGION_ID_RIGHT_DIVIDER, this, 'right');
 
     constructor(private readonly targetElement: HTMLElement) {
 
@@ -132,8 +135,6 @@ export class Timeline {
         this.rootPanel.appendChild(frozenCanvas);
         this.frozenGraphics = new Graphics(frozenCanvas);
 
-        this.sidebar = new DefaultSidebar(this);
-
         this.animationFrameRequest = window.requestAnimationFrame(t => this.step(t));
     }
 
@@ -146,7 +147,8 @@ export class Timeline {
         for (const drawable of this._drawables) {
             drawable.disconnectedCallback();
         }
-        this.sidebar?.disconnectedCallback();
+        this.leftSidebar?.disconnectedCallback();
+        this.rightSidebar?.disconnectedCallback();
     }
 
     createAnimatableProperty(value: number) {
@@ -322,7 +324,7 @@ export class Timeline {
     }
 
     /**
-     * The pixel width of this Timeline (incl. sidebar)
+     * The pixel width of this Timeline (incl. sidebars)
      */
     get width() {
         return this.scrollPanel.clientWidth;
@@ -336,14 +338,30 @@ export class Timeline {
     }
 
     /**
-     * Optional sidebar. If set, this is positioned left of
+     * Optional sidebar positioned to the left of
      * the main area.
      */
-    get sidebar() { return this._sidebar; }
-    set sidebar(sidebar: Sidebar | undefined) {
-        if (this._sidebar !== sidebar) {
-            this._sidebar?.disconnectedCallback();
-            this._sidebar = sidebar;
+    get leftSidebar() { return this._leftSidebar; }
+    set leftSidebar(leftSidebar: Sidebar | undefined | null) {
+        if (this._leftSidebar !== leftSidebar) {
+            this._leftSidebar?.disconnectedCallback();
+            this._leftSidebar = leftSidebar ?? undefined;
+            this._leftSidebar && (this._leftSidebar.position = 'left');
+            this.requestRepaint();
+        }
+    }
+
+    /**
+     * Optional sidebar positioned to the right of
+     * the main area.
+     */
+    get rightSidebar() { return this._rightSidebar; }
+    set rightSidebar(rightSidebar: Sidebar | undefined | null) {
+        if (this._rightSidebar !== rightSidebar) {
+            this._rightSidebar?.disconnectedCallback();
+            this._rightSidebar = rightSidebar ?? undefined;
+            this._rightSidebar && (this._rightSidebar.position = 'right');
+            this.requestRepaint();
         }
     }
 
@@ -374,11 +392,12 @@ export class Timeline {
     }
 
     /**
-     * The pixel width of this Timeline (excl. sidebar)
+     * The pixel width of this Timeline (excl. sidebars)
      */
     get mainWidth() {
-        let sidebarWidth = this.sidebar?.clippedWidth || 0;
-        return this.width - sidebarWidth;
+        let leftSidebarWidth = this.leftSidebar?.clippedWidth || 0;
+        let rightSidebarWidth = this.rightSidebar?.clippedWidth || 0;
+        return this.width - leftSidebarWidth - rightSidebarWidth;
     }
 
     /**
@@ -390,7 +409,7 @@ export class Timeline {
      */
     add<T extends Drawable>(drawable: T): T {
         if (drawable instanceof Sidebar) {
-            this.sidebar = drawable;
+            // Ignore
         } else if (this._drawables.indexOf(drawable) === -1) {
             this._drawables.push(drawable);
             this.requestRepaint();
@@ -552,21 +571,14 @@ export class Timeline {
      * @returns Whether an element was actually removed.
      */
     removeChild(drawable: Drawable): boolean {
-        if (drawable === this.sidebar) {
+        const idx = this._drawables.indexOf(drawable);
+        if (idx !== -1) {
             drawable.disconnectedCallback();
-            this.sidebar = undefined;
+            this._drawables.splice(idx, 1);
             this.requestRepaint();
             return true;
-        } else {
-            const idx = this._drawables.indexOf(drawable);
-            if (idx !== -1) {
-                drawable.disconnectedCallback();
-                this._drawables.splice(idx, 1);
-                this.requestRepaint();
-                return true;
-            }
-            return false;
         }
+        return false;
     }
 
     /**
@@ -582,8 +594,9 @@ export class Timeline {
      * (relative to full canvas)
      */
     timeForCanvasPosition(canvasX: number) {
-        const sidebarWidth = this.sidebar?.clippedWidth || 0;
-        const viewportX = canvasX - sidebarWidth;
+        const leftSidebarWidth = this.leftSidebar?.clippedWidth || 0;
+        const rightSidebarWidth = this.rightSidebar?.clippedWidth || 0;
+        const viewportX = canvasX - leftSidebarWidth - rightSidebarWidth;
         const totalMillis = this.stop - this.start;
         const totalPixels = this.mainWidth;
         const offsetMillis = (viewportX / totalPixels) * totalMillis;
@@ -739,24 +752,30 @@ export class Timeline {
         g.resize(width, height);
 
         g.fillCanvas(this.background);
-        this.sidebar?.drawContent(g);
+        this.leftSidebar?.drawContent(g);
+        this.rightSidebar?.drawContent(g);
 
-        const sidebarWidth = this.sidebar?.clippedWidth || 0;
+        const leftSidebarWidth = this.leftSidebar?.clippedWidth || 0;
+        const rightSidebarWidth = this.rightSidebar?.clippedWidth || 0;
 
         if (this.tool) {
             const hitRegion = g.addHitRegion(this.viewportRegion);
-            hitRegion.addRect(sidebarWidth, 0, this.mainWidth, height);
+            hitRegion.addRect(leftSidebarWidth, 0, this.mainWidth, height);
         }
 
         const offscreen = g.createChild(this.mainWidth, height);
         this.drawOffscreen(offscreen);
-        g.copy(offscreen, sidebarWidth, 0);
+        g.copy(offscreen, leftSidebarWidth, 0);
 
         this.drawFrozenTop();
 
-        if (this.sidebar) {
-            const hitRegion = g.addHitRegion(this.dividerRegion);
-            hitRegion.addRect(sidebarWidth - 5, 0, 10, height);
+        if (this.leftSidebar) {
+            const hitRegion = g.addHitRegion(this.leftDividerRegion);
+            hitRegion.addRect(leftSidebarWidth - 5, 0, 10, height);
+        }
+        if (this.rightSidebar) {
+            const hitRegion = g.addHitRegion(this.rightDividerRegion);
+            hitRegion.addRect(width - rightSidebarWidth - 5, 0, 10, height);
         }
     }
 

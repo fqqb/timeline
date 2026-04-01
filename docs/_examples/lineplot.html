@@ -1,9 +1,10 @@
 <div id="timeline" style="height: 62px"></div>
 <script type="module">
-    import { Timeline, LinePlot } from 'https://esm.run/@fqqb/timeline';
+    import { DefaultSidebar, Timeline, LinePlot } from 'https://esm.run/@fqqb/timeline';
     window.addEventListener('load', () => {
         const targetEl = document.getElementById('timeline');
         const timeline = new Timeline(targetEl);
+        timeline.leftSidebar = new DefaultSidebar(timeline);
 
         // BEGIN excerpt-1
         const band1 = new LinePlot(timeline);

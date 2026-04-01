@@ -100,7 +100,7 @@ button:hover, button.active {
 <div id="timeline" style="height: 550px"></div>
 
 <script type="module">
-    import { TimeRuler, ItemBand, MouseTracker, Timeline, TimeLocator } from 'https://esm.run/@fqqb/timeline';
+    import { DefaultSidebar, TimeRuler, ItemBand, MouseTracker, Timeline, TimeLocator } from 'https://esm.run/@fqqb/timeline';
 
     function getRandomInt(min, max) {
         min = Math.ceil(min);
@@ -111,6 +111,7 @@ button:hover, button.active {
     window.addEventListener('load', () => {
         const targetEl = document.getElementById('timeline');
         const timeline = new Timeline(targetEl);
+        timeline.leftSidebar = new DefaultSidebar(timeline);
 
         const timeRuler = new TimeRuler(timeline);
         timeRuler.frozen = true;
@@ -135,7 +136,7 @@ button:hover, button.active {
         const stop = new Date(dt.getTime());
         timeline.setViewRange(start.getTime(), stop.getTime());
 
-        timeline.sidebar.overlayColor = 'rgba(238, 238, 238, 0.2)';
+        timeline.leftSidebar.overlayColor = 'rgba(238, 238, 238, 0.2)';
 
         for (let i = 0; i < 10; i++) {
             const band = new ItemBand(timeline);
@@ -206,7 +207,7 @@ button:hover, button.active {
 
         window.jumpToNow = () => timeline.panTo(new Date().getTime());
 
-        window.toggleSidebar = () => timeline.sidebar.toggle();
+        window.toggleSidebar = () => timeline.leftSidebar.toggle();
 
         window.changeTool = tool => {
             timeline.tool = tool;

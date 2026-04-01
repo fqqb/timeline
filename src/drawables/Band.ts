@@ -1,6 +1,7 @@
 import { FillStyle } from '../graphics/FillStyle';
 import { Graphics } from '../graphics/Graphics';
 import { MouseHitEvent } from '../graphics/MouseHitEvent';
+import { SidebarPosition } from '../SidebarPosition';
 import { Timeline } from '../Timeline';
 import { BandClickEvent } from './BandClickEvent';
 import { BandMouseEnterEvent } from './BandMouseEnterEvent';
@@ -304,8 +305,10 @@ export abstract class Band extends Drawable {
      *
      * @param g canvas relative to this band's coordinates. Everything outside will
      *          get clipped.
+     * @param position indicates whether this is a left or a right sidebar.
+                       Implementations may have different ways of drawing content.
      */
-    drawSidebarContent(g: Graphics): void {
+    drawSidebarContent(g: Graphics, position: SidebarPosition): void {
     }
 
     createMouseMoveEvent(evt: MouseHitEvent): BandMouseMoveEvent {

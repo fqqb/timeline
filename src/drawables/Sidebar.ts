@@ -1,4 +1,5 @@
 import { FillStyle } from '../graphics/FillStyle';
+import { SidebarPosition } from '../SidebarPosition';
 import { Drawable } from './Drawable';
 import { SidebarResizeEvent } from './SidebarResizeEvent';
 
@@ -13,6 +14,9 @@ export abstract class Sidebar extends Drawable {
     private _opened = true;
 
     private resizeListeners: Array<(ev: SidebarResizeEvent) => void> = [];
+
+    /** @hidden */
+    position: SidebarPosition = 'left';
 
     /**
      * Pixel width of this sidebar.

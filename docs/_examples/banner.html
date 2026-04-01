@@ -1,9 +1,10 @@
 <div id="timeline" style="height: 93px"></div>
 <script type="module">
-    import { Timeline, Banner } from 'https://esm.run/@fqqb/timeline';
+    import { DefaultSidebar, Timeline, Banner } from 'https://esm.run/@fqqb/timeline';
     window.addEventListener('load', () => {
         const targetEl = document.getElementById('timeline');
         const timeline = new Timeline(targetEl);
+        timeline.leftSidebar = new DefaultSidebar(timeline);
 
         // BEGIN excerpt-1
         const banner1 = new Banner(timeline);

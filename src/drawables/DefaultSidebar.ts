@@ -20,11 +20,15 @@ export class DefaultSidebar extends Sidebar {
 
     private hoveredIndex?: number;
 
-    drawContent(g: Graphics) {
+    override drawContent(g: Graphics) {
         if (this.clippedWidth) {
             const offscreen = g.createChild(this.clippedWidth, g.canvas.height);
             this.drawOffscreen(offscreen);
-            g.copy(offscreen, 0, 0);
+            if (this.position === 'left') {
+                g.copy(offscreen, 0, 0);
+            } else {
+                g.copy(offscreen, g.canvas.width - this.clippedWidth, 0);
+            }
         }
     }
 
@@ -91,12 +95,13 @@ export class DefaultSidebar extends Sidebar {
             }
 
             const offscreen = g.createChild(this.width, contentHeight);
-            band.drawSidebarContent(offscreen);
+            band.drawSidebarContent(offscreen, this.position);
             g.copy(offscreen, 0, band.y + band.paddingTop);
         }
 
-        // Right vertical divider
-        const dividerX = this.clippedWidth - 0.5;
+        // Draw a line on the rightside for a left sidebar, and on the leftside
+        // for a right sidebar
+        const dividerX = (this.position === 'left') ? this.clippedWidth - 0.5 : 0.5;
         g.strokePath({
             color: this.dividerColor,
             path: new Path(dividerX, 0).lineTo(dividerX, g.height),

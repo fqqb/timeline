@@ -1,9 +1,10 @@
 <div id="timeline" style="height: 93px"></div>
 <script type="module">
-    import { Timeline, TimeLocator, TimeRuler } from 'https://esm.run/@fqqb/timeline';
+    import { DefaultSidebar, Timeline, TimeLocator, TimeRuler } from 'https://esm.run/@fqqb/timeline';
     window.addEventListener('load', () => {
         const targetEl = document.getElementById('timeline');
         const timeline = new Timeline(targetEl);
+        timeline.leftSidebar = new DefaultSidebar(timeline);
 
         const start = new Date();
         start.setHours(0, 0, 0, 0);

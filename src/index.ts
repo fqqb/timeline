@@ -60,6 +60,7 @@ export { TouchHitEvent } from './graphics/TouchHitEvent';
 export { WheelHitEvent } from './graphics/WheelHitEvent';
 export { Overflow } from './Overflow';
 export { SetViewRangeOptions } from './SetViewRangeOptions';
+export { SidebarPosition } from './SidebarPosition';
 export { Timeline } from './Timeline';
 export { TimelineEvent } from './TimelineEvent';
 export { TimeRange } from './TimeRange';
