@@ -70,6 +70,10 @@ export class AnnotatedItem {
         return this.userItem.paddingLeft;
     }
 
+    get backgroundRenderer() {
+        return this.userItem.backgroundRenderer;
+    }
+
     get data() {
         return this.userItem.data;
     }

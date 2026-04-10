@@ -7,7 +7,9 @@ import { TextOverflow } from '../TextOverflow';
 import { AnnotatedItem } from './AnnotatedItem';
 import { ClusterLayoutStrategy } from './ClusterLayoutStrategy';
 import { Connection } from './Connection';
+import { DefaultItemBackgroundRenderer } from './DefaultItemBackgroundRenderer';
 import { Item } from './Item';
+import { ItemBackgroundRenderer } from './ItemBackgroundRenderer';
 import { ItemClickEvent } from './ItemClickEvent';
 import { ItemMouseEvent } from './ItemMouseEvent';
 import { MilestoneShape } from './MilestoneShape';
@@ -49,6 +51,8 @@ export class ItemBand extends Band {
     private _spaceBetween = 0;
     private _multiline = true;
     private _milestoneShape: MilestoneShape = 'diamond';
+
+    private _itemBackgroundRenderer: ItemBackgroundRenderer = new DefaultItemBackgroundRenderer();
 
     private _onelineLayoutStrategy = new OnelineLayoutStrategy(this);
     private _multilineLayoutStrategy = new MultilineLayoutStrategy(this);
@@ -475,57 +479,19 @@ export class ItemBand extends Band {
 
     private drawItem(g: Graphics, item: AnnotatedItem, y: number) {
         const { startX, stopX, renderStartX, renderStopX } = item.drawInfo!;
-
-        const box: Bounds = {
+        const bounds: Bounds = {
             x: Math.round(startX),
             y,
             width: Math.round(stopX - Math.round(startX)),
             height: this.itemHeight,
         };
-        const r = item.cornerRadius ?? this.itemCornerRadius;
-        g.fillRect({
-            ...box,
-            rx: r,
-            ry: r,
-            fill: item.background ?? this.itemBackground,
-        });
 
-        if (item.hovered) {
-            g.fillRect({
-                ...box,
-                rx: r,
-                ry: r,
-                fill: item.hoverBackground ?? this.itemHoverBackground,
-            });
-        }
+        const backgroundRenderer = item.backgroundRenderer ?? this.itemBackgroundRenderer;
+        backgroundRenderer.draw(g, this, item.userItem, bounds, item.hovered);
 
         // Hit region covers both the box, and potential outside text
         const hitRegion = g.addHitRegion(item.region);
         hitRegion.addRect(renderStartX, y, renderStopX - renderStartX, this.itemHeight);
-
-
-        const borderWidth = item.borderWidth ?? this.itemBorderWidth;
-        borderWidth && g.strokeRect({
-            ...box,
-            rx: r,
-            ry: r,
-            color: item.borderColor ?? this.itemBorderColor,
-            lineWidth: borderWidth,
-            dash: item.borderDash ?? this.itemBorderDash,
-            crispen: true,
-        });
-
-        if (item.hovered && this.itemHoverBorderWidth) {
-            g.strokeRect({
-                ...box,
-                rx: r,
-                ry: r,
-                color: item.borderColor ?? this.itemBorderColor,
-                lineWidth: this.itemHoverBorderWidth,
-                dash: item.borderDash ?? this.itemBorderDash,
-                crispen: true,
-            });
-        }
     }
 
     protected drawItemOverlay(g: Graphics, item: AnnotatedItem, y: number) {
@@ -709,6 +675,20 @@ export class ItemBand extends Band {
     get itemBackground() { return this._itemBackground; }
     set itemBackground(itemBackground: FillStyle) {
         this._itemBackground = itemBackground;
+        this.reportMutation();
+    }
+
+    /**
+     * Item background renderer. The default renderer considers
+     * background, border and hover properties.
+     *
+     * By setting a custom renderer you can change how the back
+     * ground and border are rendered. This is the actual item
+     * box (excluding. any labels).
+     */
+    get itemBackgroundRenderer() { return this._itemBackgroundRenderer; }
+    set itemBackgroundRenderer(itemBackgroundRenderer: ItemBackgroundRenderer) {
+        this._itemBackgroundRenderer = itemBackgroundRenderer;
         this.reportMutation();
     }
 

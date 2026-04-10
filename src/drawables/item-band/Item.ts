@@ -1,4 +1,5 @@
 import { FillStyle } from '../../graphics/FillStyle';
+import { ItemBackgroundRenderer } from './ItemBackgroundRenderer';
 
 /**
  * Item-specific properties.
@@ -81,6 +82,13 @@ export interface Item {
      * Corner radius for this item.
      */
     cornerRadius?: number;
+
+    /**
+     * Custom renderer. If set, some other properties may be ignored,
+     * because it becomes the renderer's job to draw background (border and
+     * fill)
+     */
+    backgroundRenderer?: ItemBackgroundRenderer;
 
     /**
      * Arbitrary data associated with this item. For example
