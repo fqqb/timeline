@@ -3,14 +3,17 @@ import { ItemBand } from './ItemBand';
 import { ItemLayoutStrategy } from './ItemLayoutStrategy';
 
 /**
- * Places all items on one line only, even if there is overlap
+ * Places each item on a new line
  */
-export class OnelineLayoutStrategy implements ItemLayoutStrategy {
-
+export class WaterfallLayoutStrategy implements ItemLayoutStrategy {
     constructor(private itemBand: ItemBand) {
     }
 
     wrapItems(items: AnnotatedItem[]): AnnotatedItem[][] {
-        return [items];
+        const lines: AnnotatedItem[][] = [];
+        for (const item of items) {
+            lines.push([item]);
+        }
+        return lines;
     }
 }

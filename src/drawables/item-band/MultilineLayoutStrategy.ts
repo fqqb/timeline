@@ -2,6 +2,10 @@ import { AnnotatedItem } from './AnnotatedItem';
 import { ItemBand } from './ItemBand';
 import { ItemLayoutStrategy } from './ItemLayoutStrategy';
 
+/**
+ * Places items on multiple lines if there is not sufficient space
+ * to place them on the same line.
+ */
 export class MultilineLayoutStrategy implements ItemLayoutStrategy {
 
     constructor(private itemBand: ItemBand) {

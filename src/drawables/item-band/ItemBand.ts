@@ -17,6 +17,7 @@ import { MultilineLayoutStrategy } from './MultilineLayoutStrategy';
 import { OnelineLayoutStrategy } from './OnelineLayoutStrategy';
 import { drawCircle, drawDiamond, drawDot, drawReverseTriangle, drawTriangle } from './shapes';
 import { ShapeStyle } from './ShapeStyle';
+import { WaterfallLayoutStrategy } from './WaterfallLayoutStrategy';
 
 let itemSequence = 1;
 
@@ -50,6 +51,7 @@ export class ItemBand extends Band {
     private _lineSpacing = 0;
     private _spaceBetween = 0;
     private _multiline = true;
+    private _waterfall = false;
     private _milestoneShape: MilestoneShape = 'diamond';
 
     private _itemBackgroundRenderer: ItemBackgroundRenderer = new DefaultItemBackgroundRenderer();
@@ -57,6 +59,7 @@ export class ItemBand extends Band {
     private _onelineLayoutStrategy = new OnelineLayoutStrategy(this);
     private _multilineLayoutStrategy = new MultilineLayoutStrategy(this);
     private _clusterLayoutStrategy = new ClusterLayoutStrategy(this);
+    private _waterfallLayoutStrategy = new WaterfallLayoutStrategy(this);
 
     private idByItem = new Map<Item, string>();
     private annotatedItems: AnnotatedItem[] = [];
@@ -196,7 +199,9 @@ export class ItemBand extends Band {
         const visibleItems = this.annotatedItems.filter(item => !!item.drawInfo);
 
         if (this.multiline) {
-            if (this.connections.length) {
+            if (this.waterfall) {
+                this.lines = this._waterfallLayoutStrategy.wrapItems(visibleItems);
+            } else if (this.connections.length) {
                 this.lines = this._clusterLayoutStrategy.wrapItems(visibleItems);
             } else {
                 this.lines = this._multilineLayoutStrategy.wrapItems(visibleItems);
@@ -830,6 +835,18 @@ export class ItemBand extends Band {
     get multiline() { return this._multiline; }
     set multiline(multiline: boolean) {
         this._multiline = multiline;
+        this.reportMutation();
+    }
+
+    /**
+     * In case of multiline, this allows specifying whether
+     * items should appear all on different lines (= waterfall),
+     * or if items may be combined on the same line when space
+     * permits.
+     */
+    get waterfall() { return this._waterfall; }
+    set waterfall(waterfall: boolean) {
+        this._waterfall = waterfall;
         this.reportMutation();
     }
 
