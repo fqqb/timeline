@@ -32,6 +32,7 @@ export { StateBand } from './drawables/state-band/StateBand';
 export { StateClickEvent } from './drawables/state-band/StateClickEvent';
 export { StateMouseEvent } from './drawables/state-band/StateMouseEvent';
 export { TextAlignment } from './drawables/TextAlignment';
+export { TextBaseline } from './drawables/TextBaseline';
 export { TextOverflow } from './drawables/TextOverflow';
 export { ScaleKind } from './drawables/time-ruler/ScaleKind';
 export { TimeRuler } from './drawables/time-ruler/TimeRuler';

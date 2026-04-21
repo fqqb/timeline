@@ -3,6 +3,7 @@ import { FillStyle } from '../../graphics/FillStyle';
 import { Graphics } from '../../graphics/Graphics';
 import { Path } from '../../graphics/Path';
 import { Band } from '../Band';
+import { TextBaseline } from '../TextBaseline';
 import { TextOverflow } from '../TextOverflow';
 import { AnnotatedItem } from './AnnotatedItem';
 import { ClusterLayoutStrategy } from './ClusterLayoutStrategy';
@@ -37,9 +38,11 @@ export class ItemBand extends Band {
     private _itemHoverBackground: FillStyle = 'rgba(255, 255, 255, 0.2)';
     private _itemHoverBorderWidth: number = 0;
     private _itemPaddingLeft = 5;
+    private _itemTextBaseline: TextBaseline = 'middle';
     private _itemTextColor = '#333333';
     private _itemTextOverflow: TextOverflow = 'show';
     private _itemTextSize = 10;
+    private _itemTextBackground?: FillStyle;
     private _items: Item[] = [];
     private _connectionLineColor = '#000000';
     private _connectionStartRadius = 6;
@@ -194,7 +197,7 @@ export class ItemBand extends Band {
         }
     }
 
-    calculateContentHeight(g: Graphics) {
+    override calculateContentHeight(g: Graphics) {
         this.measureItems(g);
         const visibleItems = this.annotatedItems.filter(item => !!item.drawInfo);
 
@@ -514,18 +517,36 @@ export class ItemBand extends Band {
 
         if (label) {
             let textX = box.x + paddingLeft;
-            const textY = box.y + (box.height / 2);
             if (offscreenStart) {
                 textX = this.timeline.positionTime(this.timeline.start);
             }
+
+            let textY = box.y + (box.height / 2);
+            let textBaseline: 'top' | 'middle' | 'bottom' = 'middle';
+            const itemTextBaseline = item.textBaseline ?? this.itemTextBaseline;
+            if (itemTextBaseline === 'top') {
+                textY = box.y;
+                textBaseline = 'top';
+            } else if (itemTextBaseline === 'bottom') {
+                textY = box.y + box.height;
+                textBaseline = 'bottom';
+            }
+
             if (labelFitsBox || labelFitsVisibleBox || this.itemTextOverflow === 'show') {
-                if (!labelFitsVisibleBox) {
+                const textBackground = item.textBackground ?? this.itemTextBackground;
+                if (textBackground) {
                     const fm = g.measureText(label, font);
+                    let y = textY - (fm.height / 2); // Middle of item
+                    if (textBaseline === 'top') {
+                        y = textY; // Top of item
+                    } else if (textBaseline === 'bottom') {
+                        y = textY - fm.height; // Bottom of item
+                    }
                     g.fillRect({
-                        x: stopX,
-                        y: textY - (fm.height / 2),
-                        fill: 'rgba(255, 255, 255, 0.75)',
-                        width: fm.width - (stopX - textX),
+                        x: textX,
+                        y,
+                        fill: textBackground,
+                        width: fm.width,
                         height: fm.height,
                     });
                 }
@@ -534,7 +555,7 @@ export class ItemBand extends Band {
                     y: textY,
                     text: label,
                     font,
-                    baseline: 'middle',
+                    baseline: textBaseline,
                     align: 'left',
                     color: item.textColor ?? this.itemTextColor,
                 });
@@ -698,6 +719,15 @@ export class ItemBand extends Band {
     }
 
     /**
+     * Default text baseline of items belonging to this band.
+     */
+    get itemTextBaseline() { return this._itemTextBaseline; }
+    set itemTextBaseline(itemTextBaseline: TextBaseline) {
+        this._itemTextBaseline = itemTextBaseline;
+        this.reportMutation();
+    }
+
+    /**
      * Default text color of items belonging to this band.
      */
     get itemTextColor() { return this._itemTextColor; }
@@ -712,6 +742,15 @@ export class ItemBand extends Band {
     get itemTextSize() { return this._itemTextSize; }
     set itemTextSize(itemTextSize: number) {
         this._itemTextSize = itemTextSize;
+        this.reportMutation();
+    }
+
+    /**
+     * Default text background of items belonging to this band.
+     */
+    get itemTextBackground() { return this._itemTextBackground; }
+    set itemTextBackground(itemTextBackground: FillStyle | undefined) {
+        this._itemTextBackground = itemTextBackground;
         this.reportMutation();
     }
 

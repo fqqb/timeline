@@ -50,6 +50,14 @@ export class AnnotatedItem {
         return this.userItem.borderDash;
     }
 
+    get textBaseline() {
+        return this.userItem.textBaseline;
+    }
+
+    get textBackground() {
+        return this.userItem.textBackground;
+    }
+
     get textColor() {
         return this.userItem.textColor;
     }

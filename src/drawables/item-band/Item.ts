@@ -1,4 +1,5 @@
 import { FillStyle } from '../../graphics/FillStyle';
+import { TextBaseline } from '../TextBaseline';
 import { ItemBackgroundRenderer } from './ItemBackgroundRenderer';
 
 /**
@@ -41,6 +42,16 @@ export interface Item {
      * Background style of this item when it is hovered.
      */
     hoverBackground?: FillStyle;
+
+    /**
+     * Baseline of the label, relative to the item height
+     */
+    textBaseline?: TextBaseline;
+
+    /**
+     * Background of the label
+     */
+    textBackground?: FillStyle;
 
     /**
      * Text color of this item
