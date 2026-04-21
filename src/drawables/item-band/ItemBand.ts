@@ -586,17 +586,17 @@ export class ItemBand extends Band {
                 continue;
             }
 
+            let startX = this.timeline.positionTime(start);
+            let stopX = this.timeline.positionTime(stop);
+
             let label = item.label || '';
             const textSize = item.textSize ?? this.itemTextSize;
             const fontFamily = item.fontFamily ?? this.itemFontFamily;
             const font = `${textSize}px ${fontFamily}`;
             const paddingLeft = item.paddingLeft ?? this.itemPaddingLeft;
-            const offscreenStart = start < this.timeline.start && stop > this.timeline.start;
+            const offscreenStart = startX + paddingLeft < 0 && stop > this.timeline.start;
             let labelFitsBox;
             let labelFitsVisibleBox;
-
-            let startX = this.timeline.positionTime(start);
-            let stopX = this.timeline.positionTime(stop);
 
             let renderStartX;
             let renderStopX;
