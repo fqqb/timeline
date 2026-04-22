@@ -31,12 +31,22 @@ export interface Connection {
     endRadius?: number;
 
     /**
-     * Color of this connection's start
+     * Inner color of this connection's start
      */
-    startColor?: string;
+    startInnerColor?: string;
 
     /**
-     * Color of this connection's end
+     * Inner color of this connection's end
      */
-    endColor?: string;
+    endInnerColor?: string;
+
+    /**
+     * Outer color of this connection's start
+     */
+    startOuterColor?: string;
+
+    /**
+     * Outer color of this connection's end
+     */
+    endOuterColor?: string;
 }

@@ -47,8 +47,10 @@ export class ItemBand extends Band {
     private _connectionLineColor = '#000000';
     private _connectionStartRadius = 6;
     private _connectionEndRadius = 6;
-    private _connectionStartColor = '#000000';
-    private _connectionEndColor = '#000000';
+    private _connectionStartInnerColor = '#000000';
+    private _connectionEndInnerColor = '#000000';
+    private _connectionStartOuterColor?: string;
+    private _connectionEndOuterColor?: string;
     private _connectionLineWidth = 1;
     private _connections: Connection[] = [];
     private _lineSpacing = 0;
@@ -256,8 +258,10 @@ export class ItemBand extends Band {
                 const lineWidth = connection.lineWidth ?? this.connectionLineWidth;
                 const startRadius = connection.startRadius ?? this.connectionStartRadius;
                 const endRadius = connection.endRadius ?? this.connectionEndRadius;
-                const startColor = connection.startColor ?? this.connectionStartColor;
-                const endColor = connection.endColor ?? this.connectionEndColor;
+                const startInnerColor = connection.startInnerColor ?? this.connectionStartInnerColor;
+                const endInnerColor = connection.endInnerColor ?? this.connectionEndInnerColor;
+                const startOuterColor = connection.startOuterColor ?? this.connectionStartOuterColor;
+                const endOuterColor = connection.endOuterColor ?? this.connectionEndOuterColor;
 
                 // "from" point
                 const x1 = from!.drawInfo!.stopX;
@@ -299,9 +303,9 @@ export class ItemBand extends Band {
                         cy: y1,
                         rx: startRadius,
                         ry: startRadius,
-                        fill: from.background ?? this.itemBackground,
+                        fill: startOuterColor ?? from.background ?? this.itemBackground,
                     });
-                    if (from.hovered) {
+                    if (from.hovered && !startOuterColor) {
                         g.fillEllipse({
                             cx: x1,
                             cy: y1,
@@ -322,7 +326,7 @@ export class ItemBand extends Band {
                                 cy: y1,
                                 rx: startRadius / 2,
                                 ry: startRadius / 2,
-                                fill: startColor,
+                                fill: startInnerColor,
                             });
                         }
                     }
@@ -360,9 +364,9 @@ export class ItemBand extends Band {
                         cy: y2,
                         rx: endRadius,
                         ry: endRadius,
-                        fill: to.background ?? this.itemBackground,
+                        fill: endOuterColor ?? to.background ?? this.itemBackground,
                     });
-                    if (to.hovered) {
+                    if (to.hovered && !endOuterColor) {
                         g.fillEllipse({
                             cx: x2,
                             cy: y2,
@@ -377,7 +381,7 @@ export class ItemBand extends Band {
                         cy: y2,
                         rx: endRadius / 2,
                         ry: endRadius / 2,
-                        fill: endColor,
+                        fill: endInnerColor,
                     });
 
                     const toBorderWidth = to.borderWidth ?? this.itemBorderWidth;
@@ -841,20 +845,42 @@ export class ItemBand extends Band {
     }
 
     /**
-     * Color of connection's start
+     * Inner color of connection's start
      */
-    get connectionStartColor() { return this._connectionStartColor; }
-    set connectionStartColor(connectionStartColor: string) {
-        this._connectionStartColor = connectionStartColor;
+    get connectionStartInnerColor() { return this._connectionStartInnerColor; }
+    set connectionStartInnerColor(connectionStartInnerColor: string) {
+        this._connectionStartInnerColor = connectionStartInnerColor;
         this.reportMutation();
     }
 
     /**
-     * Color of connection's end
+     * Inner color of connection's end
      */
-    get connectionEndColor() { return this._connectionEndColor; }
-    set connectionEndColor(connectionEndColor: string) {
-        this._connectionEndColor = connectionEndColor;
+    get connectionEndInnerColor() { return this._connectionEndInnerColor; }
+    set connectionEndInnerColor(connectionEndInnerColor: string) {
+        this._connectionEndInnerColor = connectionEndInnerColor;
+        this.reportMutation();
+    }
+
+    /**
+     * Outer color of connection's start.
+     *
+     * If undefined, follows the item's background color.
+     */
+    get connectionStartOuterColor() { return this._connectionStartOuterColor; }
+    set connectionStartOuterColor(connectionStartOuterColor: string | undefined) {
+        this._connectionStartOuterColor = connectionStartOuterColor;
+        this.reportMutation();
+    }
+
+    /**
+     * Outer color of connection's end.
+     *
+     * If undefined, follows the item's background color.
+     */
+    get connectionEndOuterColor() { return this._connectionEndOuterColor; }
+    set connectionEndOuterColor(connectionEndOuterColor: string | undefined) {
+        this._connectionEndOuterColor = connectionEndOuterColor;
         this.reportMutation();
     }
 
