@@ -19,10 +19,14 @@ export class HitRegionBuilder {
     addPath(path: Path) {
         this.ctx.beginPath();
         for (const segment of path.segments) {
-            if (segment.line) {
+            if (segment.type === 'line') {
                 this.ctx.lineTo(segment.x, segment.y);
-            } else {
+            } else if (segment.type === 'move') {
                 this.ctx.moveTo(segment.x, segment.y);
+            } else if (segment.type === 'quadraticCurve') {
+                this.ctx.quadraticCurveTo(segment.cpx, segment.cpy, segment.x, segment.y);
+            } else if (segment.type === 'arc') {
+                this.ctx.arcTo(segment.x1, segment.y1, segment.x2, segment.y2, segment.radius);
             }
         }
         this.ctx.fill();

@@ -208,10 +208,14 @@ export class Graphics {
         }
         this.ctx.beginPath();
         for (const segment of stroke.path.segments) {
-            if (segment.line) {
+            if (segment.type === 'line') {
                 this.ctx.lineTo(segment.x, segment.y);
-            } else {
+            } else if (segment.type === 'move') {
                 this.ctx.moveTo(segment.x, segment.y);
+            } else if (segment.type === 'quadraticCurve') {
+                this.ctx.quadraticCurveTo(segment.cpx, segment.cpy, segment.x, segment.y);
+            } else if (segment.type === 'arc') {
+                this.ctx.arcTo(segment.x1, segment.y1, segment.x2, segment.y2, segment.radius);
             }
         }
         this.ctx.lineWidth = stroke.lineWidth ?? 1;
@@ -228,10 +232,14 @@ export class Graphics {
     fillPath(fill: PathFill) {
         this.ctx.beginPath();
         for (const segment of fill.path.segments) {
-            if (segment.line) {
+            if (segment.type === 'line') {
                 this.ctx.lineTo(segment.x, segment.y);
-            } else {
+            } else if (segment.type === 'move') {
                 this.ctx.moveTo(segment.x, segment.y);
+            } else if (segment.type === 'quadraticCurve') {
+                this.ctx.quadraticCurveTo(segment.cpx, segment.cpy, segment.x, segment.y);
+            } else if (segment.type === 'arc') {
+                this.ctx.arcTo(segment.x1, segment.y1, segment.x2, segment.y2, segment.radius);
             }
         }
         this.ctx.fillStyle = fill.fill;

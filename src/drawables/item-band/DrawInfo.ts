@@ -2,6 +2,7 @@ export interface DrawInfo {
     label: string; // Actual text to be shown on an item (may include extra decoration: ◀)
     startX: number; // Left of bbox (item only, not label)
     stopX: number; // Right of bbox (item only, not label)
+    realStopX: number; // Right of bbox (item only, not label), prior to applying itemMinWidth
     renderStartX: number; // Left of bbox containing item and maybe outside label
     renderStopX: number; // Right of bbox containing item and maybe outside label
     offscreenStart: boolean; // True if the item starts before the visible range

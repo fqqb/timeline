@@ -1,5 +1,6 @@
 import { Bounds } from '../../graphics/Bounds';
 import { Graphics } from '../../graphics/Graphics';
+import { AnnotatedItem } from './AnnotatedItem';
 import { Item } from './Item';
 import { ItemBackgroundRenderer } from './ItemBackgroundRenderer';
 import { ItemBand } from './ItemBand';
@@ -16,7 +17,7 @@ import { ItemBand } from './ItemBand';
  * Hover effects apply on top of the non-hover fill/stroke.
  */
 export class DefaultItemBackgroundRenderer implements ItemBackgroundRenderer {
-    draw(g: Graphics, band: ItemBand, item: Item, bounds: Bounds, hovered: boolean): void {
+    draw(g: Graphics, band: ItemBand, item: AnnotatedItem, bounds: Bounds, hovered: boolean): void {
         this.drawBackground(g, band, item, bounds, hovered);
         this.drawBorder(g, band, item, bounds, hovered);
     }
