@@ -59,75 +59,38 @@ export class ClusterLayoutStrategy implements ItemLayoutStrategy {
                 cluster.stop += timePadding;
             }
 
-            // 1. Find the first line index where this cluster's entire bounding box can fit.
-            let clusterStartLine = 0;
-            let placedCluster = false;
+            // 1. Pack the cluster internally
+            const internalLines: AnnotatedItem[][] = [];
+            let maxOffset = 0;
 
-            while (!placedCluster) {
-                let collision = false;
-                const clusterEndLine = clusterStartLine + (cluster.items.length > 1 ? cluster.items.length : 1); // Worst case height for now
-
-                for (const prev of visited) {
-                    // Horizontal (time) overlap?
-                    const timeOverlap = !(prev.stop <= cluster.start || prev.start >= cluster.stop);
-
-                    if (timeOverlap) {
-                        // Vertical (line) overlap?
-                        const prevStart = prev.lineIndex;
-                        const prevEnd = prev.lineIndex + prev.height;
-
-                        // Check if our potential vertical range [clusterStartLine, clusterEndLine]
-                        // intersects with the existing cluster's range [prevStart, prevEnd]
-                        const verticalOverlap = !(prevEnd <= clusterStartLine || prevStart >= clusterEndLine);
-
-                        if (verticalOverlap) {
-                            // Collision! Move our start line to the bottom of the obstacle and retry
-                            clusterStartLine = prevEnd;
-                            collision = true;
-                            break;
-                        }
-                    }
-                }
-
-                if (!collision) {
-                    placedCluster = true;
-                }
-            }
-            cluster.lineIndex = clusterStartLine;
-
-            // 2. Pack items within the cluster starting from 'clusterStartLine'.
-            let maxInternalOffset = 0;
             for (const item of cluster.items) {
                 let placed = false;
                 let offset = 0;
 
                 while (!placed) {
-                    const currentLineIdx = clusterStartLine + offset;
-                    if (!lines[currentLineIdx]) lines[currentLineIdx] = [];
+                    if (!internalLines[offset]) internalLines[offset] = [];
 
-                    // 1. Basic check: Does the item itself overlap any item already on this line?
-                    const physicalOverlap = lines[currentLineIdx].some(other =>
+                    // A. Physical Item Overlap
+                    const physicalOverlap = internalLines[offset].some(other =>
                         item.drawInfo!.renderStart < other.drawInfo!.renderStop &&
                         other.drawInfo!.renderStart < item.drawInfo!.renderStop
                     );
 
-                    // 2. Obstruction check: Does this item sit in the middle of a connection
-                    // already established on this line? (The "A --- [B] --- C" problem)
+                    // B. Connection Obstruction ("Stabbing") Check
                     let connectionObstruction = false;
-                    for (const other of lines[currentLineIdx]) {
-                        // Find connections for the item already on the line
+                    for (const other of internalLines[offset]) {
                         const relatedConnections = cluster.connections.filter(c => c.from === other.id || c.to === other.id);
 
                         for (const conn of relatedConnections) {
                             const partnerId = (conn.from === other.id) ? conn.to : conn.from;
                             const partner = cluster.getItemById(partnerId);
 
-                            if (partner && lines[currentLineIdx].includes(partner)) {
-                                // We have a horizontal connection on this line.
-                                // Does our NEW item sit between them?
+                            // If both ends of a connection are already on this specific line...
+                            if (partner && internalLines[offset].includes(partner)) {
                                 const lineStart = Math.min(other.drawInfo!.renderStart, partner.drawInfo!.renderStart);
                                 const lineEnd = Math.max(other.drawInfo!.renderStop, partner.drawInfo!.renderStop);
 
+                                // ...see if the NEW item sits in the gap between them.
                                 if (item.drawInfo!.renderStart > lineStart && item.drawInfo!.renderStop < lineEnd) {
                                     connectionObstruction = true;
                                     break;
@@ -138,17 +101,52 @@ export class ClusterLayoutStrategy implements ItemLayoutStrategy {
                     }
 
                     if (!physicalOverlap && !connectionObstruction) {
-                        lines[currentLineIdx].push(item);
-                        maxInternalOffset = Math.max(maxInternalOffset, offset);
+                        internalLines[offset].push(item);
+                        maxOffset = Math.max(maxOffset, offset);
                         placed = true;
                     } else {
                         offset++;
                     }
                 }
             }
+            cluster.height = maxOffset + 1;
 
-            // 3. Store the total height (number of lines) used by this cluster's bounding box.
-            cluster.height = maxInternalOffset + 1;
+            // 2. Find vertical slot (gap filling)
+            let clusterStartLine = 0;
+            let foundSlot = false;
+
+            while (!foundSlot) {
+                let collision = false;
+                const potentialBottom = clusterStartLine + cluster.height;
+
+                for (const prev of visited) {
+                    // Horizontal overlap check
+                    const timeOverlap = !(prev.stop <= cluster.start || prev.start >= cluster.stop);
+                    if (timeOverlap) {
+                        // Vertical overlap check
+                        const prevBottom = prev.lineIndex + prev.height;
+                        const verticalOverlap = !(prevBottom <= clusterStartLine || prev.lineIndex >= potentialBottom);
+
+                        if (verticalOverlap) {
+                            // Collision! Jump to the bottom of the obstacle and re-check everyone
+                            clusterStartLine = prevBottom;
+                            collision = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (!collision) foundSlot = true;
+            }
+
+            // 3. Commit to global lines
+            cluster.lineIndex = clusterStartLine;
+            for (let offset = 0; offset < internalLines.length; offset++) {
+                const globalIdx = clusterStartLine + offset;
+                if (!lines[globalIdx]) lines[globalIdx] = [];
+                lines[globalIdx].push(...internalLines[offset]);
+            }
+
             visited.push(cluster);
         }
 
@@ -208,7 +206,7 @@ class Cluster {
     // The total number of lines is identical to the item count.
     lineIndex = 0;
 
-    height!: number;
+    height = 1;
 
     constructor(item: AnnotatedItem) {
         this.addItem(item);
