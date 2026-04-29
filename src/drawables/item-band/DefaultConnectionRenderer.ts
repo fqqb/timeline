@@ -41,17 +41,25 @@ export class DefaultConnectionRenderer implements ConnectionRenderer {
         }
     }
 
+    get fromHeightRatio() {
+        return 3 / 4;
+    }
+
+    get toHeightRatio() {
+        return 1 / 4;
+    }
+
     private drawStartToStart(g: Graphics, band: ItemBand, connection: Connection, from: AnnotatedItem, to: AnnotatedItem) {
         const lineColor = connection.lineColor ?? band.connectionLineColor;
         const lineWidth = connection.lineWidth ?? band.connectionLineWidth;
 
         // "from" point
         const x1 = from.drawInfo!.startX;
-        const y1 = this.offsetYById.get(connection.from)! + (band.itemHeight / 2);
+        const y1 = this.offsetYById.get(connection.from)! + (band.itemHeight * this.fromHeightRatio);
 
         // "to" point
         let x2 = to!.drawInfo!.startX;
-        let y2 = this.offsetYById.get(connection.to)! + (band.itemHeight / 2);
+        let y2 = this.offsetYById.get(connection.to)! + (band.itemHeight * this.toHeightRatio);
 
         let px1 = Math.round(x1);
         let py1 = Math.round(y1);
@@ -96,11 +104,11 @@ export class DefaultConnectionRenderer implements ConnectionRenderer {
 
         // "from" point
         const x1 = from.drawInfo!.stopX;
-        const y1 = this.offsetYById.get(connection.from)! + (band.itemHeight / 2);
+        const y1 = this.offsetYById.get(connection.from)! + (band.itemHeight * this.fromHeightRatio);
 
         // "to" point
         const x2 = to!.drawInfo!.startX;
-        const y2 = this.offsetYById.get(connection.to)! + (band.itemHeight / 2);
+        const y2 = this.offsetYById.get(connection.to)! + (band.itemHeight * this.toHeightRatio);
 
         let px1 = Math.round(x1);
         let py1 = Math.round(y1);
@@ -119,7 +127,7 @@ export class DefaultConnectionRenderer implements ConnectionRenderer {
             const verticalDir = py2 > py1 ? 1 : -1;
 
             // Scenario A: B starts AFTER A ends (Simple S-curve)
-            if (px2 >= px1 + (radius * 2)) {
+            if (px2 > px1 + (radius * 2)) {
                 const midX = px1 + (px2 - px1) / 2;
                 path.lineTo(midX - radius, py1);
                 path.arcTo(midX, py1, midX, py1 + (radius * verticalDir), radius);
@@ -162,11 +170,11 @@ export class DefaultConnectionRenderer implements ConnectionRenderer {
 
         // "from" point
         const x1 = from.drawInfo!.stopX;
-        const y1 = this.offsetYById.get(connection.from)! + (band.itemHeight / 2);
+        const y1 = this.offsetYById.get(connection.from)! + (band.itemHeight * this.fromHeightRatio);
 
         // "to" point
         const x2 = to!.drawInfo!.stopX;
-        const y2 = this.offsetYById.get(connection.to)! + (band.itemHeight / 2);
+        const y2 = this.offsetYById.get(connection.to)! + (band.itemHeight * this.toHeightRatio);
 
         let px1 = Math.round(x1);
         let py1 = Math.round(y1);
@@ -205,11 +213,11 @@ export class DefaultConnectionRenderer implements ConnectionRenderer {
 
         // "from" point
         const x1 = from.drawInfo!.startX;
-        const y1 = this.offsetYById.get(connection.from)! + (band.itemHeight / 2);
+        const y1 = this.offsetYById.get(connection.from)! + (band.itemHeight * this.fromHeightRatio);
 
         // "to" point
         const x2 = to!.drawInfo!.stopX;
-        const y2 = this.offsetYById.get(connection.to)! + (band.itemHeight / 2);
+        const y2 = this.offsetYById.get(connection.to)! + (band.itemHeight * this.toHeightRatio);
 
         let px1 = Math.round(x1);
         let py1 = Math.round(y1);
