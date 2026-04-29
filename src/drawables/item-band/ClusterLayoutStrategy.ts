@@ -213,8 +213,8 @@ class Cluster {
         if (item.id !== undefined) {
             this.ids.add(item.id);
         }
-        const itemStart = item.start;
-        const itemStop = item.stop ?? item.start;
+        const itemStart = item.drawInfo!.renderStart;
+        const itemStop = item.drawInfo!.renderStop;
         if (this.start === undefined || itemStart < this.start) {
             this.start = itemStart;
         }

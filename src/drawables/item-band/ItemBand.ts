@@ -431,7 +431,7 @@ export class ItemBand extends Band {
             let realStopX = stopX;
             if ((stopX - startX) < this.itemMinWidth) {
                 stopX = startX + this.itemMinWidth;
-                stop = this.timeline.timeForCanvasPosition(stopX);
+                stop = this.timeline.timeForPosition(stopX);
             }
 
             let label = item.label || '';
@@ -499,6 +499,8 @@ export class ItemBand extends Band {
                 realStopX,
                 renderStartX,
                 renderStopX,
+                renderStart: start,
+                renderStop: this.timeline.timeForPosition(renderStopX),
                 label,
                 labelFitsBox,
                 labelFitsVisibleBox,

@@ -583,10 +583,25 @@ export class Timeline {
 
     /**
      * Returns the x position in points for the given time
-     * (relative to viewport)
+     * (relative to viewport).
+     *
+     * This is the inverse of `timeForPosition`.
      */
     positionTime(time: number) {
         return this.distanceBetween(this.start, time);
+    }
+
+    /**
+     * Returns the time matching the provide x coordinate
+     * (relative to viewport)
+     *
+     * This is the inverse of `positionTime`.
+     */
+    timeForPosition(x: number) {
+        const totalMillis = this.stop - this.start;
+        const totalPixels = this.mainWidth;
+        const offsetMillis = (x / totalPixels) * totalMillis;
+        return this.start + offsetMillis;
     }
 
     /**
