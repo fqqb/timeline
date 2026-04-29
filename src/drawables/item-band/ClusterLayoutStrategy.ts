@@ -47,17 +47,50 @@ export class ClusterLayoutStrategy implements ItemLayoutStrategy {
         this.sortClusters(clusters);
 
         const lines: AnnotatedItem[][] = [];
+        const band = this.itemBand;
+        const timePadding = band.timeline.timeForPosition(band.itemHeight / 2) - band.timeline.timeForPosition(0);
 
         const visited: Cluster[] = [];
         for (const cluster of clusters) {
+            // Apply horizontal padding (for elbows on the left or right side)
+            // We expand the bounding box, but only if the cluster has connections
+            if (cluster.items.length > 1) {
+                cluster.start -= timePadding;
+                cluster.stop += timePadding;
+            }
+
             // 1. Find the first line index where this cluster's entire bounding box can fit.
-            // It must be below any previous cluster that overlaps it in time.
             let clusterStartLine = 0;
-            for (const prev of visited) {
-                const timeOverlap = !(prev.stop <= cluster.start || prev.start >= cluster.stop);
-                if (timeOverlap) {
-                    // The bounding box rule: start after the previous cluster's total height ends
-                    clusterStartLine = Math.max(clusterStartLine, prev.lineIndex + prev.height);
+            let placedCluster = false;
+
+            while (!placedCluster) {
+                let collision = false;
+                const clusterEndLine = clusterStartLine + (cluster.items.length > 1 ? cluster.items.length : 1); // Worst case height for now
+
+                for (const prev of visited) {
+                    // Horizontal (time) overlap?
+                    const timeOverlap = !(prev.stop <= cluster.start || prev.start >= cluster.stop);
+
+                    if (timeOverlap) {
+                        // Vertical (line) overlap?
+                        const prevStart = prev.lineIndex;
+                        const prevEnd = prev.lineIndex + prev.height;
+
+                        // Check if our potential vertical range [clusterStartLine, clusterEndLine]
+                        // intersects with the existing cluster's range [prevStart, prevEnd]
+                        const verticalOverlap = !(prevEnd <= clusterStartLine || prevStart >= clusterEndLine);
+
+                        if (verticalOverlap) {
+                            // Collision! Move our start line to the bottom of the obstacle and retry
+                            clusterStartLine = prevEnd;
+                            collision = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (!collision) {
+                    placedCluster = true;
                 }
             }
             cluster.lineIndex = clusterStartLine;
@@ -155,24 +188,6 @@ export class ClusterLayoutStrategy implements ItemLayoutStrategy {
             cluster.sortTopologically();
         }
         return;
-    }
-
-    /**
-     * Finds the starting line index for a cluster, given
-     * previously visited clusters.
-     */
-    private findLineIndex(cluster: Cluster, visited: Cluster[]) {
-        let lineIndex = 0;
-        for (const prev of visited) {
-            if (prev.stop <= cluster.start) {
-                continue; // Ignore
-            } else if (prev.start >= cluster.stop) {
-                continue; // Ignore
-            } else { // Overlapping in time
-                lineIndex = Math.max(lineIndex, prev.lineIndex + prev.items.length);
-            }
-        }
-        return lineIndex;
     }
 }
 
