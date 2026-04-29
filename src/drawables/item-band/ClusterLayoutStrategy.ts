@@ -50,23 +50,72 @@ export class ClusterLayoutStrategy implements ItemLayoutStrategy {
 
         const visited: Cluster[] = [];
         for (const cluster of clusters) {
-            if (!visited.length) {
-                for (const item of cluster.items) {
-                    lines.push([item]);
+            // 1. Find the first line index where this cluster's entire bounding box can fit.
+            // It must be below any previous cluster that overlaps it in time.
+            let clusterStartLine = 0;
+            for (const prev of visited) {
+                const timeOverlap = !(prev.stop <= cluster.start || prev.start >= cluster.stop);
+                if (timeOverlap) {
+                    // The bounding box rule: start after the previous cluster's total height ends
+                    clusterStartLine = Math.max(clusterStartLine, prev.lineIndex + prev.height);
                 }
-            } else {
-                // Find starting line index, based on previously visited
-                // overlapping clusters.
-                const lineIndex = this.findLineIndex(cluster, visited);
-                for (let i = 0; i < cluster.items.length; i++) {
-                    if (lineIndex + i < lines.length) {
-                        lines[lineIndex + i].push(cluster.items[i]);
+            }
+            cluster.lineIndex = clusterStartLine;
+
+            // 2. Pack items within the cluster starting from 'clusterStartLine'.
+            let maxInternalOffset = 0;
+            for (const item of cluster.items) {
+                let placed = false;
+                let offset = 0;
+
+                while (!placed) {
+                    const currentLineIdx = clusterStartLine + offset;
+                    if (!lines[currentLineIdx]) lines[currentLineIdx] = [];
+
+                    // 1. Basic check: Does the item itself overlap any item already on this line?
+                    const physicalOverlap = lines[currentLineIdx].some(other =>
+                        item.drawInfo!.renderStart < other.drawInfo!.renderStop &&
+                        other.drawInfo!.renderStart < item.drawInfo!.renderStop
+                    );
+
+                    // 2. Obstruction check: Does this item sit in the middle of a connection
+                    // already established on this line? (The "A --- [B] --- C" problem)
+                    let connectionObstruction = false;
+                    for (const other of lines[currentLineIdx]) {
+                        // Find connections for the item already on the line
+                        const relatedConnections = cluster.connections.filter(c => c.from === other.id || c.to === other.id);
+
+                        for (const conn of relatedConnections) {
+                            const partnerId = (conn.from === other.id) ? conn.to : conn.from;
+                            const partner = cluster.getItemById(partnerId);
+
+                            if (partner && lines[currentLineIdx].includes(partner)) {
+                                // We have a horizontal connection on this line.
+                                // Does our NEW item sit between them?
+                                const lineStart = Math.min(other.drawInfo!.renderStart, partner.drawInfo!.renderStart);
+                                const lineEnd = Math.max(other.drawInfo!.renderStop, partner.drawInfo!.renderStop);
+
+                                if (item.drawInfo!.renderStart > lineStart && item.drawInfo!.renderStop < lineEnd) {
+                                    connectionObstruction = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (connectionObstruction) break;
+                    }
+
+                    if (!physicalOverlap && !connectionObstruction) {
+                        lines[currentLineIdx].push(item);
+                        maxInternalOffset = Math.max(maxInternalOffset, offset);
+                        placed = true;
                     } else {
-                        lines[lineIndex + i] = [cluster.items[i]];
+                        offset++;
                     }
                 }
-                cluster.lineIndex = lineIndex;
             }
+
+            // 3. Store the total height (number of lines) used by this cluster's bounding box.
+            cluster.height = maxInternalOffset + 1;
             visited.push(cluster);
         }
 
@@ -144,6 +193,8 @@ class Cluster {
     // The total number of lines is identical to the item count.
     lineIndex = 0;
 
+    height!: number;
+
     constructor(item: AnnotatedItem) {
         this.addItem(item);
     }
@@ -190,7 +241,7 @@ class Cluster {
         return successors;
     }
 
-    private getItemById(id: string | number) {
+    getItemById(id: string | number) {
         for (const item of this.items) {
             if (item.id !== undefined && item.id === id) {
                 return item;
