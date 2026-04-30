@@ -70,11 +70,18 @@ export class ClusterLayoutStrategy implements ItemLayoutStrategy {
                 while (!placed) {
                     if (!internalLines[offset]) internalLines[offset] = [];
 
-                    // A. Physical Item Overlap
-                    const physicalOverlap = internalLines[offset].some(other =>
-                        item.drawInfo!.renderStart < other.drawInfo!.renderStop &&
-                        other.drawInfo!.renderStart < item.drawInfo!.renderStop
-                    );
+                    // A. Physical Item Overlap (with padding)
+                    const physicalOverlap = internalLines[offset].some(other => {
+                        // We expand BOTH items by half the padding, or just ensure
+                        // there is a 'timePadding' gap between them.
+                        const itemStart = item.drawInfo!.renderStart - timePadding;
+                        const itemStop = item.drawInfo!.renderStop + timePadding;
+
+                        const otherStart = other.drawInfo!.renderStart;
+                        const otherStop = other.drawInfo!.renderStop;
+
+                        return itemStart < otherStop && otherStart < itemStop;
+                    });
 
                     // B. Connection Obstruction ("Stabbing") Check
                     let connectionObstruction = false;
@@ -85,13 +92,17 @@ export class ClusterLayoutStrategy implements ItemLayoutStrategy {
                             const partnerId = (conn.from === other.id) ? conn.to : conn.from;
                             const partner = cluster.getItemById(partnerId);
 
-                            // If both ends of a connection are already on this specific line...
                             if (partner && internalLines[offset].includes(partner)) {
+                                // The boundaries of the existing connection on this line
                                 const lineStart = Math.min(other.drawInfo!.renderStart, partner.drawInfo!.renderStart);
                                 const lineEnd = Math.max(other.drawInfo!.renderStop, partner.drawInfo!.renderStop);
 
-                                // ...see if the NEW item sits in the gap between them.
-                                if (item.drawInfo!.renderStart > lineStart && item.drawInfo!.renderStop < lineEnd) {
+                                // Expand the item's footprint by timePadding when checking against the line
+                                const paddedItemStart = item.drawInfo!.renderStart - timePadding;
+                                const paddedItemStop = item.drawInfo!.renderStop + timePadding;
+
+                                // Does the PADDED item overlap the connection path?
+                                if (paddedItemStop > lineStart && paddedItemStart < lineEnd) {
                                     connectionObstruction = true;
                                     break;
                                 }
