@@ -264,6 +264,10 @@ export class LinePlot extends Band {
         }
 
         if (min === undefined || max === undefined) {
+            this.annotatedTicks.length = 0;
+            this.minTick = undefined;
+            this.maxTick = undefined;
+            this.annotatedHLines.length = 0;
             return;
         }
         if (max < min) { // Edge case in case only one of minimum/maximum was configured
