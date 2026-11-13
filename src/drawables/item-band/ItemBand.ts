@@ -47,12 +47,6 @@ export class ItemBand extends Band {
     private _itemMinWidth = 3;
     private _items: Item[] = [];
     private _connectionLineColor = '#000000';
-    private _connectionStartRadius = 6;
-    private _connectionEndRadius = 6;
-    private _connectionStartInnerColor = '#000000';
-    private _connectionEndInnerColor = '#000000';
-    private _connectionStartOuterColor?: string;
-    private _connectionEndOuterColor?: string;
     private _connectionLineWidth = 1;
     private _connectionJointRadius = 0;
     private _connections: Connection[] = [];
@@ -676,64 +670,6 @@ export class ItemBand extends Band {
     get connectionLineColor() { return this._connectionLineColor; }
     set connectionLineColor(connectionLineColor: string) {
         this._connectionLineColor = connectionLineColor;
-        this.reportMutation();
-    }
-
-    /**
-     * Radius of connection's start
-     */
-    get connectionStartRadius() { return this._connectionStartRadius; }
-    set connectionStartRadius(connectionStartRadius: number) {
-        this._connectionStartRadius = connectionStartRadius;
-        this.reportMutation();
-    }
-
-    /**
-     * Radius of connection's end
-     */
-    get connectionEndRadius() { return this._connectionEndRadius; }
-    set connectionEndRadius(connectionEndRadius: number) {
-        this._connectionEndRadius = connectionEndRadius;
-        this.reportMutation();
-    }
-
-    /**
-     * Inner color of connection's start
-     */
-    get connectionStartInnerColor() { return this._connectionStartInnerColor; }
-    set connectionStartInnerColor(connectionStartInnerColor: string) {
-        this._connectionStartInnerColor = connectionStartInnerColor;
-        this.reportMutation();
-    }
-
-    /**
-     * Inner color of connection's end
-     */
-    get connectionEndInnerColor() { return this._connectionEndInnerColor; }
-    set connectionEndInnerColor(connectionEndInnerColor: string) {
-        this._connectionEndInnerColor = connectionEndInnerColor;
-        this.reportMutation();
-    }
-
-    /**
-     * Outer color of connection's start.
-     *
-     * If undefined, follows the item's background color.
-     */
-    get connectionStartOuterColor() { return this._connectionStartOuterColor; }
-    set connectionStartOuterColor(connectionStartOuterColor: string | undefined) {
-        this._connectionStartOuterColor = connectionStartOuterColor;
-        this.reportMutation();
-    }
-
-    /**
-     * Outer color of connection's end.
-     *
-     * If undefined, follows the item's background color.
-     */
-    get connectionEndOuterColor() { return this._connectionEndOuterColor; }
-    set connectionEndOuterColor(connectionEndOuterColor: string | undefined) {
-        this._connectionEndOuterColor = connectionEndOuterColor;
         this.reportMutation();
     }
 
