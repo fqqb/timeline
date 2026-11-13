@@ -281,11 +281,9 @@ export class LinePlot extends Band {
             && this.customMinimum === undefined
             && this.maximum === undefined
             && this.customMaximum === undefined) {
-            if (min >= 0) {
-                min = Math.min(-max, min);
-            } else if (min < 0) {
-                max = Math.max(-min, max);
-            }
+            const extent = Math.max(Math.abs(min), Math.abs(max));
+            min = -extent;
+            max = extent;
         }
 
         // Calculate ticks for the available content height.
